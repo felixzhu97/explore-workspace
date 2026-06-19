@@ -347,9 +347,147 @@ class JpaDocumentRepositoryTest {
         }
     }
 
-    private Document createTestDocument(DocumentStatus status) {
-        return new Document(
-                DocumentId.of(TEST_DOCUMENT_ID),
+    @Nested
+    @DisplayName("Edge Cases")
+    class EdgeCases {
+
+        @Test
+        @DisplayName("should handle all domain status values when mapping to entity")
+        void shouldHandleAllDomainStatusValuesWhenMappingToEntity() {
+            for (DocumentStatus status : DocumentStatus.values()) {
+                Document document = createTestDocument(status);
+                DocumentEntity savedEntity = createTestEntityWithStatus(
+                    DocumentEntity.DocumentStatus.valueOf(status.name())
+                );
+                when(documentRepository.save(any(DocumentEntity.class))).thenReturn(savedEntity);
+
+                Document result = repository.save(document);
+
+                assertThat(result).isNotNull();
+                assertThat(result.getStatus()).isEqualTo(status);
+            }
+        }
+
+        @Test
+        @DisplayName("should handle all entity status values when mapping to domain")
+        void shouldHandleAllEntityStatusValuesWhenMappingToDomain() {
+            for (DocumentEntity.DocumentStatus status : DocumentEntity.DocumentStatus.values()) {
+                DocumentEntity entity = createTestEntityWithStatus(status);
+                when(documentRepository.findById(TEST_DOCUMENT_ID)).thenReturn(Optional.of(entity));
+
+                Optional<Document> result = repository.findById(TEST_DOCUMENT_ID);
+
+                assertThat(result).isPresent();
+                assertThat(result.get().getStatus().name()).isEqualTo(status.name());
+            }
+        }
+
+        @Test
+        @DisplayName("should handle null metadata when deserializing chunk")
+        void shouldHandleNullMetadataWhenDeserializingChunk() {
+            DocumentChunkEntity entity = new DocumentChunkEntity(
+                    TEST_CHUNK_ID,
+                    TEST_DOCUMENT_ID,
+                    "Content without metadata",
+                    0,
+                    new Float[]{0.1f, 0.2f},
+                    null,
+                    Instant.now()
+            );
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+
+            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
+
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).getMetadata()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should handle empty metadata when deserializing chunk")
+        void shouldHandleEmptyMetadataWhenDeserializingChunk() {
+            DocumentChunkEntity entity = new DocumentChunkEntity(
+                    TEST_CHUNK_ID,
+                    TEST_DOCUMENT_ID,
+                    "Content with empty metadata",
+                    0,
+                    null,
+                    "",
+                    Instant.now()
+            );
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+
+            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
+
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).getMetadata()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should handle null embedding when finding chunks")
+        void shouldHandleNullEmbeddingWhenFindingChunks() {
+            DocumentChunkEntity entity = new DocumentChunkEntity(
+                    TEST_CHUNK_ID,
+                    TEST_DOCUMENT_ID,
+                    "Content",
+                    0,
+                    null,
+                    "{}",
+                    Instant.now()
+            );
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+
+            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
+
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).getEmbedding()).isNull();
+        }
+
+        @Test
+        @DisplayName("should handle invalid metadata JSON gracefully")
+        void shouldHandleInvalidMetadataJsonGracefully() {
+            DocumentChunkEntity entity = new DocumentChunkEntity(
+                    TEST_CHUNK_ID,
+                    TEST_DOCUMENT_ID,
+                    "Content",
+                    0,
+                    null,
+                    "invalid json {",
+                    Instant.now()
+            );
+            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
+
+            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
+
+            assertThat(results).hasSize(1);
+            assertThat(results.get(0).getMetadata()).isEmpty();
+        }
+
+        @Test
+        @DisplayName("should handle empty metadata map when saving chunk")
+        void shouldHandleEmptyMetadataMapWhenSavingChunk() {
+            DocumentChunk chunk = new DocumentChunk(
+                    TEST_CHUNK_ID,
+                    TEST_DOCUMENT_ID,
+                    "Test content",
+                    0,
+                    Map.of()
+            );
+            ArgumentCaptor<DocumentChunkEntity> entityCaptor = ArgumentCaptor.forClass(DocumentChunkEntity.class);
+
+            repository.saveChunk(chunk);
+
+            verify(chunkRepository).save(entityCaptor.capture());
+            assertThat(entityCaptor.getValue().getMetadata()).isNull();
+        }
+    }
+
+    private DocumentEntity createTestEntity(DocumentEntity.DocumentStatus status) {
+        return createTestEntityWithStatus(status);
+    }
+
+    private DocumentEntity createTestEntityWithStatus(DocumentEntity.DocumentStatus status) {
+        return new DocumentEntity(
+                TEST_DOCUMENT_ID,
                 "Test Document",
                 "test.pdf",
                 1024L,
@@ -359,9 +497,9 @@ class JpaDocumentRepositoryTest {
         );
     }
 
-    private DocumentEntity createTestEntity(DocumentEntity.DocumentStatus status) {
-        return new DocumentEntity(
-                TEST_DOCUMENT_ID,
+    private Document createTestDocument(DocumentStatus status) {
+        return new Document(
+                DocumentId.of(TEST_DOCUMENT_ID),
                 "Test Document",
                 "test.pdf",
                 1024L,
