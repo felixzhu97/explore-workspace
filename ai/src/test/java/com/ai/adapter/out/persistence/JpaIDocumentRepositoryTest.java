@@ -1,15 +1,11 @@
 package com.ai.adapter.out.persistence;
 
 import com.ai.modules.rag.domain.model.Document;
-import com.ai.modules.rag.domain.model.DocumentChunk;
 import com.ai.modules.rag.domain.model.DocumentStatus;
-import com.ai.modules.rag.domain.repository.ISpringDataChunkRepository;
-import com.ai.modules.rag.domain.repository.ISpringDataDocumentRepository;
+import com.ai.modules.rag.infrastructure.storage.SpringDataDocumentRepository;
 import com.ai.modules.rag.domain.vo.DocumentId;
-import com.ai.modules.rag.infrastructure.storage.DocumentChunkEntity;
 import com.ai.modules.rag.infrastructure.storage.DocumentEntity;
 import com.ai.modules.rag.infrastructure.storage.JpaIDocumentRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,7 +19,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -40,20 +35,15 @@ import static org.mockito.Mockito.*;
 class JpaIDocumentRepositoryTest {
 
     @Mock
-    private ISpringDataDocumentRepository documentRepository;
-
-    @Mock
-    private ISpringDataChunkRepository chunkRepository;
+    private SpringDataDocumentRepository documentRepository;
 
     private JpaIDocumentRepository repository;
 
     private static final UUID TEST_DOCUMENT_ID = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private static final UUID TEST_CHUNK_ID = UUID.fromString("223e4567-e89b-12d3-a456-426614174001");
 
     @BeforeEach
     void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        repository = new JpaIDocumentRepository(documentRepository, chunkRepository, objectMapper);
+        repository = new JpaIDocumentRepository(documentRepository);
     }
 
     @Nested
@@ -65,7 +55,7 @@ class JpaIDocumentRepositoryTest {
         void shouldSaveDocumentAndReturnDomainObject() {
             // Arrange
             Document document = createTestDocument(DocumentStatus.UPLOADING);
-            DocumentEntity savedEntity = createTestEntity(DocumentEntity.DocumentStatus.UPLOADING);
+            DocumentEntity savedEntity = createTestEntity(DocumentStatus.UPLOADING);
             when(documentRepository.save(any(DocumentEntity.class))).thenReturn(savedEntity);
 
             // Act
@@ -81,7 +71,7 @@ class JpaIDocumentRepositoryTest {
         void shouldMapStatusToEntityCorrectly() {
             // Arrange
             Document document = createTestDocument(DocumentStatus.PROCESSING);
-            DocumentEntity savedEntity = createTestEntity(DocumentEntity.DocumentStatus.PROCESSING);
+            DocumentEntity savedEntity = createTestEntity(DocumentStatus.PROCESSING);
             when(documentRepository.save(any(DocumentEntity.class))).thenReturn(savedEntity);
             ArgumentCaptor<DocumentEntity> entityCaptor = ArgumentCaptor.forClass(DocumentEntity.class);
 
@@ -90,7 +80,7 @@ class JpaIDocumentRepositoryTest {
 
             // Assert
             verify(documentRepository).save(entityCaptor.capture());
-            assertThat(entityCaptor.getValue().getStatus()).isEqualTo(DocumentEntity.DocumentStatus.PROCESSING);
+            assertThat(entityCaptor.getValue().getStatus()).isEqualTo(DocumentStatus.PROCESSING);
         }
 
         @Test
@@ -98,7 +88,7 @@ class JpaIDocumentRepositoryTest {
         void shouldMapAllDocumentFieldsToEntity() {
             // Arrange
             Document document = createTestDocument(DocumentStatus.READY);
-            DocumentEntity savedEntity = createTestEntity(DocumentEntity.DocumentStatus.READY);
+            DocumentEntity savedEntity = createTestEntity(DocumentStatus.READY);
             when(documentRepository.save(any(DocumentEntity.class))).thenReturn(savedEntity);
             ArgumentCaptor<DocumentEntity> entityCaptor = ArgumentCaptor.forClass(DocumentEntity.class);
 
@@ -123,7 +113,7 @@ class JpaIDocumentRepositoryTest {
         @DisplayName("should return document when found")
         void shouldReturnDocumentWhenFound() {
             // Arrange
-            DocumentEntity entity = createTestEntity(DocumentEntity.DocumentStatus.READY);
+            DocumentEntity entity = createTestEntity(DocumentStatus.READY);
             when(documentRepository.findById(TEST_DOCUMENT_ID)).thenReturn(Optional.of(entity));
 
             // Act
@@ -151,7 +141,7 @@ class JpaIDocumentRepositoryTest {
         @DisplayName("should map entity status to domain status")
         void shouldMapEntityStatusToDomainStatus() {
             // Arrange
-            DocumentEntity entity = createTestEntity(DocumentEntity.DocumentStatus.FAILED);
+            DocumentEntity entity = createTestEntity(DocumentStatus.FAILED);
             when(documentRepository.findById(TEST_DOCUMENT_ID)).thenReturn(Optional.of(entity));
 
             // Act
@@ -172,8 +162,8 @@ class JpaIDocumentRepositoryTest {
         void shouldReturnAllDocuments() {
             // Arrange
             List<DocumentEntity> entities = List.of(
-                    createTestEntity(DocumentEntity.DocumentStatus.READY),
-                    createTestEntity(DocumentEntity.DocumentStatus.PROCESSING)
+                    createTestEntity(DocumentStatus.READY),
+                    createTestEntity(DocumentStatus.PROCESSING)
             );
             when(documentRepository.findAll()).thenReturn(entities);
 
@@ -203,150 +193,13 @@ class JpaIDocumentRepositoryTest {
     class DeleteDocument {
 
         @Test
-        @DisplayName("should delete chunks and then document")
-        void shouldDeleteChunksAndThenDocument() {
+        @DisplayName("should delete document")
+        void shouldDeleteDocument() {
             // Act
             repository.delete(TEST_DOCUMENT_ID);
 
             // Assert
-            var inOrder = inOrder(chunkRepository, documentRepository);
-            inOrder.verify(chunkRepository).deleteByDocumentId(TEST_DOCUMENT_ID);
-            inOrder.verify(documentRepository).deleteById(TEST_DOCUMENT_ID);
-        }
-    }
-
-    @Nested
-    @DisplayName("saveChunk(DocumentChunk)")
-    class SaveChunk {
-
-        @Test
-        @DisplayName("should save chunk entity")
-        void shouldSaveChunkEntity() {
-            // Arrange
-            DocumentChunk chunk = createTestChunk();
-            ArgumentCaptor<DocumentChunkEntity> entityCaptor = ArgumentCaptor.forClass(DocumentChunkEntity.class);
-
-            // Act
-            repository.saveChunk(chunk);
-
-            // Assert
-            verify(chunkRepository).save(entityCaptor.capture());
-            DocumentChunkEntity saved = entityCaptor.getValue();
-            assertThat(saved.getId()).isEqualTo(TEST_CHUNK_ID);
-            assertThat(saved.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
-            assertThat(saved.getContent()).isEqualTo("Test chunk content");
-        }
-
-        @Test
-        @DisplayName("should convert float embedding to Float array")
-        void shouldConvertFloatEmbeddingToFloatArray() {
-            // Arrange
-            float[] embedding = {0.1f, 0.2f, 0.3f, 0.4f};
-            DocumentChunk chunk = createTestChunk().withEmbedding(embedding);
-            ArgumentCaptor<DocumentChunkEntity> entityCaptor = ArgumentCaptor.forClass(DocumentChunkEntity.class);
-
-            // Act
-            repository.saveChunk(chunk);
-
-            // Assert
-            verify(chunkRepository).save(entityCaptor.capture());
-            DocumentChunkEntity saved = entityCaptor.getValue();
-            assertThat(saved.getEmbedding()).isEqualTo(new Float[]{0.1f, 0.2f, 0.3f, 0.4f});
-        }
-
-        @Test
-        @DisplayName("should serialize metadata to JSON")
-        void shouldSerializeMetadataToJson() {
-            // Arrange
-            Map<String, Object> metadata = new HashMap<>();
-            metadata.put("source", "test");
-            metadata.put("page", 1);
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    metadata
-            );
-            ArgumentCaptor<DocumentChunkEntity> entityCaptor = ArgumentCaptor.forClass(DocumentChunkEntity.class);
-
-            // Act
-            repository.saveChunk(chunk);
-
-            // Assert
-            verify(chunkRepository).save(entityCaptor.capture());
-            DocumentChunkEntity saved = entityCaptor.getValue();
-            assertThat(saved.getMetadata()).contains("\"source\":\"test\"");
-            assertThat(saved.getMetadata()).contains("\"page\":1");
-        }
-
-        @Test
-        @DisplayName("should handle null embedding")
-        void shouldHandleNullEmbedding() {
-            // Arrange
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    Map.of()
-            ); // No embedding
-            ArgumentCaptor<DocumentChunkEntity> entityCaptor = ArgumentCaptor.forClass(DocumentChunkEntity.class);
-
-            // Act
-            repository.saveChunk(chunk);
-
-            // Assert
-            verify(chunkRepository).save(entityCaptor.capture());
-            assertThat(entityCaptor.getValue().getEmbedding()).isNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("findChunksByDocumentId(UUID)")
-    class FindChunksByDocumentId {
-
-        @Test
-        @DisplayName("should return chunks for document")
-        void shouldReturnChunksForDocument() {
-            // Arrange
-            DocumentChunkEntity entity = createTestChunkEntity();
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
-
-            // Act
-            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            // Assert
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getContent()).isEqualTo("Test chunk content");
-        }
-
-        @Test
-        @DisplayName("should return empty list when no chunks")
-        void shouldReturnEmptyListWhenNoChunks() {
-            // Arrange
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of());
-
-            // Act
-            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            // Assert
-            assertThat(results).isEmpty();
-        }
-    }
-
-    @Nested
-    @DisplayName("deleteChunksByDocumentId(UUID)")
-    class DeleteChunksByDocumentId {
-
-        @Test
-        @DisplayName("should delete chunks by document ID")
-        void shouldDeleteChunksByDocumentId() {
-            // Act
-            repository.deleteChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            // Assert
-            verify(chunkRepository).deleteByDocumentId(TEST_DOCUMENT_ID);
+            verify(documentRepository).deleteById(TEST_DOCUMENT_ID);
         }
     }
 
@@ -359,9 +212,7 @@ class JpaIDocumentRepositoryTest {
         void shouldHandleAllDomainStatusValuesWhenMappingToEntity() {
             for (DocumentStatus status : DocumentStatus.values()) {
                 Document document = createTestDocument(status);
-                DocumentEntity savedEntity = createTestEntityWithStatus(
-                    DocumentEntity.DocumentStatus.valueOf(status.name())
-                );
+                DocumentEntity savedEntity = createTestEntityWithStatus(status);
                 when(documentRepository.save(any(DocumentEntity.class))).thenReturn(savedEntity);
 
                 Document result = repository.save(document);
@@ -374,7 +225,7 @@ class JpaIDocumentRepositoryTest {
         @Test
         @DisplayName("should handle all entity status values when mapping to domain")
         void shouldHandleAllEntityStatusValuesWhenMappingToDomain() {
-            for (DocumentEntity.DocumentStatus status : DocumentEntity.DocumentStatus.values()) {
+            for (DocumentStatus status : DocumentStatus.values()) {
                 DocumentEntity entity = createTestEntityWithStatus(status);
                 when(documentRepository.findById(TEST_DOCUMENT_ID)).thenReturn(Optional.of(entity));
 
@@ -384,111 +235,13 @@ class JpaIDocumentRepositoryTest {
                 assertThat(result.get().getStatus().name()).isEqualTo(status.name());
             }
         }
-
-        @Test
-        @DisplayName("should handle null metadata when deserializing chunk")
-        void shouldHandleNullMetadataWhenDeserializingChunk() {
-            DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Content without metadata",
-                    0,
-                    new Float[]{0.1f, 0.2f},
-                    null,
-                    Instant.now()
-            );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
-
-            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getMetadata()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("should handle empty metadata when deserializing chunk")
-        void shouldHandleEmptyMetadataWhenDeserializingChunk() {
-            DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Content with empty metadata",
-                    0,
-                    null,
-                    "",
-                    Instant.now()
-            );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
-
-            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getMetadata()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("should handle null embedding when finding chunks")
-        void shouldHandleNullEmbeddingWhenFindingChunks() {
-            DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Content",
-                    0,
-                    null,
-                    "{}",
-                    Instant.now()
-            );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
-
-            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getEmbedding()).isNull();
-        }
-
-        @Test
-        @DisplayName("should handle invalid metadata JSON gracefully")
-        void shouldHandleInvalidMetadataJsonGracefully() {
-            DocumentChunkEntity entity = new DocumentChunkEntity(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Content",
-                    0,
-                    null,
-                    "invalid json {",
-                    Instant.now()
-            );
-            when(chunkRepository.findByDocumentId(TEST_DOCUMENT_ID)).thenReturn(List.of(entity));
-
-            List<DocumentChunk> results = repository.findChunksByDocumentId(TEST_DOCUMENT_ID);
-
-            assertThat(results).hasSize(1);
-            assertThat(results.get(0).getMetadata()).isEmpty();
-        }
-
-        @Test
-        @DisplayName("should handle empty metadata map when saving chunk")
-        void shouldHandleEmptyMetadataMapWhenSavingChunk() {
-            DocumentChunk chunk = new DocumentChunk(
-                    TEST_CHUNK_ID,
-                    TEST_DOCUMENT_ID,
-                    "Test content",
-                    0,
-                    Map.of()
-            );
-            ArgumentCaptor<DocumentChunkEntity> entityCaptor = ArgumentCaptor.forClass(DocumentChunkEntity.class);
-
-            repository.saveChunk(chunk);
-
-            verify(chunkRepository).save(entityCaptor.capture());
-            assertThat(entityCaptor.getValue().getMetadata()).isNull();
-        }
     }
 
-    private DocumentEntity createTestEntity(DocumentEntity.DocumentStatus status) {
+    private DocumentEntity createTestEntity(DocumentStatus status) {
         return createTestEntityWithStatus(status);
     }
 
-    private DocumentEntity createTestEntityWithStatus(DocumentEntity.DocumentStatus status) {
+    private DocumentEntity createTestEntityWithStatus(DocumentStatus status) {
         return new DocumentEntity(
                 TEST_DOCUMENT_ID,
                 "Test Document",
@@ -508,31 +261,6 @@ class JpaIDocumentRepositoryTest {
                 1024L,
                 status,
                 Instant.now(),
-                Instant.now()
-        );
-    }
-
-    private DocumentChunk createTestChunk() {
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put("source", "test");
-        
-        return new DocumentChunk(
-                TEST_CHUNK_ID,
-                TEST_DOCUMENT_ID,
-                "Test chunk content",
-                0,
-                metadata
-        ).withEmbedding(new float[]{0.1f, 0.2f, 0.3f});
-    }
-
-    private DocumentChunkEntity createTestChunkEntity() {
-        return new DocumentChunkEntity(
-                TEST_CHUNK_ID,
-                TEST_DOCUMENT_ID,
-                "Test chunk content",
-                0,
-                new Float[]{0.1f, 0.2f, 0.3f},
-                "{\"source\":\"test\"}",
                 Instant.now()
         );
     }
