@@ -9,10 +9,8 @@ public class OAuthGoogleProperties {
     private boolean enabled = false;
 
     private String clientId = "";
-    private String clientSecret = "";
 
-    /** Where to send the browser after OAuth (SPA origin; query {@code login=} is appended). */
-    private String successRedirectUrl = "http://127.0.0.1:4200/";
+    private String clientSecret = "";
 
     /**
      * Absolute OAuth callback URL registered in Google Cloud Console.
@@ -44,19 +42,19 @@ public class OAuthGoogleProperties {
         this.clientSecret = clientSecret;
     }
 
-    public String getSuccessRedirectUrl() {
-        return successRedirectUrl;
-    }
-
-    public void setSuccessRedirectUrl(String successRedirectUrl) {
-        this.successRedirectUrl = successRedirectUrl;
-    }
-
     public String getRedirectUri() {
         return redirectUri;
     }
 
     public void setRedirectUri(String redirectUri) {
         this.redirectUri = redirectUri;
+    }
+
+    public boolean isReady() {
+        return enabled
+                && clientId != null
+                && !clientId.isBlank()
+                && clientSecret != null
+                && !clientSecret.isBlank();
     }
 }
