@@ -16,7 +16,7 @@ import { mergeClasses } from '../../utils/merge-classes';
   encapsulation: ViewEncapsulation.None,
   exportAs: 'zFooter',
 })
-export class FooterComponent {
+export class ZardFooterComponent {
   readonly class = input<ClassValue>('');
   readonly zHeight = input<number>(64);
 
