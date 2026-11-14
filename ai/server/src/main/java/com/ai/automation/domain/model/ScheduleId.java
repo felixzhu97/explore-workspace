@@ -1,6 +1,6 @@
 package com.ai.automation.domain.model;
 
-import com.ai.common.domain.model.AbstractEmbeddable;
+import com.explore.kernel.AbstractEmbeddable;
 import jakarta.persistence.Embeddable;
 import java.util.UUID;
 import lombok.AccessLevel;

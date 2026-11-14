@@ -116,8 +116,6 @@ Cycle detected: Slice account -> \
                 Slice chat -> \
                 Slice account\
   1. Dependencies of Slice account\
-    - Class <com.ai.account.domain.model.Account> extends class <com.ai.common.domain.model.AbstractEntity> in (Account.java:0)\
-    - Class <com.ai.account.domain.model.AccountId> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (AccountId.java:0)\
     - Constructor <com.ai.account.domain.event.GuestLinkedToAccountEvent.<init>(com.ai.common.domain.model.OwnerKey, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (GuestLinkedToAccountEvent.java:0)\
     - Constructor <com.ai.account.domain.event.OwnerErasureRequestedEvent.<init>(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (OwnerErasureRequestedEvent.java:0)\
     - Field <com.ai.account.domain.event.GuestLinkedToAccountEvent.fromOwnerKey> has type <com.ai.common.domain.model.OwnerKey> in (GuestLinkedToAccountEvent.java:0)\
@@ -132,11 +130,13 @@ Cycle detected: Slice account -> \
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveFromJwt(org.springframework.security.oauth2.jwt.Jwt)> has return type <com.ai.common.domain.model.OwnerKey> in (CurrentOwnerResolver.java:0)\
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> has return type <com.ai.common.domain.model.OwnerKey> in (CurrentOwnerResolver.java:0)\
     - Method <com.ai.account.service.OwnerErasureService.eraseAllForOwner(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (OwnerErasureService.java:0)\
-    - Constructor <com.ai.account.domain.model.AccountId.<init>()> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (AccountId.java:17)\
-    - Constructor <com.ai.account.domain.model.AccountId.<init>(java.util.UUID)> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (AccountId.java:18)\
-    - Constructor <com.ai.account.domain.model.Account.<init>()> calls constructor <com.ai.common.domain.model.AbstractEntity.<init>()> in (Account.java:21)\
     - Method <com.ai.account.controller.OwnerContext.requireOwner(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (OwnerContext.java:26)\
-    (14 further dependencies have been omitted...)\
+    - Method <com.ai.account.controller.OwnerContext.requireValue(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.domain.model.OwnerKey.getValue()> in (OwnerContext.java:32)\
+    - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> calls method <com.ai.common.domain.model.OwnerKey.createClientKey(java.lang.String)> in (CurrentOwnerResolver.java:36)\
+    - Method <com.ai.account.controller.AccountController.getCurrentAccount(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (AccountController.java:37)\
+    - Method <com.ai.account.service.IamAccountService.requirePersonToken(org.springframework.security.oauth2.jwt.Jwt)> calls method <com.ai.common.exception.DomainException.createForbiddenError(java.lang.String, java.lang.String)> in (IamAccountService.java:44)\
+    - Method <com.ai.account.infra.oauth.OAuthLoginSuccessHandler.onAuthenticationSuccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.Authentication)> catches type <com.ai.common.exception.DomainException> in (OAuthLoginSuccessHandler.java:52)\
+    (8 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
@@ -170,8 +170,6 @@ Cycle detected: Slice account -> \
                 Slice skill -> \
                 Slice account\
   1. Dependencies of Slice account\
-    - Class <com.ai.account.domain.model.Account> extends class <com.ai.common.domain.model.AbstractEntity> in (Account.java:0)\
-    - Class <com.ai.account.domain.model.AccountId> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (AccountId.java:0)\
     - Constructor <com.ai.account.domain.event.GuestLinkedToAccountEvent.<init>(com.ai.common.domain.model.OwnerKey, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (GuestLinkedToAccountEvent.java:0)\
     - Constructor <com.ai.account.domain.event.OwnerErasureRequestedEvent.<init>(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (OwnerErasureRequestedEvent.java:0)\
     - Field <com.ai.account.domain.event.GuestLinkedToAccountEvent.fromOwnerKey> has type <com.ai.common.domain.model.OwnerKey> in (GuestLinkedToAccountEvent.java:0)\
@@ -186,11 +184,13 @@ Cycle detected: Slice account -> \
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveFromJwt(org.springframework.security.oauth2.jwt.Jwt)> has return type <com.ai.common.domain.model.OwnerKey> in (CurrentOwnerResolver.java:0)\
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> has return type <com.ai.common.domain.model.OwnerKey> in (CurrentOwnerResolver.java:0)\
     - Method <com.ai.account.service.OwnerErasureService.eraseAllForOwner(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (OwnerErasureService.java:0)\
-    - Constructor <com.ai.account.domain.model.AccountId.<init>()> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (AccountId.java:17)\
-    - Constructor <com.ai.account.domain.model.AccountId.<init>(java.util.UUID)> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (AccountId.java:18)\
-    - Constructor <com.ai.account.domain.model.Account.<init>()> calls constructor <com.ai.common.domain.model.AbstractEntity.<init>()> in (Account.java:21)\
     - Method <com.ai.account.controller.OwnerContext.requireOwner(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (OwnerContext.java:26)\
-    (14 further dependencies have been omitted...)\
+    - Method <com.ai.account.controller.OwnerContext.requireValue(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.domain.model.OwnerKey.getValue()> in (OwnerContext.java:32)\
+    - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> calls method <com.ai.common.domain.model.OwnerKey.createClientKey(java.lang.String)> in (CurrentOwnerResolver.java:36)\
+    - Method <com.ai.account.controller.AccountController.getCurrentAccount(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (AccountController.java:37)\
+    - Method <com.ai.account.service.IamAccountService.requirePersonToken(org.springframework.security.oauth2.jwt.Jwt)> calls method <com.ai.common.exception.DomainException.createForbiddenError(java.lang.String, java.lang.String)> in (IamAccountService.java:44)\
+    - Method <com.ai.account.infra.oauth.OAuthLoginSuccessHandler.onAuthenticationSuccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.Authentication)> catches type <com.ai.common.exception.DomainException> in (OAuthLoginSuccessHandler.java:52)\
+    (8 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
@@ -220,8 +220,6 @@ Cycle detected: Slice account -> \
                 Slice tools -> \
                 Slice account\
   1. Dependencies of Slice account\
-    - Class <com.ai.account.domain.model.Account> extends class <com.ai.common.domain.model.AbstractEntity> in (Account.java:0)\
-    - Class <com.ai.account.domain.model.AccountId> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (AccountId.java:0)\
     - Constructor <com.ai.account.domain.event.GuestLinkedToAccountEvent.<init>(com.ai.common.domain.model.OwnerKey, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (GuestLinkedToAccountEvent.java:0)\
     - Constructor <com.ai.account.domain.event.OwnerErasureRequestedEvent.<init>(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (OwnerErasureRequestedEvent.java:0)\
     - Field <com.ai.account.domain.event.GuestLinkedToAccountEvent.fromOwnerKey> has type <com.ai.common.domain.model.OwnerKey> in (GuestLinkedToAccountEvent.java:0)\
@@ -236,11 +234,13 @@ Cycle detected: Slice account -> \
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveFromJwt(org.springframework.security.oauth2.jwt.Jwt)> has return type <com.ai.common.domain.model.OwnerKey> in (CurrentOwnerResolver.java:0)\
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> has return type <com.ai.common.domain.model.OwnerKey> in (CurrentOwnerResolver.java:0)\
     - Method <com.ai.account.service.OwnerErasureService.eraseAllForOwner(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (OwnerErasureService.java:0)\
-    - Constructor <com.ai.account.domain.model.AccountId.<init>()> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (AccountId.java:17)\
-    - Constructor <com.ai.account.domain.model.AccountId.<init>(java.util.UUID)> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (AccountId.java:18)\
-    - Constructor <com.ai.account.domain.model.Account.<init>()> calls constructor <com.ai.common.domain.model.AbstractEntity.<init>()> in (Account.java:21)\
     - Method <com.ai.account.controller.OwnerContext.requireOwner(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (OwnerContext.java:26)\
-    (14 further dependencies have been omitted...)\
+    - Method <com.ai.account.controller.OwnerContext.requireValue(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.domain.model.OwnerKey.getValue()> in (OwnerContext.java:32)\
+    - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> calls method <com.ai.common.domain.model.OwnerKey.createClientKey(java.lang.String)> in (CurrentOwnerResolver.java:36)\
+    - Method <com.ai.account.controller.AccountController.getCurrentAccount(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (AccountController.java:37)\
+    - Method <com.ai.account.service.IamAccountService.requirePersonToken(org.springframework.security.oauth2.jwt.Jwt)> calls method <com.ai.common.exception.DomainException.createForbiddenError(java.lang.String, java.lang.String)> in (IamAccountService.java:44)\
+    - Method <com.ai.account.infra.oauth.OAuthLoginSuccessHandler.onAuthenticationSuccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.Authentication)> catches type <com.ai.common.exception.DomainException> in (OAuthLoginSuccessHandler.java:52)\
+    (8 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatClientFactory.<init>(com.ai.common.infra.llm.ChatModelResolver, org.springframework.ai.chat.memory.ChatMemory, com.ai.common.infra.prompt.PromptTemplates, com.ai.tools.infra.tools.WeatherTools, com.ai.common.service.llm.DocumentSearchTool, com.ai.common.service.llm.WebSearchTool, com.ai.tools.infra.tools.DateTimeTools, org.springframework.beans.factory.ObjectProvider, boolean)> has parameter of type <com.ai.tools.infra.tools.DateTimeTools> in (ChatClientFactory.java:0)\
     - Constructor <com.ai.common.infra.llm.ChatClientFactory.<init>(com.ai.common.infra.llm.ChatModelResolver, org.springframework.ai.chat.memory.ChatMemory, com.ai.common.infra.prompt.PromptTemplates, com.ai.tools.infra.tools.WeatherTools, com.ai.common.service.llm.DocumentSearchTool, com.ai.common.service.llm.WebSearchTool, com.ai.tools.infra.tools.DateTimeTools, org.springframework.beans.factory.ObjectProvider, boolean)> has parameter of type <com.ai.tools.infra.tools.WeatherTools> in (ChatClientFactory.java:0)\
@@ -253,9 +253,6 @@ Cycle detected: Slice chat -> \
                 Slice chat\
   1. Dependencies of Slice chat\
     - Class <com.ai.chat.domain.model.ChatSession> extends class <com.ai.common.domain.model.AbstractOwnerAwareEntity> in (ChatSession.java:0)\
-    - Class <com.ai.chat.domain.model.ChatSessionId> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (ChatSessionId.java:0)\
-    - Class <com.ai.chat.domain.model.MessageId> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (MessageId.java:0)\
-    - Class <com.ai.chat.domain.model.SessionTitle> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (SessionTitle.java:0)\
     - Constructor <com.ai.chat.controller.PrivacyController.<init>(com.ai.account.controller.OwnerContext, com.ai.account.service.OwnerErasureService, com.ai.common.controller.ClientIdentityCookieFactory)> has parameter of type <com.ai.common.controller.ClientIdentityCookieFactory> in (PrivacyController.java:0)\
     - Constructor <com.ai.chat.controller.dto.HealthResponse.<init>(com.ai.common.controller.dto.HealthStatus)> has parameter of type <com.ai.common.controller.dto.HealthStatus> in (HealthResponse.java:0)\
     - Constructor <com.ai.chat.domain.model.ChatSession.<init>(com.ai.chat.domain.model.ChatSessionId, com.ai.chat.domain.model.SessionTitle, java.time.Instant, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (ChatSession.java:0)\
@@ -272,7 +269,10 @@ Cycle detected: Slice chat -> \
     - Interface <com.ai.chat.domain.repository.ChatSessionRepository> extends interface <com.ai.common.domain.repository.OwnerPartitionedRepository> in (ChatSessionRepository.java:0)\
     - Method <com.ai.chat.controller.ChatStreamController.buildChatOptions(com.ai.chat.controller.dto.ChatStreamRequest, jakarta.servlet.http.HttpServletRequest)> has return type <com.ai.common.service.llm.TextChatOptions> in (ChatStreamController.java:0)\
     - Method <com.ai.chat.controller.dto.HealthResponse.status()> has return type <com.ai.common.controller.dto.HealthStatus> in (HealthResponse.java:0)\
-    (96 further dependencies have been omitted...)\
+    - Method <com.ai.chat.domain.repository.ChatSessionRepository.findAllByOwnerKeyOrderByLastActivityAtDesc(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (ChatSessionRepository.java:0)\
+    - Method <com.ai.chat.domain.repository.ChatSessionRepository.findByIdAndOwnerKey(com.ai.chat.domain.model.ChatSessionId, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (ChatSessionRepository.java:0)\
+    - Method <com.ai.chat.infra.config.ChatConfig.promptTemplates()> has return type <com.ai.common.infra.prompt.PromptTemplates> in (ChatConfig.java:0)\
+    (88 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
@@ -288,16 +288,13 @@ Cycle detected: Slice chat -> \
     - Method <com.ai.chat.controller.ChatStreamController.buildChatOptions(com.ai.chat.controller.dto.ChatStreamRequest, jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.skill.service.SkillService.buildSkillsPrompt(java.lang.String, java.util.List)> in (ChatStreamController.java:88)\
   2. Dependencies of Slice skill\
     - Class <com.ai.skill.domain.model.Skill> extends class <com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity> in (Skill.java:0)\
-    - Class <com.ai.skill.domain.model.SkillId> extends class <com.ai.common.domain.model.AbstractEmbeddable> in (SkillId.java:0)\
     - Field <com.ai.skill.domain.model.Skill.allowedTools> has annotation member of type <com.ai.common.domain.model.StringListJsonAttributeConverter> in (Skill.java:0)\
     - Interface <com.ai.skill.domain.repository.SkillRepository> extends interface <com.ai.common.domain.repository.OwnerScopedRepository> in (SkillRepository.java:0)\
     - Method <com.ai.skill.domain.repository.SkillRepository.findAllByOwnerKeyAndEnabledTrueAndIdIn(com.ai.common.domain.model.OwnerKey, java.util.Collection)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (SkillRepository.java:0)\
     - Method <com.ai.skill.domain.repository.SkillRepository.findEnabledByOwnerKeyAndIds(com.ai.common.domain.model.OwnerKey, java.util.List)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (SkillRepository.java:0)\
-    - Constructor <com.ai.skill.domain.model.SkillId.<init>()> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (SkillId.java:17)\
-    - Constructor <com.ai.skill.domain.model.SkillId.<init>(java.util.UUID)> calls constructor <com.ai.common.domain.model.AbstractEmbeddable.<init>()> in (SkillId.java:18)\
     - Constructor <com.ai.skill.domain.model.Skill.<init>()> calls constructor <com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity.<init>()> in (Skill.java:20)\
     - Method <com.ai.skill.service.SkillService.listSkills(java.lang.String)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:29)\
-    - Constructor <com.ai.skill.domain.model.Skill.<init>(com.ai.skill.domain.model.SkillId, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List)> calls constructor <com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity.<init>(com.ai.common.domain.model.AbstractEmbeddable, java.lang.String, java.lang.String, java.lang.String)> in (Skill.java:38)\
+    - Constructor <com.ai.skill.domain.model.Skill.<init>(com.ai.skill.domain.model.SkillId, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List)> calls constructor <com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity.<init>(com.explore.kernel.AbstractEmbeddable, java.lang.String, java.lang.String, java.lang.String)> in (Skill.java:38)\
     - Constructor <com.ai.skill.domain.model.Skill.<init>(com.ai.skill.domain.model.SkillId, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.util.List)> calls method <com.ai.common.domain.model.DomainStrings.requireNonBlank(java.lang.String, java.lang.String)> in (Skill.java:39)\
     - Method <com.ai.skill.service.SkillService.buildSkillsPrompt(java.lang.String, java.util.List)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:42)\
     - Method <com.ai.skill.domain.model.Skill.update(java.lang.String, java.lang.String, java.lang.String, java.util.List)> calls method <com.ai.common.domain.model.DomainStrings.requireNonBlank(java.lang.String, java.lang.String)> in (Skill.java:58)\
@@ -307,7 +304,9 @@ Cycle detected: Slice chat -> \
     - Method <com.ai.skill.service.SkillService.assertNameAvailable(java.lang.String, java.lang.String, com.ai.skill.domain.model.SkillId)> calls method <com.ai.common.domain.model.DomainStrings.normalizeName(java.lang.String)> in (SkillService.java:117)\
     - Method <com.ai.skill.service.SkillService.assertNameAvailable(java.lang.String, java.lang.String, com.ai.skill.domain.model.SkillId)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:119)\
     - Method <com.ai.skill.service.SkillService.assertNameAvailable(java.lang.String, java.lang.String, com.ai.skill.domain.model.SkillId)> calls method <com.ai.common.exception.DomainException.createConflictError(java.lang.String, java.lang.String)> in (SkillService.java:120)\
-    (3 further dependencies have been omitted...)\
+    - Method <com.ai.skill.service.SkillService.findNextAvailableName(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:126)\
+    - Method <com.ai.skill.service.SkillService.findNextAvailableName(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.DomainStrings.copyNameCandidates(java.lang.String, int)> in (SkillService.java:127)\
+    - Method <com.ai.skill.service.SkillService.findNextAvailableName(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.DomainStrings.copyName(java.lang.String, java.lang.String, int)> in (SkillService.java:132)\
   3. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\

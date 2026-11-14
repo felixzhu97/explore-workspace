@@ -1,6 +1,6 @@
 package com.ai.rag.domain.model;
 
-import com.ai.common.domain.model.AbstractEmbeddable;
+import com.explore.kernel.AbstractEmbeddable;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

@@ -1,4 +1,4 @@
-package com.ai.common.domain.model;
+package com.explore.kernel;
 
 import jakarta.persistence.MappedSuperclass;
 import java.io.Serializable;

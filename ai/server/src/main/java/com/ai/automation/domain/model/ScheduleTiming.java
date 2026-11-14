@@ -1,7 +1,7 @@
 package com.ai.automation.domain.model;
 
-import com.ai.common.domain.model.AbstractEmbeddable;
 import com.ai.common.domain.model.DomainStrings;
+import com.explore.kernel.AbstractEmbeddable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;

@@ -1,8 +1,8 @@
 package com.ai.account.domain.model;
 
-import com.ai.common.domain.model.AbstractEntity;
 import com.ai.common.domain.model.OwnerKey;
 import com.ai.common.exception.DomainException;
+import com.explore.kernel.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;

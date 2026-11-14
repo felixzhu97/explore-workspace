@@ -1,4 +1,4 @@
-package com.ai.common.domain.model;
+package com.explore.kernel;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -22,6 +22,7 @@ public abstract class AbstractEntity<IdT extends AbstractEmbeddable>
 
   @Version protected Long version;
 
+  /** Creates a new entity with an assigned id. */
   protected AbstractEntity(IdT id) {
     super(id);
   }
