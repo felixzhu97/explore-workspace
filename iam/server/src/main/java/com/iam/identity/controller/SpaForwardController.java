@@ -3,7 +3,7 @@ package com.iam.identity.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** Serves the Angular SPA for browser routes (login + client registration). */
+/** Serves the Angular SPA for browser routes (sign-in + client registration). */
 @Controller
 public class SpaForwardController {
 
@@ -14,11 +14,11 @@ public class SpaForwardController {
    */
   @GetMapping({
     "/",
-    "/login",
-    "/login/verify",
-    "/login/ott",
-    "/login/totp",
-    "/ott/sent",
+    "/sign-in",
+    "/sign-in/verify",
+    "/sign-in/ott",
+    "/sign-in/ott/sent",
+    "/sign-in/totp",
     "/oauth-clients",
     "/oauth-clients/**",
     "/clients",

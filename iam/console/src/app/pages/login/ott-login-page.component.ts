@@ -87,10 +87,10 @@ const REMEMBER_USERNAME_KEY = 'explore-iam.remember-username';
       </form>
 
       <div class="mt-8 flex flex-col gap-2 text-sm text-muted-foreground">
-        <a [routerLink]="['/login/verify']" [queryParams]="continueQueryParams()" class="text-primary underline-offset-4 hover:underline">
+        <a [routerLink]="['/sign-in/verify']" [queryParams]="continueQueryParams()" class="text-primary underline-offset-4 hover:underline">
           换一种验证方式
         </a>
-        <a routerLink="/login" class="underline-offset-4 hover:underline">返回密码登录</a>
+        <a routerLink="/sign-in" class="underline-offset-4 hover:underline">返回密码登录</a>
       </div>
     </app-auth-shell>
   `,

@@ -32,7 +32,7 @@ class MfaSessionSmokeTest {
 
     HttpResponse<String> loginPage =
         client.send(
-            HttpRequest.newBuilder(URI.create("http://localhost:" + this.port + "/login"))
+            HttpRequest.newBuilder(URI.create("http://localhost:" + this.port + "/sign-in"))
                 .GET()
                 .header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE)
                 .build(),
@@ -70,7 +70,7 @@ class MfaSessionSmokeTest {
     assertThat(users.statusCode()).isIn(302, 401, 403);
     if (users.statusCode() == 302) {
       String location = users.headers().firstValue(HttpHeaders.LOCATION).orElse("");
-      assertThat(location).containsAnyOf("/login/verify", "/login/ott", "/login");
+      assertThat(location).containsAnyOf("/sign-in/verify", "/sign-in/ott", "/sign-in");
     }
   }
 
@@ -85,7 +85,7 @@ class MfaSessionSmokeTest {
 
     HttpResponse<String> loginPage =
         client.send(
-            HttpRequest.newBuilder(URI.create("http://localhost:" + this.port + "/login"))
+            HttpRequest.newBuilder(URI.create("http://localhost:" + this.port + "/sign-in"))
                 .GET()
                 .header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE)
                 .build(),
@@ -109,7 +109,7 @@ class MfaSessionSmokeTest {
 
     assertThat(login.statusCode()).isEqualTo(302);
     assertThat(login.headers().firstValue(HttpHeaders.LOCATION).orElse(""))
-        .contains("/login/verify");
+        .contains("/sign-in/verify");
   }
 
   private static Optional<String> csrfFrom(HttpResponse<?> response) {

@@ -9,7 +9,7 @@ Container_Boundary(iam_app, "IAM Application (Spring Boot :9100)") {
     Container_Boundary(console, "IAM Console") {
         Component(console_shell, "App Shell", "Angular 22", "Routes: home, clients, login, verify, security/totp")
         Component(clients_ui, "OAuth Clients UI", "Angular", "/oauth-clients list + create wizard")
-        Component(login_ui, "Login / MFA UI", "Angular", "/login · /login/verify · OTT · TOTP · Passkey")
+        Component(login_ui, "Login / MFA UI", "Angular", "/sign-in · /sign-in/verify · OTT · TOTP · Passkey")
         Component(totp_enroll_ui, "TOTP Enroll UI", "Angular", "/security/totp QR + confirm")
         Component(http_client, "HTTP Client", "Angular HttpClient", "REST + CSRF (X-XSRF-TOKEN)")
     }

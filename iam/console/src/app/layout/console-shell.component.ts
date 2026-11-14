@@ -509,7 +509,7 @@ export class ConsoleShellComponent implements OnInit {
     } finally {
       this.loggingOut.set(false);
       this.userMenuOpen.set(false);
-      window.location.href = '/login';
+      window.location.href = '/sign-in';
     }
   }
 

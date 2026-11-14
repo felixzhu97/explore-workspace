@@ -1,0 +1,7 @@
+{
+  "/api/**": { "target": "http://localhost:9100", "secure": false },
+  "/login/**": { "target": "http://localhost:9100", "secure": false },
+  "/logout/**": { "target": "http://localhost:9100", "secure": false },
+  "/ott/**": { "target": "http://localhost:9100", "secure": false },
+  "/webauthn/**": { "target": "http://localhost:9100", "secure": false }
+}

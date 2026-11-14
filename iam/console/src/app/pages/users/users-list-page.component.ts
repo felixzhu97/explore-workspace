@@ -383,7 +383,7 @@ export class UsersListPageComponent implements OnInit {
   private handleError(err: unknown, conflictMessage = '不能停用或删除当前登录的账号。'): void {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 401) {
-        void this.router.navigate(['/login'], { queryParams: { continue: '/users' } });
+        void this.router.navigate(['/sign-in'], { queryParams: { continue: '/users' } });
         return;
       }
       if (err.status === 403) {

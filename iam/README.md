@@ -40,12 +40,15 @@ GET http://localhost:9100/.well-known/openid-configuration
 With the default demo user enabled, open:
 
 ```text
-http://localhost:9100/login
+http://localhost:4201/sign-in
 ```
 
 Sign in with username `demo` and password `demo-password`.
 
-The console dev server on port `4201` proxies API calls to the server on `9100`.
+The console dev server on port `4201` proxies the paths it calls (`/api`,
+`/login`, `/logout`, `/ott`, `/webauthn`) to the server on `9100`. Sign-in pages live under `/sign-in`, so no page shares a path with
+a server endpoint. A packaged build serves the same pages from the server at
+`http://localhost:9100/sign-in`.
 
 ### Register an OIDC client
 

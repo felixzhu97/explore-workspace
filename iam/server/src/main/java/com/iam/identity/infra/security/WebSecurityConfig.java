@@ -37,7 +37,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Replaces Boot {@code ConditionalOnDefaultWebSecurity} chains so form login can serve the Angular
- * SPA at {@code /login} while keeping the Authorization Server endpoints.
+ * SPA at {@code /sign-in} while keeping the Authorization Server endpoints. Processing endpoints
+ * keep their default paths ({@code /login}, {@code /login/ott}, {@code /logout}, {@code
+ * /webauthn}) and must never share a path with a sign-in page.
  *
  * @see <a
  *     href="https://docs.spring.io/spring-boot/reference/web/spring-security.html#web.security.oauth2.authorization-server">Authorization
@@ -103,12 +105,11 @@ public class WebSecurityConfig {
             (authorize) ->
                 authorize
                     .requestMatchers(
-                        "/login",
-                        "/login/verify",
+                        "/sign-in",
+                        "/sign-in/**",
                         "/login/ott",
                         "/login/totp",
                         "/login/webauthn",
-                        "/ott/sent",
                         "/ott/generate",
                         "/webauthn/authenticate/**",
                         "/api/login/**",
@@ -128,14 +129,14 @@ public class WebSecurityConfig {
         .headers(withDefaults())
         .formLogin(
             (form) ->
-                form.loginPage("/login")
+                form.loginPage("/sign-in")
                     .loginProcessingUrl("/login")
                     .successHandler(successHandler)
                     .failureHandler(new LoginAuthenticationFailureHandler())
                     .permitAll())
         .oneTimeTokenLogin(
             (ott) ->
-                ott.loginPage("/login/ott")
+                ott.loginPage("/sign-in/ott")
                     .loginProcessingUrl("/login/ott")
                     .tokenGeneratingUrl("/ott/generate")
                     .showDefaultSubmitPage(false)
@@ -147,7 +148,7 @@ public class WebSecurityConfig {
                     .rpName(webAuthnProperties.rpName())
                     .allowedOrigins(webAuthnProperties.allowedOrigins())
                     .disableDefaultRegistrationPage(false))
-        .logout((logout) -> logout.logoutUrl("/logout").logoutSuccessUrl("/login").permitAll())
+        .logout((logout) -> logout.logoutUrl("/logout").logoutSuccessUrl("/sign-in").permitAll())
         .csrf(
             (csrf) ->
                 csrf.csrfTokenRepository(csrfTokenRepository)
@@ -165,7 +166,7 @@ public class WebSecurityConfig {
                   http.oauth2Login(
                       (oauth2) ->
                           oauth2
-                              .loginPage("/login")
+                              .loginPage("/sign-in")
                               .userInfoEndpoint((userInfo) -> userInfo.userService(service))));
         });
 

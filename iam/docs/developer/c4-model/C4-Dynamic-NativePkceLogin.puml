@@ -17,7 +17,7 @@ ios -> iam: 3. GET /oauth2/authorize\nclient_id=explore-*-ios\nredirect_uri=com.
 iam -> db: 4. Load public RegisteredClient
 db --> iam: 5. requireProofKey=true
 alt No session
-  iam --> ios: 6. Redirect /login (Angular SPA)
+  iam --> ios: 6. Redirect /sign-in (Angular SPA)
   user -> iam: 7. demo / demo-password
 end
 iam --> ios: 8. Custom-scheme redirect?code=&state=

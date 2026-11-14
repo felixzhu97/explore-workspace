@@ -232,7 +232,7 @@ sequenceDiagram
 
 **Require `FACTOR_PASSWORD` plus anyOf `FACTOR_OTT`, `FACTOR_WEBAUTHN`, or
 `FACTOR_TOTP` before a full session (authorize and console).** After password
-sign-in, send the user to `/login/verify` and expose factor availability via
+sign-in, send the user to `/sign-in/verify` and expose factor availability via
 `/api/login/mfa-options`. Prefer Passkeys when enrolled; keep OTT and TOTP as
 alternate second factors. Same assurance bar as Apple Account two-factor and
 GitHub org-required 2FA. Preferred Terms: [Glossary](./Glossary.md). Sequence:

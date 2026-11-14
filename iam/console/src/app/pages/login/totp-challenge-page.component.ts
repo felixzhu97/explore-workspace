@@ -71,7 +71,7 @@ import { ZardInputDirective } from '../../shared/components/input/input.directiv
           {{ useBackup() ? '改用验证器验证码' : '使用备用码' }}
         </button>
         <a
-          [routerLink]="['/login/verify']"
+          [routerLink]="['/sign-in/verify']"
           [queryParams]="continueQueryParams()"
           class="text-primary underline-offset-4 hover:underline"
         >
