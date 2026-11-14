@@ -2,12 +2,25 @@
 # https://render.com/docs/blueprint-spec
 services:
   - type: web
-    name: explore-ai
+    name: ai-server
     runtime: docker
+    dockerContext: .
+    dockerfilePath: ./ai/server/Dockerfile
     plan: starter
     region: oregon
     healthCheckPath: /actuator/health
     autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - ai/server/**
+        - shared/**
+        - build-logic/**
+        - gradle/**
+        - gradlew
+        - "*.gradle.kts"
+        - gradle.properties
+    previews:
+      generation: manual
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
