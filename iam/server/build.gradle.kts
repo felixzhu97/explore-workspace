@@ -67,6 +67,10 @@ tasks.register<Exec>("npmBuild") {
     }
 }
 
+tasks.bootRun {
+    sourceResources(sourceSets.main.get())
+}
+
 tasks.bootJar {
     archiveFileName.set("app.jar")
     dependsOn("npmBuild")

@@ -58,19 +58,6 @@
             }
           },
           "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "web:build:production"
-            },
-            "development": {
-              "buildTarget": "web:build:development",
-              "proxyConfig": "proxy.conf.cjs"
-            }
-          },
-          "defaultConfiguration": "development"
         }
       }
     }

@@ -26,7 +26,7 @@ git clone https://github.com/felixzhu97/explore-workspace.git
 cd explore-workspace
 cp iam/server/.env.example iam/server/.env   # optional local overrides
 pnpm install
-pnpm dev iam   # server http://localhost:9100, console http://localhost:4201
+pnpm dev iam   # server and console at http://localhost:9100
 ```
 
 OpenID Provider Configuration is published at:
@@ -45,7 +45,8 @@ http://localhost:9100/login
 
 Sign in with username `demo` and password `demo-password`.
 
-The console dev server on port `4201` proxies API calls to the server on `9100`.
+The server also serves the console, as in production. `pnpm dev iam`
+rebuilds the console on every change; reload the page to see it.
 
 ### Register an OIDC client
 
