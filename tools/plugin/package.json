@@ -4,9 +4,12 @@
   "private": true,
   "type": "commonjs",
   "nx": {
-    "tags": ["type:tool"]
+    "tags": [
+      "type:tool"
+    ]
   },
   "dependencies": {
     "yaml": "catalog:"
-  }
+  },
+  "generators": "./generators.json"
 }
