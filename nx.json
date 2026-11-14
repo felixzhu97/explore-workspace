@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "main",
+  "nxCloudId": "6af7f590cbc88407ed516a0f",
   "namedInputs": {
     "sharedGlobals": [
       "{workspaceRoot}/.nvmrc",
