@@ -1,5 +1,7 @@
 packages:
   - "*/*"
+  # ai keeps its own install until it joins this workspace.
+  - "!ai/**"
 
 catalog:
   "@eslint/js": 10.0.1

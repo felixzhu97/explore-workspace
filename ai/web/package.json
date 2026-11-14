@@ -39,11 +39,11 @@
     "e2e:ui": "playwright test --ui",
     "clean": "rm -rf dist .angular node_modules/.cache",
     "prepare": "husky",
-    "vision:verify": "chmod +x scripts/verify-vision.sh && ./scripts/verify-vision.sh all",
-    "vision:models": "chmod +x scripts/download-vision-models.sh && ./scripts/download-vision-models.sh",
-    "server:test": "./gradlew test",
-    "server:test:watch": "./gradlew test --continuous",
-    "server:test:coverage": "./gradlew test jacocoTestReport"
+    "vision:verify": "../server/scripts/verify-vision.sh all",
+    "vision:models": "../server/scripts/download-vision-models.sh",
+    "server:test": "../server/gradlew -p ../server test",
+    "server:test:watch": "../server/gradlew -p ../server test --continuous",
+    "server:test:coverage": "../server/gradlew -p ../server test jacocoTestReport"
   },
   "dependencies": {
     "@a2ui/angular": "^0.10.7",

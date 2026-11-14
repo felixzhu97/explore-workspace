@@ -5,8 +5,8 @@
     "types": ["vitest/globals", "node"]
   },
   "include": [
-    "src/main/web/**/*.spec.ts",
-    "src/main/web/**/*.d.ts",
-    "src/main/web/**/*.ts"
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts",
+    "src/**/*.ts"
   ]
 }

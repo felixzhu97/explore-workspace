@@ -42,7 +42,7 @@ types live in the service or component that uses them (no `core`,
 `shared` or `*.model.ts`).
 
 ```
-src/main/web/
+src/
 ├── app/
 │   ├── app.config.ts, app.routes.ts, storage-keys.ts
 │   ├── layout/          # Main layout, header, sidebar, nav config
