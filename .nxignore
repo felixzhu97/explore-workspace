@@ -1,0 +1,2 @@
+# Standalone build until ai joins the root Gradle build and pnpm workspace.
+ai/
