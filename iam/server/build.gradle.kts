@@ -1,25 +1,11 @@
 plugins {
-    java
-    checkstyle
-    id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("jacoco")
+    id("explore.java-conventions")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 group = "com.iam"
 version = "0.0.1-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://maven.aliyun.com/repository/public") }
-    maven { url = uri("https://maven.aliyun.com/repository/spring") }
-}
 
 dependencyManagement {
     imports {
@@ -53,60 +39,33 @@ dependencies {
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 }
 
-checkstyle {
-    toolVersion = "10.21.4"
-    configFile = file("config/checkstyle/google_checks.xml")
-    isIgnoreFailures = false
-    maxWarnings = 0
-}
-
-tasks.withType<Checkstyle>().configureEach {
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-
 tasks.withType<Test> {
-    useJUnitPlatform()
     // Local/CI tests must not rely on committed encrypt defaults (secret scanners).
     environment("APP_TOTP_ENCRYPT_PASSWORD", "ci-test-totp-encrypt-material")
     environment("APP_TOTP_ENCRYPT_SALT", "0123456789abcdef")
 }
 
-jacoco {
-    toolVersion = "0.8.13"
-}
-
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
 }
 
 tasks.register<Exec>("npmBuild") {
     group = "build"
     description = "Build the Angular console into src/main/resources/static"
-    workingDir = file("../console")
+    val console = layout.projectDirectory.dir("../console").asFile
+    workingDir = console
     commandLine("pnpm", "run", "build")
+    // Captures only files, so the task stays compatible with the configuration cache.
     onlyIf {
-        file("../console/package.json").exists()
-            && file("../console/src/main.ts").exists()
-            && isPnpmAvailable()
+        console.resolve("package.json").exists()
+            && console.resolve("src/main.ts").exists()
+            && try {
+                ProcessBuilder("pnpm", "--version").redirectErrorStream(true).start().waitFor() == 0
+            } catch (_: Exception) {
+                false
+            }
     }
 }
-
-fun isPnpmAvailable(): Boolean =
-    try {
-        ProcessBuilder("pnpm", "--version")
-            .redirectErrorStream(true)
-            .start()
-            .waitFor() == 0
-    } catch (_: Exception) {
-        false
-    }
 
 tasks.bootJar {
     archiveFileName.set("app.jar")

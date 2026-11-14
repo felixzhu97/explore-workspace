@@ -13,3 +13,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "explore-workspace"
+
+include(":iam-server")
+project(":iam-server").projectDir = file("iam/server")
