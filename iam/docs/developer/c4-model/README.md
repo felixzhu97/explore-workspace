@@ -36,7 +36,7 @@ Style standards: global [c4-model](~/.cursor/skills/scrum-team/developers/develo
 | Item | Value |
 |------|-------|
 | Runtime | Java 25, Spring Boot 4.1 |
-| Console | Angular 22 (bundled in `src/main/resources/static`) |
+| Console | Angular 22 (bundled in `server/src/main/resources/static`) |
 | OIDC | Spring Authorization Server (`/oauth2/*`, `/.well-known/*`) |
 | Local URL | `http://localhost:9100` |
 | Local DB | H2 file `./data/explore-iam` (Liquibase `0.1.xml`) |

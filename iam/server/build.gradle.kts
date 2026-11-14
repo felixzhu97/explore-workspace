@@ -88,12 +88,12 @@ tasks.jacocoTestReport {
 
 tasks.register<Exec>("npmBuild") {
     group = "build"
-    description = "Build Angular SPA into src/main/resources/static"
-    workingDir = projectDir
+    description = "Build the Angular console into src/main/resources/static"
+    workingDir = file("../console")
     commandLine("pnpm", "run", "build")
     onlyIf {
-        file("package.json").exists()
-            && file("src/main/web/main.ts").exists()
+        file("../console/package.json").exists()
+            && file("../console/src/main.ts").exists()
             && isPnpmAvailable()
     }
 }

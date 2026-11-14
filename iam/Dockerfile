@@ -1,30 +1,30 @@
-# Frontend: Angular SPA → src/main/resources/static
+# Frontend: console (Angular) → server/src/main/resources/static
 # Node 22 + npm-global pnpm: corepack+pnpm@11 on Node 20 fails with
 # ERR_UNKNOWN_BUILTIN_MODULE during install on Render's builders.
 FROM node:22-alpine AS frontend
-WORKDIR /app
+WORKDIR /app/console
 
 RUN npm install -g pnpm@11.8.0
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY angular.json tsconfig.json tsconfig.app.json ./
-COPY postcss.config.json ./
+COPY console/package.json console/pnpm-lock.yaml console/pnpm-workspace.yaml ./
+COPY console/angular.json console/tsconfig.json console/tsconfig.app.json ./
+COPY console/postcss.config.json ./
 RUN pnpm install --frozen-lockfile
 
-COPY src/main/web src/main/web
+COPY console/src src
 RUN pnpm run build
 
 # Backend: Spring Boot jar (static assets already built)
 FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /app
 
-COPY gradle gradle
-COPY gradlew build.gradle.kts settings.gradle.kts ./
+COPY server/gradle gradle
+COPY server/gradlew server/build.gradle.kts server/settings.gradle.kts ./
 RUN chmod +x gradlew \
   && ./gradlew dependencies --no-daemon || true
 
-COPY src src
-COPY --from=frontend /app/src/main/resources/static src/main/resources/static
+COPY server/src src
+COPY --from=frontend /app/server/src/main/resources/static src/main/resources/static
 RUN ./gradlew bootJar --no-daemon
 
 # Runtime

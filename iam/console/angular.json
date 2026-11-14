@@ -13,30 +13,30 @@
           "skipTests": true
         }
       },
-      "root": "src/main/web",
-      "sourceRoot": "src/main/web",
+      "root": "",
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
             "outputPath": {
-              "base": "src/main/resources/static",
+              "base": "../server/src/main/resources/static",
               "browser": ""
             },
-            "index": "src/main/web/index.html",
-            "browser": "src/main/web/main.ts",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "src/main/web/assets",
+                "input": "src/assets",
                 "output": "assets"
               }
             ],
-            "styles": ["src/main/web/styles.css"],
+            "styles": ["src/styles.css"],
             "scripts": [],
             "allowedCommonJsDependencies": ["qrcode"]
           },
