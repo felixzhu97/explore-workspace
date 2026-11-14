@@ -3,13 +3,16 @@ name: iam iOS
 on:
   push:
     branches: [main]
-    paths:
+    paths: &paths
       - "iam/ios/**"
+      - "!iam/ios/**/*.md"
       - ".github/workflows/iam-ios.yml"
   pull_request:
-    paths:
-      - "iam/ios/**"
-      - ".github/workflows/iam-ios.yml"
+    paths: *paths
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
