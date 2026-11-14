@@ -6,12 +6,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.exception.DomainException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.model.ImageOptions;
 import com.ai.image.domain.model.ImagePrompt;
 import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.infra.config.ImageProperties;
+import com.explore.errors.DomainException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

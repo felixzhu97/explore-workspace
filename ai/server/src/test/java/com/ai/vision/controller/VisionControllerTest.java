@@ -68,9 +68,9 @@ class VisionControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(mvc.post().multipart().uri("/api/vision/caption"))
         .hasStatus(HttpStatus.BAD_REQUEST)
         .bodyJson()
-        .extractingPath("$.errorCode")
+        .extractingPath("$.type")
         .asString()
-        .isEqualTo("INVALID_FILE");
+        .isEqualTo("/problems/invalid-file");
   }
 
   @Test

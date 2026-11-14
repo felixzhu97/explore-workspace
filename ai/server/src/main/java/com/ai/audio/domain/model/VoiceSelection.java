@@ -1,6 +1,6 @@
 package com.ai.audio.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** Voice and model chosen for one speech request. */

@@ -1,6 +1,6 @@
 package com.ai.image.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** Width and height of a generated image, in pixels. */

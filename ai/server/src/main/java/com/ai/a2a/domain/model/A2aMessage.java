@@ -1,7 +1,7 @@
 package com.ai.a2a.domain.model;
 
 import com.ai.agent.service.AgentService;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

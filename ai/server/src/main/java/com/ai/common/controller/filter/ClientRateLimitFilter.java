@@ -83,10 +83,11 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
     if (!allowed) {
       response.setStatus(429);
       response.setHeader("Retry-After", String.valueOf(properties.getWindowSeconds()));
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+      response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       byte[] body =
           """
-                    {"message":"Too many requests","code":"RATE_LIMITED"}
+                    {"type":"/problems/rate-limited","title":"Too Many Requests",
+                    "status":429,"detail":"Too many requests"}
                     """
               .strip()
               .getBytes(StandardCharsets.UTF_8);

@@ -169,7 +169,7 @@ export class VisionService {
   }
 
   #resolveErrorMessage(error: AppError): string {
-    if (error.errorCode === 'VISION_PROVIDER_UNAVAILABLE') {
+    if (error.type === '/problems/vision-provider-unavailable') {
       return this.#i18n.t().vision.errors.providerUnavailable;
     }
     if (error.status === 0) {

@@ -61,7 +61,7 @@ class UsageQuotaFilterTest {
     filter.doFilter(postChat("client-2"), third, filterChain);
 
     assertThat(third.getStatus()).isEqualTo(429);
-    assertThat(third.getContentAsString()).contains("QUOTA_EXCEEDED");
+    assertThat(third.getContentAsString()).contains("/problems/quota-exceeded");
     assertThat(third.getHeader("X-Quota-Remaining")).isEqualTo("0");
     verify(filterChain, times(2)).doFilter(any(), any());
   }

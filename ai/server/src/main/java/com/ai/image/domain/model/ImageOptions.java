@@ -1,6 +1,6 @@
 package com.ai.image.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** Model, quality, size and count for one image request. */

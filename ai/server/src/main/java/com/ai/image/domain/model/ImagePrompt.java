@@ -1,6 +1,6 @@
 package com.ai.image.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** Prompt describing the image to generate, non-blank and capped in length. */

@@ -5,8 +5,8 @@ import com.ai.audio.controller.dto.TtsModelsResponse;
 import com.ai.audio.controller.dto.VoiceResponse;
 import com.ai.audio.controller.dto.VoicesResponse;
 import com.ai.audio.service.AudioService;
-import com.ai.common.controller.GlobalExceptionHandler;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
+import com.explore.errors.Problems;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -60,7 +60,7 @@ public class AudioController {
           .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
           .body(audio.copyBytes());
     } catch (DomainException e) {
-      return ResponseEntity.status(GlobalExceptionHandler.statusOf(e.getKind())).build();
+      return ResponseEntity.status(Problems.statusOf(e.getKind())).build();
     } catch (Exception e) {
       return ResponseEntity.internalServerError().build();
     }

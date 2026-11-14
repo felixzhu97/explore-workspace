@@ -6,6 +6,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ConsoleShellComponent } from '../../layout/console-shell.component';
 import { csrfHeaders } from '../../shared/csrf';
 import type { OAuthClientView } from './oauth-clients-list-page.component';
+import { readErrorDetail } from '../../shared/utils/problem-detail';
 
 const CARD =
   'rounded-lg border border-[var(--console-border)] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)]';
@@ -365,8 +366,7 @@ export class OAuthClientsCreatePageComponent {
         });
         return;
       }
-      const message = (err.error as { message?: string } | null)?.message;
-      this.errorMessage.set(message || `请求失败（${err.status}）`);
+      this.errorMessage.set(readErrorDetail(err.error) ?? `请求失败（${err.status}）`);
       return;
     }
     this.errorMessage.set('请求失败，请重试。');

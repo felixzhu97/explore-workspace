@@ -785,38 +785,25 @@ public class EmailAlreadyExistsException extends RuntimeException {
     }
 }
 
-// 全局异常处理器
+// 领域错误由 shared/errors 的 DomainExceptionHandler 统一转成 RFC 9457 ProblemDetail；
+// 产品内只处理自己特有的异常，同样返回 ProblemDetail
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(ex.getMessage(), 404));
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(e -> e.getField() + ": " + e.getDefaultMessage())
-                .collect(Collectors.joining("; "));
-        return ResponseEntity.badRequest()
-                .body(new ErrorResponse(message, 400));
+    @ExceptionHandler(ClientIdentityRequiredException.class)
+    public ProblemDetail handleClientIdentityRequired(ClientIdentityRequiredException ex) {
+        return Problems.of(HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Client identity required");
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        log.error("Unexpected error", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("An unexpected error occurred", 500));
+    public ProblemDetail handleGeneral(Exception ex) {
+        log.error("Unhandled request failure", ex);
+        return Problems.of(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "An unexpected error occurred");
     }
 }
 
-public record ErrorResponse(String message, int status, Instant timestamp) {
-    public ErrorResponse(String message, int status) {
-        this(message, status, Instant.now());
-    }
-}
+// 业务代码抛 DomainException，type 由错误码生成：/problems/session-not-found
+throw DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found");
 ```
 
 ## 安全配置

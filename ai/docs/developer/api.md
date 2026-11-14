@@ -1270,32 +1270,43 @@ Not applicable — this is a synchronous REST endpoint (not WebSocket).
 
 ### Error Response Format
 
-All errors return the following standard format:
+Errors use [RFC 9457 Problem Details](https://www.rfc-editor.org/rfc/rfc9457)
+with content type `application/problem+json`:
 
 ```json
 {
-  "error": "ERROR_CODE",
-  "message": "Error message description",
-  "errorCode": "ERROR_CODE",
-  "timestamp": "2026-06-19T03:30:00Z",
-  "path": "/api/endpoint"
+  "type": "/problems/session-not-found",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Session not found",
+  "instance": "/api/chat/sessions/abc123"
 }
 ```
 
-### Common Error Codes
+- `type` is `/problems/` plus the error code in kebab case. Clients branch on
+  `type`, never on `detail`.
+- `detail` is a client-safe description; it never contains causes, stack
+  traces, or rejected values.
+- Standard Spring MVC errors (unknown endpoint, wrong method, unreadable
+  body) come from Spring Boot and use `type` `about:blank`.
 
+### Common Problem Types
 
-| HTTP Status | Error Code           | Description                      |
-| ----------- | -------------------- | -------------------------------- |
-| `400`       | `VALIDATION_ERROR`   | Request validation failed        |
-| `400`       | `BAD_REQUEST`        | Invalid request parameters       |
-| `404`       | `SESSION_NOT_FOUND`  | Chat session does not exist      |
-| `404`       | `DOCUMENT_NOT_FOUND` | Document does not exist          |
-| `413`       | `FILE_TOO_LARGE`     | Uploaded file exceeds 50MB limit |
-| `503`       | `AI_SERVICE_ERROR`   | AI service unavailable or error  |
-| `500`       | `RAG_SERVICE_ERROR`  | RAG service error                |
-| `500`       | `INTERNAL_ERROR`     | Internal server error            |
-
+| HTTP Status | Problem Type                         | Description                      |
+| ----------- | ------------------------------------ | -------------------------------- |
+| `400`       | `/problems/validation-error`         | Request validation failed        |
+| `400`       | `/problems/invalid-parameter`        | Parameter has the wrong type     |
+| `400`       | `/problems/bad-request`              | Invalid request parameters       |
+| `401`       | `/problems/client-identity-required` | Client Identity cookie missing   |
+| `403`       | `/problems/csrf-rejected`            | CSRF protection header missing   |
+| `404`       | `/problems/session-not-found`        | Chat session does not exist      |
+| `404`       | `/problems/document-not-found`       | Document does not exist          |
+| `413`       | `about:blank`                        | Uploaded file exceeds 50MB limit |
+| `429`       | `/problems/rate-limited`             | Too many requests                |
+| `429`       | `/problems/quota-exceeded`           | Daily plan quota used up         |
+| `503`       | `/problems/ai-service-error`         | AI service unavailable or error  |
+| `503`       | `/problems/chat-memory-error`        | Chat memory storage unavailable  |
+| `500`       | `/problems/internal-error`           | Internal server error            |
 
 ### Error Response Examples
 
@@ -1303,21 +1314,11 @@ All errors return the following standard format:
 
 ```json
 {
-  "error": "VALIDATION_ERROR",
-  "message": "message: Message content exceeds 10,000 characters",
-  "errorCode": "VALIDATION_ERROR",
-  "timestamp": "2026-06-19T03:30:00Z"
-}
-```
-
-**Session Not Found (404)**
-
-```json
-{
-  "error": "SESSION_NOT_FOUND",
-  "message": "Session not found: abc123",
-  "errorCode": "SESSION_NOT_FOUND",
-  "timestamp": "2026-06-19T03:30:00Z"
+  "type": "/problems/validation-error",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "message: Message content exceeds 10,000 characters",
+  "instance": "/api/chat"
 }
 ```
 
@@ -1325,10 +1326,11 @@ All errors return the following standard format:
 
 ```json
 {
-  "error": "AI_SERVICE_ERROR",
-  "message": "AI service error: Connection timeout",
-  "errorCode": "AI_SERVICE_ERROR",
-  "timestamp": "2026-06-19T03:30:00Z"
+  "type": "/problems/ai-service-error",
+  "title": "Service Unavailable",
+  "status": 503,
+  "detail": "AI service unavailable",
+  "instance": "/api/chat"
 }
 ```
 

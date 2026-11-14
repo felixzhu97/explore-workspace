@@ -1,6 +1,5 @@
 package com.ai.image.controller;
 
-import com.ai.common.exception.DomainException;
 import com.ai.image.controller.dto.ImageGenerationRequest;
 import com.ai.image.controller.dto.ImageGenerationResponse;
 import com.ai.image.controller.dto.ImageModelsResponse;
@@ -8,6 +7,7 @@ import com.ai.image.controller.dto.ImageQualitiesResponse;
 import com.ai.image.controller.dto.ImageSizesResponse;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.service.ImageGenerationService;
+import com.explore.errors.DomainException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

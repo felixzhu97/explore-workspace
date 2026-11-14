@@ -80,12 +80,13 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
     response.setHeader("X-Quota-Plan", decision.getPlan().getValue());
     if (!decision.isAllowed()) {
       response.setStatus(429);
-      response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+      response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       response
           .getOutputStream()
           .write(
               """
-                    {"message":"Daily plan quota exceeded","code":"QUOTA_EXCEEDED"}
+                    {"type":"/problems/quota-exceeded","title":"Too Many Requests",
+                    "status":429,"detail":"Daily plan quota exceeded"}
                     """
                   .strip()
                   .getBytes(StandardCharsets.UTF_8));

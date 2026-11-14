@@ -1,6 +1,9 @@
 spring:
   application:
     name: server-springai
+  mvc:
+    problemdetails:
+      enabled: true
   mail:
     host: ${SPRING_MAIL_HOST:localhost}
     port: ${SPRING_MAIL_PORT:1025}

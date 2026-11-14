@@ -5,7 +5,7 @@ import com.ai.account.infra.config.OAuthSpaProperties;
 import com.ai.account.service.AccountService;
 import com.ai.account.service.OAuthSignIn;
 import com.ai.common.controller.ClientIdentity;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

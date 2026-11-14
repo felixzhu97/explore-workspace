@@ -1,9 +1,9 @@
 package com.ai.vision.infra.ocr;
 
-import com.ai.common.exception.DomainException;
 import com.ai.vision.domain.model.OcrResult;
 import com.ai.vision.domain.repository.OcrEngine;
 import com.ai.vision.infra.config.VisionModelProperties;
+import com.explore.errors.DomainException;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;

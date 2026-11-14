@@ -1,6 +1,6 @@
 package com.ai.textanalysis.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** Text to analyse, non-blank and capped in length. */

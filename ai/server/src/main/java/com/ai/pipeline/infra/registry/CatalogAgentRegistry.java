@@ -1,7 +1,6 @@
 package com.ai.pipeline.infra.registry;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
 import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.model.AgentDefinition;
@@ -11,6 +10,7 @@ import com.ai.pipeline.domain.repository.AgentRegistry;
 import com.ai.pipeline.domain.repository.CustomAgentRepository;
 import com.ai.pipeline.service.AgentTemplate;
 import com.ai.pipeline.service.AgentTemplateCatalog;
+import com.explore.errors.DomainException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.exception.DomainException;
 import com.ai.vision.infra.config.VisionModelProperties;
+import com.explore.errors.DomainException;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
