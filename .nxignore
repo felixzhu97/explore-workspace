@@ -1,2 +1,2 @@
-# Standalone build until ai joins the root Gradle build and pnpm workspace.
-ai/
+# Removed once the ai web app joins the pnpm workspace.
+ai/web/

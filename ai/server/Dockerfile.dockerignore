@@ -1,0 +1,25 @@
+# Used with `docker build -f ai/server/Dockerfile .` (workspace root as context).
+.git
+**/.gradle
+**/build
+**/node_modules
+**/.angular
+**/.env
+**/.env.*
+!**/.env.example
+**/application-local*.yml
+**/data
+**/*.log
+.idea
+*.iml
+.nx
+**/.cursor
+**/.claude
+ai/docs
+ai/ios
+ai/web
+ai/server/models
+iam/console
+iam/docs
+iam/ios
+iam/server/src

@@ -30,11 +30,10 @@ For a full walkthrough (API keys, Ollama, troubleshooting), see [Quick Start](do
 
 ### Backend
 
-Start the Spring Boot API:
+From the workspace root, start the Spring Boot API:
 
 ```bash
-cd server
-./gradlew bootRun
+./gradlew :ai-server:bootRun
 # → http://localhost:9000
 curl -s http://localhost:9000/actuator/health
 ```
@@ -91,7 +90,7 @@ See [`.env.example`](.env.example) for the full list.
 - Explore capabilities on the [User Story Map](docs/product-owner/User-Story-Map.md)
 - Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](web/vercel.json) (proxies `/api/*` to Render)
 
-Run unit tests with `./gradlew test` in `server/`. Run end-to-end tests with `pnpm e2e` in `web/`; it starts the backend on an in-memory H2 database and the web app, or reuses them if they are already running on ports 9000 and 4200.
+Run unit tests with `./gradlew :ai-server:test` from the workspace root. Run end-to-end tests with `pnpm e2e` in `web/`; it starts the backend on an in-memory H2 database and the web app, or reuses them if they are already running on ports 9000 and 4200.
 
 ## Contributing
 

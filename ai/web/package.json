@@ -41,9 +41,9 @@
     "prepare": "husky",
     "vision:verify": "../server/scripts/verify-vision.sh all",
     "vision:models": "../server/scripts/download-vision-models.sh",
-    "server:test": "../server/gradlew -p ../server test",
-    "server:test:watch": "../server/gradlew -p ../server test --continuous",
-    "server:test:coverage": "../server/gradlew -p ../server test jacocoTestReport"
+    "server:test": "../../gradlew :ai-server:test",
+    "server:test:watch": "../../gradlew :ai-server:test --continuous",
+    "server:test:coverage": "../../gradlew :ai-server:test :ai-server:jacocoTestReport"
   },
   "dependencies": {
     "@a2ui/angular": "^0.10.7",

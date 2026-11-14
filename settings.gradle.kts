@@ -14,5 +14,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "explore-workspace"
 
+include(":ai-server")
+project(":ai-server").projectDir = file("ai/server")
+
 include(":iam-server")
 project(":iam-server").projectDir = file("iam/server")
