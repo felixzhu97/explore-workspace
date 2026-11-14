@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
  * Prefers an explicit safe relative {@code continue} form field (SPA deep link), otherwise the
  * saved request (e.g. OAuth authorize or {@code /clients}).
  *
- * <p>After password-only authentication, redirects to {@code /login/verify} so the second factor
+ * <p>After password-only authentication, redirects to {@code /sign-in/verify} so the second factor
  * runs immediately (Apple ID / Google 2SV style) instead of landing on the console shell.
  */
 public final class ContinueUrlAuthenticationSuccessHandler
@@ -59,9 +59,9 @@ public final class ContinueUrlAuthenticationSuccessHandler
 
   private static String buildVerifyUrl(String continueUrl) {
     if (!isSafeRelativePath(continueUrl)) {
-      return "/login/verify";
+      return "/sign-in/verify";
     }
-    return "/login/verify?continue="
+    return "/sign-in/verify?continue="
         + URLEncoder.encode(continueUrl.trim(), StandardCharsets.UTF_8);
   }
 

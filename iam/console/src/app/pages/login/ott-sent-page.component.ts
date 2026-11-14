@@ -30,7 +30,7 @@ import { ZardButtonComponent } from '../../shared/components/button/button.compo
         zType="primary"
         zSize="lg"
         class="mt-8 inline-flex"
-        [routerLink]="['/login/ott']"
+        [routerLink]="['/sign-in/ott']"
         [queryParams]="ottQueryParams()"
       >
         输入验证码
@@ -38,7 +38,7 @@ import { ZardButtonComponent } from '../../shared/components/button/button.compo
 
       <p class="mt-6 text-sm text-muted-foreground">
         <a
-          [routerLink]="['/login/verify']"
+          [routerLink]="['/sign-in/verify']"
           [queryParams]="continueQueryParams()"
           class="text-primary underline-offset-4 hover:underline"
         >

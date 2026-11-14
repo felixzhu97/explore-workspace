@@ -48,11 +48,11 @@ public class TotpChallengeController {
       HttpServletResponse response)
       throws ServletException, IOException {
     if (authentication == null || !authentication.isAuthenticated()) {
-      response.sendRedirect("/login/totp?error");
+      response.sendRedirect("/sign-in/totp?error");
       return;
     }
     if (!totpService.verifyChallenge(authentication.getName(), code)) {
-      response.sendRedirect("/login/totp?error");
+      response.sendRedirect("/sign-in/totp?error");
       return;
     }
     Authentication upgraded =

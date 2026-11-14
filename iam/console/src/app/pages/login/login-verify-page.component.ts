@@ -79,7 +79,7 @@ type Factor = 'totp' | 'ott' | 'webauthn';
         </div>
 
         <p class="mt-8 text-sm text-muted-foreground">
-          <a routerLink="/login" class="text-primary underline-offset-4 hover:underline">返回密码登录</a>
+          <a routerLink="/sign-in" class="text-primary underline-offset-4 hover:underline">返回密码登录</a>
         </p>
       }
     </app-auth-shell>
@@ -136,11 +136,11 @@ export class LoginVerifyPageComponent implements OnInit {
   go(factor: Factor): void {
     const q = this.#continueQuery();
     if (factor === 'totp') {
-      void this.#router.navigateByUrl(`/login/totp${q}`);
+      void this.#router.navigateByUrl(`/sign-in/totp${q}`);
       return;
     }
     if (factor === 'ott') {
-      void this.#router.navigateByUrl(`/login/ott${q}`);
+      void this.#router.navigateByUrl(`/sign-in/ott${q}`);
       return;
     }
     void this.#startWebAuthn();

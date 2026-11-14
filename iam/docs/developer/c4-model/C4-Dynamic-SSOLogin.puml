@@ -17,7 +17,7 @@ user -> iam: 3. GET /oauth2/authorize\n(client_id, redirect_uri, scope, state, P
 iam -> db: 4. Load RegisteredClient
 db --> iam: 5. Client settings
 alt No full MFA session
-  iam --> user: 6. Redirect /login?client_id=…
+  iam --> user: 6. Redirect /sign-in?client_id=…
   user -> iam: 7. Form login → FACTOR_PASSWORD
   alt Second factor (anyOf)
     user -> iam: 8a. OTT generate + submit → FACTOR_OTT

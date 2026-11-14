@@ -28,7 +28,7 @@ class LoggingMagicLinkOneTimeTokenGenerationSuccessHandler
       LoggerFactory.getLogger(LoggingMagicLinkOneTimeTokenGenerationSuccessHandler.class);
 
   private final OneTimeTokenGenerationSuccessHandler redirectHandler =
-      new RedirectOneTimeTokenGenerationSuccessHandler("/ott/sent");
+      new RedirectOneTimeTokenGenerationSuccessHandler("/sign-in/ott/sent");
 
   @Override
   public void handle(
@@ -39,7 +39,7 @@ class LoggingMagicLinkOneTimeTokenGenerationSuccessHandler
             .replacePath(request.getContextPath())
             .replaceQuery(null)
             .fragment(null)
-            .path("/login/ott")
+            .path("/sign-in/ott")
             .queryParam("token", oneTimeToken.getTokenValue())
             .toUriString();
     log.info(

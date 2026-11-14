@@ -115,7 +115,7 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 | Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
 | ------------------------ | ---- | ---------- | ----------------- | ------ |
 | Form Login | 表单登录 | Username/password authentication via HTML form | `HttpSecurity.formLogin()` | implemented |
-| Login Page | 登录页 | SPA route served at `/login` | `form.loginPage("/login")` | implemented |
+| Login Page | 登录页 | SPA route served at `/sign-in`; the form posts to `/login` | `form.loginPage("/sign-in").loginProcessingUrl("/login")` | implemented |
 | User Details Service | 用户详情服务 | Loads `UserDetails` for form login from IAM store | `IamUserDetailsService` implements `UserDetailsService` | implemented |
 | User Details | 用户详情 | Spring Security adapter wrapping IAM user + authorities | `org.springframework.security.core.userdetails.User` | implemented |
 | Password Encoder | 密码编码器 | One-way hash for stored passwords (never plaintext) | `BCryptPasswordEncoder` | implemented |

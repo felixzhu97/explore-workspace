@@ -36,7 +36,7 @@ public final class MfaTestSessions {
             .requestFactory(new JdkClientHttpRequestFactory(httpClient))
             .build();
 
-    rest.get().uri("/login").retrieve().toBodilessEntity();
+    rest.get().uri("/sign-in").retrieve().toBodilessEntity();
     String csrf = csrf(cookieStore);
 
     MultiValueMap<String, String> login = new LinkedMultiValueMap<>();

@@ -1,30 +1,30 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // More specific login/* paths before `login` (prefix match).
+  // More specific sign-in/* paths before `sign-in` (prefix match).
   {
-    path: 'login/verify',
+    path: 'sign-in/verify',
     loadComponent: () =>
       import('./pages/login/login-verify-page.component').then((m) => m.LoginVerifyPageComponent),
   },
   {
-    path: 'login/ott',
+    path: 'sign-in/ott',
     loadComponent: () =>
       import('./pages/login/ott-login-page.component').then((m) => m.OttLoginPageComponent),
   },
   {
-    path: 'login/totp',
+    path: 'sign-in/totp',
     loadComponent: () =>
       import('./pages/login/totp-challenge-page.component').then((m) => m.TotpChallengePageComponent),
   },
   {
-    path: 'login',
+    path: 'sign-in',
     pathMatch: 'full',
     loadComponent: () =>
       import('./pages/login/login-page.component').then((m) => m.LoginPageComponent),
   },
   {
-    path: 'ott/sent',
+    path: 'sign-in/ott/sent',
     loadComponent: () =>
       import('./pages/login/ott-sent-page.component').then((m) => m.OttSentPageComponent),
   },

@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
 final class OAuthAwareLoginEntryPoint implements AuthenticationEntryPoint {
 
   private final LoginUrlAuthenticationEntryPoint delegate =
-      new LoginUrlAuthenticationEntryPoint("/login");
+      new LoginUrlAuthenticationEntryPoint("/sign-in");
 
   @Override
   public void commence(
@@ -34,7 +34,7 @@ final class OAuthAwareLoginEntryPoint implements AuthenticationEntryPoint {
       this.delegate.commence(request, response, authException);
       return;
     }
-    String target = "/login?client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8);
+    String target = "/sign-in?client_id=" + URLEncoder.encode(clientId, StandardCharsets.UTF_8);
     response.sendRedirect(target);
   }
 }

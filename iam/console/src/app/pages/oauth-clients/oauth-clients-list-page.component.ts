@@ -337,7 +337,7 @@ export class OAuthClientsListPageComponent implements OnInit {
   private handleError(err: unknown): void {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 401 || err.status === 403) {
-        void this.router.navigate(['/login'], { queryParams: { continue: '/oauth-clients' } });
+        void this.router.navigate(['/sign-in'], { queryParams: { continue: '/oauth-clients' } });
         return;
       }
       const message = (err.error as { message?: string } | null)?.message;

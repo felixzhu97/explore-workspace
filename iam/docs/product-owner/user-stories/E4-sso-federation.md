@@ -69,9 +69,9 @@ Explore IAM 作为 OIDC Provider，支持业务应用 SSO，并可通过 OAuth2 
 ### 验收标准
 
 1. **Scenario** 密码后进入验证引导
-   **GIVEN** 用户在 `/login` 提交正确密码且尚无完整 MFA 会话  
+   **GIVEN** 用户在 `/sign-in` 提交正确密码且尚无完整 MFA 会话  
    **WHEN** 认证成功处理器处理登录  
-   **THEN** 浏览器进入 `/login/verify`  
+   **THEN** 浏览器进入 `/sign-in/verify`  
    **AND** 页面根据 `/api/login/mfa-options` 展示可用因素（OTT、已登记 Passkey、已启用 TOTP）
 
 2. **Scenario** anyOf 第二因素成功

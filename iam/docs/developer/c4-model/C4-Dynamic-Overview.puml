@@ -40,9 +40,9 @@ dev -> rp: Configure issuer, client_id, redirect URI
 user -> rp: Open app
 rp -> iam: /oauth2/authorize (Authorization Code + PKCE)
 alt No full MFA session
-  iam --> user: Login Page (/login)
+  iam --> user: Login Page (/sign-in)
   user -> iam: Form Login → FACTOR_PASSWORD
-  iam --> user: /login/verify (mfa-options)
+  iam --> user: /sign-in/verify (mfa-options)
   alt Second factor (anyOf)
     user -> iam: OTT generate + submit → FACTOR_OTT
   else Passkey enrolled

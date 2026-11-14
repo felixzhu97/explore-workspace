@@ -360,7 +360,7 @@ export class OAuthClientsCreatePageComponent {
   private handleError(err: unknown): void {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 401 || err.status === 403) {
-        void this.router.navigate(['/login'], {
+        void this.router.navigate(['/sign-in'], {
           queryParams: { continue: '/oauth-clients/new' },
         });
         return;
