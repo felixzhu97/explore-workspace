@@ -9,6 +9,9 @@ catalogs:
     nx:
       specifier: 24.0.6
       version: 24.0.6
+    yaml:
+      specifier: 2.9.0
+      version: 2.9.0
 
 importers:
 
@@ -17,6 +20,12 @@ importers:
       nx:
         specifier: 'catalog:'
         version: 24.0.6
+
+  tools/plugin:
+    dependencies:
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.0
 
 packages:
 
