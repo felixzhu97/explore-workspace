@@ -1,5 +1,7 @@
 packages:
   - "*/*"
+  # iam keeps its own install until it joins this workspace.
+  - "!iam/**"
 
 catalog:
   "@eslint/js": 10.0.1
