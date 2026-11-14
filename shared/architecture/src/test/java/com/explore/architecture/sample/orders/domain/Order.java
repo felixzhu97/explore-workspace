@@ -2,7 +2,9 @@ package com.explore.architecture.sample.orders.domain;
 
 import com.explore.architecture.sample.orders.infra.OrderTable;
 
-/** Sample domain class that breaks the layer rules by depending on infra. */
+/**
+ * Sample domain class that breaks the layer rules by depending on infra.
+ */
 public class Order {
 
   private final OrderTable table = new OrderTable();

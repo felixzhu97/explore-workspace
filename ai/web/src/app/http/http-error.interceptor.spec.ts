@@ -277,30 +277,41 @@ describe('httpErrorInterceptor', () => {
       });
     });
 
-    it('should keep the server message and error code of a 503 ErrorResponse', async () => {
-      const mockErrorResponse = new HttpErrorResponse({
+    it('should keep the detail and problem type of a 503 problem detail', async () => {
+      const error = await interceptError(503, {
+        type: '/problems/image-provider-not-configured',
+        title: 'Service Unavailable',
         status: 503,
-        statusText: 'Service Unavailable',
-        url: '/api/images/generate',
-        error: {
-          message: 'Image provider not configured',
-          errorCode: 'IMAGE_PROVIDER_NOT_CONFIGURED',
-          timestamp: '2026-01-01T00:00:00Z',
-        },
-      });
-      const mockNext = vi.fn().mockReturnValue(throwError(() => mockErrorResponse));
-      const request = new HttpRequest('POST', '/api/images/generate', {});
-
-      const interceptor = TestBed.runInInjectionContext(() => {
-        return httpErrorInterceptor(request, mockNext);
+        detail: 'Image provider not configured',
+        instance: '/api/images/generate',
       });
 
-      const error = await new Promise<AppError>((resolve) => {
-        interceptor.subscribe({ next: vi.fn(), error: resolve });
-      });
       expect(error.code).toBe('SERVICE_UNAVAILABLE');
       expect(error.message).toBe('Image provider not configured');
-      expect(error.errorCode).toBe('IMAGE_PROVIDER_NOT_CONFIGURED');
+      expect(error.type).toBe('/problems/image-provider-not-configured');
+    });
+
+    it('should map a legacy error code to its problem type', async () => {
+      const error = await interceptError(503, {
+        message: 'Image provider not configured',
+        errorCode: 'IMAGE_PROVIDER_NOT_CONFIGURED',
+        timestamp: '2026-01-01T00:00:00Z',
+      });
+
+      expect(error.message).toBe('Image provider not configured');
+      expect(error.type).toBe('/problems/image-provider-not-configured');
+    });
+
+    it('should leave the problem type empty when a problem detail uses about:blank', async () => {
+      const error = await interceptError(400, {
+        type: 'about:blank',
+        title: 'Bad Request',
+        status: 400,
+        detail: 'Failed to read request',
+      });
+
+      expect(error.message).toBe('Failed to read request');
+      expect(error.type).toBeUndefined();
     });
 
     it('should handle 403 forbidden errors', async () => {
@@ -550,3 +561,16 @@ describe('httpErrorInterceptor', () => {
     });
   });
 });
+
+async function interceptError(status: number, body: unknown): Promise<AppError> {
+  const mockNext = vi.fn().mockReturnValue(
+    throwError(() => new HttpErrorResponse({ status, url: '/api/images/generate', error: body })),
+  );
+  const request = new HttpRequest('POST', '/api/images/generate', {});
+  const interceptor = TestBed.runInInjectionContext(
+    () => httpErrorInterceptor(request, mockNext),
+  );
+  return new Promise<AppError>((resolve) => {
+    interceptor.subscribe({ next: vi.fn(), error: resolve });
+  });
+}

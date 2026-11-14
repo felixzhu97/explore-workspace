@@ -56,7 +56,7 @@ public class PermissionService {
       eventPublisher.publishEvent(new PermissionCreatedEvent(saved.getCode()));
       return saved;
     } catch (IllegalArgumentException ex) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage(), ex);
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid permission", ex);
     }
   }
 

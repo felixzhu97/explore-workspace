@@ -45,7 +45,7 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
         .hasStatus(HttpStatus.BAD_REQUEST)
         .bodyText()
         .asString()
-        .contains("VALIDATION_ERROR");
+        .contains("/problems/validation-error");
   }
 
   @Nested

@@ -13,10 +13,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.domain.repository.SkillRepository;
+import com.explore.errors.DomainException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

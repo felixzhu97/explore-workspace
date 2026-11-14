@@ -110,8 +110,8 @@ class AccountControllerTest {
     assertThat(mvc.get().uri("/api/account/me"))
         .hasStatus(HttpStatus.UNAUTHORIZED)
         .bodyJson()
-        .extractingPath("$.errorCode")
+        .extractingPath("$.type")
         .asString()
-        .isEqualTo("CLIENT_IDENTITY_REQUIRED");
+        .isEqualTo("/problems/client-identity-required");
   }
 }

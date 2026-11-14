@@ -1,7 +1,7 @@
 package com.ai.rag.infra.llm;
 
-import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.repository.TextEmbeddingGateway;
+import com.explore.errors.DomainException;
 import java.util.List;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.embedding.EmbeddingResponse;

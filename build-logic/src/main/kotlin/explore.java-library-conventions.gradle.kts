@@ -9,6 +9,11 @@ val libs = the<VersionCatalogsExtension>().named("libs")
 
 group = "com.explore"
 
+// Spring resolves handler and bean parameters by name, as the Boot plugin does for applications.
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-parameters")
+}
+
 dependencies {
     val springBootDependencies = platform(libs.findLibrary("spring-boot-dependencies").get())
     implementation(springBootDependencies)

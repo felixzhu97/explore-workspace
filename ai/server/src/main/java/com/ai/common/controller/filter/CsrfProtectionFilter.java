@@ -64,10 +64,11 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
       return;
     }
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     byte[] body =
         """
-                {"message":"Missing CSRF protection header","code":"CSRF_REJECTED"}
+                {"type":"/problems/csrf-rejected","title":"Forbidden",
+                "status":403,"detail":"Missing CSRF protection header"}
                 """
             .strip()
             .getBytes(StandardCharsets.UTF_8);

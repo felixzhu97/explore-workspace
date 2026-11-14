@@ -1,8 +1,8 @@
 package com.ai.scim.controller;
 
-import com.ai.common.controller.GlobalExceptionHandler;
-import com.ai.common.exception.DomainException;
 import com.ai.scim.infra.ScimErrors;
+import com.explore.errors.DomainException;
+import com.explore.errors.Problems;
 import com.unboundid.scim2.common.exceptions.ScimException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class ScimExceptionHandler {
   /** Maps domain rule failures to their HTTP status with a SCIM body. */
   @ExceptionHandler(DomainException.class)
   public ResponseEntity<ErrorResponse> handleDomain(DomainException ex) {
-    int status = GlobalExceptionHandler.statusOf(ex.getKind()).value();
+    int status = Problems.statusOf(ex.getKind()).value();
     return ScimErrors.toResponse(ScimErrors.fromStatus(status, ex.getCode()));
   }
 

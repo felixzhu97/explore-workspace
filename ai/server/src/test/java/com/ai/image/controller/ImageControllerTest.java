@@ -158,9 +158,9 @@ class ImageControllerTest {
                 .content("{\"prompt\":\"Test\"}"))
         .hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
         .bodyJson()
-        .extractingPath("$.errorCode")
+        .extractingPath("$.type")
         .asString()
-        .isEqualTo("IMAGE_GENERATION_FAILED");
+        .isEqualTo("/problems/image-generation-failed");
   }
 
   @Test

@@ -16,19 +16,11 @@ export interface AppError {
   status: number;
   timestamp: Instant;
   details?: unknown;
-  /** `ErrorResponse.errorCode` from the API, when the body carries one. */
-  errorCode?: string;
+  /** RFC 9457 problem type from the API, such as `/problems/invalid-file`. */
+  type?: string;
 }
 
-/* eslint-disable no-restricted-syntax --
-   Java `ErrorResponse` is `@JsonInclude(NON_NULL)`, so null fields are absent. */
-export interface ErrorResponse {
-  message?: string;
-  errorCode?: string;
-  timestamp: string;
-  path?: string;
-}
-/* eslint-enable no-restricted-syntax */
+const PROBLEM_TYPE_PREFIX = '/problems/';
 
 export { SKIP_ERROR_NOTIFICATION };
 
@@ -51,25 +43,29 @@ function normalizeError(error: HttpErrorResponse): AppError {
     return handleClientError(error);
   }
   const appError = handleServerError(error);
-  const errorCode = readErrorResponse(error.error)?.errorCode;
-  return errorCode !== undefined ? { ...appError, errorCode } : appError;
+  const type = readProblemType(error.error);
+  return type !== null ? { ...appError, type } : appError;
 }
 
-/** The body as an `ErrorResponse` when it has that shape, otherwise null. */
-export function readErrorResponse(body: unknown): ErrorResponse | null {
+/**
+ * The RFC 9457 problem type of an error body, otherwise null.
+ *
+ * Servers deployed before the problem-detail change send `errorCode` instead;
+ * it maps to the same type, so `IMAGE_PROVIDER_NOT_CONFIGURED` becomes
+ * `/problems/image-provider-not-configured`.
+ */
+export function readProblemType(body: unknown): string | null {
   if (body === null || typeof body !== 'object') {
     return null;
   }
-  const { message, errorCode, timestamp, path } = body as Record<string, unknown>;
-  if (typeof timestamp !== 'string') {
-    return null;
+  const { type, errorCode } = body as Record<string, unknown>;
+  if (typeof type === 'string' && type.startsWith(PROBLEM_TYPE_PREFIX)) {
+    return type;
   }
-  return {
-    timestamp,
-    ...(typeof message === 'string' ? { message } : {}),
-    ...(typeof errorCode === 'string' ? { errorCode } : {}),
-    ...(typeof path === 'string' ? { path } : {}),
-  };
+  if (typeof errorCode === 'string' && errorCode !== '') {
+    return PROBLEM_TYPE_PREFIX + errorCode.toLowerCase().replaceAll('_', '-');
+  }
+  return null;
 }
 
 function handleClientError(error: HttpErrorResponse): AppError {
@@ -191,8 +187,8 @@ function extractMessage(error: HttpErrorResponse): string | null {
     return null;
   }
 
-  const { message, error: reason, detail } = errorBody as Record<string, unknown>;
-  return [message, reason, detail]
+  const { detail, message, error: reason } = errorBody as Record<string, unknown>;
+  return [detail, message, reason]
     .find((value): value is string => typeof value === 'string' && value.length > 0)
     ?? null;
 }

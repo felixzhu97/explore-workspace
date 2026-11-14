@@ -4,7 +4,7 @@ import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ContactEmail;
 import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;

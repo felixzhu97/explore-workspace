@@ -1,7 +1,7 @@
 package com.ai.account.domain.model;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import com.explore.kernel.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

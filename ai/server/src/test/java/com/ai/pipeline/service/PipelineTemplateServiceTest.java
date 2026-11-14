@@ -12,10 +12,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
+import com.explore.errors.DomainException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;

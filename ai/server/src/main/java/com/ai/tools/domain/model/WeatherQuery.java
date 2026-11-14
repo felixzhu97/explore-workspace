@@ -1,6 +1,6 @@
 package com.ai.tools.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** City to look up, as typed and normalized. */

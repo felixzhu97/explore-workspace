@@ -1,6 +1,5 @@
 package com.ai.textanalysis.infra.llm;
 
-import com.ai.common.exception.DomainException;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.textanalysis.domain.model.AnalysisText;
@@ -8,6 +7,7 @@ import com.ai.textanalysis.domain.model.LanguageHint;
 import com.ai.textanalysis.domain.model.Sentiment;
 import com.ai.textanalysis.domain.model.TextAnalysis;
 import com.ai.textanalysis.domain.repository.TextAnalysisGateway;
+import com.explore.errors.DomainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.AdvisorParams;

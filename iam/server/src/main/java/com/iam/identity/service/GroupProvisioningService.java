@@ -168,7 +168,7 @@ public class GroupProvisioningService {
   private void requireUsersExist(GroupProfile profile) {
     for (String userId : profile.memberUserIds()) {
       if (userRepository.findById(userId).isEmpty()) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown member " + userId);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "unknown member");
       }
     }
   }

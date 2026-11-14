@@ -97,9 +97,9 @@ describe('ImageService', () => {
     service.generateImage();
     httpMock.expectOne('/api/images/generate').flush(
       {
-        message: 'Image provider not configured',
-        errorCode: 'IMAGE_PROVIDER_NOT_CONFIGURED',
-        timestamp: '2026-01-01T00:00:00Z',
+        type: '/problems/image-provider-not-configured',
+        status: 503,
+        detail: 'Image provider not configured',
       },
       { status: 503, statusText: 'Service Unavailable' },
     );

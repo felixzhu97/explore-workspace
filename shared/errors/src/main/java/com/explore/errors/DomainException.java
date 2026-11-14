@@ -1,6 +1,8 @@
-package com.ai.common.exception;
+package com.explore.errors;
 
-/** A business rule failure with a stable error code that the API returns to clients. */
+/**
+ * A business rule failure with a stable error code that the API returns to clients.
+ */
 public class DomainException extends RuntimeException {
 
   /** What went wrong, independent of transport; the API maps each kind to one HTTP status. */
@@ -18,10 +20,25 @@ public class DomainException extends RuntimeException {
   private final Kind kind;
   private final String code;
 
+  /**
+   * Creates a domain error.
+   *
+   * @param kind what went wrong
+   * @param code the stable error code, in {@code UPPER_SNAKE_CASE}
+   * @param message the client-safe description
+   */
   public DomainException(Kind kind, String code, String message) {
     this(kind, code, message, null);
   }
 
+  /**
+   * Creates a domain error with its cause.
+   *
+   * @param kind what went wrong
+   * @param code the stable error code, in {@code UPPER_SNAKE_CASE}
+   * @param message the client-safe description
+   * @param cause the underlying failure, never sent to clients
+   */
   public DomainException(Kind kind, String code, String message, Throwable cause) {
     super(message, cause);
     this.kind = kind;

@@ -1,12 +1,12 @@
 package com.ai.image.service;
 
-import com.ai.common.exception.DomainException;
 import com.ai.image.domain.model.GeneratedImage;
 import com.ai.image.domain.model.ImageCatalog;
 import com.ai.image.domain.model.ImageOptions;
 import com.ai.image.domain.model.ImagePrompt;
 import com.ai.image.domain.repository.ImageGenerationGateway;
 import com.ai.image.infra.config.ImageProperties;
+import com.explore.errors.DomainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -134,9 +134,9 @@ Cycle detected: Slice account -> \
     - Method <com.ai.account.controller.OwnerContext.requireValue(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.domain.model.OwnerKey.getValue()> in (OwnerContext.java:32)\
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> calls method <com.ai.common.domain.model.OwnerKey.createClientKey(java.lang.String)> in (CurrentOwnerResolver.java:36)\
     - Method <com.ai.account.controller.AccountController.getCurrentAccount(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (AccountController.java:37)\
-    - Method <com.ai.account.service.IamAccountService.requirePersonToken(org.springframework.security.oauth2.jwt.Jwt)> calls method <com.ai.common.exception.DomainException.createForbiddenError(java.lang.String, java.lang.String)> in (IamAccountService.java:44)\
-    - Method <com.ai.account.infra.oauth.OAuthLoginSuccessHandler.onAuthenticationSuccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.Authentication)> catches type <com.ai.common.exception.DomainException> in (OAuthLoginSuccessHandler.java:52)\
-    (8 further dependencies have been omitted...)\
+    - Method <com.ai.account.service.AccountService.linkOAuthUser(com.ai.account.service.OAuthSignIn, com.ai.account.domain.model.ClientId)> calls method <com.ai.common.domain.model.OwnerKey.requireMergeableInto(com.ai.common.domain.model.OwnerKey)> in (AccountService.java:106)\
+    - Method <com.ai.account.domain.model.Account.createOwnerKey()> calls method <com.ai.common.domain.model.OwnerKey.createAccountKey(java.lang.String)> in (Account.java:138)\
+    (1 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
@@ -188,9 +188,9 @@ Cycle detected: Slice account -> \
     - Method <com.ai.account.controller.OwnerContext.requireValue(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.domain.model.OwnerKey.getValue()> in (OwnerContext.java:32)\
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> calls method <com.ai.common.domain.model.OwnerKey.createClientKey(java.lang.String)> in (CurrentOwnerResolver.java:36)\
     - Method <com.ai.account.controller.AccountController.getCurrentAccount(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (AccountController.java:37)\
-    - Method <com.ai.account.service.IamAccountService.requirePersonToken(org.springframework.security.oauth2.jwt.Jwt)> calls method <com.ai.common.exception.DomainException.createForbiddenError(java.lang.String, java.lang.String)> in (IamAccountService.java:44)\
-    - Method <com.ai.account.infra.oauth.OAuthLoginSuccessHandler.onAuthenticationSuccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.Authentication)> catches type <com.ai.common.exception.DomainException> in (OAuthLoginSuccessHandler.java:52)\
-    (8 further dependencies have been omitted...)\
+    - Method <com.ai.account.service.AccountService.linkOAuthUser(com.ai.account.service.OAuthSignIn, com.ai.account.domain.model.ClientId)> calls method <com.ai.common.domain.model.OwnerKey.requireMergeableInto(com.ai.common.domain.model.OwnerKey)> in (AccountService.java:106)\
+    - Method <com.ai.account.domain.model.Account.createOwnerKey()> calls method <com.ai.common.domain.model.OwnerKey.createAccountKey(java.lang.String)> in (Account.java:138)\
+    (1 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
@@ -238,9 +238,9 @@ Cycle detected: Slice account -> \
     - Method <com.ai.account.controller.OwnerContext.requireValue(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.domain.model.OwnerKey.getValue()> in (OwnerContext.java:32)\
     - Method <com.ai.account.service.CurrentOwnerResolver.resolveOwner(java.lang.String, org.springframework.security.core.Authentication)> calls method <com.ai.common.domain.model.OwnerKey.createClientKey(java.lang.String)> in (CurrentOwnerResolver.java:36)\
     - Method <com.ai.account.controller.AccountController.getCurrentAccount(jakarta.servlet.http.HttpServletRequest)> calls method <com.ai.common.controller.ClientIdentity.requireClientId(jakarta.servlet.http.HttpServletRequest)> in (AccountController.java:37)\
-    - Method <com.ai.account.service.IamAccountService.requirePersonToken(org.springframework.security.oauth2.jwt.Jwt)> calls method <com.ai.common.exception.DomainException.createForbiddenError(java.lang.String, java.lang.String)> in (IamAccountService.java:44)\
-    - Method <com.ai.account.infra.oauth.OAuthLoginSuccessHandler.onAuthenticationSuccess(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, org.springframework.security.core.Authentication)> catches type <com.ai.common.exception.DomainException> in (OAuthLoginSuccessHandler.java:52)\
-    (8 further dependencies have been omitted...)\
+    - Method <com.ai.account.service.AccountService.linkOAuthUser(com.ai.account.service.OAuthSignIn, com.ai.account.domain.model.ClientId)> calls method <com.ai.common.domain.model.OwnerKey.requireMergeableInto(com.ai.common.domain.model.OwnerKey)> in (AccountService.java:106)\
+    - Method <com.ai.account.domain.model.Account.createOwnerKey()> calls method <com.ai.common.domain.model.OwnerKey.createAccountKey(java.lang.String)> in (Account.java:138)\
+    (1 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatClientFactory.<init>(com.ai.common.infra.llm.ChatModelResolver, org.springframework.ai.chat.memory.ChatMemory, com.ai.common.infra.prompt.PromptTemplates, com.ai.tools.infra.tools.WeatherTools, com.ai.common.service.llm.DocumentSearchTool, com.ai.common.service.llm.WebSearchTool, com.ai.tools.infra.tools.DateTimeTools, org.springframework.beans.factory.ObjectProvider, boolean)> has parameter of type <com.ai.tools.infra.tools.DateTimeTools> in (ChatClientFactory.java:0)\
     - Constructor <com.ai.common.infra.llm.ChatClientFactory.<init>(com.ai.common.infra.llm.ChatModelResolver, org.springframework.ai.chat.memory.ChatMemory, com.ai.common.infra.prompt.PromptTemplates, com.ai.tools.infra.tools.WeatherTools, com.ai.common.service.llm.DocumentSearchTool, com.ai.common.service.llm.WebSearchTool, com.ai.tools.infra.tools.DateTimeTools, org.springframework.beans.factory.ObjectProvider, boolean)> has parameter of type <com.ai.tools.infra.tools.WeatherTools> in (ChatClientFactory.java:0)\
@@ -272,7 +272,7 @@ Cycle detected: Slice chat -> \
     - Method <com.ai.chat.domain.repository.ChatSessionRepository.findAllByOwnerKeyOrderByLastActivityAtDesc(com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (ChatSessionRepository.java:0)\
     - Method <com.ai.chat.domain.repository.ChatSessionRepository.findByIdAndOwnerKey(com.ai.chat.domain.model.ChatSessionId, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (ChatSessionRepository.java:0)\
     - Method <com.ai.chat.infra.config.ChatConfig.promptTemplates()> has return type <com.ai.common.infra.prompt.PromptTemplates> in (ChatConfig.java:0)\
-    (88 further dependencies have been omitted...)\
+    (83 further dependencies have been omitted...)\
   2. Dependencies of Slice common\
     - Constructor <com.ai.common.infra.llm.ChatModelResolver.<init>(org.springframework.ai.chat.model.ChatModel, org.springframework.beans.factory.ObjectProvider, org.springframework.beans.factory.ObjectProvider, com.ai.chat.service.TextProviderCatalog, java.lang.String, java.lang.String, java.lang.String)> has parameter of type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
     - Field <com.ai.common.infra.llm.ChatModelResolver.providerCatalog> has type <com.ai.chat.service.TextProviderCatalog> in (ChatModelResolver.java:0)\
@@ -300,10 +300,8 @@ Cycle detected: Slice chat -> \
     - Method <com.ai.skill.domain.model.Skill.update(java.lang.String, java.lang.String, java.lang.String, java.util.List)> calls method <com.ai.common.domain.model.DomainStrings.requireNonBlank(java.lang.String, java.lang.String)> in (Skill.java:58)\
     - Method <com.ai.skill.service.SkillService.deleteSkill(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:106)\
     - Method <com.ai.skill.service.SkillService.findOwnedSkill(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:111)\
-    - Method <com.ai.skill.service.SkillService.findOwnedSkill(java.lang.String, java.lang.String)> calls method <com.ai.common.exception.DomainException.createNotFoundError(java.lang.String, java.lang.String)> in (SkillService.java:113)\
     - Method <com.ai.skill.service.SkillService.assertNameAvailable(java.lang.String, java.lang.String, com.ai.skill.domain.model.SkillId)> calls method <com.ai.common.domain.model.DomainStrings.normalizeName(java.lang.String)> in (SkillService.java:117)\
     - Method <com.ai.skill.service.SkillService.assertNameAvailable(java.lang.String, java.lang.String, com.ai.skill.domain.model.SkillId)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:119)\
-    - Method <com.ai.skill.service.SkillService.assertNameAvailable(java.lang.String, java.lang.String, com.ai.skill.domain.model.SkillId)> calls method <com.ai.common.exception.DomainException.createConflictError(java.lang.String, java.lang.String)> in (SkillService.java:120)\
     - Method <com.ai.skill.service.SkillService.findNextAvailableName(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.OwnerKey.parseKey(java.lang.String)> in (SkillService.java:126)\
     - Method <com.ai.skill.service.SkillService.findNextAvailableName(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.DomainStrings.copyNameCandidates(java.lang.String, int)> in (SkillService.java:127)\
     - Method <com.ai.skill.service.SkillService.findNextAvailableName(java.lang.String, java.lang.String)> calls method <com.ai.common.domain.model.DomainStrings.copyName(java.lang.String, java.lang.String, int)> in (SkillService.java:132)\
@@ -326,20 +324,13 @@ Cycle detected: Slice common -> \
     - Field <com.ai.tools.service.ToolService.documentSearchTool> has type <com.ai.common.service.llm.DocumentSearchTool> in (ToolService.java:0)\
     - Field <com.ai.tools.service.ToolService.webSearchTool> has type <com.ai.common.service.llm.WebSearchTool> in (ToolService.java:0)\
     - Method <com.ai.tools.service.ToolService.chatWithTools(java.lang.String, com.ai.common.domain.model.OwnerKey)> has parameter of type <com.ai.common.domain.model.OwnerKey> in (ToolService.java:0)\
-    - Constructor <com.ai.tools.domain.model.WeatherForecast.<init>(com.ai.tools.domain.model.WeatherQuery, int)> calls method <com.ai.common.exception.DomainException.createInvalidError(java.lang.String, java.lang.String)> in (WeatherForecast.java:14)\
-    - Constructor <com.ai.tools.domain.model.WeatherQuery.<init>(java.lang.String, java.lang.String)> calls method <com.ai.common.exception.DomainException.createInvalidError(java.lang.String, java.lang.String)> in (WeatherQuery.java:14)\
-    - Constructor <com.ai.tools.domain.model.WeatherForecast.<init>(com.ai.tools.domain.model.WeatherQuery, int)> calls method <com.ai.common.exception.DomainException.createInvalidError(java.lang.String, java.lang.String)> in (WeatherForecast.java:17)\
-    - Method <com.ai.tools.infra.tools.WeatherTools.getWeather(java.lang.String)> catches type <com.ai.common.exception.DomainException> in (WeatherTools.java:27)\
-    - Method <com.ai.tools.infra.tools.WeatherTools.getWeather(java.lang.String)> calls method <com.ai.common.exception.DomainException.getMessage()> in (WeatherTools.java:29)\
-    - Method <com.ai.tools.infra.tools.WeatherTools.getForecast(java.lang.String, java.lang.Integer)> catches type <com.ai.common.exception.DomainException> in (WeatherTools.java:42)\
     - Method <com.ai.tools.service.ToolService.searchDocuments(java.lang.String, java.util.List)> calls method <com.ai.common.service.llm.DocumentSearchTool.searchDocuments(java.lang.String, java.util.List)> in (ToolService.java:46)\
-    - Method <com.ai.tools.infra.tools.WeatherTools.getForecast(java.lang.String, java.lang.Integer)> calls method <com.ai.common.exception.DomainException.getMessage()> in (WeatherTools.java:48)\
     - Method <com.ai.tools.service.ToolService.listDocuments()> calls method <com.ai.common.service.llm.DocumentSearchTool.listDocuments()> in (ToolService.java:51)\
     - Method <com.ai.tools.service.ToolService.chatWithTools(java.lang.String, com.ai.common.domain.model.OwnerKey)> calls method <com.ai.common.service.llm.ChatClientProvider.createStateless(com.ai.common.service.llm.TextChatOptions)> in (ToolService.java:59)\
     - Method <com.ai.tools.service.ToolService.chatWithTools(java.lang.String, com.ai.common.domain.model.OwnerKey)> calls method <com.ai.common.service.llm.TextChatOptions.createOptions(java.lang.String, java.lang.String, java.lang.Boolean)> in (ToolService.java:59)\
     - Method <com.ai.tools.service.ToolService.chatWithTools(java.lang.String, com.ai.common.domain.model.OwnerKey)> calls constructor <com.ai.common.domain.event.AiInvocationCompletedEvent.<init>(java.lang.String, java.lang.String, long, com.ai.common.domain.model.OwnerKey, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)> in (ToolService.java:65)\
     - Method <com.ai.tools.service.ToolService.chatWithTools(java.lang.String, com.ai.common.domain.model.OwnerKey)> calls constructor <com.ai.common.domain.event.AiInvocationFailedEvent.<init>(java.lang.String, java.lang.String, long, com.ai.common.domain.model.OwnerKey, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)> in (ToolService.java:86)\
-    (1 further dependencies have been omitted...)
+    - Method <com.ai.tools.service.ToolService.searchWeb(java.lang.String)> calls method <com.ai.common.service.llm.WebSearchTool.searchWeb(java.lang.String)> in (ToolService.java:93)
 Cycle detected: Slice rag -> \
                 Slice vision -> \
                 Slice rag\

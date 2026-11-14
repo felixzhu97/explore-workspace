@@ -1,12 +1,12 @@
 package com.ai.vision.controller;
 
 import com.ai.account.controller.OwnerContext;
-import com.ai.common.exception.DomainException;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.OcrResponse;
 import com.ai.vision.controller.dto.VisionHealthResponse;
 import com.ai.vision.service.VisionAnalysisService;
+import com.explore.errors.DomainException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;

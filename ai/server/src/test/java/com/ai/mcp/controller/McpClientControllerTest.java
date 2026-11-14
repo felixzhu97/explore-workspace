@@ -99,8 +99,8 @@ class McpClientControllerTest {
                 .content("{\"question\":\"  \"}"))
         .hasStatus(HttpStatus.BAD_REQUEST)
         .bodyJson()
-        .extractingPath("$.errorCode")
+        .extractingPath("$.detail")
         .asString()
-        .isEqualTo("VALIDATION_ERROR");
+        .isEqualTo("question: must not be blank");
   }
 }

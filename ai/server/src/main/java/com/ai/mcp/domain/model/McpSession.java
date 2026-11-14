@@ -1,6 +1,6 @@
 package com.ai.mcp.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;

@@ -10,7 +10,7 @@ import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;

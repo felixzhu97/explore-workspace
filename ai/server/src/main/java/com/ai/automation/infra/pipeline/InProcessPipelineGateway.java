@@ -2,11 +2,11 @@ package com.ai.automation.infra.pipeline;
 
 import com.ai.automation.domain.repository.PipelineGateway;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
 import com.ai.pipeline.service.PipelineService;
+import com.explore.errors.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

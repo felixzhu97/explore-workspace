@@ -8,7 +8,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.exception.DomainException;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.ExtractedDocument;
 import com.ai.rag.domain.model.RagDocument;
@@ -18,6 +17,7 @@ import com.ai.rag.domain.repository.DocumentRepository;
 import com.ai.rag.domain.repository.DocumentTransformer;
 import com.ai.rag.domain.repository.DocumentWriter;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.explore.errors.DomainException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;

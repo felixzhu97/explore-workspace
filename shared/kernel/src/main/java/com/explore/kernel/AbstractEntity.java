@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 
-/** Layer supertype of mutable entities: update time and optimistic locking. */
+/**
+ * Layer supertype of mutable entities: update time and optimistic locking.
+ */
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)

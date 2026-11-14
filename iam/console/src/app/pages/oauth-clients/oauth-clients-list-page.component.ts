@@ -12,6 +12,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { ConsoleShellComponent } from '../../layout/console-shell.component';
+import { readErrorDetail } from '../../shared/utils/problem-detail';
 
 const DOCS_URL = 'https://docs.spring.io/spring-authorization-server/reference/';
 
@@ -340,8 +341,7 @@ export class OAuthClientsListPageComponent implements OnInit {
         void this.router.navigate(['/sign-in'], { queryParams: { continue: '/oauth-clients' } });
         return;
       }
-      const message = (err.error as { message?: string } | null)?.message;
-      this.errorMessage.set(message || `请求失败（${err.status}）`);
+      this.errorMessage.set(readErrorDetail(err.error) ?? `请求失败（${err.status}）`);
       return;
     }
     this.errorMessage.set('请求失败，请重试。');

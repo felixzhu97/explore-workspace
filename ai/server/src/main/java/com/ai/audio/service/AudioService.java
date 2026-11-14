@@ -7,7 +7,7 @@ import com.ai.audio.domain.model.VoiceInfo;
 import com.ai.audio.domain.model.VoiceSelection;
 import com.ai.audio.domain.repository.TextToSpeechGateway;
 import com.ai.audio.domain.repository.TtsConfiguration;
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

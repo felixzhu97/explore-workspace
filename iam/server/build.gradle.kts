@@ -24,6 +24,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
+    implementation(project(":shared-errors"))
     implementation(libs.scim2.sdk.common)
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
     runtimeOnly("com.h2database:h2")

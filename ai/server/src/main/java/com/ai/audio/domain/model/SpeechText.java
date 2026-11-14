@@ -1,6 +1,6 @@
 package com.ai.audio.domain.model;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import lombok.Value;
 
 /** Text to be spoken, non-blank and capped in length. */

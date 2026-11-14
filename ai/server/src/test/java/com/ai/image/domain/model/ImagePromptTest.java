@@ -2,7 +2,7 @@ package com.ai.image.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.exception.DomainException;
+import com.explore.errors.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

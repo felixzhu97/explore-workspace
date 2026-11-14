@@ -13,11 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.ai.common.exception.DomainException;
 import com.ai.scim.infra.ScimJsonHttpMessageConverter;
 import com.ai.scim.infra.ScimSecurityConfig;
 import com.ai.scim.mapper.ScimMeta;
 import com.ai.scim.service.ScimAccountService;
+import com.explore.errors.DomainException;
 import com.unboundid.scim2.common.exceptions.PreconditionFailedException;
 import com.unboundid.scim2.common.types.Meta;
 import com.unboundid.scim2.common.types.UserResource;
