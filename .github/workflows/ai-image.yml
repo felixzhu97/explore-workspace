@@ -1,0 +1,25 @@
+name: ai image
+
+on:
+  push:
+    branches: [main]
+    paths: &paths
+      - "ai/server/**"
+      - "build-logic/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/ai-image.yml"
+  pull_request:
+    paths: *paths
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the deploy image
+        run: docker build -f ai/server/Dockerfile -t explore-ai .
