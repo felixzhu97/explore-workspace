@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "ExploreProduct",
+  "title": "Explore product",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Product name, used as the directory name and the scope tag.",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "$default": { "$source": "argv", "index": 0 }
+    },
+    "roles": {
+      "type": "array",
+      "description": "Role directories to create.",
+      "items": {
+        "type": "string",
+        "enum": ["server", "web", "admin", "console", "portal", "mobile", "ios"]
+      },
+      "default": ["server", "web"]
+    }
+  },
+  "required": ["name"]
+}

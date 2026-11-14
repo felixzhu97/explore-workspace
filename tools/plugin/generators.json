@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "product": {
+      "factory": "./generators/product/index.js",
+      "schema": "./generators/product/schema.json",
+      "description": "Create a product directory with role projects, scope tags and a module boundary."
+    }
+  }
+}

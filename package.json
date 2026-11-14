@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@eslint/js": "catalog:",
+    "@explore/plugin": "workspace:*",
     "@nx/eslint": "catalog:",
     "@nx/eslint-plugin": "catalog:",
     "@nx/gradle": "catalog:",
