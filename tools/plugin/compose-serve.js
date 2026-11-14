@@ -15,7 +15,7 @@ function isListening(portNumber) {
 async function main() {
   if (port && (await isListening(port))) {
     console.log(`${service} is already running on port ${port}; reusing it.`);
-    setInterval(() => {}, 1 << 30);
+    setInterval(() => undefined, 2 ** 30);
     return;
   }
   const child = spawn('docker', ['compose', 'up', service], { stdio: 'inherit' });

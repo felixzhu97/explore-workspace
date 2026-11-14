@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "commonjs",
+  "nx": {
+    "tags": ["type:tool"]
+  },
   "dependencies": {
     "yaml": "catalog:"
   }
