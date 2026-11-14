@@ -82,9 +82,6 @@ web/e2e/snapshots/
 # TypeScript build info
 *.tsbuildinfo
 
-# Husky
-.husky/_/
-
 # Services (legacy microservices)
 services/data/
 

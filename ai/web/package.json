@@ -38,7 +38,6 @@
     "e2e:headed": "playwright test --headed",
     "e2e:ui": "playwright test --ui",
     "clean": "rm -rf dist .angular node_modules/.cache",
-    "prepare": "husky",
     "vision:verify": "../server/scripts/verify-vision.sh all",
     "vision:models": "../server/scripts/download-vision-models.sh",
     "server:test": "../../gradlew :ai-server:test",
@@ -100,9 +99,7 @@
     "angular-eslint": "22.5.0",
     "eslint": "^10.10.0",
     "eslint-plugin-tailwindcss": "^4.4.0",
-    "husky": "^9.1.7",
     "jsdom": "^30.0.1",
-    "lint-staged": "^17.5.1",
     "sass-embedded": "^1.104.1",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.23.13",
@@ -110,11 +107,6 @@
     "typescript-eslint": "8.70.0",
     "vitest": "^5.0.1",
     "zard-cli": "1.0.0-beta.117"
-  },
-  "lint-staged": {
-    "*.ts": [
-      "eslint --fix"
-    ]
   },
   "nx": {
     "tags": [
