@@ -4,6 +4,7 @@
   "targets": {
     "serve": {
       "continuous": true,
+      "readyWhen": { "url": "http://localhost:9100/actuator/health" },
       "command": "./gradlew :iam-server:bootRun",
       "options": {
         "cwd": "{workspaceRoot}"

@@ -16,38 +16,17 @@ You need JDK 25+, Node.js 20+, pnpm 8+, and Git. For local RAG embeddings, insta
 
 ### Initial install
 
-Clone the repository, create your environment file, and load variables:
-
 ```bash
-git clone https://github.com/felixzhu97/explore-ai.git
-cd explore-ai
-cp .env.example .env
-# Edit .env — at minimum set DEEPSEEK_API_KEY
-set -a && source .env && set +a
+git clone https://github.com/felixzhu97/explore-workspace.git
+cd explore-workspace
+cp ai/server/.env.example ai/server/.env   # at minimum set DEEPSEEK_API_KEY
+pnpm install
+pnpm dev ai   # server http://localhost:9000, web http://localhost:4200
 ```
+
+`pnpm dev ai` also starts Ollama, or reuses one already listening on port 11434. The server reads `ai/server/.env` at startup. Run `pnpm dev ai iam` to sign in with Explore IAM as well.
 
 For a full walkthrough (API keys, Ollama, troubleshooting), see [Quick Start](docs/developer/QUICKSTART.md).
-
-### Backend
-
-From the workspace root, start the Spring Boot API:
-
-```bash
-./gradlew :ai-server:bootRun
-# → http://localhost:9000
-curl -s http://localhost:9000/actuator/health
-```
-
-### Frontend
-
-In a second terminal:
-
-```bash
-cd web
-pnpm install
-pnpm start
-# → http://localhost:4200
-```
 
 ### Run your first chat
 
@@ -63,7 +42,7 @@ Open [http://localhost:4200](http://localhost:4200) for the full UI. See [Quick 
 
 ### Stop local services
 
-Press `Ctrl+C` in each terminal running `bootRun` and `pnpm start`. To reset local H2 data, remove the directory configured by `H2_URL` (default under `server/data/explore-ai`).
+Press `Ctrl+C` in the terminal running `pnpm dev ai`. To reset local H2 data, remove the directory configured by `H2_URL` (default under `server/data/explore-ai`).
 
 ## Configuration
 
