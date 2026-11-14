@@ -1,4 +1,4 @@
-package com.ai.scim.mapper;
+package com.explore.provisioning;
 
 import com.unboundid.scim2.common.types.Meta;
 import java.time.Instant;

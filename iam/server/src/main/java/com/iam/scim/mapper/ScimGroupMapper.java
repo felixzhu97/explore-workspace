@@ -1,5 +1,6 @@
 package com.iam.scim.mapper;
 
+import com.explore.provisioning.ScimMeta;
 import com.iam.identity.domain.model.ExternalId;
 import com.iam.identity.domain.model.Group;
 import com.iam.identity.service.GroupProfile;

@@ -1,10 +1,11 @@
 package com.iam.scim.service;
 
+import com.explore.provisioning.ScimFilterTranslator;
+import com.explore.provisioning.ScimLocations;
 import com.iam.identity.domain.model.Group;
 import com.iam.identity.domain.model.User;
 import com.iam.identity.service.GroupProvisioningService;
 import com.iam.identity.service.UserProvisioningService;
-import com.iam.scim.infra.ScimFilterTranslator;
 import com.iam.scim.mapper.ScimGroupMapper;
 import com.iam.scim.mapper.ScimUserMapper;
 import com.unboundid.scim2.common.GenericScimResource;

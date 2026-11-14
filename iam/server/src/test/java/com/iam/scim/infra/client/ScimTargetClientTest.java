@@ -12,12 +12,14 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
+import com.explore.provisioning.ScimJsonHttpMessageConverter;
+import com.explore.provisioning.ScimProvisioningContract;
 import com.iam.identity.domain.model.ExternalId;
 import com.iam.identity.domain.model.User;
 import com.iam.scim.domain.model.ProvisioningTarget;
 import com.iam.scim.domain.service.ScimTargetGateway;
-import com.iam.scim.infra.ScimJsonHttpMessageConverter;
 import com.iam.scim.mapper.ScimUserMapper;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,9 +36,11 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriUtils;
 
 @SpringJUnitConfig(ScimTargetClientTest.TestConfig.class)
 @DisplayName("ScimTargetClient")
@@ -54,6 +58,11 @@ class ScimTargetClientTest {
        "totalResults":1,
        "Resources":[{"schemas":["urn:ietf:params:scim:schemas:core:2.0:User"],
                      "id":"remote-9","userName":"alice"}]}
+      """;
+  private static final String EMPTY_LIST_JSON =
+      """
+      {"schemas":["urn:ietf:params:scim:api:messages:2.0:ListResponse"],
+       "totalResults":0,"Resources":[]}
       """;
 
   @Autowired private ScimTargetGateway gateway;
@@ -160,6 +169,66 @@ class ScimTargetClientTest {
         .andExpect(method(HttpMethod.DELETE))
         .andRespond(withResourceNotFound());
 
+    gateway.deleteAccount(target, "remote-1");
+    server.verify();
+  }
+
+  @Test
+  @DisplayName("should send the requests of the provisioning contract")
+  void shouldSendTheRequestsOfTheProvisioningContract() {
+    User pushed =
+        User.provisionUser(
+            ScimProvisioningContract.USER_NAME,
+            ScimProvisioningContract.EMAIL,
+            ScimProvisioningContract.DISPLAY_NAME,
+            null);
+    String filter =
+        UriUtils.encodeQueryParam(
+            ScimProvisioningContract.externalIdFilter(pushed.getId()), StandardCharsets.UTF_8);
+    server
+        .expect(requestTo(BASE + "/Users?filter=" + filter))
+        .andExpect(method(HttpMethod.GET))
+        .andRespond(withSuccess(EMPTY_LIST_JSON, ScimJsonHttpMessageConverter.SCIM_JSON));
+    server
+        .expect(requestTo(BASE + "/Users"))
+        .andExpect(method(HttpMethod.POST))
+        .andExpect(
+            content()
+                .json(
+                    ScimProvisioningContract.createUserBody(pushed.getId()),
+                    JsonCompareMode.STRICT))
+        .andRespond(
+            withStatus(HttpStatus.CREATED)
+                .contentType(ScimJsonHttpMessageConverter.SCIM_JSON)
+                .body(USER_JSON));
+    server
+        .expect(requestTo(BASE + "/Users/remote-1"))
+        .andExpect(method(HttpMethod.PUT))
+        .andExpect(
+            content()
+                .json(
+                    ScimProvisioningContract.replaceUserBody(pushed.getId()),
+                    JsonCompareMode.STRICT))
+        .andRespond(withSuccess(USER_JSON, ScimJsonHttpMessageConverter.SCIM_JSON));
+    server
+        .expect(requestTo(BASE + "/Users/remote-1"))
+        .andExpect(method(HttpMethod.PATCH))
+        .andExpect(
+            content().json(ScimProvisioningContract.setActiveBody(false), JsonCompareMode.STRICT))
+        .andRespond(withSuccess(USER_JSON, ScimJsonHttpMessageConverter.SCIM_JSON));
+    server
+        .expect(requestTo(BASE + "/Users/remote-1"))
+        .andExpect(method(HttpMethod.DELETE))
+        .andRespond(withStatus(HttpStatus.NO_CONTENT));
+
+    assertThat(gateway.findRemoteId(target, pushed.getId())).isEmpty();
+    assertThat(gateway.createAccount(target, pushed)).isEqualTo("remote-1");
+    pushed.updateProfile(
+        ScimProvisioningContract.USER_NAME,
+        ScimProvisioningContract.EMAIL,
+        ScimProvisioningContract.RENAMED_DISPLAY_NAME);
+    assertThat(gateway.replaceAccount(target, "remote-1", pushed)).isTrue();
+    assertThat(gateway.setAccountActive(target, "remote-1", false)).isTrue();
     gateway.deleteAccount(target, "remote-1");
     server.verify();
   }

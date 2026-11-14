@@ -2,6 +2,8 @@ package com.iam.scim.infra;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.explore.provisioning.ScimErrors;
+import com.explore.provisioning.ScimJsonHttpMessageConverter;
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import com.unboundid.scim2.common.utils.JsonUtils;
 import jakarta.servlet.http.HttpServletResponse;

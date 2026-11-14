@@ -10,9 +10,10 @@ import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
 import com.ai.account.service.OwnerErasureService;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.scim.infra.ScimFilterTranslator;
 import com.ai.scim.mapper.ScimAccountMapper;
 import com.ai.testsupport.AbstractDataJpaTest;
+import com.explore.provisioning.ScimFilterTranslator;
+import com.explore.provisioning.ScimLocations;
 import com.unboundid.scim2.common.exceptions.BadRequestException;
 import com.unboundid.scim2.common.exceptions.PreconditionFailedException;
 import com.unboundid.scim2.common.exceptions.ResourceConflictException;
@@ -34,7 +35,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 class ScimAccountServiceTest extends AbstractDataJpaTest {
 
   private static final ScimLocations LOCATIONS =
-      new ScimLocations("https://ai.example/scim/v2/Users");
+      ScimLocations.usersOnly("https://ai.example/scim/v2/Users");
 
   @Autowired private ScimAccountService service;
 

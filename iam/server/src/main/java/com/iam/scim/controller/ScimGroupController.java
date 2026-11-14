@@ -1,10 +1,11 @@
 package com.iam.scim.controller;
 
-import static com.iam.scim.infra.ScimJsonHttpMessageConverter.SCIM_JSON_VALUE;
+import static com.explore.provisioning.ScimJsonHttpMessageConverter.SCIM_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import com.iam.scim.mapper.ScimMeta;
-import com.iam.scim.service.ScimLocations;
+import com.explore.provisioning.ScimEndpoints;
+import com.explore.provisioning.ScimLocations;
+import com.explore.provisioning.ScimMeta;
 import com.iam.scim.service.ScimProvisioningService;
 import com.unboundid.scim2.common.exceptions.ScimException;
 import com.unboundid.scim2.common.messages.ListResponse;
@@ -65,7 +66,7 @@ public class ScimGroupController {
         startIndex,
         count,
         includeMembers(excludedAttributes),
-        ScimEndpoints.currentLocations());
+        ScimEndpoints.currentLocationsWithGroups());
   }
 
   /**
@@ -171,7 +172,7 @@ public class ScimGroupController {
   }
 
   private static ScimLocations locations() {
-    return ScimEndpoints.currentLocations();
+    return ScimEndpoints.currentLocationsWithGroups();
   }
 
   private static ResponseEntity<GroupResource> withEtag(

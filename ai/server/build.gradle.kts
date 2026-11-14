@@ -20,6 +20,7 @@ val cloudMinimal = project.hasProperty("cloudMinimal")
 
 dependencies {
     implementation(project(":shared-errors"))
+    implementation(project(":shared-provisioning"))
     implementation(project(":shared-identity"))
     implementation(project(":shared-kernel"))
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -77,6 +78,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     testImplementation(libs.archunit.junit5)
     testImplementation(testFixtures(project(":shared-architecture")))
+    testImplementation(testFixtures(project(":shared-provisioning")))
 }
 
 if (!cloudMinimal) {

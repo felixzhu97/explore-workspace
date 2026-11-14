@@ -1,5 +1,7 @@
 package com.ai.scim.infra;
 
+import com.explore.provisioning.ScimErrors;
+import com.explore.provisioning.ScimJsonHttpMessageConverter;
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import com.unboundid.scim2.common.utils.JsonUtils;
 import jakarta.servlet.http.HttpServletResponse;

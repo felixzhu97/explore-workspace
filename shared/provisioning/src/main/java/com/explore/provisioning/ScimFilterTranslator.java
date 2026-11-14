@@ -1,4 +1,4 @@
-package com.iam.scim.infra;
+package com.explore.provisioning;
 
 import com.unboundid.scim2.common.ScimResource;
 import com.unboundid.scim2.common.exceptions.BadRequestException;
@@ -9,25 +9,23 @@ import com.unboundid.scim2.common.filters.FilterType;
 import com.unboundid.scim2.common.utils.FilterEvaluator;
 import com.unboundid.scim2.common.utils.JsonUtils;
 import java.util.Optional;
-import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 
 /**
  * Parses SCIM filters and evaluates them against mapped resources. Simple {@code attr eq "value"}
  * filters are exposed so callers can use indexed lookups instead of a full scan.
  */
-@Component
-public class ScimFilterTranslator {
+public final class ScimFilterTranslator {
 
   /** Maximum filter length accepted from clients. */
-  static final int MAX_FILTER_LENGTH = 1024;
+  public static final int MAX_FILTER_LENGTH = 1024;
 
   /**
    * Parses a filter expression.
    *
    * @param expression raw {@code filter} query value, may be blank
    * @return parsed filter, or empty when no filter was given
-   * @throws BadRequestException when the filter is invalid
+   * @throws BadRequestException when the filter is invalid; the detail never repeats the filter
    */
   public Optional<Filter> parse(String expression) throws BadRequestException {
     if (expression == null || expression.isBlank()) {
@@ -36,7 +34,11 @@ public class ScimFilterTranslator {
     if (expression.length() > MAX_FILTER_LENGTH) {
       throw BadRequestException.invalidFilter("filter is too long");
     }
-    return Optional.of(Filter.fromString(expression));
+    try {
+      return Optional.of(Filter.fromString(expression));
+    } catch (BadRequestException ex) {
+      throw BadRequestException.invalidFilter("invalid filter");
+    }
   }
 
   /**
