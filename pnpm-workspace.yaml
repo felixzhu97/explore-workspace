@@ -1,7 +1,5 @@
 packages:
   - "*/*"
-  # iam keeps its own install until it joins this workspace.
-  - "!iam/**"
 
 catalog:
   "@eslint/js": 10.0.1
@@ -16,4 +14,8 @@ catalog:
   yaml: 2.9.0
 
 allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
   nx: true

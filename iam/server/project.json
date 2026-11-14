@@ -1,0 +1,13 @@
+{
+  "name": "iam-server",
+  "tags": ["scope:iam"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "command": "./gradlew :iam-server:bootRun",
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}
