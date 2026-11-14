@@ -20,7 +20,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | --- | --- | --- |
 | `C1-Context.puml` | C1 | 系统上下文（含 Explore IAM OIDC + SCIM、AI iOS、LaunchDarkly、Datadog） |
 | `C2-Container.puml` | C2 | 容器图（13 子域 + SCIM Provisioning + AI iOS + IAM） |
-| `C3-Component.puml` | C3 | **单图**：Web + iOS + Backend；`IamResourceServerConfig`、`ScimSecurityConfig` |
+| `C3-Component.puml` | C3 | **单图**：Web + iOS + Backend；Boot 资源服务器、`ScimSecurityConfig` |
 | `C4-Code-Domain-Model.puml` | **Code** | 领域模型（Entity 行为 + VO / Repository；按业务域分 package：Domain Kernel、Common、Chat、RAG…） |
 | `C4-Deployment.puml` | Deployment | **单图**：本地（IAM :9100 / AI :9000 / Simulator）+ 生产 |
 | `style-zinc.puml` | Shared | Dynamic 序列图可选样式（Code 领域模型内联白底黑边框） |

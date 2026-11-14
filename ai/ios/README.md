@@ -16,7 +16,7 @@ After sign-in the root shows **Chat** (no Home).
 - Xcode 16+ / [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 - iOS 17+ simulator or device
 - Local Explore IAM (`http://localhost:9100`) and Explore AI API (`http://localhost:9000`)
-  with JWT resource server enabled (`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER=true`)
+  with JWT resource server enabled (`SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=http://localhost:9100`)
 - Voice / dictation: explore-ml **Speech** on `:8000` (Qwen3-ASR + Qwen3-TTS)
 - Physical device uses Mac LAN host `192.168.3.100` (not `localhost`) for API + IAM
 

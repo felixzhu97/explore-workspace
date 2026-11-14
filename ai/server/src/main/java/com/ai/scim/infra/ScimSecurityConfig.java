@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,10 +31,7 @@ public class ScimSecurityConfig {
   @Bean
   @Order(0)
   SecurityFilterChain scimSecurityFilterChain(
-      HttpSecurity http,
-      ObjectProvider<JwtDecoder> jwtDecoder,
-      JwtAuthenticationConverter iamJwtAuthenticationConverter)
-      throws Exception {
+      HttpSecurity http, ObjectProvider<JwtDecoder> jwtDecoder) throws Exception {
     BearerTokenAuthenticationEntryPoint bearerEntryPoint =
         new BearerTokenAuthenticationEntryPoint();
     BearerTokenAccessDeniedHandler bearerDenied = new BearerTokenAccessDeniedHandler();
@@ -71,7 +67,7 @@ public class ScimSecurityConfig {
       http.oauth2ResourceServer(
           oauth2 ->
               oauth2
-                  .jwt(jwt -> jwt.jwtAuthenticationConverter(iamJwtAuthenticationConverter))
+                  .jwt(Customizer.withDefaults())
                   .authenticationEntryPoint(
                       (request, response, failure) -> {
                         bearerEntryPoint.commence(request, response, failure);

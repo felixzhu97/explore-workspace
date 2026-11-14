@@ -26,7 +26,7 @@ ios --> user: 13. Navigate HomeView
 
 note over ios, api
   Bearer requests skip CSRF.
-  Resource server: IamResourceServerConfig.
+  Resource server: spring.security.oauth2.resourceserver.jwt.issuer-uri.
 end note
 
 @enduml

@@ -4,6 +4,7 @@ import com.ai.account.infra.oauth.AccountLogoutHandler;
 import com.ai.account.infra.oauth.OAuthLoginFailureHandler;
 import com.ai.account.infra.oauth.OAuthLoginSuccessHandler;
 import com.ai.common.controller.filter.CsrfProtectionFilter;
+import com.explore.identity.BearerTokenScopeAuthorization;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -18,8 +19,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -47,17 +46,6 @@ public class SecurityConfig {
     return new HttpSessionSecurityContextRepository();
   }
 
-  /** Maps JWT scopes to {@code SCOPE_} authorities. */
-  @Bean
-  JwtAuthenticationConverter iamJwtAuthenticationConverter() {
-    JwtGrantedAuthoritiesConverter scopes = new JwtGrantedAuthoritiesConverter();
-    scopes.setAuthorityPrefix("SCOPE_");
-    scopes.setAuthoritiesClaimName("scope");
-    JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-    converter.setJwtGrantedAuthoritiesConverter(scopes);
-    return converter;
-  }
-
   /** Builds the security chain used when OAuth login is configured. */
   @Bean
   @Order(1)
@@ -68,8 +56,7 @@ public class SecurityConfig {
       OAuthLoginFailureHandler failureHandler,
       AccountLogoutHandler accountLogoutHandler,
       SecurityContextRepository securityContextRepository,
-      ObjectProvider<JwtDecoder> jwtDecoder,
-      JwtAuthenticationConverter iamJwtAuthenticationConverter)
+      ObjectProvider<JwtDecoder> jwtDecoder)
       throws Exception {
     http.securityMatcher("/**")
         .authorizeHttpRequests(SecurityConfig::authorizeModuleScopes)
@@ -96,7 +83,7 @@ public class SecurityConfig {
                     .deleteCookies("EASESSIONID", "JSESSIONID"))
         .exceptionHandling(
             ex -> ex.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
-    applyJwtResourceServer(http, jwtDecoder, iamJwtAuthenticationConverter);
+    applyJwtResourceServer(http, jwtDecoder);
     return http.build();
   }
 
@@ -108,8 +95,7 @@ public class SecurityConfig {
       HttpSecurity http,
       AccountLogoutHandler accountLogoutHandler,
       SecurityContextRepository securityContextRepository,
-      ObjectProvider<JwtDecoder> jwtDecoder,
-      JwtAuthenticationConverter iamJwtAuthenticationConverter)
+      ObjectProvider<JwtDecoder> jwtDecoder)
       throws Exception {
     http.securityMatcher("/**")
         .authorizeHttpRequests(SecurityConfig::authorizeModuleScopes)
@@ -129,7 +115,7 @@ public class SecurityConfig {
                     .invalidateHttpSession(true)
                     .clearAuthentication(true)
                     .deleteCookies("EASESSIONID", "JSESSIONID"));
-    applyJwtResourceServer(http, jwtDecoder, iamJwtAuthenticationConverter);
+    applyJwtResourceServer(http, jwtDecoder);
     return http.build();
   }
 
@@ -137,13 +123,13 @@ public class SecurityConfig {
       AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
           auth) {
     auth.requestMatchers("/api/chat", "/api/chat/**", "/api/privacy/**")
-        .access(JwtPresentScopeAuthorization.requireScope("write:ai_chat"))
+        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_chat"))
         .requestMatchers("/api/audio/**")
-        .access(JwtPresentScopeAuthorization.requireScope("write:ai_audio"))
+        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_audio"))
         .requestMatchers("/api/rag/**")
-        .access(JwtPresentScopeAuthorization.requireScope("write:ai_rag"))
+        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_rag"))
         .requestMatchers("/api/images/**", "/api/vision/**")
-        .access(JwtPresentScopeAuthorization.requireScope("write:ai_media"))
+        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_media"))
         .requestMatchers(
             "/api/pipelines/**",
             "/api/agents/**",
@@ -151,21 +137,17 @@ public class SecurityConfig {
             "/api/workflows/**",
             "/api/automations/**",
             "/api/skills/**")
-        .access(JwtPresentScopeAuthorization.requireScope("write:ai_agent"))
+        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_agent"))
         .requestMatchers("/api/mcp/**", "/api/tools/**", "/api/text-analysis", "/api/eval/**")
-        .access(JwtPresentScopeAuthorization.requireScope("write:ai_tools"))
+        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_tools"))
         .anyRequest()
         .permitAll();
   }
 
   private static void applyJwtResourceServer(
-      HttpSecurity http,
-      ObjectProvider<JwtDecoder> jwtDecoder,
-      JwtAuthenticationConverter converter)
-      throws Exception {
+      HttpSecurity http, ObjectProvider<JwtDecoder> jwtDecoder) throws Exception {
     if (jwtDecoder.getIfAvailable() != null) {
-      http.oauth2ResourceServer(
-          oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(converter)));
+      http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
     }
   }
 }
