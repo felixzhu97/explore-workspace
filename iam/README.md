@@ -23,10 +23,10 @@ You need JDK 25+, Node.js 20+, pnpm 8+, and Git. PlantUML is optional if you wan
 
 ```bash
 git clone https://github.com/felixzhu97/explore-workspace.git
-cd explore-workspace/iam
-cp server/.env.example server/.env   # optional local overrides
-(cd console && pnpm install && pnpm build)   # Angular → server/src/main/resources/static
-(cd server && ./gradlew bootRun)             # http://localhost:9100
+cd explore-workspace
+cp iam/server/.env.example iam/server/.env   # optional local overrides
+pnpm install
+pnpm dev iam   # server http://localhost:9100, console http://localhost:4201
 ```
 
 OpenID Provider Configuration is published at:
@@ -45,11 +45,7 @@ http://localhost:9100/login
 
 Sign in with username `demo` and password `demo-password`.
 
-To work on the login SPA with a live proxy to the backend (port `4201`):
-
-```bash
-cd console && pnpm start
-```
+The console dev server on port `4201` proxies API calls to the server on `9100`.
 
 ### Register an OIDC client
 
@@ -92,7 +88,7 @@ Do not commit real secrets.
 ### Testing
 
 ```bash
-(cd server && ./gradlew test)
+./gradlew :iam-server:test
 ```
 
 ### Deploy
