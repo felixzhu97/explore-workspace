@@ -7,9 +7,14 @@ google-java-format = "1.30.0"
 spring-boot = "4.1.2"
 spring-dependency-management = "1.1.7"
 nx-project-graph = "0.1.26"
+archunit = "1.5.1"
+scim2-sdk = "6.1.0"
 
 [libraries]
 spotless-gradle-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+scim2-sdk-common = { module = "com.unboundid.product.scim2:scim2-sdk-common", version.ref = "scim2-sdk" }
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
