@@ -73,6 +73,7 @@ dependencies {
     testImplementation("org.hamcrest:hamcrest:3.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation(libs.archunit.junit5)
+    testImplementation(testFixtures(project(":shared-architecture")))
 }
 
 if (!cloudMinimal) {
