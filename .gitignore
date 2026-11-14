@@ -1,0 +1,35 @@
+# Node.js
+node_modules/
+dist/
+.angular/
+*.local
+
+# Nx
+.nx/cache/
+.nx/workspace-data/
+
+# Java / Gradle
+.gradle/
+**/build/
+.kotlin/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs and local data
+*.log
+logs/
+data/
+
+# Test reports and coverage
+coverage/
+test-results/
+playwright-report/
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
