@@ -53,8 +53,8 @@ Environment variables override defaults in `server/src/main/resources/applicatio
 - **`SERPER_API_KEY`** — optional web search tool
 - **`H2_URL`** — optional database URL override
 - **`GOLDEN_EVAL_IT`** — set `true` to enable live Golden Eval integration tests ([guide](docs/developer/golden-eval.md))
-- **`APP_OAUTH_EXPLORE_IAM_ISSUER_URI`** — Explore IAM issuer (default `http://localhost:9100`) for OAuth Login and JWT resource server
-- **`APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER`** — accept IAM `Authorization: Bearer` tokens (default `true`); also enables `/scim/v2/Users`, where Explore IAM provisions, deactivates, and deletes accounts with scope `write:ai_scim` (deleting erases the account's data). Without it, `/scim/v2` denies every request. See [E12 SCIM provisioning](docs/product-owner/user-stories/E12-scim-provisioning.md).
+- **`APP_OAUTH_EXPLORE_IAM_ISSUER_URI`** — Explore IAM issuer (default `http://localhost:9100`) for OAuth Login
+- **`SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI`** — issuer whose `Authorization: Bearer` tokens are accepted (blank by default, which turns validation off; set `http://localhost:9100` locally). It is separate from the login issuer above, so set both when IAM moves. Set the issuer, not only a JWK set URI, or tokens skip the issuer check. Also enables `/scim/v2/Users`, where Explore IAM provisions, deactivates, and deletes accounts with scope `write:ai_scim` (deleting erases the account's data). Without it, `/scim/v2` denies every request. See [E12 SCIM provisioning](docs/product-owner/user-stories/E12-scim-provisioning.md).
 
 See [`.env.example`](.env.example) for the full list.
 

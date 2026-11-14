@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Configuration properties for Explore IAM OIDC login and JWT resource-server validation. */
+/** Configuration properties for Explore IAM OIDC login. */
 @ConfigurationProperties(prefix = "app.oauth.explore-iam")
 @Getter
 @Setter
@@ -17,7 +17,7 @@ public class OAuthExploreIamProperties {
 
   private String clientSecret = "";
 
-  /** Issuer URL of Explore IAM (e.g. http://localhost:9100). */
+  /** Issuer URL of Explore IAM for OIDC login (e.g. http://localhost:9100). */
   private String issuerUri = "";
 
   /**
@@ -25,9 +25,6 @@ public class OAuthExploreIamProperties {
    * {baseUrl}/login/oauth2/code/{registrationId}}.
    */
   private String redirectUri = "";
-
-  /** When true and issuer-uri is set, accept IAM JWT Bearer tokens. */
-  private boolean resourceServerEnabled = true;
 
   /** Tells whether Explore IAM login is enabled and fully configured. */
   public boolean isReady() {
@@ -38,10 +35,5 @@ public class OAuthExploreIamProperties {
         && !clientSecret.isBlank()
         && issuerUri != null
         && !issuerUri.isBlank();
-  }
-
-  /** Resource server needs only a non-blank issuer. */
-  public boolean isResourceServerReady() {
-    return resourceServerEnabled && issuerUri != null && !issuerUri.isBlank();
   }
 }

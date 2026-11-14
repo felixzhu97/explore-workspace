@@ -4,6 +4,15 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Explore IAM access tokens (native apps, API Bearer, SCIM). Blank turns validation off;
+          # local dev sets SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI in .env.
+          issuer-uri: ""
+          authorities-claim-name: scope
+          authority-prefix: SCOPE_
   mail:
     host: ${SPRING_MAIL_HOST:localhost}
     port: ${SPRING_MAIL_PORT:1025}
@@ -220,11 +229,9 @@ app:
       enabled: ${APP_OAUTH_EXPLORE_IAM_ENABLED:false}
       client-id: ${EXPLORE_IAM_CLIENT_ID:}
       client-secret: ${EXPLORE_IAM_CLIENT_SECRET:}
-      # Issuer for OAuth2 Login and JWT resource server (native Bearer tokens).
+      # Issuer for OAuth2 Login; Bearer tokens use spring.security.oauth2.resourceserver.
       issuer-uri: ${APP_OAUTH_EXPLORE_IAM_ISSUER_URI:http://localhost:9100}
       redirect-uri: ${APP_OAUTH_EXPLORE_IAM_REDIRECT_URI:}
-      # Validate Authorization: Bearer access tokens from Explore IAM (iOS / APIs).
-      resource-server-enabled: ${APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER:true}
   service-auth:
     api-key: ${EXPLORE_AI_SERVICE_KEY:}
   rate-limit:

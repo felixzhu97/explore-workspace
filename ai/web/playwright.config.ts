@@ -32,7 +32,6 @@ export default defineConfig({
         APP_OAUTH_GOOGLE_ENABLED: 'false',
         APP_OAUTH_GITHUB_ENABLED: 'false',
         APP_OAUTH_EXPLORE_IAM_ENABLED: 'false',
-        APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER: 'false',
       },
     },
     {
