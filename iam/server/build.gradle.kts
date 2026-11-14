@@ -9,7 +9,7 @@ version = "0.0.1-SNAPSHOT"
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.modulith:spring-modulith-bom:2.1.1")
+        mavenBom("org.springframework.modulith:spring-modulith-bom:2.1.2")
     }
 }
 
@@ -35,7 +35,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 }
 
