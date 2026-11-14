@@ -11,6 +11,11 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    env:
+      # Only pushes to main may write to the remote cache; pull requests read
+      # only, and fork pull requests get no secrets and use the local cache.
+      NX_CLOUD_ACCESS_TOKEN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.NX_CLOUD_ACCESS_TOKEN_RW || secrets.NX_CLOUD_ACCESS_TOKEN_RO }}
+      NX_CLOUD_ENCRYPTION_KEY: ${{ secrets.NX_CLOUD_ENCRYPTION_KEY }}
     steps:
       - uses: actions/checkout@v7
         with:
