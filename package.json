@@ -2,6 +2,7 @@
   "name": "explore-workspace",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@11.8.0",
   "engines": {
     "node": ">=24"
@@ -10,6 +11,13 @@
     "dev": "node tools/dev.mjs"
   },
   "devDependencies": {
-    "nx": "catalog:"
+    "@eslint/js": "catalog:",
+    "@nx/eslint": "catalog:",
+    "@nx/eslint-plugin": "catalog:",
+    "@nx/gradle": "catalog:",
+    "eslint": "catalog:",
+    "nx": "catalog:",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:"
   }
 }

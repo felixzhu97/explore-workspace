@@ -2,7 +2,15 @@ packages:
   - "*/*"
 
 catalog:
+  "@eslint/js": 10.0.1
+  "@nx/devkit": 24.0.6
+  "@nx/eslint": 24.0.6
+  "@nx/eslint-plugin": 24.0.6
+  "@nx/gradle": 24.0.6
+  eslint: 10.14.0
   nx: 24.0.6
+  typescript: ~6.0.3
+  typescript-eslint: 8.72.2
   yaml: 2.9.0
 
 allowBuilds:
