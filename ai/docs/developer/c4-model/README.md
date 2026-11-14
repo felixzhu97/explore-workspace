@@ -218,7 +218,7 @@ Browser :4200 → Angular Dev Server → proxy /api/* → Spring Boot :9000
 ### 生产 (cloud-minimal)
 
 ```
-Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ephemeral)
+Browser → Vercel (Angular static) → Render Starter ai-server (:8080 + H2 ephemeral)
         ↘ Datadog RUM (us5, 可选)        ↘ 无 APM sidecar（Starter 512MB，不启 javaagent）
         ↘ LaunchDarkly Client            ↘ LaunchDarkly Server
                                          → DeepSeek / OpenAI / Serper / Resend
@@ -227,7 +227,7 @@ Browser → Vercel (Angular static) → Render Starter explore-ai (:8080 + H2 ep
 **Prod frontend**: `https://www.felixzhu.chat` (Vercel)  
 **Prod API (browser)**: same-origin `/api` → Vercel rewrite → Render  
 **Prod OAuth (browser)**: same-origin `/oauth2/*` + `/login/oauth2/*` → Vercel rewrite → Render  
-**Prod API (direct)**: `https://explore-ai-3krr.onrender.com/api`  
+**Prod API (direct)**: `https://ai-server-axba.onrender.com/api`  
 **Google OAuth redirect URI**: `https://www.felixzhu.chat/login/oauth2/code/google`  
 **GitHub OAuth redirect URI**: `https://www.felixzhu.chat/login/oauth2/code/github`
 
