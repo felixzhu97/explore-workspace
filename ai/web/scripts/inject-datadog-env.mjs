@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const envPath = join(root, 'src/main/web/environments/environment.prod.ts');
+const envPath = join(root, 'src/environments/environment.prod.ts');
 
 const applicationId = process.env.DD_APPLICATION_ID?.trim() ?? '';
 const clientToken = process.env.DD_CLIENT_TOKEN?.trim() ?? '';

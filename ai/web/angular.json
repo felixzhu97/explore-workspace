@@ -20,25 +20,25 @@
           "functional": true
         }
       },
-      "root": "src/main/web",
-      "sourceRoot": "src/main/web",
+      "root": "src",
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
           "options": {
             "outputPath": "dist/web",
-            "index": "src/main/web/index.html",
-            "browser": "src/main/web/main.ts",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "src/main/web/favicon.ico",
-              "src/main/web/favicon.svg",
-              "src/main/web/assets"
+              "src/favicon.ico",
+              "src/favicon.svg",
+              "src/assets"
             ],
             "styles": [
-              "src/main/web/styles.css",
+              "src/styles.css",
               "node_modules/@foblex/flow/styles/default.scss"
             ],
             "scripts": []
@@ -47,8 +47,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "src/main/web/environments/environment.ts",
-                  "with": "src/main/web/environments/environment.prod.ts"
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
                 }
               ],
               "budgets": [
@@ -91,7 +91,7 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "setupFiles": [
-              "src/main/web/test-setup.ts"
+              "src/test-setup.ts"
             ]
           },
           "configurations": {
@@ -104,8 +104,8 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "src/main/web/**/*.ts",
-              "src/main/web/**/*.html"
+              "src/**/*.ts",
+              "src/**/*.html"
             ],
             "eslintConfig": "eslint.config.js"
           }

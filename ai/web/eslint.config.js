@@ -95,8 +95,8 @@ export default defineConfig([
   },
   // App code only: the generated ZardUI library under ui/ keeps its upstream style.
   {
-    files: ['src/main/web/**/*.ts'],
-    ignores: ['src/main/web/app/ui/**'],
+    files: ['src/**/*.ts'],
+    ignores: ['src/app/ui/**'],
     rules: {
       '@angular-eslint/component-class-suffix': 'error',
       '@angular-eslint/computed-must-return': 'error',
@@ -255,7 +255,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/main/web/**/*.spec.ts'],
+    files: ['src/**/*.spec.ts'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
@@ -267,11 +267,11 @@ export default defineConfig([
   },
   // Dates are js-joda types; `Date` only crosses into third-party APIs through time/.
   {
-    files: ['src/main/web/**/*.ts'],
+    files: ['src/**/*.ts'],
     ignores: [
-      'src/main/web/app/ui/**',
-      'src/main/web/app/time/native-date.ts',
-      'src/main/web/app/time/instant-picker.component.ts',
+      'src/app/ui/**',
+      'src/app/time/native-date.ts',
+      'src/app/time/instant-picker.component.ts',
     ],
     rules: {
       'no-restricted-globals': [
@@ -289,8 +289,8 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/main/web/**/*.html'],
-    ignores: ['src/main/web/app/ui/**', '**/index.html'],
+    files: ['src/**/*.html'],
+    ignores: ['src/app/ui/**', '**/index.html'],
     rules: {
       '@angular-eslint/template/attributes-order': 'error',
       '@angular-eslint/template/cyclomatic-complexity': ['error', { maxComplexity: 12 }],
@@ -371,7 +371,7 @@ export default defineConfig([
     },
     settings: {
       tailwindcss: {
-        cssConfigPath: './src/main/web/styles.css',
+        cssConfigPath: './src/styles.css',
       },
     },
     // https://github.com/francoismassart/eslint-plugin-tailwindcss/tree/4edd2dc560e52f99f9268d6380f00942a601cc4d/docs/rules
@@ -395,8 +395,8 @@ export default defineConfig([
   },
   {
     files: [
-      'src/main/web/app/ui/input/input.directive.ts',
-      'src/main/web/app/ui/layout/sidebar-menu-button.directive.ts',
+      'src/app/ui/input/input.directive.ts',
+      'src/app/ui/layout/sidebar-menu-button.directive.ts',
     ],
     rules: {
       '@angular-eslint/directive-selector': [

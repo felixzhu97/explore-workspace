@@ -2,7 +2,7 @@
 
 `explore-ai` is a full-stack platform for conversational AI. You can chat with multiple LLM providers, upload documents for RAG retrieval, call tools (weather, web search, datetime), and run Golden Eval regression checks against chat and RAG quality.
 
-The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. A native SwiftUI hello-world app (**AI**) lives under `src/main/ios`. Architecture follows `web → application → domain ← infrastructure`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
+The backend uses Java 25, Spring Boot 4.1, and Spring AI 2.0; the frontend uses Angular 22. A native SwiftUI hello-world app (**AI**) lives under `ios`. Architecture follows `web → application → domain ← infrastructure`. See the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md) for boundaries and ubiquitous language.
 
 Optional modules—agents, MCP, vision, audio, image generation, metrics, and more—are tracked in the [User Story Map](docs/product-owner/User-Story-Map.md).
 
@@ -33,6 +33,7 @@ For a full walkthrough (API keys, Ollama, troubleshooting), see [Quick Start](do
 Start the Spring Boot API:
 
 ```bash
+cd server
 ./gradlew bootRun
 # → http://localhost:9000
 curl -s http://localhost:9000/actuator/health
@@ -43,7 +44,7 @@ curl -s http://localhost:9000/actuator/health
 In a second terminal:
 
 ```bash
-cd src/main/web
+cd web
 pnpm install
 pnpm start
 # → http://localhost:4200
@@ -63,11 +64,11 @@ Open [http://localhost:4200](http://localhost:4200) for the full UI. See [Quick 
 
 ### Stop local services
 
-Press `Ctrl+C` in each terminal running `bootRun` and `pnpm start`. To reset local H2 data, remove the directory configured by `H2_URL` (default under `./data/explore-ai`).
+Press `Ctrl+C` in each terminal running `bootRun` and `pnpm start`. To reset local H2 data, remove the directory configured by `H2_URL` (default under `server/data/explore-ai`).
 
 ## Configuration
 
-Environment variables override defaults in `src/main/resources/application.yml`. Do not commit real secrets.
+Environment variables override defaults in `server/src/main/resources/application.yml`. Do not commit real secrets.
 
 - **`DEEPSEEK_API_KEY`** — required for the default chat and eval path
 - **`OPENAI_API_KEY`** — optional OpenAI-compatible features
@@ -86,11 +87,11 @@ See [`.env.example`](.env.example) for the full list.
 - Run [Golden Eval](docs/developer/golden-eval.md) (LLM-as-a-Judge regression)
 - Browse the [C4 model](docs/developer/c4-model/) and [Glossary](docs/Glossary.md)
 - Browse the AI [Guideline](docs/Guideline.md)
-- Open the native iOS skeleton: [`src/main/ios`](src/main/ios) (scheme **AI**)
+- Open the native iOS skeleton: [`ios`](ios) (scheme **AI**)
 - Explore capabilities on the [User Story Map](docs/product-owner/User-Story-Map.md)
-- Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](vercel.json) (proxies `/api/*` to Render)
+- Deploy: backend on [Render](https://render.com/docs/compute-plans) via [`render.yaml`](render.yaml); frontend on [Vercel](https://vercel.com) via [`vercel.json`](web/vercel.json) (proxies `/api/*` to Render)
 
-Run unit tests with `./gradlew test`. Run end-to-end tests with `pnpm e2e`; it starts the backend on an in-memory H2 database and the web app, or reuses them if they are already running on ports 9000 and 4200.
+Run unit tests with `./gradlew test` in `server/`. Run end-to-end tests with `pnpm e2e` in `web/`; it starts the backend on an in-memory H2 database and the web app, or reuses them if they are already running on ports 9000 and 4200.
 
 ## Contributing
 

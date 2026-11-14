@@ -25,8 +25,8 @@ data/
 # Docker volumes (runtime data)
 volumes/
 
-# ML model weights (repository root only)
-/models/
+# ML model weights (server only)
+/server/models/
 *.pt
 *.onnx
 *.pth
@@ -61,7 +61,7 @@ nunit-result-*.xml
 playwright-report/
 playwright/.cache/
 blob-report/
-e2e/snapshots/
+web/e2e/snapshots/
 
 # Default Playwright per-spec snapshot dirs
 **/*-snapshots/
@@ -94,8 +94,8 @@ services/data/
 **/.gradle/
 
 # Spring Boot
-src/main/resources/application-local.yml
-src/main/resources/application-local*.yml
+server/src/main/resources/application-local.yml
+server/src/main/resources/application-local*.yml
 
 # Legacy merged services (migrated to monolith)
 apps/server-java/services/ai-agents/
