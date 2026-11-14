@@ -2,6 +2,7 @@ package com.iam.policy.infra.persistence;
 
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.model.AllowPolicy;
+import com.iam.policy.domain.model.AllowPolicyId;
 import com.iam.policy.domain.model.PolicyBinding;
 import com.iam.policy.domain.repository.PolicyRepository;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ class JpaPolicyRepository implements PolicyRepository {
 
   @Override
   public Optional<AllowPolicy> findById(String id) {
-    return documentRepository.findById(id);
+    return documentRepository.findById(AllowPolicyId.createId(id));
   }
 
   @Override

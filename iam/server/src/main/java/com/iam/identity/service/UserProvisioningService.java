@@ -118,9 +118,9 @@ public class UserProvisioningService {
             profile.username(), profile.email(), profile.displayName(), profile.externalId());
     boolean deactivated = !profile.active() && user.disableUser();
     User saved = userRepository.save(user);
-    eventPublisher.publishEvent(new UserProvisionedEvent(saved.getId()));
+    eventPublisher.publishEvent(new UserProvisionedEvent(saved.getId().getValue()));
     if (deactivated) {
-      eventPublisher.publishEvent(new UserDeactivatedEvent(saved.getId()));
+      eventPublisher.publishEvent(new UserDeactivatedEvent(saved.getId().getValue()));
     }
     return saved;
   }
@@ -173,7 +173,7 @@ public class UserProvisioningService {
       if (group.removeMember(userId)) {
         groupRepository.save(group);
         eventPublisher.publishEvent(
-            new GroupMembershipChangedEvent(group.getId(), Set.of(), Set.of(userId)));
+            new GroupMembershipChangedEvent(group.getId().getValue(), Set.of(), Set.of(userId)));
       }
     }
     eventPublisher.publishEvent(new UserDeletionRequestedEvent(userId));
@@ -186,7 +186,7 @@ public class UserProvisioningService {
   private void requireUsernameAvailable(String username, String currentUserId) {
     userRepository
         .findByUsername(username)
-        .filter(existing -> !existing.getId().equals(currentUserId))
+        .filter(existing -> !existing.getId().getValue().equals(currentUserId))
         .ifPresent(
             existing -> {
               throw new ResponseStatusException(HttpStatus.CONFLICT, "username exists");

@@ -150,7 +150,9 @@ class ScimPushListenerTest {
   @DisplayName("should provision only assignment group members")
   void shouldProvisionOnlyAssignmentGroupMembers() {
     String groupId =
-        tx.execute(status -> groupRepository.save(Group.createGroup(unique("ai-users"))).getId());
+        tx.execute(
+            status ->
+                groupRepository.save(Group.createGroup(unique("ai-users"))).getId().getValue());
     givenTarget(groupId);
     when(gateway.findRemoteId(any(), any())).thenReturn(Optional.empty());
     when(gateway.createAccount(any(), any())).thenReturn("remote-4");
@@ -193,7 +195,7 @@ class ScimPushListenerTest {
         userProvisioningService.provisionUser(
             new UserProfile(
                 unique("push"), null, "Push User", new ExternalId(unique("x")), true));
-    lastUserId = user.getId();
+    lastUserId = user.getId().getValue();
     return lastUserId;
   }
 

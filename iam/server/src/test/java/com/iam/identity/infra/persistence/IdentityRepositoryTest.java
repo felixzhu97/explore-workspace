@@ -4,8 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.iam.identity.domain.model.ExternalId;
 import com.iam.identity.domain.model.Group;
+import com.iam.identity.domain.model.Role;
 import com.iam.identity.domain.model.User;
 import com.iam.identity.domain.repository.GroupRepository;
+import com.iam.identity.domain.repository.RoleRepository;
 import com.iam.identity.domain.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import java.util.UUID;
@@ -23,6 +25,8 @@ class IdentityRepositoryTest {
   @Autowired private UserRepository userRepository;
 
   @Autowired private GroupRepository groupRepository;
+
+  @Autowired private RoleRepository roleRepository;
 
   @Autowired private EntityManager entityManager;
 
@@ -49,7 +53,8 @@ class IdentityRepositoryTest {
     entityManager.flush();
     entityManager.clear();
 
-    assertThat(userRepository.findById(user.getId()).orElseThrow().getExternalId()).isNull();
+    assertThat(userRepository.findById(user.getId().getValue()).orElseThrow().getExternalId())
+        .isNull();
   }
 
   @Test
@@ -57,14 +62,31 @@ class IdentityRepositoryTest {
   void shouldFindGroupsByMember() {
     User user = userRepository.save(User.createUser(unique("carol"), null, "{noop}secret"));
     Group group = Group.createGroup(unique("team"));
-    group.addMember(user.getId());
+    group.addMember(user.getId().getValue());
     groupRepository.save(group);
     entityManager.flush();
     entityManager.clear();
 
-    assertThat(groupRepository.findByMemberUserId(user.getId()))
+    assertThat(groupRepository.findByMemberUserId(user.getId().getValue()))
         .extracting(Group::getId)
         .containsExactly(group.getId());
+  }
+
+  @Test
+  @DisplayName("should find only the roles bound to the user")
+  void shouldFindOnlyTheRolesBoundToTheUser() {
+    Role role = roleRepository.save(Role.createRole(unique("auditor"), " "));
+    User user = User.createUser(unique("dana"), null, "{noop}secret");
+    user.assignRole(role.getId().getValue());
+    userRepository.save(user);
+    final User other = userRepository.save(User.createUser(unique("eve"), null, "{noop}secret"));
+    entityManager.flush();
+    entityManager.clear();
+
+    assertThat(roleRepository.findByUserId(user.getId().getValue()))
+        .extracting(Role::getId)
+        .containsExactly(role.getId());
+    assertThat(roleRepository.findByUserId(other.getId().getValue())).isEmpty();
   }
 
   private static String unique(String prefix) {

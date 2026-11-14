@@ -1,6 +1,7 @@
 package com.iam.identity.infra.persistence;
 
 import com.iam.identity.domain.model.User;
+import com.iam.identity.domain.model.UserId;
 import com.iam.identity.domain.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public class JpaUserRepository implements UserRepository {
 
   @Override
   public Optional<User> findById(String id) {
-    return springData.findById(id);
+    return springData.findById(UserId.createId(id));
   }
 
   @Override

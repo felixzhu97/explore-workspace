@@ -9,11 +9,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.net.URI;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +21,7 @@ import org.hibernate.annotations.OptimisticLock;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class ProvisioningTarget extends AbstractNamedEntity {
+public class ProvisioningTarget extends AbstractNamedEntity<ProvisioningTargetId> {
 
   @NotBlank
   @Size(max = 512)
@@ -48,13 +46,12 @@ public class ProvisioningTarget extends AbstractNamedEntity {
   private final List<ProvisionedAccount> accounts = new ArrayList<>();
 
   private ProvisioningTarget(
-      String id,
+      ProvisioningTargetId id,
       String name,
       String baseUrl,
       String registrationId,
-      String assignmentGroupId,
-      Instant now) {
-    super(id, name, now, now);
+      String assignmentGroupId) {
+    super(id, name);
     this.baseUrl = requireBaseUrl(baseUrl);
     this.registrationId = DomainStrings.requireNonBlank(registrationId, "registrationId");
     this.assignmentGroupId = blankToNull(assignmentGroupId);
@@ -73,12 +70,11 @@ public class ProvisioningTarget extends AbstractNamedEntity {
   public static ProvisioningTarget createProvisioningTarget(
       String name, String baseUrl, String registrationId, String assignmentGroupId) {
     return new ProvisioningTarget(
-        UUID.randomUUID().toString(),
+        ProvisioningTargetId.generateId(),
         name,
         baseUrl,
         registrationId,
-        assignmentGroupId,
-        Instant.now());
+        assignmentGroupId);
   }
 
   /**

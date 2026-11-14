@@ -51,10 +51,10 @@ public class FederatedLoginService extends DefaultOAuth2UserService {
     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
     authorities.add(new SimpleGrantedAuthority(SecurityRoles.USER));
     roleRepository
-        .findByUserId(user.getId())
+        .findByUserId(user.getId().getValue())
         .forEach(role -> authorities.add(new SimpleGrantedAuthority(role.authority())));
     Map<String, Object> attributes = new HashMap<>(oauthUser.getAttributes());
-    attributes.put(IamPrincipals.USER_ID_ATTRIBUTE, user.getId());
+    attributes.put(IamPrincipals.USER_ID_ATTRIBUTE, user.getId().getValue());
     return new DefaultOAuth2User(authorities, attributes, "sub");
   }
 }

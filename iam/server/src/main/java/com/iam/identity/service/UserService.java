@@ -80,7 +80,7 @@ public class UserService {
     User user =
         userRepository.save(
             User.createUser(username, email, passwordEncoder.encode(password)));
-    eventPublisher.publishEvent(new UserProvisionedEvent(user.getId()));
+    eventPublisher.publishEvent(new UserProvisionedEvent(user.getId().getValue()));
     return user;
   }
 

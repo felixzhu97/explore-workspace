@@ -69,11 +69,11 @@ public class IdentityBootstrapConfig {
                           properties.getEmail(),
                           passwordEncoder.encode(properties.getPassword()));
                   User saved = userRepository.save(created);
-                  eventPublisher.publishEvent(new UserProvisionedEvent(saved.getId()));
+                  eventPublisher.publishEvent(new UserProvisionedEvent(saved.getId().getValue()));
                   log.info("Seeded demo IAM User '{}'", properties.getUsername());
                   return saved;
                 });
-    user.assignRole(adminRole.getId());
+    user.assignRole(adminRole.getId().getValue());
     userRepository.save(user);
   }
 

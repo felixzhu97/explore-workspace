@@ -1,13 +1,15 @@
 package com.iam.identity.infra.persistence;
 
 import com.iam.identity.domain.model.TotpCredential;
+import com.iam.identity.domain.model.TotpCredentialId;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-interface SpringDataTotpCredentialRepository extends JpaRepository<TotpCredential, String> {
+interface SpringDataTotpCredentialRepository
+    extends JpaRepository<TotpCredential, TotpCredentialId> {
 
   Optional<TotpCredential> findByUserId(String userId);
 

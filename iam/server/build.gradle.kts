@@ -25,6 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
     implementation(project(":shared-errors"))
+    implementation(project(":shared-kernel"))
     implementation(project(":shared-provisioning"))
     implementation(libs.scim2.sdk.common)
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
@@ -36,6 +37,7 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation(libs.archunit.junit5)
     testImplementation(testFixtures(project(":shared-architecture")))

@@ -36,10 +36,10 @@ class FederatedUserDeletionTest {
     User user = federationLinkService.resolveOrProvision("google", subject, null);
     entityManager.flush();
 
-    userProvisioningService.deleteUser(user.getId(), null);
+    userProvisioningService.deleteUser(user.getId().getValue(), null);
     entityManager.flush();
 
     assertThat(linkRepository.findByProviderAndExternalSubject("google", subject)).isEmpty();
-    assertThat(userRepository.findById(user.getId())).isEmpty();
+    assertThat(userRepository.findById(user.getId().getValue())).isEmpty();
   }
 }

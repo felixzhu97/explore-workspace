@@ -1,10 +1,11 @@
 package com.iam.common.domain.base;
 
+import com.explore.kernel.AbstractEmbeddable;
+import com.explore.kernel.AbstractEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,8 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractNamedEntity extends AbstractEntity {
+public abstract class AbstractNamedEntity<IdT extends AbstractEmbeddable>
+    extends AbstractEntity<IdT> {
 
   @NotBlank
   @Size(max = 256)
@@ -21,16 +23,13 @@ public abstract class AbstractNamedEntity extends AbstractEntity {
   private String name;
 
   /**
-   * Subclass constructor supplying identity, name, and timestamps.
+   * Subclass constructor supplying identity and name.
    *
    * @param id internal id
    * @param name unique display name
-   * @param createdAt creation timestamp
-   * @param updatedAt last update timestamp
    */
-  protected AbstractNamedEntity(
-      String id, String name, Instant createdAt, Instant updatedAt) {
-    super(id, createdAt, updatedAt);
+  protected AbstractNamedEntity(IdT id, String name) {
+    super(id);
     this.name = DomainStrings.requireNonBlank(name, "name");
   }
 }

@@ -43,9 +43,9 @@ class IdentityEventPublishingTest {
     User user = userProvisioningService.provisionUser(profile(unique("alice"), false));
 
     assertThat(events.stream(UserProvisionedEvent.class))
-        .containsExactly(new UserProvisionedEvent(user.getId()));
+        .containsExactly(new UserProvisionedEvent(user.getId().getValue()));
     assertThat(events.stream(UserDeactivatedEvent.class))
-        .containsExactly(new UserDeactivatedEvent(user.getId()));
+        .containsExactly(new UserDeactivatedEvent(user.getId().getValue()));
   }
 
   @Test
@@ -55,22 +55,22 @@ class IdentityEventPublishingTest {
     User user = userProvisioningService.provisionUser(profile);
     events.clear();
 
-    userProvisioningService.replaceUser(user.getId(), profile, null);
+    userProvisioningService.replaceUser(user.getId().getValue(), profile, null);
     assertThat(events.stream()).isEmpty();
 
     userProvisioningService.replaceUser(
-        user.getId(),
+        user.getId().getValue(),
         new UserProfile(
             profile.username(), "bob@example.com", null, profile.externalId(), false),
         null);
     userProvisioningService.replaceUser(
-        user.getId(),
+        user.getId().getValue(),
         new UserProfile(
             profile.username(), "bob@example.com", null, profile.externalId(), true),
         null);
 
     assertThat(events.stream(UserProfileChangedEvent.class))
-        .containsExactly(new UserProfileChangedEvent(user.getId()));
+        .containsExactly(new UserProfileChangedEvent(user.getId().getValue()));
     assertThat(events.stream(UserDeactivatedEvent.class)).hasSize(1);
     assertThat(events.stream(UserReactivatedEvent.class)).hasSize(1);
   }
@@ -79,30 +79,32 @@ class IdentityEventPublishingTest {
   @DisplayName("should publish membership change and user deleted when member is deleted")
   void shouldPublishMembershipChangeAndUserDeletedWhenMemberIsDeleted() {
     User user = userProvisioningService.provisionUser(profile(unique("carol"), true));
-    String groupId = groupService.createGroup(unique("team")).getId();
-    groupService.addMember(groupId, user.getId());
-    groupService.addMember(groupId, user.getId());
+    String groupId = groupService.createGroup(unique("team")).getId().getValue();
+    groupService.addMember(groupId, user.getId().getValue());
+    groupService.addMember(groupId, user.getId().getValue());
 
-    userProvisioningService.deleteUser(user.getId(), null);
+    userProvisioningService.deleteUser(user.getId().getValue(), null);
 
     assertThat(events.stream(GroupMembershipChangedEvent.class))
         .containsExactly(
-            new GroupMembershipChangedEvent(groupId, Set.of(user.getId()), Set.of()),
-            new GroupMembershipChangedEvent(groupId, Set.of(), Set.of(user.getId())));
+            new GroupMembershipChangedEvent(groupId, Set.of(user.getId().getValue()), Set.of()),
+            new GroupMembershipChangedEvent(groupId, Set.of(), Set.of(user.getId().getValue())));
     assertThat(events.stream(UserDeletedEvent.class))
-        .containsExactly(new UserDeletedEvent(user.getId()));
+        .containsExactly(new UserDeletedEvent(user.getId().getValue()));
   }
 
   @Test
   @DisplayName("should publish added and removed ids when group members are replaced")
   void shouldPublishAddedAndRemovedIdsWhenGroupMembersAreReplaced() {
-    String first = userProvisioningService.provisionUser(profile(unique("dave"), true)).getId();
-    String second = userProvisioningService.provisionUser(profile(unique("erin"), true)).getId();
+    String first =
+        userProvisioningService.provisionUser(profile(unique("dave"), true)).getId().getValue();
+    String second =
+        userProvisioningService.provisionUser(profile(unique("erin"), true)).getId().getValue();
     String name = unique("group");
     String groupId =
         groupProvisioningService
             .provisionGroup(new GroupProfile(name, null, Set.of(first)))
-            .getId();
+            .getId().getValue();
     events.clear();
 
     groupProvisioningService.replaceGroup(
@@ -119,7 +121,7 @@ class IdentityEventPublishingTest {
     String groupId =
         groupProvisioningService
             .provisionGroup(new GroupProfile(unique("group"), null, Set.of()))
-            .getId();
+            .getId().getValue();
 
     groupProvisioningService.replaceGroup(
         groupId, new GroupProfile(unique("renamed"), null, Set.of()), null);

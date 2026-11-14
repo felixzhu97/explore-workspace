@@ -5,10 +5,8 @@ import com.iam.policy.domain.converter.PolicyStatementsJsonConverter;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,19 +15,17 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AllowPolicy extends AbstractNamedEntity {
+public class AllowPolicy extends AbstractNamedEntity<AllowPolicyId> {
 
   @Column(nullable = false, columnDefinition = "clob")
   @Convert(converter = PolicyStatementsJsonConverter.class)
   private List<PolicyStatement> statements;
 
   private AllowPolicy(
-      String id,
+      AllowPolicyId id,
       String name,
-      List<PolicyStatement> statements,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, name, createdAt, updatedAt);
+      List<PolicyStatement> statements) {
+    super(id, name);
     this.statements = List.copyOf(new ArrayList<>(requireStatements(statements)));
   }
 
@@ -41,8 +37,7 @@ public class AllowPolicy extends AbstractNamedEntity {
    * @return new aggregate
    */
   public static AllowPolicy createAllowPolicy(String name, List<PolicyStatement> statements) {
-    Instant now = Instant.now();
-    return new AllowPolicy(UUID.randomUUID().toString(), name, statements, now, now);
+    return new AllowPolicy(AllowPolicyId.generateId(), name, statements);
   }
 
   private static List<PolicyStatement> requireStatements(List<PolicyStatement> statements) {

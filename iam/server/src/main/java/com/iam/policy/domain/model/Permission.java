@@ -1,6 +1,6 @@
 package com.iam.policy.domain.model;
 
-import com.iam.common.domain.base.AbstractImmutable;
+import com.explore.kernel.AbstractImmutable;
 import com.iam.common.domain.model.Resource;
 import com.iam.common.domain.model.Scope;
 import jakarta.persistence.AttributeOverride;
@@ -10,10 +10,8 @@ import jakarta.persistence.Entity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Permission extends AbstractImmutable {
+public class Permission extends AbstractImmutable<PermissionId> {
 
   @NotBlank
   @Size(max = 128)
@@ -65,15 +63,14 @@ public class Permission extends AbstractImmutable {
   private String description;
 
   private Permission(
-      String id,
+      PermissionId id,
       String code,
       Scope oauthScope,
       String module,
       com.iam.common.domain.model.Permission action,
       Resource resource,
-      String description,
-      Instant createdAt) {
-    super(id, createdAt);
+      String description) {
+    super(id);
     this.code = requireCode(code);
     this.module = requireModule(module);
     this.oauthScope = Objects.requireNonNull(oauthScope, "oauthScope");
@@ -105,14 +102,13 @@ public class Permission extends AbstractImmutable {
       Resource resource,
       String description) {
     return new Permission(
-        UUID.randomUUID().toString(),
+        PermissionId.generateId(),
         code,
         Scope.parseScope(oauthScope),
         module,
         action,
         resource,
-        description,
-        Instant.now());
+        description);
   }
 
   /**

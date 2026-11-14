@@ -1,13 +1,14 @@
 package com.iam.identity.infra.persistence;
 
 import com.iam.identity.domain.model.Group;
+import com.iam.identity.domain.model.GroupId;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-interface SpringDataGroupRepository extends JpaRepository<Group, String> {
+interface SpringDataGroupRepository extends JpaRepository<Group, GroupId> {
 
   Optional<Group> findByName(String name);
 

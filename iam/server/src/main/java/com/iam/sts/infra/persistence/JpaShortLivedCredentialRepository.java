@@ -1,6 +1,7 @@
 package com.iam.sts.infra.persistence;
 
 import com.iam.sts.domain.model.ShortLivedCredential;
+import com.iam.sts.domain.model.ShortLivedCredentialId;
 import com.iam.sts.domain.repository.ShortLivedCredentialRepository;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -21,6 +22,6 @@ class JpaShortLivedCredentialRepository implements ShortLivedCredentialRepositor
 
   @Override
   public Optional<ShortLivedCredential> findById(String id) {
-    return springData.findById(id);
+    return springData.findById(ShortLivedCredentialId.createId(id));
   }
 }

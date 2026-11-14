@@ -8,6 +8,7 @@ import com.iam.identity.service.UserProfile;
 import com.unboundid.scim2.common.exceptions.BadRequestException;
 import com.unboundid.scim2.common.types.Name;
 import com.unboundid.scim2.common.types.UserResource;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 
 /** Maps IAM users to SCIM User resources and back; holds no business rules. */
@@ -25,7 +26,7 @@ public class ScimUserMapper {
    */
   public UserResource toResource(User user, String usersLocation) {
     UserResource resource = new UserResource();
-    resource.setId(user.getId());
+    resource.setId(user.getId().getValue());
     if (user.getExternalId() != null) {
       resource.setExternalId(user.getExternalId().value());
     }
@@ -39,10 +40,10 @@ public class ScimUserMapper {
     resource.setMeta(
         ScimMeta.create(
             RESOURCE_TYPE,
-            usersLocation + "/" + user.getId(),
+            usersLocation + "/" + user.getId().getValue(),
             user.getCreatedAt(),
             user.getUpdatedAt(),
-            user.getVersion()));
+            Objects.requireNonNullElse(user.getVersion(), 0L)));
     return resource;
   }
 
@@ -55,7 +56,7 @@ public class ScimUserMapper {
    */
   public UserResource toTargetResource(User user) {
     UserResource resource = new UserResource();
-    resource.setExternalId(user.getId());
+    resource.setExternalId(user.getId().getValue());
     resource.setUserName(user.getUsername());
     resource.setDisplayName(user.getDisplayName());
     resource.setActive(user.isEnabled());

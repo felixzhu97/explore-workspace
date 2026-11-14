@@ -76,7 +76,7 @@ public class PolicyService {
             .toList();
     AllowPolicy policy =
         policyRepository.save(AllowPolicy.createAllowPolicy(command.name(), statements));
-    eventPublisher.publishEvent(new AllowPolicyCreatedEvent(policy.getId()));
+    eventPublisher.publishEvent(new AllowPolicyCreatedEvent(policy.getId().getValue()));
     return policy;
   }
 
@@ -94,7 +94,7 @@ public class PolicyService {
         .orElseThrow(() -> new IllegalArgumentException("Policy not found: " + policyId));
     PolicyBinding attachment =
         policyRepository.saveAttachment(PolicyBinding.createPolicyBinding(policyId, principalArn));
-    eventPublisher.publishEvent(new PolicyAttachedEvent(attachment.getId()));
+    eventPublisher.publishEvent(new PolicyAttachedEvent(attachment.getId().getValue()));
     return attachment;
   }
 

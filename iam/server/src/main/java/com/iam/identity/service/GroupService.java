@@ -62,7 +62,7 @@ public class GroupService {
   @Transactional
   public Group createGroup(String name) {
     Group group = groupRepository.save(Group.createGroup(name));
-    eventPublisher.publishEvent(new GroupCreatedEvent(group.getId()));
+    eventPublisher.publishEvent(new GroupCreatedEvent(group.getId().getValue()));
     return group;
   }
 

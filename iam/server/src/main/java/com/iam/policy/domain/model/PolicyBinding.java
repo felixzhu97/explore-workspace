@@ -1,6 +1,6 @@
 package com.iam.policy.domain.model;
 
-import com.iam.common.domain.base.AbstractImmutable;
+import com.explore.kernel.AbstractImmutable;
 import com.iam.common.domain.model.ResourceName;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -9,8 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class PolicyBinding extends AbstractImmutable {
+public class PolicyBinding extends AbstractImmutable<PolicyBindingId> {
 
   @NotBlank
   @Size(max = 36)
@@ -33,8 +31,8 @@ public class PolicyBinding extends AbstractImmutable {
   @Valid
   private ResourceName principalArn;
 
-  private PolicyBinding(String id, String policyId, ResourceName principalArn, Instant createdAt) {
-    super(id, createdAt);
+  private PolicyBinding(PolicyBindingId id, String policyId, ResourceName principalArn) {
+    super(id);
     this.policyId = policyId;
     this.principalArn = principalArn;
   }
@@ -47,7 +45,6 @@ public class PolicyBinding extends AbstractImmutable {
    * @return new attachment
    */
   public static PolicyBinding createPolicyBinding(String policyId, ResourceName principalArn) {
-    return new PolicyBinding(
-        UUID.randomUUID().toString(), policyId, principalArn, Instant.now());
+    return new PolicyBinding(PolicyBindingId.generateId(), policyId, principalArn);
   }
 }

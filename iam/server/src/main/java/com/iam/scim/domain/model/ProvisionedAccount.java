@@ -82,7 +82,7 @@ public class ProvisionedAccount {
   @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static class Pk implements Serializable {
-    private String targetId;
+    private ProvisioningTargetId targetId;
     private String iamUserId;
   }
 }

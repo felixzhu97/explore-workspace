@@ -1,6 +1,6 @@
 package com.iam.sts.domain.model;
 
-import com.iam.common.domain.base.AbstractImmutable;
+import com.explore.kernel.AbstractImmutable;
 import com.iam.common.domain.base.DomainStrings;
 import com.iam.common.domain.model.ResourceName;
 import jakarta.persistence.AttributeOverride;
@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class ShortLivedCredential extends AbstractImmutable {
+public class ShortLivedCredential extends AbstractImmutable<ShortLivedCredentialId> {
 
   @Embedded
   @AttributeOverride(
@@ -43,13 +42,12 @@ public class ShortLivedCredential extends AbstractImmutable {
   private Instant expiresAt;
 
   private ShortLivedCredential(
-      String id,
+      ShortLivedCredentialId id,
       ResourceName roleArn,
       String sessionName,
       String callerPrincipal,
-      Instant expiresAt,
-      Instant createdAt) {
-    super(id, createdAt);
+      Instant expiresAt) {
+    super(id);
     this.roleArn = roleArn;
     this.sessionName = requireSessionName(sessionName);
     this.callerPrincipal = callerPrincipal;
@@ -60,12 +58,7 @@ public class ShortLivedCredential extends AbstractImmutable {
   public static ShortLivedCredential createShortLivedCredential(
       ResourceName roleArn, String sessionName, String callerPrincipal, Instant expiresAt) {
     return new ShortLivedCredential(
-        UUID.randomUUID().toString(),
-        roleArn,
-        sessionName,
-        callerPrincipal,
-        expiresAt,
-        Instant.now());
+        ShortLivedCredentialId.generateId(), roleArn, sessionName, callerPrincipal, expiresAt);
   }
 
   /** Returns true when the session has expired. */

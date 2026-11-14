@@ -24,14 +24,14 @@ legend right
   | <<DomainEvent>> | 领域事件 |
 endlegend
 
-package "Domain Kernel" as pkg_kernel {
-  class AbstractImmutable <<Abstract>> {
-    +id: String
+package "Domain Kernel (shared/kernel)" as pkg_kernel {
+  class AbstractImmutable<IdT> <<Abstract>> {
+    +id: IdT @EmbeddedId
     +createdAt: Instant @CreationTimestamp
   }
-  class AbstractEntity <<Abstract>> {
+  class AbstractEntity<IdT> <<Abstract>> {
     +updatedAt: Instant @UpdateTimestamp
-    +version: long
+    +version: Long
     # touch()
   }
   class AbstractEmbeddable <<Abstract>>

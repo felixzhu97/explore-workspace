@@ -79,7 +79,8 @@ public class PolicyController {
       @PathVariable("allowPolicy") String policy, @RequestBody AttachPolicyRequest request) {
     PolicyBinding attachment =
         policyService.createPolicyBinding(policy, new ResourceName(request.principalArn()));
-    return new PolicyBindingResponse(attachment.getId(), attachment.getPrincipalArn().value());
+    return new PolicyBindingResponse(
+        attachment.getId().getValue(), attachment.getPrincipalArn().value());
   }
 
   /**
@@ -118,7 +119,7 @@ public class PolicyController {
   /** Policy document summary. */
   public record AllowPolicyResponse(String id, String name) {
     static AllowPolicyResponse from(AllowPolicy policy) {
-      return new AllowPolicyResponse(policy.getId(), policy.getName());
+      return new AllowPolicyResponse(policy.getId().getValue(), policy.getName());
     }
   }
 
