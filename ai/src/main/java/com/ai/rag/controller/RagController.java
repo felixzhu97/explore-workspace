@@ -1,0 +1,107 @@
+package com.ai.rag.controller;
+
+import com.ai.account.controller.OwnerContext;
+import com.ai.rag.controller.dto.DocumentListResponse;
+import com.ai.rag.controller.dto.DocumentSummaryResponse;
+import com.ai.rag.controller.dto.RagChatRequest;
+import com.ai.rag.controller.dto.UploadDocumentResponse;
+import com.ai.rag.domain.model.RagDocument;
+import com.ai.rag.service.DocumentUploadService;
+import com.ai.rag.service.RagApplicationService;
+import com.ai.rag.service.RagChatService;
+import com.ai.vision.service.VisionChatService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Flux;
+
+/** REST Controller for RAG operations. Thin controller - delegates to application services. */
+@RestController
+@RequestMapping("/api/rag")
+@Tag(name = "RAG", description = "RAG document management and chat")
+@RequiredArgsConstructor
+public class RagController {
+
+  private final RagApplicationService ragApplicationService;
+  private final RagChatService ragChatService;
+  private final ObjectProvider<VisionChatService> visionChatService;
+  private final OwnerContext ownerContext;
+
+  @GetMapping("/documents")
+  @Operation(summary = "List documents for the current owner")
+  public ResponseEntity<DocumentListResponse> listDocuments(HttpServletRequest request) {
+    String ownerKey = ownerContext.requireValue(request);
+    List<RagDocument> documents = ragApplicationService.listDocuments(ownerKey);
+    return ResponseEntity.ok(
+        new DocumentListResponse(documents.stream().map(RagController::toSummary).toList()));
+  }
+
+  @PostMapping("/documents/upload")
+  @Operation(summary = "Upload a document")
+  public ResponseEntity<UploadDocumentResponse> uploadDocument(
+      @RequestParam("file") MultipartFile file,
+      @RequestParam(value = "title", required = false) String title,
+      HttpServletRequest request) {
+    String ownerKey = ownerContext.requireValue(request);
+    DocumentUploadService.UploadResult result =
+        ragApplicationService.uploadDocument(file, title, ownerKey);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            new UploadDocumentResponse(
+                result.documentId().getValue(),
+                result.title(),
+                result.status(),
+                result.chunkCount(),
+                result.createdAt()));
+  }
+
+  @PostMapping(value = "/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @Operation(summary = "RAG streaming chat")
+  public Flux<ServerSentEvent<String>> streamRagChat(
+      @Valid @RequestBody RagChatRequest request, HttpServletRequest httpRequest) {
+    String ownerKey = ownerContext.requireValue(httpRequest);
+    if (!request.images().isEmpty()) {
+      VisionChatService visionChat = visionChatService.getIfAvailable();
+      if (visionChat != null) {
+        return visionChat.streamChatWithImages(
+            request.question(), request.documentIds(), request.images(), request.topK(), ownerKey);
+      }
+    }
+    return ragChatService.streamChat(
+        request.question(), request.documentIds(), request.topK(), request.sessionId(), ownerKey);
+  }
+
+  @DeleteMapping("/documents/{id}")
+  @Operation(summary = "Delete a document")
+  public ResponseEntity<Void> deleteDocument(@PathVariable UUID id, HttpServletRequest request) {
+    ragApplicationService.deleteDocument(id, ownerContext.requireValue(request));
+    return ResponseEntity.noContent().build();
+  }
+
+  private static DocumentSummaryResponse toSummary(RagDocument doc) {
+    return new DocumentSummaryResponse(
+        doc.getId().getValue(),
+        doc.getTitle(),
+        doc.getStatus(),
+        doc.getCreatedAt(),
+        doc.getChunkCount());
+  }
+}

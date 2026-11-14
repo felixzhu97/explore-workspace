@@ -1,0 +1,510 @@
+package com.ai.chat.service;
+
+import com.ai.chat.domain.model.ChatMessage;
+import com.ai.chat.domain.model.ChatSession;
+import com.ai.chat.domain.model.ChatSessionId;
+import com.ai.chat.domain.repository.ChatSessionRepository;
+import com.ai.chat.domain.repository.ChatWebSourcesRepository;
+import com.ai.chat.domain.repository.ConversationMemoryRepository;
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.event.AiInvocationFailedEvent;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.exception.DomainException;
+import com.ai.common.infra.llm.ToolCallMarkupFilter;
+import com.ai.common.infra.llm.ToolEventChannel;
+import com.ai.common.infra.prompt.PromptTemplates;
+import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.StreamTokenEvent;
+import com.ai.common.service.llm.TextChatOptions;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.retry.support.RetryTemplate;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
+import reactor.core.scheduler.Schedulers;
+
+/** Spring AI chat use case with session memory, tool calls, web sources, and usage metrics. */
+@Service
+@RequiredArgsConstructor
+public class ChatService {
+
+  private static final ObjectMapper JSON = new ObjectMapper();
+  private static final String REPAIR_USER_PROMPT =
+      """
+            Produce the final answer now using the web search results provided in this prompt.
+            Reply in the user's language. If a chart was requested, emit the a2ui fence with
+            chartData from those results.
+            Do not call tools. Do not emit DSML or tool-call markup.
+            Do not say search results are missing.
+            """;
+
+  private final ChatClientProvider chatClientProvider;
+  private final ChatSessionRepository repository;
+  private final RetryTemplate retryTemplate;
+  private final ChatMemory chatMemory;
+  private final ConversationMemoryRepository conversationMemoryRepository;
+  private final SessionTitleGenerator sessionTitleGenerator;
+  private final ChatWebSourcesRepository chatWebSourcesRepository;
+  private final PromptTemplates promptTemplates;
+  private final ApplicationEventPublisher eventPublisher;
+  private final ChatSessionEraser sessionEraser;
+
+  /** Returns the client's sessions, most recently active first. */
+  public List<ChatSession> listSessions(String ownerKey) {
+    return repository
+        .findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey))
+        .stream()
+        .map(this::withStoredMessages)
+        .toList();
+  }
+
+  /**
+   * Returns the client's session messages in chronological order with their web sources. The owner
+   * is checked before any sources are read.
+   */
+  public SessionHistory findSessionHistoryWithSources(String sessionId, String ownerKey) {
+    ChatSession session =
+        repository
+            .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
+            .map(this::withStoredMessages)
+            .orElseThrow(
+                () ->
+                    DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found"));
+    return new SessionHistory(
+        session.getMessages(), chatWebSourcesRepository.findByConversationId(sessionId));
+  }
+
+  /** Sends a message in the session and returns the reply. */
+  public String sendMessage(String sessionId, String userMessage, String ownerKey) {
+    ChatSession session = loadOrCreateSession(sessionId, ownerKey);
+    return sendMessage(session, sessionId, userMessage, TextChatOptions.createDefaultOptions());
+  }
+
+  /** Sends a message in the owner's default session and returns the reply. */
+  public String sendMessage(String userMessage, String ownerKey) {
+    ChatSession session = getOrCreateDefaultSession(ownerKey);
+    return sendMessage(
+        session, session.getId().toString(), userMessage, TextChatOptions.createDefaultOptions());
+  }
+
+  /**
+   * Sends one stateless message with retries and records the invocation. Only system callers such
+   * as evals and the MCP server use it, so the event has no visitor owner.
+   */
+  public String sendMessage(String userMessage, TextChatOptions options) {
+    long startedAt = System.nanoTime();
+    try {
+      String response =
+          retryTemplate.execute(
+              context -> {
+                ChatClient chatClient = chatClientProvider.createStateless(options);
+                String content = chatClient.prompt().user(userMessage).call().content();
+                if (content == null || content.isBlank()) {
+                  throw DomainException.createUnavailableError(
+                      "AI_SERVICE_ERROR", "AI returned empty response");
+                }
+                return content;
+              });
+      publishCompleted("chat.call", startedAt, OwnerKey.UNOWNED, options, null);
+      return response;
+    } catch (RuntimeException ex) {
+      publishFailed("chat.call", startedAt, OwnerKey.UNOWNED, options, null, ex);
+      throw ex;
+    }
+  }
+
+  /** Sends one stateless message with default options. */
+  public String sendMessage(String userMessage) {
+    return sendMessage(userMessage, TextChatOptions.createDefaultOptions());
+  }
+
+  private String sendMessage(
+      ChatSession session, String conversationId, String userMessage, TextChatOptions options) {
+    conversationMemoryRepository.loadMessagesIfEmpty(conversationId, session.getMessages());
+    final boolean isFirstTurn = session.isEmpty();
+
+    ChatClient chatClient = chatClientProvider.create(options, conversationId);
+    String aiResponse =
+        chatClient
+            .prompt()
+            .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, conversationId))
+            .user(userMessage)
+            .call()
+            .content();
+
+    if (aiResponse == null || aiResponse.isBlank()) {
+      throw DomainException.createUnavailableError(
+          "AI_SERVICE_ERROR", "AI returned empty response");
+    }
+
+    session.recordExchange(conversationMemoryRepository.loadMessages(conversationId));
+    repository.save(session);
+
+    if (isFirstTurn && session.needsGeneratedTitle()) {
+      generateTitleAsync(session.getId(), userMessage, aiResponse);
+    }
+
+    return aiResponse;
+  }
+
+  /** Creates an empty chat session owned by the client. */
+  public ChatSession createSession(String title, String ownerKey) {
+    ChatSession session = ChatSession.createSession(title, ownerKey);
+    repository.save(session);
+    return session;
+  }
+
+  /** Deletes the client's session and its chat memory. */
+  public void deleteSession(String sessionId, String ownerKey) {
+    ChatSession session =
+        repository
+            .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
+            .orElseThrow(
+                () ->
+                    DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found"));
+    sessionEraser.eraseAll(List.of(session));
+  }
+
+  /** Streams a reply within a session, persisting both turns after completion. */
+  public Flux<String> streamChatWithSession(
+      String sessionId, String userMessage, TextChatOptions options, String ownerKey) {
+    return Flux.defer(
+            () -> {
+              long startedAt = System.nanoTime();
+              ChatSession session = loadOrCreateSession(sessionId, ownerKey);
+              boolean isFirstTurn = session.isEmpty();
+              conversationMemoryRepository.loadMessagesIfEmpty(sessionId, session.getMessages());
+
+              ToolEventChannel.setCurrentSessionId(sessionId);
+              try {
+                ChatClient chatClient = chatClientProvider.create(options, sessionId);
+                AtomicReference<String> rawAssistant = new AtomicReference<>("");
+                Flux<String> primary =
+                    mergeToolEvents(
+                        chatClient
+                            .prompt()
+                            .advisors(
+                                advisor -> advisor.param(ChatMemory.CONVERSATION_ID, sessionId))
+                            .user(userMessage)
+                            .stream()
+                            .content()
+                            .doOnNext(token -> rawAssistant.updateAndGet(prev -> prev + token)),
+                        sessionId,
+                        ownerKey,
+                        options.toolsEnabled());
+                Flux<String> repaired =
+                    Flux.defer(
+                        () -> repairIfToolMarkupOnly(rawAssistant.get(), sessionId, options));
+                return Flux.concat(primary, repaired)
+                    .doOnComplete(
+                        () -> {
+                          publishCompleted(
+                              "chat.stream",
+                              startedAt,
+                              OwnerKey.parseKey(ownerKey),
+                              options,
+                              sessionId);
+                          Mono.fromRunnable(
+                                  () ->
+                                      finishSessionStream(
+                                          session.getId(), sessionId, isFirstTurn, userMessage))
+                              .subscribeOn(Schedulers.boundedElastic())
+                              .subscribe();
+                        })
+                    .doOnError(
+                        error -> {
+                          publishFailed(
+                              "chat.stream",
+                              startedAt,
+                              OwnerKey.parseKey(ownerKey),
+                              options,
+                              sessionId,
+                              error);
+                        });
+              } finally {
+                ToolEventChannel.clearCurrentSessionId();
+              }
+            })
+        .subscribeOn(Schedulers.boundedElastic());
+  }
+
+  /** Streams a reply for an ad-hoc message list without a session. */
+  public Flux<String> streamChat(
+      List<ChatMessage> messages, TextChatOptions options, String ownerKey) {
+    String requestId = java.util.UUID.randomUUID().toString();
+    ToolEventChannel.setCurrentSessionId(requestId);
+    try {
+      ChatClient chatClient = chatClientProvider.createStateless(options);
+      return mergeToolEvents(
+          chatClient
+              .prompt()
+              .messages(messages.stream().map(this::toSpringMessage).toList())
+              .stream()
+              .content(),
+          requestId,
+          ownerKey,
+          options.toolsEnabled());
+    } finally {
+      ToolEventChannel.clearCurrentSessionId();
+    }
+  }
+
+  /** Returns the session when it belongs to the client. */
+  public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
+    return repository
+        .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
+        .map(this::withStoredMessages);
+  }
+
+  /** Deletes every session owned by the client. */
+  public void deleteAllSessions(String ownerKey) {
+    List<ChatSession> sessions =
+        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey));
+    sessionEraser.eraseAll(sessions);
+  }
+
+  /** Clears the model memory of a conversation. */
+  public void clearConversationMemory(String conversationId) {
+    chatMemory.clear(conversationId);
+  }
+
+  private Flux<String> repairIfToolMarkupOnly(
+      String rawAssistant, String sessionId, TextChatOptions options) {
+    if (!ToolCallMarkupFilter.looksLikeToolMarkup(rawAssistant)) {
+      return Flux.empty();
+    }
+    if (!ToolCallMarkupFilter.stripToolMarkup(rawAssistant).isBlank()) {
+      return Flux.empty();
+    }
+    TextChatOptions noTools =
+        TextChatOptions.createOptions(options.provider(), options.model(), false);
+    final ChatClient repairClient = chatClientProvider.createBareStateless(noTools);
+    List<Message> promptMessages = new ArrayList<>();
+    promptMessages.add(new SystemMessage(promptTemplates.getDefaultSystemPrompt()));
+    promptMessages.addAll(chatMemory.get(sessionId));
+    CapturedWebSources.Capture capture = CapturedWebSources.getSources(sessionId);
+    if (capture != null && !capture.sources().isEmpty()) {
+      promptMessages.add(new SystemMessage(formatCapturedSources(capture)));
+    }
+    promptMessages.add(new SystemMessage(promptTemplates.getAfterToolsReminder()));
+    promptMessages.add(new UserMessage(REPAIR_USER_PROMPT));
+
+    StringBuilder repaired = new StringBuilder();
+    return repairClient.prompt().messages(promptMessages).stream()
+        .content()
+        .doOnNext(repaired::append)
+        .map(this::sanitizeStreamToken)
+        .filter(token -> !token.isEmpty())
+        .map(StreamTokenEvent::toJson)
+        .doOnComplete(
+            () -> {
+              String text = ToolCallMarkupFilter.stripToolMarkup(repaired.toString());
+              if (!text.isBlank()) {
+                chatMemory.add(sessionId, List.of(new AssistantMessage(text)));
+              }
+            });
+  }
+
+  private static String formatCapturedSources(CapturedWebSources.Capture capture) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Web search results already retrieved for query: ")
+        .append(capture.query())
+        .append("\n\n");
+    int index = 1;
+    for (var source : capture.sources()) {
+      sb.append('[')
+          .append(index++)
+          .append("] ")
+          .append(source.getTitle())
+          .append('\n')
+          .append("URL: ")
+          .append(source.getUrl())
+          .append('\n')
+          .append("Summary: ")
+          .append(source.getSnippet())
+          .append("\n\n");
+    }
+    sb.append(
+        "Use these results for the final answer and chart."
+            + " Do not claim search results are missing.");
+    return sb.toString();
+  }
+
+  private Flux<String> mergeToolEvents(
+      Flux<String> content, String channelId, String ownerKey, boolean toolsEnabled) {
+    Flux<String> textTokens = content.map(this::sanitizeStreamToken);
+    if (!toolsEnabled) {
+      return textTokens.filter(token -> !token.isEmpty()).map(StreamTokenEvent::toJson);
+    }
+    Sinks.Many<String> sink = ToolEventChannel.openChannel(channelId);
+    ToolEventChannel.bindOwnerKey(channelId, ownerKey);
+    Flux<String> toolEvents =
+        ToolEventChannel.asFlux(sink).doOnNext(json -> captureSourcesEvent(channelId, json));
+    Flux<String> textEvents =
+        textTokens
+            .filter(token -> !token.isEmpty())
+            .map(StreamTokenEvent::toJson)
+            .doFinally(signal -> ToolEventChannel.closeChannel(channelId));
+    return Flux.merge(toolEvents, textEvents);
+  }
+
+  private String sanitizeStreamToken(String token) {
+    if (!ToolCallMarkupFilter.looksLikeToolMarkup(token)) {
+      return token;
+    }
+    return ToolCallMarkupFilter.stripToolMarkup(token);
+  }
+
+  private void captureSourcesEvent(String channelId, String json) {
+    try {
+      JsonNode root = JSON.readTree(json);
+      if (root == null || !"sources".equals(root.path("type").asText())) {
+        return;
+      }
+      CapturedWebSources.saveSources(
+          channelId,
+          root.path("query").asText(""),
+          CapturedWebSources.parseItems(root.get("items")));
+    } catch (JsonProcessingException expected) {
+    }
+  }
+
+  private void finishSessionStream(
+      ChatSessionId sessionId, String conversationId, boolean isFirstTurn, String userMessage) {
+    repository
+        .findById(sessionId)
+        .ifPresent(
+            session -> {
+              session.recordExchange(conversationMemoryRepository.loadMessages(conversationId));
+              repository.save(session);
+              persistCapturedSources(conversationId, session);
+              if (isFirstTurn && session.needsGeneratedTitle()) {
+                generateTitleAsync(
+                    sessionId,
+                    userMessage,
+                    session.findLastAssistantMessage().orElseThrow().getText());
+              }
+            });
+  }
+
+  private void persistCapturedSources(String conversationId, ChatSession session) {
+    CapturedWebSources.Capture capture = CapturedWebSources.takeSources(conversationId);
+    if (capture == null || capture.sources().isEmpty()) {
+      return;
+    }
+    session
+        .findLastAssistantMessage()
+        .ifPresentOrElse(
+            reply ->
+                chatWebSourcesRepository.save(
+                    conversationId, reply.getText(), capture.query(), capture.sources()),
+            () -> CapturedWebSources.clearSources(conversationId));
+  }
+
+  private void generateTitleAsync(
+      ChatSessionId sessionId, String userMessage, String assistantReply) {
+    Mono.fromCallable(() -> sessionTitleGenerator.generateTitle(userMessage, assistantReply))
+        .subscribeOn(Schedulers.boundedElastic())
+        .subscribe(
+            title ->
+                repository
+                    .findById(sessionId)
+                    .ifPresent(
+                        session -> {
+                          if (session.applyGeneratedTitle(title)) {
+                            repository.save(session);
+                          }
+                        }),
+            error -> {});
+  }
+
+  private ChatSession withStoredMessages(ChatSession session) {
+    session.restoreMessages(conversationMemoryRepository.loadMessages(session.getId().toString()));
+    return session;
+  }
+
+  private ChatSession getOrCreateDefaultSession(String ownerKey) {
+    List<ChatSession> sessions =
+        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey));
+    if (sessions.isEmpty()) {
+      ChatSession newSession = ChatSession.createDefaultSession(ownerKey);
+      repository.save(newSession);
+      return newSession;
+    }
+    return sessions.getFirst();
+  }
+
+  private ChatSession loadOrCreateSession(String sessionId, String ownerKey) {
+    ChatSessionId id = ChatSessionId.parseId(sessionId);
+    Optional<ChatSession> owned = repository.findByIdAndOwnerKey(id, OwnerKey.parseKey(ownerKey));
+    if (owned.isPresent()) {
+      return owned.get();
+    }
+    if (repository.existsById(id)) {
+      throw DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found");
+    }
+    ChatSession session = ChatSession.createSessionWithId(id, ownerKey);
+    repository.save(session);
+    return session;
+  }
+
+  private Message toSpringMessage(ChatMessage msg) {
+    return msg.isFromUser() ? new UserMessage(msg.getText()) : new AssistantMessage(msg.getText());
+  }
+
+  private void publishCompleted(
+      String operation, long startedAt, OwnerKey owner, TextChatOptions options, String sessionId) {
+    eventPublisher.publishEvent(
+        new AiInvocationCompletedEvent(
+            "chat",
+            operation,
+            elapsedMillis(startedAt),
+            owner,
+            options.provider(),
+            options.model(),
+            sessionId,
+            null,
+            null));
+  }
+
+  private void publishFailed(
+      String operation,
+      long startedAt,
+      OwnerKey owner,
+      TextChatOptions options,
+      String sessionId,
+      Throwable error) {
+    eventPublisher.publishEvent(
+        new AiInvocationFailedEvent(
+            "chat",
+            operation,
+            elapsedMillis(startedAt),
+            owner,
+            options.provider(),
+            options.model(),
+            sessionId,
+            null,
+            null,
+            error.getClass().getSimpleName(),
+            error.getMessage()));
+  }
+
+  private static long elapsedMillis(long startedAt) {
+    return (System.nanoTime() - startedAt) / 1_000_000L;
+  }
+}

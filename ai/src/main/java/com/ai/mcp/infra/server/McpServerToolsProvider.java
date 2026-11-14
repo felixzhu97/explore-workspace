@@ -1,0 +1,94 @@
+package com.ai.mcp.infra.server;
+
+import com.ai.chat.service.ChatService;
+import com.ai.common.service.llm.DocumentSearchTool;
+import com.ai.rag.infra.config.RagProperties;
+import com.ai.tools.infra.tools.WeatherTools;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.mcp.annotation.McpResource;
+import org.springframework.ai.mcp.annotation.McpTool;
+import org.springframework.ai.mcp.annotation.McpToolParam;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Component;
+
+/** MCP server endpoint exposing weather, knowledge-base, chat tools, and a RAG config resource. */
+@Component
+@ConditionalOnProperty(
+    prefix = "launchdarkly.bootstrap",
+    name = "module-mcp",
+    havingValue = "true",
+    matchIfMissing = false)
+@RequiredArgsConstructor
+public class McpServerToolsProvider {
+
+  private final WeatherTools weatherTools;
+  private final DocumentSearchTool documentSearchTool;
+  private final ChatService chatService;
+  private final RagProperties ragProperties;
+
+  @McpTool(
+      name = "get_weather",
+      description = "Get current weather information for a specified city")
+  public String getWeather(
+      @McpToolParam(description = "The city name to get weather for", required = true)
+          String city) {
+    return weatherTools.getWeather(city);
+  }
+
+  @McpTool(name = "get_forecast", description = "Get weather forecast for a specified city")
+  public String getForecast(
+      @McpToolParam(description = "The city name", required = true) String city,
+      @McpToolParam(description = "Number of days for forecast (default: 3)", required = false)
+          Integer days) {
+    return weatherTools.getForecast(city, days);
+  }
+
+  @McpTool(
+      name = "search_knowledge_base",
+      description = "Search documents in the knowledge base using semantic search")
+  public String searchKnowledgeBase(
+      @McpToolParam(description = "The search query", required = true) String query,
+      @McpToolParam(
+              description = "Optional document IDs to filter (comma-separated)",
+              required = false)
+          String documentIds) {
+
+    List<String> documentIdList = null;
+    if (documentIds != null && !documentIds.isBlank()) {
+      documentIdList = List.of(documentIds.split(","));
+    }
+
+    return documentSearchTool.searchDocuments(query, documentIdList);
+  }
+
+  @McpTool(
+      name = "list_documents",
+      description = "List all documents available in the knowledge base")
+  public String listDocuments() {
+    return documentSearchTool.listDocuments();
+  }
+
+  @McpTool(name = "ai_chat", description = "Chat with AI assistant")
+  public String aiChat(
+      @McpToolParam(description = "The message to send to the AI", required = true)
+          String message) {
+    return chatService.sendMessage(message);
+  }
+
+  /** Returns the value of a supported RAG chunking or retrieval setting by property key. */
+  @McpResource(
+      uri = "config:///{key}",
+      name = "Configuration Resource",
+      description = "Access application configuration")
+  public String getConfig(String key) {
+
+    return switch (key) {
+      case "app.rag.chunk.size" -> String.valueOf(ragProperties.getChunk().getSize());
+      case "app.rag.retrieval.top-k" -> String.valueOf(ragProperties.getRetrieval().getTopK());
+      case "app.rag.retrieval.score-threshold" ->
+          String.valueOf(ragProperties.getRetrieval().getScoreThreshold());
+      default -> "Configuration key not found: " + key;
+    };
+  }
+}

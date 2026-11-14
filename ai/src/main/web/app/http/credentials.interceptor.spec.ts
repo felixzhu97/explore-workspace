@@ -1,0 +1,35 @@
+import { TestBed } from '@angular/core/testing';
+import {
+  type HttpInterceptorFn,
+  HttpRequest,
+  HttpResponse,
+} from '@angular/common/http';
+import { of } from 'rxjs';
+import { credentialsInterceptor } from './credentials.interceptor';
+
+describe('credentialsInterceptor', () => {
+  const interceptor: HttpInterceptorFn = (request, next) => {
+    return TestBed.runInInjectionContext(() => {
+      return credentialsInterceptor(request, next);
+    });
+  };
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+  });
+
+  it('should set with credentials when request cloned', () => {
+    const request = new HttpRequest('GET', '/api/chat/sessions');
+    let withCredentials = false;
+    let csrfHeader = '';
+
+    interceptor(request, (outgoing) => {
+      withCredentials = outgoing.withCredentials;
+      csrfHeader = outgoing.headers.get('X-Requested-With') ?? '';
+      return of(new HttpResponse({ status: 200 }));
+    }).subscribe();
+
+    expect(withCredentials).toBe(true);
+    expect(csrfHeader).toBe('XMLHttpRequest');
+  });
+});

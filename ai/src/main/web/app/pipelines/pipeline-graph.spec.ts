@@ -1,0 +1,97 @@
+import { validatePipeline, toPipelineInvokeRequest, type PipelineGraph } from './pipeline-graph';
+
+function node(
+  id: string,
+  agentType: string,
+  extras: Partial<{
+    name: string;
+    description: string;
+    systemPrompt: string;
+    tools: string[];
+    x: number;
+    y: number;
+  }> = {},
+) {
+  return {
+    id,
+    agentType,
+    name: extras.name ?? agentType,
+    description: extras.description ?? '',
+    systemPrompt: extras.systemPrompt ?? '',
+    tools: extras.tools ?? [],
+    position: { x: extras.x ?? 0, y: extras.y ?? 0 },
+  };
+}
+
+describe('validatePipeline', () => {
+  it('should accept single node when no edges', () => {
+    const graph: PipelineGraph = {
+      nodes: [node('n1', 'k8s', { name: 'K8s', description: 'cluster' })],
+      connections: [],
+    };
+
+    expect(validatePipeline(graph)).toEqual({ ok: true, order: ['k8s'] });
+  });
+
+  it('should reject empty graph', () => {
+    expect(validatePipeline({ nodes: [], connections: [] })).toEqual({
+      ok: false,
+      reason: 'empty',
+    });
+  });
+
+  it('should reject unconnected nodes', () => {
+    const graph: PipelineGraph = {
+      nodes: [node('a', 'k8s'), node('b', 'aiops', { x: 100 })],
+      connections: [],
+    };
+
+    expect(validatePipeline(graph)).toEqual({
+      ok: false,
+      reason: 'needConnections',
+    });
+  });
+
+  it('should topo sort connected pipeline', () => {
+    const graph: PipelineGraph = {
+      nodes: [node('a', 'k8s'), node('b', 'aiops', { x: 200 })],
+      connections: [{ id: 'c1', sourceNodeId: 'a', targetNodeId: 'b' }],
+    };
+
+    expect(validatePipeline(graph)).toEqual({
+      ok: true,
+      order: ['k8s', 'aiops'],
+    });
+  });
+});
+
+describe('toPipelineInvokeRequest', () => {
+  it('should include node snapshot fields', () => {
+    const graph: PipelineGraph = {
+      nodes: [
+        node('a', 'research', {
+          name: 'Custom',
+          description: 'd',
+          systemPrompt: 'prompt',
+          tools: ['web_search'],
+        }),
+      ],
+      connections: [],
+    };
+
+    expect(toPipelineInvokeRequest('do work', graph)).toEqual({
+      message: 'do work',
+      nodes: [
+        {
+          id: 'a',
+          agentType: 'research',
+          name: 'Custom',
+          description: 'd',
+          systemPrompt: 'prompt',
+          tools: ['web_search'],
+        },
+      ],
+      edges: [],
+    });
+  });
+});

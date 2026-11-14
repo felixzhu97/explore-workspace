@@ -1,0 +1,104 @@
+# Node.js
+node_modules/
+dist/
+*.local
+
+# IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# H2 embedded database files
+data/
+
+# Docker volumes (runtime data)
+volumes/
+
+# ML model weights (repository root only)
+/models/
+*.pt
+*.onnx
+*.pth
+*.h5
+*.traineddata
+
+# Cache
+.cache/
+.pytest_cache/
+
+# CI metrics (generated in GitHub Actions / local summary dry-runs)
+ci-metrics/
+
+# SQLite databases
+*.db
+
+# Test Reports & Coverage
+coverage/
+**/coverage/
+*.lcov
+lcov.info
+*.cobertura.xml
+coverage-output.txt
+**/coverage-output.txt
+junit.xml
+test-output/
+test-results/
+nunit-result-*.xml
+
+# Playwright E2E artifacts
+.playwright-mcp/
+playwright-report/
+playwright/.cache/
+blob-report/
+e2e/snapshots/
+
+# Default Playwright per-spec snapshot dirs
+**/*-snapshots/
+
+# Cursor MCP output
+.cursor/mcp-output/
+
+
+# Documentation images (keep these tracked)
+!docs/png/*.png
+
+# Angular
+.angular/
+
+# PNPM store
+.pnpm-store/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Husky
+.husky/_/
+
+# Services (legacy microservices)
+services/data/
+
+# Java/Gradle build artifacts
+.gradle/
+**/build/
+**/.gradle/
+
+# Spring Boot
+src/main/resources/application-local.yml
+src/main/resources/application-local*.yml
+
+# Legacy merged services (migrated to monolith)
+apps/server-java/services/ai-agents/
+
+# Root-level build
+build/

@@ -1,0 +1,14 @@
+package com.ai.metrics.controller.dto;
+
+import com.ai.metrics.domain.model.ModuleStatus;
+import com.ai.metrics.domain.repository.MetricsHealthGateway.AgentsHealth;
+
+public record AgentsInventoryResponse(ModuleStatus status, long agentCount, long healthyAgentCount)
+    implements CapabilityInventoryResponse {
+
+  /** Maps agent health to a response. */
+  public static AgentsInventoryResponse createResponse(AgentsHealth health) {
+    return new AgentsInventoryResponse(
+        health.getStatus(), health.getAgentCount(), health.getHealthyAgentCount());
+  }
+}

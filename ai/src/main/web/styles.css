@@ -1,0 +1,479 @@
+@import "ng-zorro-antd/ng-zorro-antd.variable.min.css" layer(base);
+@import "ng-zorro-x/ng-zorro-x.variable.min.css" layer(base);
+@import "tw-animate-css";
+
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+/* Map CSS variables to Tailwind theme for utility classes */
+@theme inline {
+  /* Colors */
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-active: var(--color-primary-active);
+  --color-primary-light: var(--color-primary-light);
+  --color-surface: var(--color-surface);
+  --color-surface-secondary: var(--color-surface-secondary);
+  --color-background: var(--color-background);
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
+  --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-success: var(--color-success);
+  --color-success-light: var(--color-success-light);
+  --color-warning: var(--color-warning);
+  --color-warning-light: var(--color-warning-light);
+  --color-error: var(--color-error);
+  --color-error-light: var(--color-error-light);
+  --color-glass: var(--color-glass);
+
+  /* Zard UI semantic colors (app --color-background kept above) */
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--color-border-light);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+
+  /* Spacing (padding/gap); do not use max-w-xs/sm — they resolve to these values in v4 */
+  --spacing-xs: var(--spacing-xs);
+  --spacing-sm: var(--spacing-sm);
+  --spacing-md: var(--spacing-md);
+  --spacing-lg: var(--spacing-lg);
+  --spacing-xl: var(--spacing-xl);
+  --spacing-xxl: var(--spacing-xxl);
+
+  /* Container max-widths; use max-w-(--container-*) when spacing tokens collide */
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+
+  /* Border Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-full: var(--radius-full);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-input: 0 0 0 3px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  /* Custom Animations */
+  --animate-dropdown-fade-in: dropdownFadeIn 0.15s ease;
+  --animate-fade-in: fadeIn 0.3s ease;
+  --animate-fadeIn: fadeIn 0.25s ease;
+  --animate-slide-in: slideIn 0.25s ease;
+  --animate-toast-slide-in: toastSlideIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-page-slide-in: pageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --animate-page-slide-out: pageSlideOut 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pageSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+:root {
+  --color-primary: #000000;
+  --color-primary-hover: #333333;
+  --color-primary-active: #1d1d1f;
+  --color-primary-light: rgba(0, 0, 0, 0.06);
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f5f5f7;
+  --color-background: #f5f5f7;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-light: rgba(0, 0, 0, 0.06);
+  --color-text: #1d1d1f;
+  --color-text-secondary: #86868b;
+  --color-text-tertiary: #6e6e73;
+  --color-success: #34c759;
+  --color-success-light: rgba(52, 199, 89, 0.15);
+  --color-warning: #ff9500;
+  --color-warning-light: rgba(255, 149, 0, 0.15);
+  --color-error: #ff3b30;
+  --color-error-light: rgba(255, 59, 48, 0.15);
+  --color-glass: rgba(255, 255, 255, 0.8);
+
+  /* Zard UI semantic tokens (mapped to app theme) */
+  --background: var(--color-background);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-secondary);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-surface-secondary);
+  --accent-foreground: var(--color-text);
+  --destructive: var(--color-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border-light);
+  --input: var(--color-border-light);
+  --ring: rgba(0, 0, 0, 0.2);
+  --radius: 0.625rem;
+
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-text);
+  --sidebar-primary-foreground: var(--color-surface);
+  --sidebar-accent: var(--color-surface-secondary);
+  --sidebar-accent-foreground: var(--color-text);
+  --sidebar-border: var(--color-border-light);
+  --sidebar-ring: rgba(0, 0, 0, 0.2);
+  --chart-1: #007aff;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 17px;
+  --font-size-xl: 22px;
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-input: 0 0 0 3px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  --line-height-relaxed: 1.6;
+}
+
+html {
+  font-size: 16px;
+  height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  scroll-padding-top: 52px; /* Account for sticky navbar height */
+  touch-action: manipulation;
+}
+
+body {
+  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: #1d1d1f;
+  background: #f5f5f7;
+  line-height: 1.4;
+  height: 100dvh;
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1d1d1f;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6e6e73;
+}
+
+input, button, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Mobile: prevent iOS Safari auto-zoom on input focus (requires >= 16px) */
+@media screen and (max-width: 768px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  nx-sender textarea,
+  nx-sender input {
+    font-size: 16px;
+  }
+}
+
+[data-slot='card-footer']:empty {
+  display: none;
+}
+
+main a,
+.markdown-content a {
+  color: #1d1d1f;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+main a:hover,
+.markdown-content a:hover {
+  color: #000000;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+code {
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  font-size: 0.9em;
+  background: rgba(0, 0, 0, 0.06);
+  color: #1d1d1f;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+pre {
+  font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  overflow-x: auto;
+}
+
+/* Chat welcome: keep icon left of title/description */
+app-chat-welcome-panel .ant-welcome {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: 100%;
+  gap: 1rem;
+}
+
+app-chat-welcome-panel .ant-welcome-icon {
+  flex: none;
+  align-items: center;
+  height: auto;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+app-chat-welcome-panel .ant-welcome-content-wrapper {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Zard dialog animations (moved from inline component styles for Vitest compatibility) */
+z-dialog {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+@starting-style {
+  z-dialog {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+z-dialog.dialog-leave {
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity 150ms ease-in,
+    transform 150ms ease-in;
+}
+
+@keyframes z-progress-indeterminate {
+  0% {
+    left: -0%;
+    width: 30%;
+  }
+  50% {
+    left: 50%;
+    width: 30%;
+  }
+  100% {
+    left: 100%;
+    width: 0;
+  }
+}
+
+/* Automations one-shot datetime popup (overlay outside component host) */
+.run-at-picker-popup.ant-picker-dropdown {
+  z-index: 1100;
+}
+
+.run-at-picker-popup .ant-picker-panel-container {
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 12px;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.run-at-picker-popup .ant-picker-datetime-panel {
+  display: flex;
+}
+
+.run-at-picker-popup .ant-picker-date-panel {
+  border-inline-end: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.run-at-picker-popup .ant-picker-time-panel {
+  min-width: 11.5rem;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.run-at-picker-popup .ant-picker-time-panel-column {
+  flex: 1 1 0;
+  width: 3.5rem;
+  overflow-y: auto;
+}
+
+.run-at-picker-popup .ant-picker-time-panel-column > li.ant-picker-time-panel-cell
+  .ant-picker-time-panel-cell-inner {
+  padding-inline: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-at-picker-popup .ant-picker-header,
+.run-at-picker-popup .ant-picker-time-panel-header {
+  font-weight: 600;
+}
+
+.run-at-picker-popup .ant-picker-cell-selected .ant-picker-cell-inner,
+.run-at-picker-popup .ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+.run-at-picker-popup .ant-picker-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 8px 12px;
+}
+
+.run-at-picker-popup .ant-picker-now-btn {
+  font-weight: 500;
+}
+
+.run-at-picker-popup .ant-picker-ok .ant-btn {
+  min-width: 3.25rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
+.run-at-picker-popup .ant-picker-ok .ant-btn:hover {
+  background: #333 !important;
+  border-color: #333 !important;
+  color: #fff !important;
+}

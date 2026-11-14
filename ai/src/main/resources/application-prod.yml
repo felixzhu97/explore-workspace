@@ -1,0 +1,125 @@
+server:
+  port: ${PORT:8080}
+  # Vercel reverse-proxies /api and OAuth paths; honor X-Forwarded-* so
+  # Spring OAuth {baseUrl} and cookies stay on https://www.felixzhu.chat
+  forward-headers-strategy: framework
+
+# cloud-minimal profile (Render): optional local-only modules are disabled.
+spring:
+  ai:
+    mcp:
+      server:
+        enabled: false
+      client:
+        enabled: ${MCP_CLIENT_ENABLED:false}
+        request-timeout: ${MCP_REQUEST_TIMEOUT:15s}
+        initialized: false
+        # Prod: Streamable HTTP only; STDIO is local-optional (see application-local.yml.example).
+        stdio:
+          enabled: false
+        streamable-http:
+          connections:
+            remote:
+              url: ${MCP_STREAMABLE_HTTP_URL:}
+              endpoint: ${MCP_STREAMABLE_HTTP_ENDPOINT:/mcp}
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: never
+    ollama:
+      chat:
+        enabled: false
+      embedding:
+        enabled: false
+
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
+
+launchdarkly:
+  enabled: ${LAUNCHDARKLY_ENABLED:true}
+  sdk-key: ${LAUNCHDARKLY_SDK_KEY:}
+  fallback:
+    module-vision: false
+    module-audio-asr: false
+    module-mcp: false
+    module-eval: false
+
+app:
+  rag:
+    embedding:
+      # hash: boots without OPENAI_API_KEY. openai: real vectors when key is set.
+      provider: ${RAG_EMBEDDING_PROVIDER:hash}
+      dimensions: ${RAG_EMBEDDING_DIMENSIONS:1024}
+      model: text-embedding-3-small
+      openai-api-key: ${OPENAI_API_KEY:${IMAGE_API_KEY:}}
+      openai-base-url: https://api.openai.com
+  client-identity:
+    cookie-name: __Host-ea_cid
+    secure: true
+    same-site: Lax
+    max-age: 90d
+  service-auth:
+    api-key: ${EXPLORE_AI_SERVICE_KEY:}
+  rate-limit:
+    enabled: true
+    requests-per-window: 60
+    ip-requests-per-window: ${APP_RATE_LIMIT_IP_PER_WINDOW:120}
+    window-seconds: 60
+  billing:
+    quota-enabled: true
+    plan: ${APP_BILLING_PLAN:free}
+    free-daily-requests: ${APP_BILLING_FREE_DAILY:50}
+    pro-daily-requests: ${APP_BILLING_PRO_DAILY:2000}
+    ip-daily-requests: ${APP_BILLING_IP_DAILY:200}
+    global-daily-requests: ${APP_BILLING_GLOBAL_DAILY:5000}
+  metrics:
+    admin-api-key: ${METRICS_ADMIN_API_KEY:}
+  data-retention:
+    enabled: true
+    session-max-age: 90d
+    cron: "0 0 3 * * *"
+  oauth:
+    success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:https://www.felixzhu.chat/}
+    google:
+      enabled: ${APP_OAUTH_GOOGLE_ENABLED:false}
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      # Absolute callback so Vercel→Render proxy Host headers cannot drift to onrender.com
+      redirect-uri: ${APP_OAUTH_REDIRECT_URI:https://www.felixzhu.chat/login/oauth2/code/google}
+    github:
+      enabled: ${APP_OAUTH_GITHUB_ENABLED:false}
+      client-id: ${GITHUB_CLIENT_ID:}
+      client-secret: ${GITHUB_CLIENT_SECRET:}
+      redirect-uri: ${APP_OAUTH_GITHUB_REDIRECT_URI:https://www.felixzhu.chat/login/oauth2/code/github}
+  automation:
+    # cloud-minimal: skip 60s due-scan unless explicitly re-enabled
+    scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:false}
+  mail:
+    enabled: ${APP_MAIL_ENABLED:false}
+    provider: ${APP_MAIL_PROVIDER:resend}
+    from: ${APP_MAIL_FROM:onboarding@resend.dev}
+    resend-api-key: ${APP_MAIL_RESEND_API_KEY:}
+    resend-base-url: ${APP_MAIL_RESEND_BASE_URL:https://api.resend.com}
+  vision:
+    models-dir: ${VISION_MODELS_DIR:models}
+  ai:
+    image:
+      provider: ${IMAGE_PROVIDER:openai}
+      model: ${IMAGE_MODEL:dall-e-3}
+      api-key: ${IMAGE_API_KEY:${OPENAI_API_KEY:}}
+      base-url: ${IMAGE_BASE_URL:https://api.openai.com/v1}
+    tts:
+      api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    mail:
+      enabled: false
+

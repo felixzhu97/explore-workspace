@@ -1,0 +1,289 @@
+package com.ai.metrics.infra.persistence;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.ai.metrics.domain.model.AiCapability;
+import com.ai.metrics.domain.model.InvocationStats;
+import com.ai.metrics.domain.model.LatencyStats;
+import com.ai.metrics.domain.repository.MetricsQueryRepository;
+import java.sql.ResultSet;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowCallbackHandler;
+import org.springframework.jdbc.core.RowMapper;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("JdbcMetricsQueryRepository")
+class JdbcMetricsQueryRepositoryTest {
+
+  @Mock private JdbcTemplate jdbcTemplate;
+
+  private JdbcMetricsQueryRepository repository;
+
+  private final Instant from = Instant.parse("2026-07-01T00:00:00Z");
+  private final Instant to = Instant.parse("2026-07-08T00:00:00Z");
+
+  @BeforeEach
+  void setUp() {
+    repository = new JdbcMetricsQueryRepository(jdbcTemplate);
+  }
+
+  @Test
+  @DisplayName("should count requests and errors in one query when stats are read")
+  void shouldCountRequestsAndErrorsInOneQueryWhenStatsAreRead() {
+    doAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              final ResultSetExtractor<InvocationStats> extractor = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.next()).thenReturn(true);
+              when(rs.getLong("requests")).thenReturn(7L);
+              when(rs.getLong("errors")).thenReturn(2L);
+              return extractor.extractData(rs);
+            })
+        .when(jdbcTemplate)
+        .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
+
+    InvocationStats stats =
+        repository.countInvocationStats(Optional.of(AiCapability.CHAT), from, to);
+
+    assertThat(stats).isEqualTo(new InvocationStats(7L, 2L));
+    verify(jdbcTemplate)
+        .query(contains("outcome = 'error'"), any(ResultSetExtractor.class), any(Object[].class));
+  }
+
+  @Test
+  @DisplayName("should return null percentiles when no latency rows")
+  void shouldReturnNullPercentilesWhenNoLatencyRows() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of());
+
+    LatencyStats stats =
+        repository.calculateLatencyPercentiles(Optional.of(AiCapability.RAG), from, to);
+
+    assertThat(stats.getP50Ms()).isNull();
+    assertThat(stats.getP95Ms()).isNull();
+  }
+
+  @Test
+  @DisplayName("should compute latency percentiles from sorted rows")
+  void shouldComputeLatencyPercentilesFromSortedRows() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              RowMapper<Long> mapper = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.getLong("latency_ms")).thenReturn(10L, 20L, 30L, 40L, 100L);
+              List<Long> values = new ArrayList<>();
+              for (int i = 0; i < 5; i++) {
+                values.add(mapper.mapRow(rs, i));
+              }
+              return values;
+            });
+
+    LatencyStats stats = repository.calculateLatencyPercentiles(Optional.empty(), from, to);
+
+    assertThat(stats.getP50Ms()).isEqualTo(30.0);
+    assertThat(stats.getP95Ms()).isEqualTo(88.0);
+  }
+
+  @Test
+  @DisplayName("should sum token totals from result set")
+  void shouldSumTokenTotalsFromResultSet() {
+    doAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              final ResultSetExtractor<MetricsQueryRepository.TokenTotals> extractor =
+                  invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.next()).thenReturn(true);
+              when(rs.getLong("prompt_tokens")).thenReturn(120L);
+              when(rs.getLong("completion_tokens")).thenReturn(45L);
+              return extractor.extractData(rs);
+            })
+        .when(jdbcTemplate)
+        .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
+
+    MetricsQueryRepository.TokenTotals totals =
+        repository.sumTokens(Optional.of(AiCapability.CHAT), from, to);
+
+    assertThat(totals.getPromptTokens()).isEqualTo(120L);
+    assertThat(totals.getCompletionTokens()).isEqualTo(45L);
+  }
+
+  @Test
+  @DisplayName("should return zero tokens when result set empty")
+  void shouldReturnZeroTokensWhenResultSetEmpty() {
+    doAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              final ResultSetExtractor<MetricsQueryRepository.TokenTotals> extractor =
+                  invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.next()).thenReturn(false);
+              return extractor.extractData(rs);
+            })
+        .when(jdbcTemplate)
+        .query(anyString(), any(ResultSetExtractor.class), any(Object[].class));
+
+    MetricsQueryRepository.TokenTotals totals = repository.sumTokens(Optional.empty(), from, to);
+
+    assertThat(totals.getPromptTokens()).isZero();
+    assertThat(totals.getCompletionTokens()).isZero();
+  }
+
+  @Test
+  @DisplayName("should map named counts for capability model and agent queries")
+  void shouldMapNamedCountsForCapabilityModelAndAgentQueries() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              RowMapper<MetricsQueryRepository.NamedCount> mapper = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.getString("name")).thenReturn("chat");
+              when(rs.getLong("cnt")).thenReturn(5L);
+              return List.of(mapper.mapRow(rs, 0));
+            });
+
+    assertThat(repository.countByCapability(from, to))
+        .extracting(MetricsQueryRepository.NamedCount::getName)
+        .containsExactly("chat");
+    assertThat(repository.countByModel(Optional.of(AiCapability.CHAT), from, to)).hasSize(1);
+    assertThat(repository.countByAgentType(from, to)).hasSize(1);
+  }
+
+  @Test
+  @DisplayName("should apply minimum limit when querying top tools")
+  void shouldApplyMinimumLimitWhenQueryingTopTools() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenReturn(List.of());
+
+    repository.listTopTools(Optional.of(AiCapability.TOOLS), from, to, 0);
+
+    verify(jdbcTemplate).query(contains("LIMIT ?"), any(RowMapper.class), any(Object[].class));
+  }
+
+  @Test
+  @DisplayName("should return daily time points from events and related tables")
+  void shouldReturnDailyTimePointsFromEventsAndRelatedTables() {
+    when(jdbcTemplate.query(anyString(), any(RowMapper.class), any(Object[].class)))
+        .thenAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              RowMapper<MetricsQueryRepository.TimePoint> mapper = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.getString("bucket_day")).thenReturn("2026-07-01");
+              when(rs.getLong("metric_value")).thenReturn(3L);
+              return List.of(mapper.mapRow(rs, 0));
+            });
+
+    assertThat(repository.countDailyRequests(Optional.of(AiCapability.CHAT), from, to)).hasSize(1);
+    assertThat(repository.countDailyErrors(Optional.empty(), from, to)).hasSize(1);
+    assertThat(repository.countDailySessionsCreated(from, to)).hasSize(1);
+    assertThat(repository.countDailyMessagesCreated(from, to)).hasSize(1);
+    assertThat(repository.countDailyDocumentsUploaded(from, to)).hasSize(1);
+  }
+
+  @Test
+  @DisplayName("should compute daily p95 latency per bucket day")
+  void shouldComputeDailyP95LatencyPerBucketDay() {
+    doAnswer(
+            invocation -> {
+              RowCallbackHandler handler = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.getString("bucket_day")).thenReturn("2026-07-01", "2026-07-01", "2026-07-02");
+              when(rs.getLong("latency_ms")).thenReturn(10L, 90L, 50L);
+              handler.processRow(rs);
+              handler.processRow(rs);
+              handler.processRow(rs);
+              return null;
+            })
+        .when(jdbcTemplate)
+        .query(anyString(), any(RowCallbackHandler.class), any(Object[].class));
+
+    List<MetricsQueryRepository.TimePoint> points =
+        repository.calculateDailyLatencyP95(Optional.of(AiCapability.AGENTS), from, to);
+
+    assertThat(points).hasSize(2);
+    assertThat(points.get(0).getDay()).isEqualTo("2026-07-01");
+    assertThat(points.get(0).getValue()).isEqualTo(86L);
+    assertThat(points.get(1).getDay()).isEqualTo("2026-07-02");
+    assertThat(points.get(1).getValue()).isEqualTo(50L);
+  }
+
+  @Test
+  @DisplayName("should build chat inventory with null safe counts")
+  void shouldBuildChatInventoryWithNullSafeCounts() {
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM chat_session"), eq(Long.class)))
+        .thenReturn(null);
+    when(jdbcTemplate.queryForObject(
+            eq("SELECT COUNT(*) FROM chat_session WHERE last_activity_at >= ?"),
+            eq(Long.class),
+            any()))
+        .thenReturn(2L);
+    when(jdbcTemplate.queryForObject(
+            eq("SELECT COUNT(*) FROM SPRING_AI_CHAT_MEMORY"), eq(Long.class)))
+        .thenReturn(10L);
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM chat_web_source"), eq(Long.class)))
+        .thenReturn(1L);
+
+    MetricsQueryRepository.ChatInventory inventory = repository.getChatInventory(from);
+
+    assertThat(inventory.getSessionCount()).isZero();
+    assertThat(inventory.getActiveSessionCount()).isEqualTo(2L);
+    assertThat(inventory.getMessageCount()).isEqualTo(10L);
+    assertThat(inventory.getWebSourceReplyCount()).isEqualTo(1L);
+  }
+
+  @Test
+  @DisplayName("should build rag inventory with status breakdown")
+  void shouldBuildRagInventoryWithStatusBreakdown() {
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM rag_document"), eq(Long.class)))
+        .thenReturn(4L);
+    when(jdbcTemplate.queryForObject(eq("SELECT COUNT(*) FROM document_chunk"), eq(Long.class)))
+        .thenReturn(12L);
+    when(jdbcTemplate.queryForObject(
+            eq("SELECT COALESCE(SUM(file_size), 0) FROM rag_document"), eq(Long.class)))
+        .thenReturn(2048L);
+    doAnswer(
+            invocation -> {
+              RowCallbackHandler handler = invocation.getArgument(1);
+              ResultSet rs = mock(ResultSet.class);
+              when(rs.getString("status")).thenReturn("READY");
+              when(rs.getLong("cnt")).thenReturn(3L);
+              handler.processRow(rs);
+              return null;
+            })
+        .when(jdbcTemplate)
+        .query(
+            eq("SELECT status, COUNT(*) AS cnt FROM rag_document GROUP BY status"),
+            any(RowCallbackHandler.class));
+
+    MetricsQueryRepository.RagInventory inventory = repository.getRagInventory();
+
+    assertThat(inventory.getDocumentCount()).isEqualTo(4L);
+    assertThat(inventory.getChunkCount()).isEqualTo(12L);
+    assertThat(inventory.getTotalFileBytes()).isEqualTo(2048L);
+    assertThat(inventory.getDocumentsByStatus()).containsEntry("READY", 3L);
+  }
+}

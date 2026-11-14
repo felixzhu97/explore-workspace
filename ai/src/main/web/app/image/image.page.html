@@ -1,0 +1,43 @@
+<div class="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
+  <app-image-gen-form
+    [title]="i18n.t().generate.image.title"
+    [description]="i18n.t().generate.image.description"
+    [promptLabel]="i18n.t().generate.image.promptLabel"
+    [promptPlaceholder]="i18n.t().generate.image.promptPlaceholder"
+    [sizeLabel]="i18n.t().generate.image.sizeLabel"
+    [generateLabel]="i18n.t().generate.image.generate"
+    [generatingLabel]="i18n.t().generate.image.generating"
+    [prompt]="imageGen.prompt()"
+    [sizes]="imageGen.sizes()"
+    [selectedSize]="imageGen.selectedSize()"
+    [isGenerating]="imageGen.isGenerating()"
+    (promptChange)="imageGen.setPrompt($event)"
+    (sizeSelected)="imageGen.setSize($event)"
+    (generateRequested)="imageGen.generateImage()"
+  />
+
+  <div class="flex min-h-0 flex-col gap-3">
+    <app-media-preview-panel
+      class="min-h-0 flex-1"
+      [imageSrc]="imageGen.generatedImage()"
+      [isLoading]="imageGen.isGenerating()"
+      [loadingLabel]="i18n.t().generate.image.generating"
+      [emptyState]="i18n.t().generate.image.emptyState"
+      [zoomLabel]="i18n.t().generate.image.zoomLabel"
+      (zoomRequested)="imageGen.openZoom()"
+    >
+      @if (imageGen.hasGeneratedImage()) {
+        <div previewActions class="flex justify-center border-t border-black/8 pt-3">
+          <button type="button" z-button zType="outline" (click)="imageGen.downloadImage()">
+            {{ i18n.t().generate.image.download }}
+          </button>
+        </div>
+      }
+    </app-media-preview-panel>
+
+    @let error = imageGen.error();
+    @if (error !== null) {
+      <z-alert zType="destructive" [zDescription]="error" />
+    }
+  </div>
+</div>

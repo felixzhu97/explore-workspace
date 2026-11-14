@@ -1,0 +1,75 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+        {{ i18n.t().metrics.overviewTitle }}
+      </h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().metrics.overviewSubtitle }}</p>
+    </div>
+    <div class="inline-flex rounded-lg border border-border p-0.5">
+      <button
+        type="button"
+        class="rounded-md px-3 py-1.5 text-sm"
+        [class.bg-card]="range() === '7d'"
+        [class.font-medium]="range() === '7d'"
+        (click)="setRange('7d')"
+      >
+        {{ i18n.t().metrics.range7d }}
+      </button>
+      <button
+        type="button"
+        class="rounded-md px-3 py-1.5 text-sm"
+        [class.bg-card]="range() === '30d'"
+        [class.font-medium]="range() === '30d'"
+        (click)="setRange('30d')"
+      >
+        {{ i18n.t().metrics.range30d }}
+      </button>
+    </div>
+  </header>
+
+  @if (overviewResource.error() !== undefined) {
+    <p class="text-sm text-rose-600">{{ i18n.t().metrics.errors.loadOverviewFailed }}</p>
+  } @else if (overviewResource.isLoading() && overviewResource.value() === undefined) {
+    <p class="text-sm text-muted-foreground">{{ i18n.t().metrics.loadingOverview }}</p>
+  } @else {
+    <app-metrics-kpi-cards [items]="kpis()" (kpiSelected)="onKpiClick($event)" />
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <app-chart-panel
+        type="line"
+        [heading]="i18n.t().metrics.charts.aiRequests"
+        [emptyText]="i18n.t().metrics.charts.aiRequestsEmpty"
+        [data]="requestSeries()"
+      />
+      <app-chart-panel
+        type="doughnut"
+        [heading]="i18n.t().metrics.charts.requestsByCapability"
+        [emptyText]="i18n.t().metrics.charts.requestsByCapabilityEmpty"
+        [data]="capabilitySeries()"
+        (chartClicked)="openCapability($event.label)"
+      />
+    </div>
+
+    <app-metrics-capability-health
+      [heading]="i18n.t().metrics.health.heading"
+      [items]="healthItems()"
+      (capabilitySelected)="openCapability($event)"
+    />
+
+    <app-metrics-drilldown-table
+      [heading]="i18n.t().metrics.drilldown.recentHeading"
+      [items]="drilldownItems()"
+      [total]="drilldownTotal()"
+      (rowSelected)="onRowClick($event)"
+    />
+
+    <p class="text-xs text-muted-foreground">
+      {{ i18n.t().metrics.openCapabilityHint }}
+      <a routerLink="/metrics/chat" class="underline">{{ i18n.t().metrics.health.chat }}</a>,
+      <a routerLink="/metrics/rag" class="underline">{{ i18n.t().metrics.health.rag }}</a>,
+      <a routerLink="/metrics/agents" class="underline">{{ i18n.t().metrics.health.agents }}</a>.
+    </p>
+  }
+</div>

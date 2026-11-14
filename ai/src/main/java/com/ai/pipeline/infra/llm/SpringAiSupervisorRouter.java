@@ -1,0 +1,120 @@
+package com.ai.pipeline.infra.llm;
+
+import com.ai.common.service.llm.ChatClientProvider;
+import com.ai.common.service.llm.TextChatOptions;
+import com.ai.pipeline.domain.model.AgentDefinition;
+import com.ai.pipeline.domain.model.AgentType;
+import com.ai.pipeline.domain.model.RoutingPlan;
+import com.ai.pipeline.service.SupervisorRouter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.stereotype.Component;
+
+/**
+ * DeepSeek (and many OpenAI-compatible providers) reject native {@code response_format}. Route via
+ * prompt JSON + {@link BeanOutputConverter} instead of {@code .entity()}.
+ */
+@Component
+@RequiredArgsConstructor
+public class SpringAiSupervisorRouter implements SupervisorRouter {
+
+  private final ChatClientProvider chatClientProvider;
+
+  @Override
+  public RoutingPlan planRoute(String userMessage, List<AgentDefinition> workers) {
+    if (workers == null || workers.isEmpty()) {
+      throw new IllegalStateException("no worker agents registered");
+    }
+
+    Set<String> allowed =
+        workers.stream().map(w -> w.getType().getValue()).collect(Collectors.toUnmodifiableSet());
+
+    String catalog =
+        workers.stream()
+            .map(w -> "- " + w.getType().getValue() + ": " + w.getDescription())
+            .collect(Collectors.joining("\n"));
+
+    BeanOutputConverter<RoutingDecisionResponse> converter =
+        new BeanOutputConverter<>(RoutingDecisionResponse.class);
+
+    String prompt =
+        """
+                Analyze the user request and choose worker agent(s).
+
+                Available workers:
+                %s
+
+                User request:
+                %s
+
+                Return primaryAgent as one of the worker type ids above.
+                Only add subtasks when the request clearly needs multiple specialists.
+
+                %s
+                """
+            .formatted(catalog, userMessage, converter.getFormat());
+
+    String text =
+        chatClientProvider
+            .createBareStateless(TextChatOptions.createDefaultOptions())
+            .prompt()
+            .system(
+                """
+                        You are a multi-agent supervisor. Route work to specialized agents.
+                        Never set primaryAgent to supervisor. Prefer a single worker when possible.
+                        Respond with JSON only.
+                        """)
+            .user(prompt)
+            .call()
+            .content();
+
+    RoutingDecisionResponse decision = converter.convert(text);
+    return toPlan(decision, allowed, workers.getFirst().getType());
+  }
+
+  private RoutingPlan toPlan(
+      RoutingDecisionResponse decision, Set<String> allowed, AgentType fallback) {
+    if (decision == null || decision.primaryAgent() == null || decision.primaryAgent().isBlank()) {
+      return RoutingPlan.createSingleAgentPlan(fallback, "fallback to first available worker");
+    }
+
+    AgentType primary = normalizeWorker(decision.primaryAgent(), allowed, fallback);
+    String reason =
+        decision.reason() == null || decision.reason().isBlank()
+            ? "routed by supervisor"
+            : decision.reason();
+
+    List<RoutingPlan.Subtask> subtasks = new ArrayList<>();
+    if (decision.subtasks() != null) {
+      for (SubtaskResponse sub : decision.subtasks()) {
+        if (sub == null || sub.agentType() == null || sub.instruction() == null) {
+          continue;
+        }
+        AgentType type = normalizeWorker(sub.agentType(), allowed, null);
+        if (type != null && !sub.instruction().isBlank()) {
+          subtasks.add(new RoutingPlan.Subtask(type, sub.instruction().trim()));
+        }
+      }
+    }
+
+    return new RoutingPlan(primary, reason, subtasks);
+  }
+
+  private AgentType normalizeWorker(String text, Set<String> allowed, AgentType fallback) {
+    String normalized = text.trim().toLowerCase(Locale.ROOT);
+    if ("supervisor".equals(normalized) || !allowed.contains(normalized)) {
+      return fallback;
+    }
+    return AgentType.createType(normalized);
+  }
+
+  public record RoutingDecisionResponse(
+      String primaryAgent, String reason, List<SubtaskResponse> subtasks) {}
+
+  public record SubtaskResponse(String agentType, String instruction) {}
+}

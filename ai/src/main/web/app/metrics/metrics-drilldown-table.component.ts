@@ -1,0 +1,82 @@
+import { Component, computed, inject, input, output } from '@angular/core';
+import { I18nService } from '../i18n';
+import { textOr } from '../shared/presence';
+import { InstantPipe } from '../time/instant.pipe';
+import type { InvocationEvent } from './metrics.service';
+
+@Component({
+  selector: 'app-metrics-drilldown-table',
+  imports: [InstantPipe],
+  template: `
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-sm font-medium text-foreground">{{ heading() }}</h3>
+        <p class="text-xs text-muted-foreground">{{ eventsCountLabel() }}</p>
+      </div>
+      @if (items().length === 0) {
+        <p class="rounded-xl border border-border px-4 py-10 text-center text-sm text-muted-foreground">
+          {{ emptyText() !== '' ? emptyText() : i18n.t().metrics.drilldown.emptyState }}
+        </p>
+      } @else {
+        <div class="overflow-x-auto rounded-xl border border-border">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-card text-xs tracking-wide text-muted-foreground uppercase">
+              <tr>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.time }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.operation }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.outcome }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.latency }}</th>
+                <th class="px-3 py-2 font-medium">{{ i18n.t().metrics.drilldown.model }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of items(); track item.id) {
+                <tr
+                  class="cursor-pointer border-t border-border hover:bg-accent"
+                  (click)="rowSelected.emit(item)"
+                >
+                  <td class="px-3 py-2 whitespace-nowrap text-muted-foreground">
+                    {{ item.occurredAt | instant }}
+                  </td>
+                  <td class="px-3 py-2 text-foreground">{{ item.operation }}</td>
+                  <td
+                    class="px-3 py-2"
+                    [class.text-emerald-600]="item.outcome === 'success'"
+                    [class.text-rose-600]="item.outcome !== 'success'"
+                  >
+                    {{ item.outcome }}
+                  </td>
+                  <td class="px-3 py-2 text-muted-foreground">
+                    {{ item.latencyMs }} ms
+                  </td>
+                  <td class="px-3 py-2 text-muted-foreground">
+                    {{ getSubject(item) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  `,
+})
+export class MetricsDrilldownTableComponent {
+  protected readonly i18n = inject(I18nService);
+
+  readonly items = input<InvocationEvent[]>([]);
+  readonly total = input(0);
+  readonly heading = input('');
+  readonly emptyText = input('');
+  readonly rowSelected = output<InvocationEvent>();
+
+  readonly eventsCountLabel = computed(() => {
+    const template = this.i18n.t().metrics.drilldown.eventsCount;
+    return this.i18n.tReplace(template, { total: this.total() });
+  });
+
+  /** Returns the model, agent or tool of the event. */
+  getSubject(item: InvocationEvent): string {
+    return textOr(item.model, textOr(item.agentType, textOr(item.toolName, '—')));
+  }
+}

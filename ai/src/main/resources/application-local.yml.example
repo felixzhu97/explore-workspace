@@ -1,0 +1,40 @@
+# Local profile: MCP client is OFF by default so bootRun is not blocked by STDIO
+# (e.g. missing uvx / mcp-server-fetch). Enable explicitly when needed.
+#
+#   SPRING_PROFILES_ACTIVE=local
+#
+# Production / shared envs should use Streamable HTTP MCP, not STDIO:
+#   https://docs.spring.io/spring-ai/reference/api/mcp/mcp-client-boot-starter-docs.html
+#
+# Optional STDIO Fetch (requires uv/uvx: https://docs.astral.sh/uv/):
+# spring:
+#   ai:
+#     mcp:
+#       client:
+#         enabled: true
+#         stdio:
+#           connections:
+#             fetch:
+#               command: uvx
+#               args:
+#                 - mcp-server-fetch
+# Optional Mailpit for automation email (https://github.com/axllent/mailpit):
+#   docker run -d --name mailpit -p 1025:1025 -p 8025:8025 axllent/mailpit
+# Then set:
+#   APP_MAIL_ENABLED=true
+#   APP_MAIL_FROM=noreply@localhost
+#   SPRING_MAIL_HOST=localhost
+#   SPRING_MAIL_PORT=1025
+#
+# Quotas: scheduled automation runs call DailyUsageQuotaService (same daily limit as POST /api/*).
+# Max schedules per client: app.automation.max-schedules-per-client (default 10).
+# Result email body truncated to 16KB.
+
+spring:
+  ai:
+    mcp:
+      client:
+        enabled: false
+  mail:
+    host: localhost
+    port: 1025

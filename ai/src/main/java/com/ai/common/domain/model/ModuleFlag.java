@@ -1,0 +1,46 @@
+package com.ai.common.domain.model;
+
+/** Feature-flagged application modules, each with a flag key and the API path prefix it gates. */
+public enum ModuleFlag {
+  VISION("module-vision", "/api/vision"),
+  AUDIO_ASR("module-audio-asr", "/ws/audio"),
+  MCP("module-mcp", "/api/mcp"),
+  EVAL("module-eval", "/api/eval"),
+  PIPELINES("module-pipelines", "/api/pipelines"),
+  /** Same LaunchDarkly key as Pipeline — published Agent façade for siblings. */
+  AGENTS("module-pipelines", "/api/agents"),
+  /** Same LaunchDarkly key as Pipeline — minimal A2A Server message APIs. */
+  A2A("module-pipelines", "/a2a"),
+  AUTOMATIONS("module-automations", "/api/automations"),
+  SKILLS("module-skills", "/api/skills");
+
+  private final String key;
+  private final String pathPrefix;
+
+  ModuleFlag(String key, String pathPrefix) {
+    this.key = key;
+    this.pathPrefix = pathPrefix;
+  }
+
+  public String getKey() {
+    return key;
+  }
+
+  /** Returns the property that holds the module's bootstrap value. */
+  public String getBootstrapProperty() {
+    return "launchdarkly.bootstrap." + key;
+  }
+
+  /** Returns the module whose path prefix matches the request path, or null if none does. */
+  public static ModuleFlag findFlagByPath(String requestPath) {
+    if (requestPath == null) {
+      return null;
+    }
+    for (ModuleFlag flag : values()) {
+      if (requestPath.startsWith(flag.pathPrefix)) {
+        return flag;
+      }
+    }
+    return null;
+  }
+}

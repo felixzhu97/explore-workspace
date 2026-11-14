@@ -1,0 +1,172 @@
+package com.ai.rag.infra.vector;
+
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentId;
+import com.ai.rag.domain.model.ScoredChunk;
+import com.ai.rag.domain.repository.DocumentChunkRepository;
+import com.ai.rag.domain.repository.DocumentChunkSearchRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * H2 vector store adapter. Stores embeddings as JSON arrays and performs cosine-similarity ranking
+ * in-process.
+ */
+@Component
+public class H2DocumentChunkRepository
+    implements DocumentChunkRepository, DocumentChunkSearchRepository {
+
+  private static final String TABLE_NAME = "document_chunk";
+  private static final String SELECT_COLUMNS =
+      "SELECT id, document_id, owner_key, content, chunk_index, embedding, metadata, created_at";
+
+  private final JdbcTemplate jdbcTemplate;
+  private final ObjectMapper objectMapper;
+  private final ChunkRowMapper chunkRowMapper;
+
+  public H2DocumentChunkRepository(JdbcTemplate jdbcTemplate, ObjectMapper objectMapper) {
+    this.jdbcTemplate = jdbcTemplate;
+    this.objectMapper = objectMapper;
+    this.chunkRowMapper = new ChunkRowMapper(objectMapper);
+  }
+
+  @Override
+  @Transactional
+  public void saveChunk(DocumentChunk chunk) {
+    String embeddingString = toJsonArray(chunk.getEmbedding());
+    String metadataJson = serializeMetadata(chunk.getMetadata());
+    String sql =
+        "MERGE INTO "
+            + TABLE_NAME
+            + " (id, document_id, content, chunk_index, embedding,"
+            + " metadata, created_at, owner_key) "
+            + "KEY (id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+    jdbcTemplate.update(
+        sql,
+        chunk.getId().getValue(),
+        chunk.getDocumentId().getValue(),
+        chunk.getContent(),
+        chunk.getChunkIndex(),
+        embeddingString,
+        metadataJson,
+        chunk.getCreatedAt().toString(),
+        chunk.getOwnerKey().getValue());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<DocumentChunk> findChunksByDocumentId(DocumentId documentId) {
+    String sql = SELECT_COLUMNS + " FROM " + TABLE_NAME + " WHERE document_id = ?";
+    return jdbcTemplate.query(sql, chunkRowMapper, documentId.getValue());
+  }
+
+  @Override
+  @Transactional
+  public void deleteChunksByDocumentId(DocumentId documentId) {
+    String sql = "DELETE FROM " + TABLE_NAME + " WHERE document_id = ?";
+    jdbcTemplate.update(sql, documentId.getValue());
+  }
+
+  @Override
+  @Transactional
+  public void deleteChunksByOwnerKey(OwnerKey ownerKey) {
+    jdbcTemplate.update("DELETE FROM " + TABLE_NAME + " WHERE owner_key = ?", ownerKey.getValue());
+  }
+
+  @Override
+  @Transactional
+  public void reassignChunkOwner(OwnerKey from, OwnerKey to) {
+    jdbcTemplate.update(
+        "UPDATE " + TABLE_NAME + " SET owner_key = ? WHERE owner_key = ?",
+        to.getValue(),
+        from.getValue());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<ScoredChunk> searchChunks(
+      float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds) {
+    if (queryEmbedding.length == 0) {
+      return List.of();
+    }
+    return loadCandidates(ownerKey, documentIds).stream()
+        .filter(chunk -> chunk.isComparableWith(queryEmbedding))
+        .map(chunk -> ScoredChunk.createScoredChunk(chunk, queryEmbedding))
+        .sorted(ScoredChunk.BEST_FIRST)
+        .limit(topK)
+        .toList();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<DocumentChunk> findLeadingChunks(String ownerKey, List<UUID> documentIds, int limit) {
+    if (documentIds.isEmpty()) {
+      return List.of();
+    }
+    StringBuilder sql = buildOwnerScopedSelect(documentIds);
+    sql.append(" ORDER BY chunk_index, document_id LIMIT ?");
+    List<Object> args = new ArrayList<>();
+    args.add(ownerKey);
+    args.addAll(documentIds);
+    args.add(limit);
+    return jdbcTemplate.query(sql.toString(), chunkRowMapper, args.toArray());
+  }
+
+  private List<DocumentChunk> loadCandidates(String ownerKey, List<UUID> documentIds) {
+    List<Object> args = new ArrayList<>();
+    args.add(ownerKey);
+    args.addAll(documentIds);
+    return jdbcTemplate.query(
+        buildOwnerScopedSelect(documentIds).toString(), chunkRowMapper, args.toArray());
+  }
+
+  private static StringBuilder buildOwnerScopedSelect(List<UUID> documentIds) {
+    StringBuilder sql =
+        new StringBuilder(SELECT_COLUMNS)
+            .append(" FROM ")
+            .append(TABLE_NAME)
+            .append(" WHERE owner_key = ?");
+    if (!documentIds.isEmpty()) {
+      sql.append(" AND document_id IN (")
+          .append(documentIds.stream().map(id -> "?").collect(Collectors.joining(",")))
+          .append(")");
+    }
+    return sql;
+  }
+
+  private String toJsonArray(float[] array) {
+    if (array == null) {
+      return "[]";
+    }
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < array.length; i++) {
+      sb.append(array[i]);
+      if (i < array.length - 1) {
+        sb.append(",");
+      }
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
+  private String serializeMetadata(Map<String, Object> metadata) {
+    if (metadata.isEmpty()) {
+      return null;
+    }
+    try {
+      return objectMapper.writeValueAsString(metadata);
+    } catch (JsonProcessingException e) {
+      return null;
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "web": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "skipTests": false
+        },
+        "@schematics/angular:guard": {
+          "functional": true
+        },
+        "@schematics/angular:interceptor": {
+          "functional": true
+        },
+        "@schematics/angular:resolver": {
+          "functional": true
+        }
+      },
+      "root": "src/main/web",
+      "sourceRoot": "src/main/web",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/web",
+            "index": "src/main/web/index.html",
+            "browser": "src/main/web/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              "src/main/web/favicon.ico",
+              "src/main/web/favicon.svg",
+              "src/main/web/assets"
+            ],
+            "styles": [
+              "src/main/web/styles.css",
+              "node_modules/@foblex/flow/styles/default.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/main/web/environments/environment.ts",
+                  "with": "src/main/web/environments/environment.prod.ts"
+                }
+              ],
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "2.5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "16kb",
+                  "maximumError": "32kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "web:build:production"
+            },
+            "development": {
+              "buildTarget": "web:build:development",
+              "proxyConfig": "proxy.conf.json"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "tsconfig.spec.json",
+            "setupFiles": [
+              "src/main/web/test-setup.ts"
+            ]
+          },
+          "configurations": {
+            "ci": {
+              "watch": false
+            }
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/main/web/**/*.ts",
+              "src/main/web/**/*.html"
+            ],
+            "eslintConfig": "eslint.config.js"
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "e216be7d-45af-4da7-8070-aad915e6ee66",
+    "cache": {
+      "enabled": true
+    },
+    "schematicCollections": [
+      "angular-eslint"
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+package com.ai.common.infra.featureflag;
+
+import com.ai.common.domain.model.ModuleFlag;
+import com.launchdarkly.sdk.LDContext;
+import com.launchdarkly.sdk.server.LDClient;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.util.StringUtils;
+
+/** Seeds module flag bootstrap properties from LaunchDarkly or fallbacks before context startup. */
+public class LaunchDarklyEnvironmentPostProcessor implements EnvironmentPostProcessor {
+
+  private static final LDContext SERVER_CONTEXT = LDContext.builder("explore-ai-server").build();
+
+  @Override
+  public void postProcessEnvironment(
+      ConfigurableEnvironment environment, SpringApplication application) {
+    Map<String, Object> bootstrap = new HashMap<>();
+    boolean enabled = environment.getProperty("launchdarkly.enabled", Boolean.class, true);
+    String sdkKey = environment.getProperty("launchdarkly.sdk-key", "");
+
+    if (enabled && StringUtils.hasText(sdkKey)) {
+      bootstrap.putAll(readFromLaunchDarkly(environment, sdkKey));
+    } else {
+      bootstrap.putAll(readFromFallback(environment));
+    }
+
+    environment
+        .getPropertySources()
+        .addFirst(new MapPropertySource("launchdarklyBootstrap", bootstrap));
+  }
+
+  private Map<String, Object> readFromLaunchDarkly(
+      ConfigurableEnvironment environment, String sdkKey) {
+    Map<String, Object> bootstrap = new HashMap<>();
+    LDClient client = new LDClient(sdkKey);
+    try {
+      LaunchDarklyInitializationWaiter.waitForInitialization(client, Duration.ofSeconds(5));
+      for (ModuleFlag flag : ModuleFlag.values()) {
+        boolean fallback = readFallback(environment, flag.getKey());
+        boolean value = client.boolVariation(flag.getKey(), SERVER_CONTEXT, fallback);
+        bootstrap.put(flag.getBootstrapProperty(), value);
+      }
+    } finally {
+      try {
+        client.close();
+      } catch (IOException expected) {
+      }
+    }
+    return bootstrap;
+  }
+
+  private Map<String, Object> readFromFallback(ConfigurableEnvironment environment) {
+    Map<String, Object> bootstrap = new HashMap<>();
+    for (ModuleFlag flag : ModuleFlag.values()) {
+      bootstrap.put(flag.getBootstrapProperty(), readFallback(environment, flag.getKey()));
+    }
+    return bootstrap;
+  }
+
+  private boolean readFallback(ConfigurableEnvironment environment, String flagKey) {
+    return environment.getProperty("launchdarkly.fallback." + flagKey, Boolean.class, false);
+  }
+}

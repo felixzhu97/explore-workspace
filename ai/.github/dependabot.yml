@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm:
+        patterns:
+          - "*"
+    ignore:
+      # @a2ui/* still depends on zod ^3; Zod 4 breaks ZodTypeAny / ComponentApi.
+      - dependency-name: "zod"
+        update-types:
+          - "version-update:semver-major"
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      gradle:
+        patterns:
+          - "*"

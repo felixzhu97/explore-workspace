@@ -1,0 +1,40 @@
+import { type ErrorHandler } from '@angular/core';
+import { datadogRum } from '@datadog/browser-rum';
+import { environment } from '../../environments/environment';
+
+let rumInitialized = false;
+
+/** Starts Datadog RUM once when it is set up. */
+export function initDatadogRum(): void {
+  if (rumInitialized) {
+    return;
+  }
+
+  const { applicationId, clientToken, site, service, env, version } = environment.datadog;
+  if (applicationId === '' || clientToken === '') {
+    return;
+  }
+
+  datadogRum.init({
+    applicationId,
+    clientToken,
+    site,
+    service,
+    env,
+    version,
+    sessionSampleRate: 100,
+    traceSampleRate: 100,
+    trackUserInteractions: true,
+    trackResources: true,
+    allowedTracingUrls: [environment.apiBaseUrl],
+  });
+  rumInitialized = true;
+}
+
+export class DatadogErrorHandler implements ErrorHandler {
+  handleError(error: unknown): void {
+    if (rumInitialized) {
+      datadogRum.addError(error);
+    }
+  }
+}

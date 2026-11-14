@@ -1,0 +1,219 @@
+<section class="flex min-w-0 flex-1 flex-col overflow-hidden">
+  @if (!isGallery()) {
+    <app-pipelines-toolbar
+      [editing]="isEditMode()"
+      [templateName]="activeTemplateName()"
+      [isSaving]="isSaving()"
+      [(task)]="task"
+      (back)="goBackToGallery()"
+      (addAgent)="openAgentPicker()"
+      (useGraph)="switchToUse()"
+      (editGraph)="switchToEdit()"
+      (run)="run()"
+    />
+  }
+
+  @if (validationHint() !== null) {
+    <p class="shrink-0 border-b border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+      {{ validationHint() }}
+    </p>
+  }
+
+  @if (isEditingNode()) {
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
+      <div class="shrink-0 border-b border-black/8 px-4 py-3">
+        <p class="text-sm font-medium text-foreground">
+          {{ i18n.t().pipelines.nodeEditor.title }}
+        </p>
+        <p class="mt-0.5 text-xs text-foreground/60">
+          {{ i18n.t().pipelines.nodeEditor.hint }}
+        </p>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto p-4">
+        <div class="mx-auto grid max-w-2xl gap-3">
+          <label class="flex flex-col gap-1 text-xs text-foreground/60">
+            {{ i18n.t().common.name }}
+            <input
+              class="rounded-md border border-black/10 bg-surface px-3 py-2 text-sm text-foreground"
+              [formField]="nodeForm.name"
+            />
+          </label>
+          <div class="flex flex-col gap-1.5">
+            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.nodeEditor.tools }}</p>
+            <p class="text-[10px] text-foreground/60">{{ i18n.t().pipelines.nodeEditor.toolsHint }}</p>
+            <div class="flex flex-wrap gap-1.5">
+              @for (toolKey of availableTools; track toolKey) {
+                <button
+                  type="button"
+                  class="rounded-md border px-2.5 py-1.5 text-xs transition"
+                  [class.border-primary]="isEditToolSelected(toolKey)"
+                  [class.bg-primary/10]="isEditToolSelected(toolKey)"
+                  [class.text-foreground]="isEditToolSelected(toolKey)"
+                  [class.border-black/10]="!isEditToolSelected(toolKey)"
+                  [class.text-foreground/60]="!isEditToolSelected(toolKey)"
+                  (click)="toggleEditTool(toolKey)"
+                >
+                  {{ toolKey }}
+                </button>
+              }
+            </div>
+          </div>
+          <label class="flex flex-col gap-1 text-xs text-foreground/60">
+            {{ i18n.t().pipelines.nodeEditor.description }}
+            <input
+              class="rounded-md border border-black/10 bg-surface px-3 py-2 text-sm text-foreground"
+              [formField]="nodeForm.description"
+            />
+          </label>
+          <label class="flex flex-col gap-1 text-xs text-foreground/60">
+            {{ i18n.t().pipelines.nodeEditor.systemPrompt }}
+            <textarea
+              rows="12"
+              class="min-h-48 rounded-md border border-black/10 bg-surface px-3 py-2 font-mono text-sm text-foreground"
+              [formField]="nodeForm.systemPrompt"
+            ></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="flex shrink-0 gap-2 border-t border-black/8 px-4 py-3">
+        <button type="button" z-button zType="default" (click)="saveNodeEdit()">
+          {{ i18n.t().common.save }}
+        </button>
+        <button type="button" z-button zType="ghost" (click)="cancelNodeEdit()">
+          {{ i18n.t().common.cancel }}
+        </button>
+      </div>
+    </div>
+  } @else if (showAgentPicker()) {
+    <div class="flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
+      <div class="flex shrink-0 items-center justify-between border-b border-black/8 px-4 py-3">
+        <div>
+          <p class="text-sm font-medium text-foreground">{{ i18n.t().pipelines.addAgentTitle }}</p>
+          <p class="mt-0.5 text-xs text-foreground/60">{{ i18n.t().pipelines.addAgentHint }}</p>
+        </div>
+        <button type="button" z-button zType="ghost" zSize="sm" (click)="closeAgentPicker()">
+          {{ i18n.t().common.cancel }}
+        </button>
+      </div>
+      <div class="min-h-0 flex-1 overflow-y-auto p-4">
+        <div class="mx-auto grid max-w-2xl gap-2">
+          @for (agent of workers(); track agent.type) {
+            <button
+              type="button"
+              class="rounded-lg border border-black/10 bg-surface p-3 text-left transition hover:border-black/20"
+              (click)="pickAgent(agent)"
+            >
+              <div class="text-sm font-medium text-foreground">{{ agent.name }}</div>
+              <div class="mt-0.5 text-xs text-foreground/60">{{ agent.description }}</div>
+            </button>
+          } @empty {
+            <p class="text-xs text-foreground/60">{{ i18n.t().pipelines.paletteEmpty }}</p>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="relative min-h-0 flex-1 bg-surface">
+      @if (isGallery()) {
+        <app-pipelines-gallery
+          [builtinTemplates]="builtinTemplates()"
+          [savedTemplates]="savedTemplates()"
+          [addingTemplateId]="addingTemplateId()"
+          (addWorkflow)="addWorkflow()"
+          (useTemplate)="useTemplate($event)"
+          (editTemplate)="editTemplate($event)"
+          (addTemplate)="addFromTemplate($event)"
+          (useSavedTemplate)="useSavedTemplate($event)"
+          (editSavedTemplate)="editSavedTemplate($event)"
+          (deleteSavedTemplate)="deleteSavedTemplate($event)"
+        />
+      } @else {
+        <f-flow
+          class="block size-full min-h-80"
+          fDraggable
+          (fCreateConnection)="onCreateConnection($event)"
+          (fMoveNodes)="onMoveNodes($event)"
+        >
+          <f-canvas fZoom>
+            @if (isEditMode()) {
+              <f-connection-for-create />
+            }
+            <ng-container ngProjectAs="[fConnections]">
+              @for (edge of connections(); track edge.id) {
+                <f-connection
+                  [fSourceId]="getOutId(edge.sourceNodeId)"
+                  [fTargetId]="getInId(edge.targetNodeId)"
+                />
+              }
+            </ng-container>
+            <ng-container ngProjectAs="[fNodes]">
+              @for (node of nodes(); track node.id) {
+                @if (isEditMode()) {
+                  <div
+                    class="relative w-48 rounded-xl border border-black/10 bg-white p-3 shadow-sm select-none"
+                    fNode
+                    fDragHandle
+                    [fNodeId]="node.id"
+                    [fNodePosition]="node.position"
+                    (dblclick)="openNodeEditor(node)"
+                  >
+                    <button
+                      type="button"
+                      class="absolute top-2 right-2 text-xs text-foreground/60 hover:text-foreground"
+                      fDragBlocker
+                      (click)="removeNode(node.id)"
+                    >
+                      ×
+                    </button>
+                    <div class="pr-4 text-sm font-medium text-foreground">{{ node.name }}</div>
+                    <div class="mt-1 line-clamp-2 text-xs text-foreground/60">{{ node.description }}</div>
+                    <p class="mt-1 text-[10px] text-foreground/60">
+                      {{ i18n.t().pipelines.nodeEditor.dblclickHint }}
+                    </p>
+                    <div
+                      class="absolute top-1/2 -left-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500"
+                      fConnector
+                      fConnectorType="target"
+                      [fConnectorId]="getInId(node.id)"
+                    ></div>
+                    <div
+                      class="absolute top-1/2 -right-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500"
+                      fConnector
+                      fConnectorType="source"
+                      [fConnectorId]="getOutId(node.id)"
+                    ></div>
+                  </div>
+                } @else {
+                  <div
+                    class="relative w-48 rounded-xl border border-black/10 bg-white p-3 shadow-sm select-none"
+                    fNode
+                    [fNodeId]="node.id"
+                    [fNodePosition]="node.position"
+                  >
+                    <div class="pr-4 text-sm font-medium text-foreground">{{ node.name }}</div>
+                    <div class="mt-1 line-clamp-2 text-xs text-foreground/60">{{ node.description }}</div>
+                    <p class="mt-1 text-[10px] text-foreground/60">
+                      {{ i18n.t().pipelines.templates.previewHint }}
+                    </p>
+                    <div
+                      class="absolute top-1/2 -left-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-sky-500/70"
+                      fConnector
+                      fConnectorType="target"
+                      [fConnectorId]="getInId(node.id)"
+                    ></div>
+                    <div
+                      class="absolute top-1/2 -right-1.5 z-2 size-3 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500/70"
+                      fConnector
+                      fConnectorType="source"
+                      [fConnectorId]="getOutId(node.id)"
+                    ></div>
+                  </div>
+                }
+              }
+            </ng-container>
+          </f-canvas>
+        </f-flow>
+      }
+    </div>
+  }
+</section>

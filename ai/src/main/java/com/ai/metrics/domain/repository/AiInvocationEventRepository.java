@@ -1,0 +1,54 @@
+package com.ai.metrics.domain.repository;
+
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.metrics.domain.model.AiCapability;
+import com.ai.metrics.domain.model.AiInvocationEvent;
+import com.ai.metrics.domain.model.InvocationOutcome;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import lombok.Value;
+
+/** Repository that stores, purges, and pages through AI invocation events. */
+public interface AiInvocationEventRepository {
+  /** Finds one page of events that match the query. */
+  PageResult findDrilldown(DrilldownQuery query);
+
+  /** Saves the event. */
+  void save(AiInvocationEvent event);
+
+  /** Deletes the events of the sessions and returns the count. */
+  int deleteBySessionIds(Collection<String> sessionIds);
+
+  /** Deletes events older than the cutoff and returns the count. */
+  int deleteOlderThan(Instant cutoff);
+
+  /** Deletes every event of the owner and returns the count. */
+  int deleteByOwnerKey(OwnerKey ownerKey);
+
+  /** Moves every event of one owner to another and returns the count. */
+  int reassignOwnerKey(OwnerKey from, OwnerKey to);
+
+  /** Filters and page of a drill-down over invocation events. */
+  @Value
+  class DrilldownQuery {
+    Optional<AiCapability> capability;
+    Optional<Instant> from;
+    Optional<Instant> to;
+    Optional<String> day;
+    Optional<InvocationOutcome> outcome;
+    Optional<String> model;
+    Optional<String> agentType;
+    Optional<String> toolName;
+    int page;
+    int size;
+  }
+
+  /** One page of events with the total count across pages. */
+  @Value
+  class PageResult {
+    List<AiInvocationEvent> items;
+    long total;
+  }
+}
