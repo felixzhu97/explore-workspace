@@ -98,7 +98,10 @@ public class RoleController {
   public record RoleResponse(String name, String id, String displayName, String arn) {
     static RoleResponse from(Role role) {
       return new RoleResponse(
-          "roles/" + role.getId(), role.getId(), role.getName(), role.getResourceName().value());
+          "roles/" + role.getId().getValue(),
+          role.getId().getValue(),
+          role.getName(),
+          role.getResourceName().value());
     }
   }
 }

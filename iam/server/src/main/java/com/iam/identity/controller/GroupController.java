@@ -115,7 +115,10 @@ public class GroupController {
   public record GroupResponse(String name, String id, String displayName, List<String> memberIds) {
     static GroupResponse from(Group group) {
       return new GroupResponse(
-          "groups/" + group.getId(), group.getId(), group.getName(), group.memberUserIds());
+          "groups/" + group.getId().getValue(),
+          group.getId().getValue(),
+          group.getName(),
+          group.memberUserIds());
     }
   }
 }

@@ -34,7 +34,7 @@ class ScimUserMapperTest {
         .containsExactly("alice@example.com");
     assertThat(resource.getMeta().getVersion()).isEqualTo("W/\"0\"");
     assertThat(resource.getMeta().getLocation().toString())
-        .isEqualTo("https://iam/scim/v2/Users/" + user.getId());
+        .isEqualTo("https://iam/scim/v2/Users/" + user.getId().getValue());
   }
 
   @Test

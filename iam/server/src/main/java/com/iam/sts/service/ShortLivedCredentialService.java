@@ -72,8 +72,8 @@ public class ShortLivedCredentialService {
             ShortLivedCredential.createShortLivedCredential(
                 roleArn, command.sessionName(), caller, expiresAt));
     String accessToken = encodeToken(session, role);
-    eventPublisher.publishEvent(new RoleAssumedEvent(role.getId()));
-    return new AssumeRoleResult(accessToken, session.getExpiresAt(), session.getId());
+    eventPublisher.publishEvent(new RoleAssumedEvent(role.getId().getValue()));
+    return new AssumeRoleResult(accessToken, session.getExpiresAt(), session.getId().getValue());
   }
 
   private String encodeToken(ShortLivedCredential session, Role role) {
@@ -86,7 +86,7 @@ public class ShortLivedCredentialService {
             .expiresAt(session.getExpiresAt())
             .claim("role_arn", session.getRoleArn().value())
             .claim("session_name", session.getSessionName())
-            .claim("session_id", session.getId())
+            .claim("session_id", session.getId().getValue())
             .claim("role_name", role.getName())
             .build();
     return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

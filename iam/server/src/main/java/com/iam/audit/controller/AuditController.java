@@ -59,7 +59,7 @@ public class AuditController {
       String occurredAt) {
     static AdminActivityResponse from(AdminActivity event) {
       return new AdminActivityResponse(
-          event.getId(),
+          event.getId().getValue(),
           event.getActor().getValue(),
           event.getAction(),
           event.getTarget().getType(),
@@ -80,7 +80,7 @@ public class AuditController {
       String occurredAt) {
     static AccessDecisionResponse from(DataAccessLog log) {
       return new AccessDecisionResponse(
-          log.getId(),
+          log.getId().getValue(),
           log.getPrincipalId().value(),
           log.getAction().value(),
           log.getResource().value(),

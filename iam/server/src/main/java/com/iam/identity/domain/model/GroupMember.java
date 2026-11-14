@@ -47,7 +47,7 @@ public class GroupMember {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static class Pk implements Serializable {
 
-    private String groupId;
+    private GroupId groupId;
     private String userId;
   }
 }

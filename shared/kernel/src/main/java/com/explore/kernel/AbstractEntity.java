@@ -28,4 +28,11 @@ public abstract class AbstractEntity<IdT extends AbstractEmbeddable>
   protected AbstractEntity(IdT id) {
     super(id);
   }
+
+  /**
+   * Marks the entity changed, so its version increases even when only owned children changed.
+   */
+  protected void touch() {
+    this.updatedAt = Instant.now();
+  }
 }

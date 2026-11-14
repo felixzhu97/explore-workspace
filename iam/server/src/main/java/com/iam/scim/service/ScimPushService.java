@@ -119,7 +119,8 @@ public class ScimPushService {
   }
 
   private String upsert(ProvisioningTarget target, Optional<String> known, User user) {
-    Optional<String> remoteId = known.or(() -> targetGateway.findRemoteId(target, user.getId()));
+    Optional<String> remoteId =
+        known.or(() -> targetGateway.findRemoteId(target, user.getId().getValue()));
     if (remoteId.isPresent() && targetGateway.replaceAccount(target, remoteId.get(), user)) {
       return remoteId.get();
     }

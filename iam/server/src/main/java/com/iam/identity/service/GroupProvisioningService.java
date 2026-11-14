@@ -101,8 +101,8 @@ public class GroupProvisioningService {
     Group group = Group.provisionGroup(profile.name(), profile.externalId());
     MembershipChange change = group.replaceMembers(profile.memberUserIds());
     Group saved = groupRepository.save(group);
-    eventPublisher.publishEvent(new GroupCreatedEvent(saved.getId()));
-    publishMembershipChange(saved.getId(), change);
+    eventPublisher.publishEvent(new GroupCreatedEvent(saved.getId().getValue()));
+    publishMembershipChange(saved.getId().getValue(), change);
     return saved;
   }
 
@@ -158,7 +158,7 @@ public class GroupProvisioningService {
   private void requireNameAvailable(String name, String currentGroupId) {
     groupRepository
         .findByName(name)
-        .filter(existing -> !existing.getId().equals(currentGroupId))
+        .filter(existing -> !existing.getId().getValue().equals(currentGroupId))
         .ifPresent(
             existing -> {
               throw new ResponseStatusException(HttpStatus.CONFLICT, "group name exists");

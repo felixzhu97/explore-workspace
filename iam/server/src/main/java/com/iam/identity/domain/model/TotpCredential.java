@@ -1,12 +1,10 @@
 package com.iam.identity.domain.model;
 
-import com.iam.common.domain.base.AbstractEntity;
+import com.explore.kernel.AbstractEntity;
 import com.iam.common.domain.base.DomainStrings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "totp_credential")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class TotpCredential extends AbstractEntity {
+public class TotpCredential extends AbstractEntity<TotpCredentialId> {
 
   @Column(nullable = false, unique = true, length = 36)
   private String userId;
@@ -31,14 +29,12 @@ public class TotpCredential extends AbstractEntity {
   private String backupCodeHashes;
 
   private TotpCredential(
-      String id,
+      TotpCredentialId id,
       String userId,
       String secretCiphertext,
       boolean enabled,
-      String backupCodeHashes,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, createdAt, updatedAt);
+      String backupCodeHashes) {
+    super(id);
     this.userId = DomainStrings.requireNonBlank(userId, "userId");
     this.secretCiphertext = DomainStrings.requireNonBlank(secretCiphertext, "secretCiphertext");
     this.enabled = enabled;
@@ -55,15 +51,8 @@ public class TotpCredential extends AbstractEntity {
    */
   public static TotpCredential createTotpCredential(
       String userId, String secretCiphertext, String backupCodeHashes) {
-    Instant now = Instant.now();
     return new TotpCredential(
-        UUID.randomUUID().toString(),
-        userId,
-        secretCiphertext,
-        false,
-        backupCodeHashes,
-        now,
-        now);
+        TotpCredentialId.generateId(), userId, secretCiphertext, false, backupCodeHashes);
   }
 
   /** Enables TOTP after the user confirms a valid code. */

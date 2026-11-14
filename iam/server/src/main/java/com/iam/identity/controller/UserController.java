@@ -151,8 +151,8 @@ public class UserController {
       String name, String id, String username, String email, boolean enabled) {
     static UserResponse from(User user) {
       return new UserResponse(
-          "users/" + user.getId(),
-          user.getId(),
+          "users/" + user.getId().getValue(),
+          user.getId().getValue(),
           user.getUsername(),
           user.getEmail(),
           user.isEnabled());

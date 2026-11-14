@@ -1,6 +1,6 @@
 package com.iam.identity.domain.model;
 
-import com.iam.common.domain.base.AbstractEntity;
+import com.explore.kernel.AbstractEntity;
 import com.iam.common.domain.base.DomainStrings;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
@@ -13,12 +13,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "directory_user")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class User extends AbstractEntity {
+public class User extends AbstractEntity<UserId> {
 
   private static final String FEDERATED_NO_PASSWORD = "{noop}federated-no-password";
 
@@ -68,14 +66,12 @@ public class User extends AbstractEntity {
   private final List<RoleBinding> roleAssignments = new ArrayList<>();
 
   private User(
-      String id,
+      UserId id,
       String username,
       String email,
       String passwordHash,
-      boolean enabled,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, createdAt, updatedAt);
+      boolean enabled) {
+    super(id);
     this.username = DomainStrings.requireNonBlank(username, "username");
     this.email = email;
     this.passwordHash = requirePasswordHash(passwordHash);
@@ -91,9 +87,7 @@ public class User extends AbstractEntity {
    * @return new aggregate
    */
   public static User createUser(String username, String email, String passwordHash) {
-    Instant now = Instant.now();
-    return new User(
-        UUID.randomUUID().toString(), username, email, passwordHash, true, now, now);
+    return new User(UserId.generateId(), username, email, passwordHash, true);
   }
 
   /**

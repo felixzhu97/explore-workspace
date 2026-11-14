@@ -14,7 +14,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AdminActivity extends AbstractAuditEvent {
+public class AdminActivity extends AbstractAuditEvent<AdminActivityId> {
 
   private static final String AUTH_LOGIN_ACTION = "auth:login";
   private static final String USER_TARGET_TYPE = "User";
@@ -57,7 +56,7 @@ public class AdminActivity extends AbstractAuditEvent {
   private AuditOutcome outcome;
 
   private AdminActivity(
-      String id,
+      AdminActivityId id,
       AuditActor actor,
       String action,
       AuditTarget target,
@@ -82,7 +81,7 @@ public class AdminActivity extends AbstractAuditEvent {
   public static AdminActivity recordAdminActivity(
       AuditActor actor, String action, AuditTarget target, AuditOutcome outcome) {
     return new AdminActivity(
-        UUID.randomUUID().toString(), actor, action, target, outcome, Instant.now());
+        AdminActivityId.generateId(), actor, action, target, outcome, Instant.now());
   }
 
   /**

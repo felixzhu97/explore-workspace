@@ -15,7 +15,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class DataAccessLog extends AbstractAuditEvent {
+public class DataAccessLog extends AbstractAuditEvent<DataAccessLogId> {
 
   @Embedded
   @AttributeOverride(
@@ -64,7 +63,7 @@ public class DataAccessLog extends AbstractAuditEvent {
       Resource resource,
       Effect effect,
       ReasonCode reasonCode,
-      String id,
+      DataAccessLogId id,
       Instant occurredAt) {
     super(id, occurredAt);
     this.principalId = Objects.requireNonNull(principalId, "principalId");
@@ -87,7 +86,7 @@ public class DataAccessLog extends AbstractAuditEvent {
         resource,
         effect,
         reasonCode,
-        UUID.randomUUID().toString(),
+        DataAccessLogId.generateId(),
         Instant.now());
   }
 

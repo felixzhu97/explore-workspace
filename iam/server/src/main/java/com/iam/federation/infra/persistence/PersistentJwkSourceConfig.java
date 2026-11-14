@@ -12,9 +12,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.time.Instant;
 import java.util.Base64;
-import java.util.UUID;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +47,7 @@ public class PersistentJwkSourceConfig {
     String publicPem = toPem(keyPair.getPublic().getEncoded(), "PUBLIC KEY");
     String privatePem = toPem(keyPair.getPrivate().getEncoded(), "PRIVATE KEY");
     SigningKeyEntity entity =
-        new SigningKeyEntity(UUID.randomUUID().toString(), publicPem, privatePem, Instant.now());
+        new SigningKeyEntity(SigningKeyId.generateId(), publicPem, privatePem);
     return signingKeyRepository.save(entity);
   }
 
@@ -59,7 +57,7 @@ public class PersistentJwkSourceConfig {
       RSAPrivateKey privateKey = parsePrivateKey(entity.getPrivateKeyPem());
       return new RSAKey.Builder(publicKey)
           .privateKey(privateKey)
-          .keyID(entity.getId())
+          .keyID(entity.getId().getValue())
           .build();
     } catch (Exception ex) {
       throw new IllegalStateException("failed to load signing key", ex);

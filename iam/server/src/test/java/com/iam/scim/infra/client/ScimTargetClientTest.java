@@ -88,7 +88,7 @@ class ScimTargetClientTest {
         .andExpect(method(HttpMethod.POST))
         .andExpect(header("Authorization", "Bearer test-token"))
         .andExpect(content().contentTypeCompatibleWith(ScimJsonHttpMessageConverter.SCIM_JSON))
-        .andExpect(jsonPath("$.externalId").value(user.getId()))
+        .andExpect(jsonPath("$.externalId").value(user.getId().getValue()))
         .andExpect(jsonPath("$.userName").value("alice"))
         .andExpect(jsonPath("$.active").value(true))
         .andRespond(
@@ -109,7 +109,7 @@ class ScimTargetClientTest {
         .andRespond(withStatus(HttpStatus.CONFLICT));
     server
         .expect(method(HttpMethod.GET))
-        .andExpect(queryParam("filter", "externalId%20eq%20%22" + user.getId() + "%22"))
+        .andExpect(queryParam("filter", "externalId%20eq%20%22" + user.getId().getValue() + "%22"))
         .andRespond(withSuccess(LIST_JSON, ScimJsonHttpMessageConverter.SCIM_JSON));
     server
         .expect(requestTo(BASE + "/Users/remote-9"))
@@ -130,7 +130,7 @@ class ScimTargetClientTest {
         .expect(method(HttpMethod.GET))
         .andRespond(withSuccess(LIST_JSON, ScimJsonHttpMessageConverter.SCIM_JSON));
 
-    assertThat(gateway.findRemoteId(target, user.getId())).contains("remote-9");
+    assertThat(gateway.findRemoteId(target, user.getId().getValue())).contains("remote-9");
     server.verify();
   }
 
@@ -184,7 +184,8 @@ class ScimTargetClientTest {
             null);
     String filter =
         UriUtils.encodeQueryParam(
-            ScimProvisioningContract.externalIdFilter(pushed.getId()), StandardCharsets.UTF_8);
+            ScimProvisioningContract.externalIdFilter(pushed.getId().getValue()),
+            StandardCharsets.UTF_8);
     server
         .expect(requestTo(BASE + "/Users?filter=" + filter))
         .andExpect(method(HttpMethod.GET))
@@ -195,7 +196,7 @@ class ScimTargetClientTest {
         .andExpect(
             content()
                 .json(
-                    ScimProvisioningContract.createUserBody(pushed.getId()),
+                    ScimProvisioningContract.createUserBody(pushed.getId().getValue()),
                     JsonCompareMode.STRICT))
         .andRespond(
             withStatus(HttpStatus.CREATED)
@@ -207,7 +208,7 @@ class ScimTargetClientTest {
         .andExpect(
             content()
                 .json(
-                    ScimProvisioningContract.replaceUserBody(pushed.getId()),
+                    ScimProvisioningContract.replaceUserBody(pushed.getId().getValue()),
                     JsonCompareMode.STRICT))
         .andRespond(withSuccess(USER_JSON, ScimJsonHttpMessageConverter.SCIM_JSON));
     server
@@ -221,7 +222,7 @@ class ScimTargetClientTest {
         .andExpect(method(HttpMethod.DELETE))
         .andRespond(withStatus(HttpStatus.NO_CONTENT));
 
-    assertThat(gateway.findRemoteId(target, pushed.getId())).isEmpty();
+    assertThat(gateway.findRemoteId(target, pushed.getId().getValue())).isEmpty();
     assertThat(gateway.createAccount(target, pushed)).isEqualTo("remote-1");
     pushed.updateProfile(
         ScimProvisioningContract.USER_NAME,

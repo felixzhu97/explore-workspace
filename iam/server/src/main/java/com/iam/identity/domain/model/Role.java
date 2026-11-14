@@ -9,8 +9,6 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.validation.Valid;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Role extends AbstractNamedEntity {
+public class Role extends AbstractNamedEntity<RoleId> {
 
   @Embedded
   @AttributeOverride(
@@ -33,13 +31,11 @@ public class Role extends AbstractNamedEntity {
   private ImpersonationPolicy trustPolicy;
 
   private Role(
-      String id,
+      RoleId id,
       String name,
       ResourceName resourceName,
-      ImpersonationPolicy trustPolicy,
-      Instant createdAt,
-      Instant updatedAt) {
-    super(id, name, createdAt, updatedAt);
+      ImpersonationPolicy trustPolicy) {
+    super(id, name);
     this.resourceName = resourceName;
     this.trustPolicy = trustPolicy;
   }
@@ -52,15 +48,12 @@ public class Role extends AbstractNamedEntity {
    * @return new aggregate
    */
   public static Role createRole(String name, ImpersonationPolicy trustPolicy) {
-    Instant now = Instant.now();
     String slug = name.trim().toLowerCase().replace(' ', '-');
     return new Role(
-        UUID.randomUUID().toString(),
+        RoleId.generateId(),
         name,
         ResourceName.createRoleResourceName(slug),
-        trustPolicy,
-        now,
-        now);
+        trustPolicy);
   }
 
   /**

@@ -48,7 +48,7 @@ public class TotpService {
             ",", backupCodes.stream().map(passwordEncoder::encode).toList());
     TotpCredential credential =
         totpCredentialRepository
-            .findByUserId(user.getId())
+            .findByUserId(user.getId().getValue())
             .map(
                 existing -> {
                   existing.rotateSecret(totpSecretEncryptor.encrypt(secret), hashes);
@@ -57,7 +57,7 @@ public class TotpService {
             .orElseGet(
                 () ->
                     TotpCredential.createTotpCredential(
-                        user.getId(), totpSecretEncryptor.encrypt(secret), hashes));
+                        user.getId().getValue(), totpSecretEncryptor.encrypt(secret), hashes));
     totpCredentialRepository.save(credential);
     return new TotpEnrollment(
         secret,
@@ -94,7 +94,7 @@ public class TotpService {
     Optional<TotpCredential> found =
         userRepository
             .findByUsername(username)
-            .flatMap(user -> totpCredentialRepository.findByUserId(user.getId()));
+            .flatMap(user -> totpCredentialRepository.findByUserId(user.getId().getValue()));
     if (found.isEmpty() || !found.get().isEnabled()) {
       return false;
     }
@@ -116,7 +116,7 @@ public class TotpService {
   public boolean isEnabled(String username) {
     return userRepository
         .findByUsername(username)
-        .flatMap(user -> totpCredentialRepository.findByUserId(user.getId()))
+        .flatMap(user -> totpCredentialRepository.findByUserId(user.getId().getValue()))
         .map(TotpCredential::isEnabled)
         .orElse(false);
   }
@@ -147,7 +147,7 @@ public class TotpService {
             .findByUsername(username)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
     return totpCredentialRepository
-        .findByUserId(user.getId())
+        .findByUserId(user.getId().getValue())
         .orElseThrow(() -> new IllegalArgumentException("TOTP not started"));
   }
 

@@ -10,6 +10,7 @@ import com.unboundid.scim2.common.types.Member;
 import java.net.URI;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,7 @@ public class ScimGroupMapper {
   public GroupResource toResource(
       Group group, String groupsLocation, String usersLocation, boolean includeMembers) {
     GroupResource resource = new GroupResource();
-    resource.setId(group.getId());
+    resource.setId(group.getId().getValue());
     if (group.getExternalId() != null) {
       resource.setExternalId(group.getExternalId().value());
     }
@@ -50,10 +51,10 @@ public class ScimGroupMapper {
     resource.setMeta(
         ScimMeta.create(
             RESOURCE_TYPE,
-            groupsLocation + "/" + group.getId(),
+            groupsLocation + "/" + group.getId().getValue(),
             group.getCreatedAt(),
             group.getUpdatedAt(),
-            group.getVersion()));
+            Objects.requireNonNullElse(group.getVersion(), 0L)));
     return resource;
   }
 

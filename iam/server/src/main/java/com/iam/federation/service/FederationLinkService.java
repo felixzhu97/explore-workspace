@@ -59,7 +59,8 @@ public class FederationLinkService {
         userRepository
             .findByUsername(username)
             .orElseGet(() -> provisionUser(provider, subject, email));
-    linkRepository.save(FederatedIdentity.createFederatedIdentity(user.getId(), provider, subject));
+    linkRepository.save(
+        FederatedIdentity.createFederatedIdentity(user.getId().getValue(), provider, subject));
     return user;
   }
 
@@ -71,7 +72,7 @@ public class FederationLinkService {
 
   private User provisionUser(String provider, String subject, String email) {
     User user = userRepository.save(User.createFederatedUser(provider, subject, email));
-    eventPublisher.publishEvent(new UserProvisionedEvent(user.getId()));
+    eventPublisher.publishEvent(new UserProvisionedEvent(user.getId().getValue()));
     return user;
   }
 }

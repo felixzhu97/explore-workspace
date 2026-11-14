@@ -1,6 +1,7 @@
 package com.iam.identity.infra.persistence;
 
 import com.iam.identity.domain.model.Group;
+import com.iam.identity.domain.model.GroupId;
 import com.iam.identity.domain.repository.GroupRepository;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ class JpaGroupRepository implements GroupRepository {
 
   @Override
   public Optional<Group> findById(String id) {
-    return groupRepository.findById(id);
+    return groupRepository.findById(GroupId.createId(id));
   }
 
   @Override

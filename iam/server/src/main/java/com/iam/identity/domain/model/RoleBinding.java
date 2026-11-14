@@ -47,7 +47,7 @@ public class RoleBinding {
   @AllArgsConstructor(access = AccessLevel.PRIVATE)
   static class Pk implements Serializable {
 
-    private String userId;
+    private UserId userId;
     private String roleId;
   }
 }

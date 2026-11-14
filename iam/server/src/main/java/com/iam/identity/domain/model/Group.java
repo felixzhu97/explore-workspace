@@ -1,6 +1,6 @@
 package com.iam.identity.domain.model;
 
-import com.iam.common.domain.base.AbstractEntity;
+import com.explore.kernel.AbstractEntity;
 import com.iam.common.domain.base.DomainStrings;
 import com.iam.common.domain.model.ResourceName;
 import jakarta.persistence.AttributeOverride;
@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +20,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,7 +33,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "directory_group")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Group extends AbstractEntity {
+public class Group extends AbstractEntity<GroupId> {
 
   @NotBlank
   @Size(max = 256)
@@ -51,8 +49,8 @@ public class Group extends AbstractEntity {
   @Valid
   private ExternalId externalId;
 
-  private Group(String id, String name, Instant createdAt, Instant updatedAt) {
-    super(id, createdAt, updatedAt);
+  private Group(GroupId id, String name) {
+    super(id);
     this.name = DomainStrings.requireNonBlank(name, "name");
   }
 
@@ -63,8 +61,7 @@ public class Group extends AbstractEntity {
    * @return new aggregate
    */
   public static Group createGroup(String name) {
-    Instant now = Instant.now();
-    return new Group(UUID.randomUUID().toString(), name, now, now);
+    return new Group(GroupId.generateId(), name);
   }
 
   /**

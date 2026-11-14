@@ -1,6 +1,6 @@
 package com.iam.identity.domain.model;
 
-import com.iam.common.domain.base.AbstractEmbeddable;
+import com.explore.kernel.AbstractEmbeddable;
 import com.iam.common.domain.base.DomainStrings;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;

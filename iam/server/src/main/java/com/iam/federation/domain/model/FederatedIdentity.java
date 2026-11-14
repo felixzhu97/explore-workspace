@@ -1,13 +1,11 @@
 package com.iam.federation.domain.model;
 
-import com.iam.common.domain.base.AbstractImmutable;
+import com.explore.kernel.AbstractImmutable;
 import com.iam.common.domain.base.DomainStrings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class FederatedIdentity extends AbstractImmutable {
+public class FederatedIdentity extends AbstractImmutable<FederatedIdentityId> {
 
   @NotBlank
   @Size(max = 36)
@@ -34,8 +32,8 @@ public class FederatedIdentity extends AbstractImmutable {
   private String externalSubject;
 
   private FederatedIdentity(
-      String id, String userId, String provider, String externalSubject, Instant createdAt) {
-    super(id, createdAt);
+      FederatedIdentityId id, String userId, String provider, String externalSubject) {
+    super(id);
     this.userId = userId;
     this.provider = requireProvider(provider);
     this.externalSubject = externalSubject;
@@ -45,7 +43,7 @@ public class FederatedIdentity extends AbstractImmutable {
   public static FederatedIdentity createFederatedIdentity(
       String userId, String provider, String externalSubject) {
     return new FederatedIdentity(
-        UUID.randomUUID().toString(), userId, provider, externalSubject, Instant.now());
+        FederatedIdentityId.generateId(), userId, provider, externalSubject);
   }
 
   private static String requireProvider(String provider) {

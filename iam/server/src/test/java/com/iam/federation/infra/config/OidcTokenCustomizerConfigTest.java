@@ -38,24 +38,28 @@ class OidcTokenCustomizerConfigTest {
   @DisplayName("should put the user id in sub when the user signs in")
   void shouldPutTheUserIdInSubWhenTheUserSignsIn() {
     User alice = User.createUser("alice", "alice@example.com", "{noop}x");
-    when(users.findById(alice.getId())).thenReturn(Optional.of(alice));
+    when(users.findById(alice.getId().getValue())).thenReturn(Optional.of(alice));
     JwtClaimsSet.Builder claims = JwtClaimsSet.builder();
 
     customizer.customize(
         context(
-            AuthorizationGrantType.AUTHORIZATION_CODE, signedIn(alice.getId(), "alice"), claims));
+            AuthorizationGrantType.AUTHORIZATION_CODE,
+            signedIn(alice.getId().getValue(), "alice"),
+            claims));
 
-    assertThat(claims.build().getSubject()).isEqualTo(alice.getId());
+    assertThat(claims.build().getSubject()).isEqualTo(alice.getId().getValue());
   }
 
   @Test
   @DisplayName("should resolve a federated sign-in by its IAM user id")
   void shouldResolveAFederatedSignInByItsIamUserId() {
     User fed = User.createUser("google:123", null, "{noop}x");
-    when(users.findById(fed.getId())).thenReturn(Optional.of(fed));
+    when(users.findById(fed.getId().getValue())).thenReturn(Optional.of(fed));
     DefaultOAuth2User oauthUser =
         new DefaultOAuth2User(
-            List.of(), Map.of("sub", "123", IamPrincipals.USER_ID_ATTRIBUTE, fed.getId()), "sub");
+            List.of(),
+            Map.of("sub", "123", IamPrincipals.USER_ID_ATTRIBUTE, fed.getId().getValue()),
+            "sub");
     JwtClaimsSet.Builder claims = JwtClaimsSet.builder();
 
     customizer.customize(
@@ -64,7 +68,7 @@ class OidcTokenCustomizerConfigTest {
             new OAuth2AuthenticationToken(oauthUser, List.of(), "google"),
             claims));
 
-    assertThat(claims.build().getSubject()).isEqualTo(fed.getId());
+    assertThat(claims.build().getSubject()).isEqualTo(fed.getId().getValue());
   }
 
   @Test
@@ -87,14 +91,14 @@ class OidcTokenCustomizerConfigTest {
   void shouldRefuseARefreshWhenTheUserWasDeactivated() {
     User bob = User.createUser("bob", null, "{noop}x");
     bob.disableUser();
-    when(users.findById(bob.getId())).thenReturn(Optional.of(bob));
+    when(users.findById(bob.getId().getValue())).thenReturn(Optional.of(bob));
 
     assertThatThrownBy(
             () ->
                 customizer.customize(
                     context(
                         AuthorizationGrantType.REFRESH_TOKEN,
-                        signedIn(bob.getId(), "bob"),
+                        signedIn(bob.getId().getValue(), "bob"),
                         JwtClaimsSet.builder())))
         .isInstanceOf(OAuth2AuthenticationException.class);
   }

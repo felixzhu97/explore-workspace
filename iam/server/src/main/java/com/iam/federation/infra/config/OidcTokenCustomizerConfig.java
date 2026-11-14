@@ -47,7 +47,7 @@ public class OidcTokenCustomizerConfig {
     Set<String> scopes = context.getAuthorizedScopes();
     // Resource servers (AI / Chat) validate the access token and need email/profile
     // on that JWT — not only on the ID token.
-    context.getClaims().claim("sub", user.getId());
+    context.getClaims().claim("sub", user.getId().getValue());
     if (scopes.contains(OidcScopes.EMAIL) && user.getEmail() != null) {
       context.getClaims().claim("email", user.getEmail());
       context.getClaims().claim("email_verified", true);

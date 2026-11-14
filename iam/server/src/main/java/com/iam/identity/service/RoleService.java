@@ -58,7 +58,7 @@ public class RoleService {
   @Transactional
   public Role createRole(String name, String trustPolicyJson) {
     Role role = roleRepository.save(Role.createRole(name, trustPolicyJson));
-    eventPublisher.publishEvent(new RoleCreatedEvent(role.getId()));
+    eventPublisher.publishEvent(new RoleCreatedEvent(role.getId().getValue()));
     return role;
   }
 

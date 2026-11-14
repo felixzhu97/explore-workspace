@@ -35,8 +35,8 @@ class ActiveUserSessionFilterTest {
   @DisplayName("should keep the session when the user is still active")
   void shouldKeepTheSessionWhenTheUserIsStillActive() throws Exception {
     User alice = User.createUser("alice", null, "{noop}x");
-    when(users.findById(alice.getId())).thenReturn(Optional.of(alice));
-    MockHttpSession session = signIn(alice.getId(), "alice");
+    when(users.findById(alice.getId().getValue())).thenReturn(Optional.of(alice));
+    MockHttpSession session = signIn(alice.getId().getValue(), "alice");
 
     filter.doFilter(request(session), new MockHttpServletResponse(), new MockFilterChain());
 
@@ -49,8 +49,8 @@ class ActiveUserSessionFilterTest {
   void shouldEndTheSessionWhenTheUserWasDisabled() throws Exception {
     User bob = User.createUser("bob", null, "{noop}x");
     bob.disableUser();
-    when(users.findById(bob.getId())).thenReturn(Optional.of(bob));
-    MockHttpSession session = signIn(bob.getId(), "bob");
+    when(users.findById(bob.getId().getValue())).thenReturn(Optional.of(bob));
+    MockHttpSession session = signIn(bob.getId().getValue(), "bob");
 
     filter.doFilter(request(session), new MockHttpServletResponse(), new MockFilterChain());
 

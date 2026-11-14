@@ -41,9 +41,13 @@ public class DirectoryUserDetailsService implements UserDetailsService {
     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
     authorities.add(new SimpleGrantedAuthority(SecurityRoles.USER));
     roleRepository
-        .findByUserId(user.getId())
+        .findByUserId(user.getId().getValue())
         .forEach(role -> authorities.add(new SimpleGrantedAuthority(role.authority())));
     return new IamUserDetails(
-        user.getId(), user.getUsername(), user.getPasswordHash(), user.isEnabled(), authorities);
+        user.getId().getValue(),
+        user.getUsername(),
+        user.getPasswordHash(),
+        user.isEnabled(),
+        authorities);
   }
 }

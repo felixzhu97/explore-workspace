@@ -100,7 +100,7 @@ public class ScimTargetClient implements ScimTargetGateway {
     try {
       return create(target, resource);
     } catch (HttpClientErrorException.Conflict conflict) {
-      String existing = findRemoteId(target, user.getId()).orElseThrow(() -> conflict);
+      String existing = findRemoteId(target, user.getId().getValue()).orElseThrow(() -> conflict);
       replace(target, existing, resource);
       return existing;
     }

@@ -89,7 +89,9 @@ public class ScimOutboundConfig {
     boolean assignmentMissing = false;
     if (StringUtils.hasText(config.getAssignmentGroup())) {
       assignmentGroupId =
-          groupRepository.findByName(config.getAssignmentGroup()).map(Group::getId);
+          groupRepository
+              .findByName(config.getAssignmentGroup())
+              .map(group -> group.getId().getValue());
       assignmentMissing = assignmentGroupId.isEmpty();
     }
     String groupId = assignmentGroupId.orElse(null);

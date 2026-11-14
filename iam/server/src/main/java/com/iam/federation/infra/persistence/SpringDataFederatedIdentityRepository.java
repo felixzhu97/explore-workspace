@@ -1,6 +1,7 @@
 package com.iam.federation.infra.persistence;
 
 import com.iam.federation.domain.model.FederatedIdentity;
+import com.iam.federation.domain.model.FederatedIdentityId;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 interface SpringDataFederatedIdentityRepository
-    extends JpaRepository<FederatedIdentity, String> {
+    extends JpaRepository<FederatedIdentity, FederatedIdentityId> {
 
   Optional<FederatedIdentity> findByProviderAndExternalSubject(
       String provider, String externalSubject);

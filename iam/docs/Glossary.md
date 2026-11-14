@@ -197,11 +197,12 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 
 | Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
 | ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Abstract Immutable | 不可变聚合基类 | Domain/JPA base: `id` + `createdAt` | `com.iam.common.domain.base.AbstractImmutable` | implemented |
-| Abstract Entity | 可变聚合基类 | Extends immutable; adds `updatedAt` + `@Version` | `AbstractEntity` | implemented |
+| Abstract Immutable | 不可变聚合基类 | Shared domain/JPA base: typed `id` + `createdAt` | `com.explore.kernel.AbstractImmutable` (`shared/kernel`) | implemented |
+| Abstract Entity | 可变聚合基类 | Extends immutable; adds `updatedAt` + `@Version` | `com.explore.kernel.AbstractEntity` (`shared/kernel`) | implemented |
+| Typed Id | 类型化标识 | Embeddable id per aggregate wrapping the UUID string; column stays `id` | e.g. `UserId`, `GroupId`, `RoleId` | implemented |
 | Abstract Named Entity | 具名聚合基类 | Mutable aggregate with unique `name` | `AbstractNamedEntity` | implemented |
 | Abstract Audit Event | 不可变审计聚合基类 | Immutable audit aggregate base; `occurred_at` column | `AbstractAuditEvent` | implemented |
-| Abstract Embeddable | 可嵌入值对象基类 | Embeddable VO base preventing empty composite `null` | `AbstractEmbeddable` | implemented |
+| Abstract Embeddable | 可嵌入值对象基类 | Embeddable VO and typed id base | `com.explore.kernel.AbstractEmbeddable` (`shared/kernel`) | implemented |
 | Domain Strings | 域字符串校验 | Shared non-blank string validation | `DomainStrings.requireNonBlank` | implemented |
 | Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | Pattern | e.g. `User.isLoginEnabled`, `AllowPolicy.getStatements` | implemented |
 | Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `PolicyStatementsJsonConverter` | implemented |

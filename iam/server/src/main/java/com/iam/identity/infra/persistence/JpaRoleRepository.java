@@ -2,6 +2,7 @@ package com.iam.identity.infra.persistence;
 
 import com.iam.common.domain.model.ResourceName;
 import com.iam.identity.domain.model.Role;
+import com.iam.identity.domain.model.RoleId;
 import com.iam.identity.domain.repository.RoleRepository;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ class JpaRoleRepository implements RoleRepository {
 
   @Override
   public Optional<Role> findById(String id) {
-    return roleRepository.findById(id);
+    return roleRepository.findById(RoleId.createId(id));
   }
 
   @Override
