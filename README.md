@@ -16,10 +16,13 @@ terminal logs and commit metadata (branch, commit, author) for runs.
 - Cache artifacts are end-to-end encrypted with `NX_CLOUD_ENCRYPTION_KEY`.
 - Only pushes to `main` write to the cache; pull requests read only, and
   fork pull requests fall back to the local cache.
-- To read the cache locally, export a read-only access token as
-  `NX_CLOUD_ACCESS_TOKEN` and the encryption key as
-  `NX_CLOUD_ENCRYPTION_KEY`. Never commit either value.
-- To stop using it, remove those two variables from `ci.yml`.
+- The workspace ID in `nx.json` grants no access by itself: anyone who
+  is not logged in to the workspace gets no cache access.
+- To read the cache locally, run `npx nx login` (members read only) and
+  export the encryption key as `NX_CLOUD_ENCRYPTION_KEY`. Never commit
+  the key.
+- To stop using it, remove `nxCloudId` from `nx.json` and the token
+  variables from `ci.yml`.
 
 ## License
 
