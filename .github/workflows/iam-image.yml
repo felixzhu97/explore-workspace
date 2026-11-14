@@ -1,0 +1,28 @@
+name: iam image
+
+on:
+  push:
+    branches: [main]
+    paths: &paths
+      - "iam/server/**"
+      - "iam/console/**"
+      - "iam/Dockerfile*"
+      - "build-logic/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/iam-image.yml"
+  pull_request:
+    paths: *paths
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the deploy image
+        run: docker build -f iam/Dockerfile -t explore-iam .
