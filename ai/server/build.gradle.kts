@@ -19,6 +19,7 @@ dependencyManagement {
 val cloudMinimal = project.hasProperty("cloudMinimal")
 
 dependencies {
+    implementation(project(":shared-kernel"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

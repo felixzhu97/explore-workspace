@@ -1,4 +1,4 @@
-package com.ai.common.domain.model;
+package com.explore.kernel;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -46,6 +46,7 @@ public abstract class AbstractImmutable<IdT extends AbstractEmbeddable>
   @Getter(AccessLevel.NONE)
   private boolean persisted;
 
+  /** Creates a new entity with an assigned id; it stays new until it is first persisted. */
   protected AbstractImmutable(IdT id) {
     this.id = Objects.requireNonNull(id, "id cannot be null");
   }

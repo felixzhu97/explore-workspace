@@ -1,7 +1,7 @@
 package com.ai.common.domain.repository;
 
-import com.ai.common.domain.model.AbstractEmbeddable;
 import com.ai.common.domain.model.OwnerKey;
+import com.explore.kernel.AbstractEmbeddable;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.NoRepositoryBean;

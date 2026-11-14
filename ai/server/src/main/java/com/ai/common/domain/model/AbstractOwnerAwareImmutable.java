@@ -1,5 +1,7 @@
 package com.ai.common.domain.model;
 
+import com.explore.kernel.AbstractEmbeddable;
+import com.explore.kernel.AbstractImmutable;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
