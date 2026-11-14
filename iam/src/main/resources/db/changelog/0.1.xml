@@ -1,0 +1,553 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="34d27915-8b7d-5ce3-9c53-ab85f88bc65c" author="felix.zhu">
+        <createTable tableName="directory_user">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="email" type="varchar(320)"/>
+            <column name="password_hash" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="a459a52f-ea12-5c22-a2d7-d264bbc2b622" author="felix.zhu">
+        <createTable tableName="oauth2_registered_client">
+            <column name="id" type="varchar(100)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="client_id" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_id_issued_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_secret" type="varchar(200)"/>
+            <column name="client_secret_expires_at" type="timestamp"/>
+            <column name="client_name" type="varchar(200)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_authentication_methods" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authorization_grant_types" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="redirect_uris" type="varchar(1000)"/>
+            <column name="post_logout_redirect_uris" type="varchar(1000)"/>
+            <column name="scopes" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="client_settings" type="varchar(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_settings" type="varchar(2000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="oauth2_registered_client" indexName="idx_oauth2_registered_client_client_id">
+            <column name="client_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="37a40c9d-b49b-562f-8cc9-64595f3c8c71" author="felix.zhu">
+        <createTable tableName="signing_key_entity">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="public_key_pem" type="clob">
+                <constraints nullable="false"/>
+            </column>
+            <column name="private_key_pem" type="clob">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="edb07535-193c-5c94-9252-a566c9594837" author="felix.zhu">
+        <createTable tableName="group">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="a5bb54e6-ea25-5524-b79a-d3bf78f06ee8" author="felix.zhu">
+        <createTable tableName="group_member">
+            <column name="group_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="group_member"
+            columnNames="group_id, user_id"
+            constraintName="pk_group_member"/>
+        <addForeignKeyConstraint baseTableName="group_member"
+            baseColumnNames="group_id"
+            referencedTableName="group"
+            referencedColumnNames="id"
+            constraintName="fk_group_member_group"/>
+        <addForeignKeyConstraint baseTableName="group_member"
+            baseColumnNames="user_id"
+            referencedTableName="directory_user"
+            referencedColumnNames="id"
+            constraintName="fk_group_member_user"/>
+    </changeSet>
+
+    <changeSet id="5da391d8-be21-5448-ac62-7860afc9676b" author="felix.zhu">
+        <createTable tableName="role">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="arn" type="varchar(512)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="trust_policy" type="clob"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="7e5a7031-8757-5f63-909f-d6b22f4e399c" author="felix.zhu">
+        <createTable tableName="role_binding">
+            <column name="user_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="role_binding"
+            columnNames="user_id, role_id"
+            constraintName="pk_role_binding"/>
+        <addForeignKeyConstraint baseTableName="role_binding"
+            baseColumnNames="user_id"
+            referencedTableName="directory_user"
+            referencedColumnNames="id"
+            constraintName="fk_role_binding_user"/>
+        <addForeignKeyConstraint baseTableName="role_binding"
+            baseColumnNames="role_id"
+            referencedTableName="role"
+            referencedColumnNames="id"
+            constraintName="fk_role_binding_role"/>
+    </changeSet>
+
+    <changeSet id="ee5e8111-4ed2-5fbf-81b0-b080167db3b5" author="felix.zhu">
+        <createTable tableName="allow_policy">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(256)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="statements" type="clob">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="d288674c-dd2e-5a59-8104-377368c348aa" author="felix.zhu">
+        <createTable tableName="policy_binding">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="policy_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="principal_arn" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="policy_binding"
+            baseColumnNames="policy_id"
+            referencedTableName="allow_policy"
+            referencedColumnNames="id"
+            constraintName="fk_policy_binding_policy"/>
+    </changeSet>
+
+    <changeSet id="910d379c-b085-5e46-817e-8c62c7517d35" author="felix.zhu">
+        <createTable tableName="short_lived_credential">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="role_arn" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="session_name" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="caller_principal" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="57c3ce77-5ee3-55ae-aa49-fb7798af594d" author="felix.zhu">
+        <createTable tableName="federated_identity">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="provider" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="external_subject" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="federated_identity"
+            columnNames="provider, external_subject"
+            constraintName="uk_federated_provider_subject"/>
+        <addForeignKeyConstraint baseTableName="federated_identity"
+            baseColumnNames="user_id"
+            referencedTableName="directory_user"
+            referencedColumnNames="id"
+            constraintName="fk_federated_identity_user"/>
+    </changeSet>
+
+    <changeSet id="cec82f59-28cb-519d-a1b6-d2c28566fa35" author="felix.zhu">
+        <createTable tableName="admin_activity">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="actor" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_type" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_id" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="outcome" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="occurred_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="7bdb9110-086e-5f02-9b49-f3c68172da0d" author="felix.zhu">
+        <createTable tableName="data_access_log">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="principal_id" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resource" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="effect" type="varchar(8)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason_code" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="occurred_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="97b655eb-ad6f-50bc-9c31-d3651b0a861a" author="felix.zhu">
+        <createTable tableName="permission">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="code" type="varchar(128)">
+                <constraints nullable="false" unique="true"
+                    uniqueConstraintName="uk_permission_code"/>
+            </column>
+            <column name="oauth_scope" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="module" type="varchar(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="resource" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <!-- Spring Security JdbcOneTimeTokenService -->
+    <changeSet id="536052f9-1674-5baf-9d9b-88ac25ea8bc6" author="felix.zhu">
+        <createTable tableName="one_time_tokens">
+            <column name="token_value" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="one_time_tokens" indexName="idx_one_time_tokens_username">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Spring Security WebAuthn JDBC persistence -->
+    <changeSet id="489517f1-784d-5447-bb6a-bb2b3ebec1e6" author="felix.zhu">
+        <createTable tableName="user_entities">
+            <column name="id" type="varchar(1000)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_name" type="varchar(200)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="91a7f4ba-f2ac-53b1-8143-05daf87c9652" author="felix.zhu">
+        <createTable tableName="user_credentials">
+            <column name="credential_id" type="varchar(1000)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_entity_user_id" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="public_key" type="bytea">
+                <constraints nullable="false"/>
+            </column>
+            <column name="signature_count" type="bigint"/>
+            <column name="uv_initialized" type="boolean"/>
+            <column name="backup_eligible" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authenticator_transports" type="varchar(1000)"/>
+            <column name="public_key_credential_type" type="varchar(100)"/>
+            <column name="backup_state" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="attestation_object" type="bytea"/>
+            <column name="attestation_client_data_json" type="bytea"/>
+            <column name="created" type="timestamp"/>
+            <column name="last_used" type="timestamp"/>
+            <column name="label" type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="5ae881c8-9915-596e-9905-f686a8b34592" author="felix.zhu">
+        <createTable tableName="totp_credential">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="varchar(36)">
+                <constraints nullable="false" unique="true"
+                    uniqueConstraintName="uk_totp_credential_user_id"/>
+            </column>
+            <column name="secret_ciphertext" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="backup_code_hashes" type="varchar(2048)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="646f70d3-080c-4a19-9e78-f98c71267887" author="felix.zhu">
+        <addColumn tableName="directory_user">
+            <column name="display_name" type="varchar(256)"/>
+            <column name="external_id" type="varchar(256)"/>
+        </addColumn>
+        <createIndex tableName="directory_user" indexName="ix_directory_user_external_id">
+            <column name="external_id"/>
+        </createIndex>
+        <renameTable oldTableName="group" newTableName="directory_group"/>
+        <addColumn tableName="directory_group">
+            <column name="external_id" type="varchar(256)"/>
+        </addColumn>
+        <createIndex tableName="directory_group" indexName="ix_directory_group_external_id">
+            <column name="external_id"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="3dee24fb-fbd0-4541-8ec0-a7bd60a4309c" author="felix.zhu">
+        <createTable tableName="event_publication">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="listener_id" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="serialized_event" type="varchar(4000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="publication_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completion_date" type="timestamp"/>
+            <column name="status" type="varchar(20)"/>
+            <column name="completion_attempts" type="int"/>
+            <column name="last_resubmission_date" type="timestamp"/>
+        </createTable>
+        <createIndex tableName="event_publication"
+            indexName="event_publication_by_listener_id_and_serialized_event_idx">
+            <column name="listener_id"/>
+            <column name="serialized_event"/>
+        </createIndex>
+        <createIndex tableName="event_publication"
+            indexName="event_publication_by_completion_date_idx">
+            <column name="completion_date"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="7f909937-e50c-4bbc-bd3a-7c460a03b77e" author="felix.zhu">
+        <createTable tableName="provisioning_target">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(256)">
+                <constraints nullable="false" unique="true"
+                    uniqueConstraintName="uk_provisioning_target_name"/>
+            </column>
+            <column name="base_url" type="varchar(512)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registration_id" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="assignment_group_id" type="varchar(36)"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="bigint" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="provisioned_account">
+            <column name="target_id" type="varchar(36)">
+                <constraints nullable="false"
+                    foreignKeyName="fk_provisioned_account_target"
+                    references="provisioning_target(id)"/>
+            </column>
+            <column name="iam_user_id" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="remote_id" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_synced_version" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_synced_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="provisioned_account"
+            columnNames="target_id, iam_user_id" constraintName="pk_provisioned_account"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,189 @@
+server:
+  port: ${SERVER_PORT:9100}
+
+spring:
+  application:
+    name: explore-iam
+  datasource:
+    url: jdbc:h2:file:./data/explore-iam;AUTO_SERVER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: ${OIDC_ISSUER:http://localhost:9100}
+      client:
+        registration:
+          iam-scim-outbound:
+            provider: iam-self
+            client-id: ${IAM_CLIENT_SCIM_OUTBOUND_ID:iam-scim-outbound}
+            client-secret: ${IAM_CLIENT_SCIM_OUTBOUND_SECRET:}
+            authorization-grant-type: client_credentials
+            scope: write:ai_scim
+        provider:
+          iam-self:
+            token-uri: ${OIDC_ISSUER:http://localhost:9100}/oauth2/token
+  modulith:
+    events:
+      completion-mode: delete
+      republish-outstanding-events-on-restart: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  scim:
+    resubmit-interval: PT5M
+    resubmit-older-than: PT5M
+    targets:
+      # Push is off until EXPLORE_AI_SCIM_URL is set, e.g. http://localhost:9000/scim/v2.
+      - name: explore-ai
+        base-url: ${EXPLORE_AI_SCIM_URL:}
+        registration-id: iam-scim-outbound
+        assignment-group: ${EXPLORE_AI_SCIM_ASSIGNMENT_GROUP:}
+  demo-user:
+    enabled: ${APP_DEMO_USER_ENABLED:true}
+    username: ${APP_DEMO_USER_USERNAME:demo}
+    password: ${APP_DEMO_USER_PASSWORD:demo-password}
+    email: ${APP_DEMO_USER_EMAIL:demo@explore-iam.local}
+  security:
+    token:
+      access-token-ttl: ${APP_ACCESS_TOKEN_TTL:PT15M}
+      assume-role-ttl: ${APP_ASSUME_ROLE_TTL:PT1H}
+    webauthn:
+      rp-id: ${APP_WEBAUTHN_RP_ID:localhost}
+      rp-name: ${APP_WEBAUTHN_RP_NAME:Explore IAM}
+      allowed-origins: ${APP_WEBAUTHN_ALLOWED_ORIGINS:http://localhost:9100,http://127.0.0.1:9100,http://localhost:4201}
+    totp:
+      # Required at runtime — do not commit defaults (secret scanners).
+      encrypt-password: ${APP_TOTP_ENCRYPT_PASSWORD}
+      encrypt-salt: ${APP_TOTP_ENCRYPT_SALT}
+  oidc:
+    defaults:
+      scopes: [openid, profile, email]
+      response-types: [code]
+      grant-types: [authorization_code, refresh_token]
+      auth-methods: [client_secret_basic, client_secret_post]
+    allowed:
+      response-types: [code]
+      grant-types: [authorization_code, refresh_token]
+      auth-methods: [client_secret_basic, client_secret_post, none]
+    seed-clients:
+      - client-id: ${IAM_CLIENT_EXPLORE_AI_ID:explore-ai}
+        client-name: Explore AI
+        client-secret: ${IAM_CLIENT_EXPLORE_AI_SECRET:explore-ai-dev-secret}
+        redirect-uris:
+          - http://localhost:4200/login/oauth2/code/explore-iam
+          - http://127.0.0.1:4200/login/oauth2/code/explore-iam
+          - http://localhost:9000/login/oauth2/code/explore-iam
+          - http://127.0.0.1:9000/login/oauth2/code/explore-iam
+        post-logout-redirect-uris:
+          - http://localhost:4200/
+          - http://127.0.0.1:4200/
+          - http://localhost:9000/
+          - http://127.0.0.1:9000/
+        scopes:
+          - openid
+          - profile
+          - email
+          - write:ai_chat
+          - write:ai_audio
+          - write:ai_rag
+          - write:ai_media
+          - write:ai_agent
+          - write:ai_tools
+      - client-id: ${IAM_CLIENT_EXPLORE_AI_IOS_ID:explore-ai-ios}
+        client-name: Explore AI iOS
+        public-client: true
+        redirect-uris:
+          - com.explore.ai://oauth/callback
+        scopes:
+          - openid
+          - profile
+          - email
+          - write:ai_chat
+          - write:ai_audio
+          - write:ai_rag
+          - write:ai_media
+          - write:ai_agent
+          - write:ai_tools
+      - client-id: ${IAM_CLIENT_SCIM_PROVISIONER_ID:scim-provisioner}
+        client-name: SCIM Provisioner
+        # No default secret: the client is skipped until the secret is set.
+        client-secret: ${IAM_CLIENT_SCIM_PROVISIONER_SECRET:}
+        machine-client: true
+        scopes:
+          - write:iam_scim
+      - client-id: ${IAM_CLIENT_SCIM_OUTBOUND_ID:iam-scim-outbound}
+        client-name: IAM SCIM Outbound
+        # Same secret as the iam-scim-outbound client registration; skipped while blank.
+        client-secret: ${IAM_CLIENT_SCIM_OUTBOUND_SECRET:}
+        machine-client: true
+        scopes:
+          - write:ai_scim
+      - client-id: ${IAM_CLIENT_EXPLORE_CHAT_ID:explore-chat}
+        client-name: Explore Chat
+        client-secret: ${IAM_CLIENT_EXPLORE_CHAT_SECRET:explore-chat-dev-secret}
+        redirect-uris:
+          - http://localhost:4300/login/oauth2/code/explore-iam
+          - http://127.0.0.1:4300/login/oauth2/code/explore-iam
+        post-logout-redirect-uris:
+          - http://localhost:4300/
+          - http://127.0.0.1:4300/
+        scopes:
+          - openid
+          - profile
+          - email
+          - write:chat_messaging
+          - write:chat_social
+          - admin:chat
+          - write:ai_agent
+      - client-id: ${IAM_CLIENT_EXPLORE_CHAT_IOS_ID:explore-chat-ios}
+        client-name: Explore Chat iOS
+        public-client: true
+        redirect-uris:
+          - com.explore.chat://oauth/callback
+        scopes:
+          - openid
+          - profile
+          - email
+          - write:chat_messaging
+          - write:chat_social
+          - admin:chat
+          - write:ai_agent
+
+# Uncomment and set credentials to enable Google/GitHub federated login:
+# spring.security.oauth2.client.registration.google:
+#   client-id: ${GOOGLE_CLIENT_ID}
+#   client-secret: ${GOOGLE_CLIENT_SECRET}
+#   scope: openid, profile, email
+# spring.security.oauth2.client.provider.google:
+#   issuer-uri: https://accounts.google.com
+# spring.security.oauth2.client.registration.github:
+#   client-id: ${GITHUB_CLIENT_ID}
+#   client-secret: ${GITHUB_CLIENT_SECRET}
+#   scope: read:user, user:email
+
+logging:
+  level:
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: DEBUG

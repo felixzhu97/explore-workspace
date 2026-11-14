@@ -1,0 +1,29 @@
+package com.iam.federation.infra.persistence;
+
+import com.iam.common.domain.base.AbstractImmutable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import java.time.Instant;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+/** Persisted RSA signing key pair for the OIDC Authorization Server. */
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+class SigningKeyEntity extends AbstractImmutable {
+
+  @Getter(AccessLevel.PACKAGE)
+  @Column(name = "public_key_pem", nullable = false, columnDefinition = "clob")
+  private String publicKeyPem;
+
+  @Getter(AccessLevel.PACKAGE)
+  @Column(name = "private_key_pem", nullable = false, columnDefinition = "clob")
+  private String privateKeyPem;
+
+  SigningKeyEntity(String id, String publicKeyPem, String privateKeyPem, Instant createdAt) {
+    super(id, createdAt);
+    this.publicKeyPem = publicKeyPem;
+    this.privateKeyPem = privateKeyPem;
+  }
+}

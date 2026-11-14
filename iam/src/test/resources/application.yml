@@ -1,0 +1,66 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:explore-iam-test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: http://localhost:9100
+      client:
+        registration:
+          iam-scim-outbound:
+            provider: iam-self
+            client-id: iam-scim-outbound
+            client-secret: scim-test-secret
+            authorization-grant-type: client_credentials
+            scope: write:ai_scim
+        provider:
+          iam-self:
+            token-uri: http://localhost:9100/oauth2/token
+  modulith:
+    events:
+      completion-mode: delete
+
+app:
+  demo-user:
+    enabled: true
+  security:
+    totp:
+      encrypt-password: ${APP_TOTP_ENCRYPT_PASSWORD}
+      encrypt-salt: ${APP_TOTP_ENCRYPT_SALT}
+  oidc:
+    seed-clients:
+      - client-id: explore-ai
+        client-name: Explore AI
+        client-secret: explore-ai-dev-secret
+        redirect-uris:
+          - http://localhost:4200/login/oauth2/code/explore-iam
+          - http://localhost:9000/login/oauth2/code/explore-iam
+        post-logout-redirect-uris:
+          - http://localhost:4200/
+          - http://localhost:9000/
+        scopes:
+          - openid
+          - profile
+          - email
+      - client-id: scim-provisioner
+        client-name: SCIM Provisioner
+        client-secret: scim-test-secret
+        machine-client: true
+        scopes:
+          - write:iam_scim
+      - client-id: scim-no-scope
+        client-name: SCIM Without Scope
+        client-secret: scim-test-secret
+        machine-client: true
+        scopes:
+          - write:ai_chat
