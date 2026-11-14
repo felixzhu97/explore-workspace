@@ -1,26 +1,12 @@
 plugins {
-    java
-    checkstyle
-    id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("jacoco")
-    id("com.diffplug.spotless") version "8.10.2"
+    id("explore.java-conventions")
+    id("explore.java-format")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 group = "com.ai"
 version = "0.0.1-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://maven.aliyun.com/repository/public") }
-    maven { url = uri("https://maven.aliyun.com/repository/spring") }
-}
 
 dependencyManagement {
     imports {
@@ -107,11 +93,11 @@ if (!cloudMinimal) {
 }
 
 tasks.withType<Test> {
-    useJUnitPlatform()
     systemProperty("org.gradle.internal.test.binary.results-store", "false")
+    val buildDir = layout.buildDirectory
     doFirst {
-        file("${layout.buildDirectory.get()}/jacoco").mkdirs()
-        file("${layout.buildDirectory.get()}/test-results/test/binary").mkdirs()
+        buildDir.dir("jacoco").get().asFile.mkdirs()
+        buildDir.dir("test-results/test/binary").get().asFile.mkdirs()
     }
 }
 
@@ -132,16 +118,8 @@ tasks.register<Test>("integrationTest") {
     shouldRunAfter(tasks.named("test"))
 }
 
-jacoco {
-    toolVersion = "0.8.13"
-}
-
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
     classDirectories.setFrom(files(classDirectories.files.map { f ->
         fileTree(f) {
             exclude("com/ai/config/**", "com/ai/domain/repository/**")
@@ -197,27 +175,14 @@ tasks.named<Jar>("jar") {
     enabled = false
 }
 
+// ai keeps its own rule set (abbreviations, Javadoc scope) until it aligns with the root one.
 checkstyle {
-    toolVersion = "10.21.4"
-    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
-    isIgnoreFailures = false
-    maxWarnings = 0
+    configFile = file("config/checkstyle/checkstyle.xml")
     configProperties = mapOf(
         "org.checkstyle.google.severity" to "error",
         "org.checkstyle.google.suppressionfilter.config" to
-            rootProject.file("config/checkstyle/suppressions.xml").absolutePath,
+            file("config/checkstyle/suppressions.xml").absolutePath,
         "org.checkstyle.google.suppressionxpathfilter.config" to
-            rootProject.file("config/checkstyle/suppressions-xpath.xml").absolutePath,
+            file("config/checkstyle/suppressions-xpath.xml").absolutePath,
     )
-}
-
-spotless {
-    java {
-        target("src/*/java/**/*.java")
-        // JVM 25 requires google-java-format >= 1.30.0 (Spotless fingerprint check).
-        googleJavaFormat("1.30.0")
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
 }

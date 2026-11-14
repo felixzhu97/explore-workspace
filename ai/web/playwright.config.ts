@@ -19,8 +19,8 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: './gradlew bootRun',
-      cwd: '../server',
+      command: './gradlew :ai-server:bootRun',
+      cwd: '../..',
       url: 'http://localhost:9000/actuator/health',
       reuseExistingServer: true,
       timeout: 300_000,
