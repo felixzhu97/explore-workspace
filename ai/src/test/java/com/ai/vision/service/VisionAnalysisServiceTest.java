@@ -1,0 +1,168 @@
+package com.ai.vision.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.ai.common.domain.event.AiInvocationCompletedEvent;
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.vision.domain.model.CaptionResult;
+import com.ai.vision.domain.model.Detection;
+import com.ai.vision.domain.model.OcrResult;
+import com.ai.vision.domain.repository.ImageCaptioner;
+import com.ai.vision.domain.repository.ObjectDetector;
+import com.ai.vision.domain.repository.OcrEngine;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.awt.image.BufferedImage;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.mock.web.MockMultipartFile;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("VisionAnalysisService")
+class VisionAnalysisServiceTest {
+
+  private static final OwnerKey OWNER =
+      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
+
+  @Mock private ImageCaptioner captioner;
+
+  @Mock private ObjectDetector detector;
+
+  @Mock private OcrEngine ocrEngine;
+
+  @Mock private ApplicationEventPublisher eventPublisher;
+
+  private VisionAnalysisService useCase;
+
+  @BeforeEach
+  void setUp() {
+    useCase =
+        new VisionAnalysisService(
+            captioner, detector, ocrEngine, new SimpleMeterRegistry(), eventPublisher);
+  }
+
+  @Test
+  @DisplayName("should return caption from captioner port")
+  void shouldReturnCaptionFromCaptionerPort() throws Exception {
+    when(captioner.captionImage(any(BufferedImage.class)))
+        .thenReturn(new CaptionResult("A red bicycle"));
+
+    var response = useCase.captionImage(pngFile("photo.png"), OWNER);
+
+    assertThat(response.caption()).isEqualTo("A red bicycle");
+    assertThat(response.processingTimeMs()).isGreaterThanOrEqualTo(0);
+    ArgumentCaptor<AiInvocationCompletedEvent> event =
+        ArgumentCaptor.forClass(AiInvocationCompletedEvent.class);
+    verify(eventPublisher).publishEvent(event.capture());
+    assertThat(event.getValue().capability()).isEqualTo("vision");
+    assertThat(event.getValue().owner()).isEqualTo(OWNER);
+  }
+
+  @Test
+  @DisplayName("should map detections from detector port")
+  void shouldMapDetectionsFromDetectorPort() throws Exception {
+    when(detector.detectObjects(any(BufferedImage.class)))
+        .thenReturn(List.of(new Detection("cat", 0.91, 1, 2, 3, 4)));
+
+    var response = useCase.detectObjects(pngFile("photo.png"), OWNER);
+
+    assertThat(response.detections()).hasSize(1);
+    assertThat(response.detections().getFirst().className()).isEqualTo("cat");
+    assertThat(response.detections().getFirst().bbox()).containsExactly(1.0, 2.0, 3.0, 4.0);
+  }
+
+  @Test
+  @DisplayName("should return ocr text from ocr engine port")
+  void shouldReturnOcrTextFromOcrEnginePort() throws Exception {
+    when(ocrEngine.extractText(any(BufferedImage.class))).thenReturn(new OcrResult("Hello World"));
+
+    var response = useCase.recognizeText(pngFile("scan.png"), OWNER);
+
+    assertThat(response.fullText()).isEqualTo("Hello World");
+  }
+
+  private MockMultipartFile pngFile(String name) {
+    return new MockMultipartFile("file", name, "image/png", minimalPng());
+  }
+
+  private byte[] minimalPng() {
+    return new byte[] {
+      (byte) 0x89,
+      0x50,
+      0x4E,
+      0x47,
+      0x0D,
+      0x0A,
+      0x1A,
+      0x0A,
+      0x00,
+      0x00,
+      0x00,
+      0x0D,
+      0x49,
+      0x48,
+      0x44,
+      0x52,
+      0x00,
+      0x00,
+      0x00,
+      0x01,
+      0x00,
+      0x00,
+      0x00,
+      0x01,
+      0x08,
+      0x06,
+      0x00,
+      0x00,
+      0x00,
+      0x1F,
+      0x15,
+      (byte) 0xC4,
+      (byte) 0x89,
+      0x00,
+      0x00,
+      0x00,
+      0x0A,
+      0x49,
+      0x44,
+      0x41,
+      0x54,
+      0x78,
+      (byte) 0x9C,
+      0x63,
+      0x00,
+      0x01,
+      0x00,
+      0x00,
+      0x05,
+      0x00,
+      0x01,
+      0x0D,
+      0x0A,
+      0x2D,
+      (byte) 0xB4,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x49,
+      0x45,
+      0x4E,
+      0x44,
+      (byte) 0xAE,
+      0x42,
+      0x60,
+      (byte) 0x82
+    };
+  }
+}

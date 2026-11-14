@@ -1,0 +1,275 @@
+spring:
+  application:
+    name: server-springai
+  mail:
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS:false}
+  ai:
+    chat:
+      client:
+        observations:
+          log-prompt: false
+      observations:
+        log-prompt: false
+        include-completion: false
+    mcp:
+      server:
+        type: SYNC
+        stdio: false
+        protocol: STREAMABLE
+        name: explore-ai-mcp-server
+        version: "1.0.0"
+        description: AI Explore MCP Server with RAG, Weather, and Chat tools
+        annotation-scanner:
+          enabled: true
+      client:
+        enabled: true
+        type: SYNC
+        request-timeout: ${MCP_REQUEST_TIMEOUT:20s}
+        initialized: false
+        # Custom McpClientToolsConfig exposes callbacks for ChatClientFactory;
+        # disable Spring AI's auto mcpToolCallbacks bean to avoid a name clash.
+        toolcallback:
+          enabled: false
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        enabled: ${OLLAMA_VISION_ENABLED:true}
+        model: ${OLLAMA_VISION_MODEL:qwen3.5:35b}
+      embedding:
+        enabled: true
+        model: ${OLLAMA_EMBEDDING_MODEL:qwen3-embedding:0.6b}
+        dimensions: 1024
+    openai:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      chat:
+        model: deepseek-v4-flash
+      image:
+        model: dall-e-3
+        quality: standard
+        size: 1024x1024
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:}
+      chat:
+        options:
+          model: claude-sonnet-5
+
+  datasource:
+    url: ${H2_URL:jdbc:h2:file:./data/explore-ai;AUTO_SERVER=TRUE}
+    username: ${H2_USER:sa}
+    password: ${H2_PASSWORD:}
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+  liquibase:
+    change-log: db/changelog-master.xml
+
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaChatAutoConfiguration
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+server:
+  port: 9000
+  servlet:
+    session:
+      cookie:
+        # Distinct from explore-iam JSESSIONID — browsers ignore port on localhost.
+        name: EASESSIONID
+        same-site: lax
+  tomcat:
+    max-http-form-post-size: 50MB
+    max-swallow-size: 50MB
+
+serper:
+  api-key: ${SERPER_API_KEY:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    mail:
+      enabled: false
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+
+launchdarkly:
+  enabled: ${LAUNCHDARKLY_ENABLED:true}
+  sdk-key: ${LAUNCHDARKLY_SDK_KEY:}
+  fallback:
+    module-vision: true
+    module-audio-asr: true
+    module-mcp: true
+    module-eval: true
+    module-pipelines: true
+    module-automations: true
+    module-skills: true
+
+app:
+  rag:
+    chunk:
+      # Token count for Spring AI TokenTextSplitter (ETL ingest)
+      size: ${RAG_CHUNK_SIZE:500}
+    retrieval:
+      top-k: ${RAG_TOP_K:5}
+      score-threshold: ${RAG_SCORE_THRESHOLD:0.5}
+  datetime:
+    zone: ${APP_DATETIME_ZONE:Asia/Shanghai}
+  ai:
+    chat-memory:
+      max-messages: ${CHAT_MEMORY_MAX_MESSAGES:20}
+    image:
+      enabled: ${IMAGE_ENABLED:true}
+      provider: ${IMAGE_PROVIDER:ollama}
+      model: ${IMAGE_MODEL:x/flux2-klein}
+      api-key: ${IMAGE_API_KEY:ollama}
+      base-url: ${IMAGE_BASE_URL:http://localhost:11434/v1}
+    tool-search:
+      enabled: ${AI_TOOL_SEARCH_ENABLED:false}
+    tts:
+      enabled: ${TTS_ENABLED:true}
+      # Default: explore-ml speech (local Qwen3-TTS). Set TTS_PROVIDER=openai for OpenAI.
+      provider: ${TTS_PROVIDER:speech}
+      model: ${TTS_MODEL:gpt-4o-mini-tts}
+      voice: ${TTS_VOICE:alloy}
+      api-key: ${TTS_API_KEY:${OPENAI_API_KEY:}}
+      base-url: ${TTS_BASE_URL:https://api.openai.com/v1}
+      speech-base-url: ${EXPLORE_ML_API_URL:http://localhost:8000}
+      speech:
+        connect-timeout: 5s
+        read-timeout: 120s
+  asr:
+    speech:
+      base-url: ${EXPLORE_ML_API_URL:http://localhost:8000}
+      connect-timeout: 5s
+  cors:
+    allowed-origin-patterns:
+      - http://localhost:4200
+      - http://localhost:3000
+      - http://localhost:4000
+      - http://127.0.0.1:4200
+      - http://127.0.0.1:4000
+      - http://127.0.0.1:4321
+      - https://explore-ai-git-*-felixzhu97s-projects.vercel.app
+      - https://explore-ai-three.vercel.app
+      - https://www.felixzhu.chat
+      - https://felixzhu.chat
+  client-identity:
+    cookie-name: ea_cid
+    secure: false
+    same-site: Lax
+    max-age: 90d
+  oauth:
+    # Shared SPA return after any provider (local "/" avoids localhost vs 127.0.0.1 cookie loss)
+    success-redirect-url: ${APP_OAUTH_SUCCESS_REDIRECT:/}
+    google:
+      enabled: ${APP_OAUTH_GOOGLE_ENABLED:false}
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      # Blank = Spring {baseUrl}/login/oauth2/code/{registrationId} (local ng proxy).
+      redirect-uri: ${APP_OAUTH_REDIRECT_URI:}
+    github:
+      enabled: ${APP_OAUTH_GITHUB_ENABLED:false}
+      client-id: ${GITHUB_CLIENT_ID:}
+      client-secret: ${GITHUB_CLIENT_SECRET:}
+      redirect-uri: ${APP_OAUTH_GITHUB_REDIRECT_URI:}
+    explore-iam:
+      enabled: ${APP_OAUTH_EXPLORE_IAM_ENABLED:false}
+      client-id: ${EXPLORE_IAM_CLIENT_ID:}
+      client-secret: ${EXPLORE_IAM_CLIENT_SECRET:}
+      # Issuer for OAuth2 Login and JWT resource server (native Bearer tokens).
+      issuer-uri: ${APP_OAUTH_EXPLORE_IAM_ISSUER_URI:http://localhost:9100}
+      redirect-uri: ${APP_OAUTH_EXPLORE_IAM_REDIRECT_URI:}
+      # Validate Authorization: Bearer access tokens from Explore IAM (iOS / APIs).
+      resource-server-enabled: ${APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER:true}
+  service-auth:
+    api-key: ${EXPLORE_AI_SERVICE_KEY:}
+  rate-limit:
+    enabled: true
+    requests-per-window: 60
+    ip-requests-per-window: ${APP_RATE_LIMIT_IP_PER_WINDOW:120}
+    window-seconds: 60
+  billing:
+    quota-enabled: true
+    plan: ${APP_BILLING_PLAN:free}
+    free-daily-requests: ${APP_BILLING_FREE_DAILY:50}
+    pro-daily-requests: ${APP_BILLING_PRO_DAILY:2000}
+    ip-daily-requests: ${APP_BILLING_IP_DAILY:200}
+    global-daily-requests: ${APP_BILLING_GLOBAL_DAILY:5000}
+  metrics:
+    admin-api-key: ${METRICS_ADMIN_API_KEY:}
+  data-retention:
+    enabled: true
+    session-max-age: 90d
+    cron: "0 0 3 * * *"
+  automation:
+    scan-enabled: ${APP_AUTOMATION_SCAN_ENABLED:true}
+    scan-batch-size: ${APP_AUTOMATION_SCAN_BATCH:20}
+    max-schedules-per-client: ${APP_AUTOMATION_MAX_SCHEDULES:10}
+    scan-fixed-delay-ms: ${APP_AUTOMATION_SCAN_DELAY_MS:60000}
+  mail:
+    enabled: ${APP_MAIL_ENABLED:false}
+    provider: ${APP_MAIL_PROVIDER:resend}
+    from: ${APP_MAIL_FROM:onboarding@resend.dev}
+    resend-api-key: ${APP_MAIL_RESEND_API_KEY:}
+    resend-base-url: ${APP_MAIL_RESEND_BASE_URL:https://api.resend.com}
+  agent-skills:
+    enabled: ${AGENT_SKILLS_ENABLED:false}
+    ids: []
+    resource-location: classpath:agent/skills/
+  vision:
+    models-dir: ${VISION_MODELS_DIR:models}
+    detect:
+      onnx-path: ${VISION_DETECT_MODEL:models/yolov8n.onnx}
+      confidence-threshold: 0.5
+      nms-threshold: 0.45
+      input-size: 640
+    caption:
+      vision-onnx: ${VISION_CAPTION_VISION_MODEL:models/blip_vision_model.onnx}
+      decoder-onnx: ${VISION_CAPTION_DECODER_MODEL:models/blip_text_decoder.onnx}
+      tokenizer-path: ${VISION_CAPTION_TOKENIZER:models/blip_tokenizer}
+      max-length: 50
+    ocr:
+      tessdata-path: ${TESSDATA_PATH:models/tessdata}
+      languages: eng+chi_sim
+      page-seg-mode: 3

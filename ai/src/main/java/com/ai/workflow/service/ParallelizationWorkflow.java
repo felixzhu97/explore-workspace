@@ -1,0 +1,17 @@
+package com.ai.workflow.service;
+
+import com.ai.workflow.domain.model.ParallelizationResult;
+import java.util.List;
+
+/** Parallel LLM calls over independent items with ordered aggregation. */
+public interface ParallelizationWorkflow {
+
+  /**
+   * Runs parallel LLM calls over independent items.
+   *
+   * @param prompt shared instruction prepended to each item
+   * @param items independent inputs (order preserved in the result)
+   * @param parallelism fixed thread-pool size (&gt; 0)
+   */
+  ParallelizationResult runParallel(String prompt, List<String> items, int parallelism);
+}

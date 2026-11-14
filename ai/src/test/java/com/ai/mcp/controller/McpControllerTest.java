@@ -1,0 +1,73 @@
+package com.ai.mcp.controller;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.ai.testsupport.SliceWebMvcTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.assertj.MockMvcTester;
+
+@SliceWebMvcTest(controllers = McpController.class)
+@DisplayName("McpController")
+class McpControllerTest {
+
+  @DynamicPropertySource
+  static void enableMcpModule(DynamicPropertyRegistry registry) {
+    registry.add("launchdarkly.bootstrap.module-mcp", () -> "true");
+  }
+
+  @Autowired private MockMvcTester mvc;
+
+  @Test
+  @DisplayName("should return UP status")
+  void shouldReturnUpStatus() {
+    assertThat(mvc.get().uri("/api/mcp/health"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.status")
+        .asString()
+        .isEqualTo("UP");
+
+    assertThat(mvc.get().uri("/api/mcp/health"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.server")
+        .asString()
+        .isEqualTo("explore-ai-mcp-server");
+
+    assertThat(mvc.get().uri("/api/mcp/health"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.protocol")
+        .asString()
+        .isEqualTo("MCP 1.0");
+  }
+
+  @Test
+  @DisplayName("should return complete MCP server information")
+  void shouldReturnCompleteMcpServerInformation() {
+    assertThat(mvc.get().uri("/api/mcp/info"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.name")
+        .asString()
+        .isEqualTo("explore-ai-mcp-server");
+
+    assertThat(mvc.get().uri("/api/mcp/info"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.capabilities.tools")
+        .asBoolean()
+        .isTrue();
+
+    assertThat(mvc.get().uri("/api/mcp/info"))
+        .hasStatusOk()
+        .bodyJson()
+        .extractingPath("$.availableTools.get_weather")
+        .asString()
+        .isEqualTo("Get current weather for a city");
+  }
+}

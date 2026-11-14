@@ -1,0 +1,275 @@
+import { Service, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Instant } from '@js-joda/core';
+import { type Observable, map } from 'rxjs';
+import { API_BASE_URL } from '../http/api.constants';
+import { I18nService } from '../i18n';
+import type { HealthStatus } from '../http/health-status';
+import { readObjectOrNull, parseSseToken, streamSsePost, readStringField } from '../http/sse-client';
+import type { PipelineInvokeRequest } from './pipeline-graph';
+import { hasText, textOr } from '../shared/presence';
+
+/** Matches the backend PipelineHandoffEvent (`agent_handoff` SSE event). */
+export interface PipelineHandoffEvent {
+  agentType: string;
+  reason: string;
+}
+
+/** Parse `agent_handoff` SSE data; null when it names no agent. */
+export function parsePipelineHandoff(data: string): PipelineHandoffEvent | null {
+  let json: unknown;
+  try {
+    json = JSON.parse(data);
+  } catch {
+    return null;
+  }
+  const event = readObjectOrNull(json);
+  if (event === null) {
+    return null;
+  }
+  const agentType = readStringField(event['agentType']).trim();
+  return hasText(agentType) ? { agentType, reason: readStringField(event['reason']) } : null;
+}
+
+export type AgentRuntime = 'single' | 'deep';
+
+export interface AgentInfoResponse {
+  type: string;
+  name: string;
+  description: string;
+  healthy: boolean;
+  supervisor: boolean;
+  runtime: AgentRuntime;
+  tools: string[];
+  systemPrompt: string;
+}
+
+export interface AgentHealthResponse {
+  type: string;
+  healthy: boolean;
+  status: HealthStatus;
+}
+
+export interface AgentInvokeRequest {
+  message: string;
+  sessionId?: string;
+  agentType?: string;
+}
+
+/** Builtin multilingual workflow template from the backend catalog. */
+export interface BuiltinPipelineTemplateResponse {
+  id: string;
+  name: string;
+  description: string;
+  agentTypes: string[];
+  topic: string;
+  brief: string;
+  nameAliases: string[];
+}
+
+/** Client-owned saved workflow template, as sent by the backend. */
+export interface PipelineTemplateResponse {
+  id: string;
+  name: string;
+  description: string;
+  agentTypes: string[];
+  topic: string;
+  brief: string;
+  builtinTemplateId: string | null;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PipelineTemplate {
+  id: string;
+  name: string;
+  description: string;
+  agentTypes: string[];
+  topic: string;
+  brief: string;
+  builtinTemplateId: string | null;
+  enabled: boolean;
+  createdAt: Instant;
+  updatedAt: Instant;
+}
+
+/** Maps an API response to a saved pipeline. */
+export function toPipelineTemplate(response: PipelineTemplateResponse): PipelineTemplate {
+  return {
+    ...response,
+    createdAt: Instant.parse(response.createdAt),
+    updatedAt: Instant.parse(response.updatedAt),
+  };
+}
+
+export interface CreatePipelineTemplateRequest {
+  name: string;
+  description?: string;
+  agentTypes: string[];
+  topic?: string;
+  brief: string;
+}
+
+export interface UpdatePipelineTemplateRequest {
+  name: string;
+  description?: string;
+  agentTypes: string[];
+  topic?: string;
+  brief: string;
+}
+
+@Service()
+export class PipelinesService {
+  readonly #http = inject(HttpClient);
+  readonly #i18n = inject(I18nService);
+  readonly #templatesBase = `${API_BASE_URL}/pipelines/templates`;
+
+  /** Lists the agents in the UI language. */
+  listAgents(): Observable<AgentInfoResponse[]> {
+    return this.#http.get<AgentInfoResponse[]>(`${API_BASE_URL}/pipelines/agent-types`, {
+      params: this.#buildLangParams(),
+    });
+  }
+
+  /** Returns the health of an agent. */
+  getHealth(agentType: string): Observable<AgentHealthResponse> {
+    return this.#http.get<AgentHealthResponse>(`${API_BASE_URL}/pipelines/${agentType}/health`, {
+      params: this.#buildLangParams(),
+    });
+  }
+
+  /** Lists the built-in pipeline templates. */
+  listTemplateDefinitions(): Observable<BuiltinPipelineTemplateResponse[]> {
+    return this.#http.get<BuiltinPipelineTemplateResponse[]>(
+      `${API_BASE_URL}/pipelines/template-definitions`,
+      { params: this.#buildLangParams() },
+    );
+  }
+
+  /** Lists the saved pipelines. */
+  listTemplates(): Observable<PipelineTemplate[]> {
+    return this.#http
+      .get<PipelineTemplateResponse[]>(this.#templatesBase)
+      .pipe(map(templates => templates.map(toPipelineTemplate)));
+  }
+
+  /** Saves a new pipeline. */
+  createTemplate(request: CreatePipelineTemplateRequest): Observable<PipelineTemplate> {
+    return this.#http
+      .post<PipelineTemplateResponse>(this.#templatesBase, request)
+      .pipe(map(toPipelineTemplate));
+  }
+
+  /** Saves a copy of a built-in template. */
+  createTemplateFromDefinition(templateId: string): Observable<PipelineTemplate> {
+    return this.#http
+      .post<PipelineTemplateResponse>(
+        `${this.#templatesBase}/from-template`,
+        { templateId },
+        { params: this.#buildLangParams() },
+      )
+      .pipe(map(toPipelineTemplate));
+  }
+
+  /** Updates a saved pipeline. */
+  updateTemplate(
+    id: string,
+    request: UpdatePipelineTemplateRequest,
+  ): Observable<PipelineTemplate> {
+    return this.#http
+      .put<PipelineTemplateResponse>(`${this.#templatesBase}/${id}`, request)
+      .pipe(map(toPipelineTemplate));
+  }
+
+  /** Turns a saved pipeline on or off. */
+  setTemplateEnabled(id: string, enabled: boolean): Observable<PipelineTemplate> {
+    return this.#http
+      .patch<PipelineTemplateResponse>(`${this.#templatesBase}/${id}/enabled`, { enabled })
+      .pipe(map(toPipelineTemplate));
+  }
+
+  /** Deletes a saved pipeline. */
+  deleteTemplate(id: string): Observable<void> {
+    return this.#http.delete<void>(`${this.#templatesBase}/${id}`);
+  }
+
+  /** Streams a single agent or supervisor run. */
+  invokeStream(
+    agentType: string,
+    request: AgentInvokeRequest,
+    onChunk: (token: string) => void,
+    onHandoff: (event: PipelineHandoffEvent) => void,
+    onDone: () => void,
+    onError: (error: Error) => void,
+  ): { abort: () => void } {
+    const path =
+      agentType === 'supervisor'
+        ? `${API_BASE_URL}/pipelines/supervisor/invoke/sse`
+        : `${API_BASE_URL}/pipelines/${agentType}/invoke/sse`;
+
+    return this.#openSse(path, request, onChunk, onHandoff, onDone, onError);
+  }
+
+  /** Streams a pipeline run. */
+  invokePipelineStream(
+    request: PipelineInvokeRequest,
+    onChunk: (token: string) => void,
+    onHandoff: (event: PipelineHandoffEvent) => void,
+    onDone: () => void,
+    onError: (error: Error) => void,
+  ): { abort: () => void } {
+    return this.#openSse(
+      `${API_BASE_URL}/pipelines/invoke/sse`,
+      request,
+      onChunk,
+      onHandoff,
+      onDone,
+      onError,
+    );
+  }
+
+  #buildLangParams(): HttpParams {
+    return new HttpParams().set('lang', this.#i18n.language());
+  }
+
+  #openSse(
+    path: string,
+    body: unknown,
+    onChunk: (token: string) => void,
+    onHandoff: (event: PipelineHandoffEvent) => void,
+    onDone: () => void,
+    onError: (error: Error) => void,
+  ): { abort: () => void } {
+    const separator = path.includes('?') ? '&' : '?';
+    const url = `${path}${separator}lang=${encodeURIComponent(this.#i18n.language())}`;
+    return streamSsePost(url, body, {
+      onEvent: ({ eventType, data }) => {
+        if (data === '[DONE]' || eventType === 'done') {
+          onDone();
+          return true;
+        }
+        if (eventType === 'error') {
+          onError(new Error(textOr(data, 'Pipeline stream error')));
+          return true;
+        }
+        if (eventType === 'agent_handoff') {
+          const handoff = parsePipelineHandoff(data);
+          if (handoff !== null) {
+            onHandoff(handoff);
+          }
+          return false;
+        }
+        if (eventType === 'message' || eventType === '') {
+          const token = parseSseToken(data);
+          if (token !== null) {
+            onChunk(token);
+          }
+        }
+        return false;
+      },
+      onDone,
+      onError,
+    });
+  }
+}

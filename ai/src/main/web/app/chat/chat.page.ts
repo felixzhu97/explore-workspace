@@ -1,0 +1,254 @@
+import {
+  Component,
+  type ElementRef,
+  inject,
+  type OnInit,
+  type OnDestroy,
+  model,
+  computed,
+  signal,
+  viewChild,
+  effect,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
+import {
+  type ChatMessageView,
+  ChatMessagePaneComponent,
+  ChatSenderBarComponent,
+} from '../chat-shell';
+import { I18nService } from '../i18n';
+import { FEATURE_FLAG_KEYS } from '../feature-flags/feature-flag-keys';
+import { FeatureFlagService } from '../feature-flags/feature-flag.service';
+import { SkillsService } from '../skills/skills.service';
+import { type NxPrompt } from 'ng-zorro-x/prompts';
+import { NzIconModule, provideNzIconsPatch } from 'ng-zorro-antd/icon';
+import { ArrowUpOutline } from '@ant-design/icons-angular/icons';
+import { ZardAlertComponent } from '../ui/alert';
+import { ZardButtonComponent } from '../ui/button';
+import { ZardSelectImports } from '../ui/select/select.imports';
+import { ZardSwitchComponent } from '../ui/switch';
+import { ChatService } from './chat.service';
+import { hasItems, hasText } from '../shared/presence';
+
+@Component({
+  selector: 'app-chat-page',
+  imports: [
+    RouterLink,
+    NzIconModule,
+    ChatMessagePaneComponent,
+    ChatSenderBarComponent,
+    ZardAlertComponent,
+    ZardButtonComponent,
+    ZardSwitchComponent,
+    ...ZardSelectImports,
+  ],
+  templateUrl: './chat.page.html',
+  styles: `
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `,
+  providers: [
+    provideNzIconsPatch([ArrowUpOutline]),
+  ],
+  host: {
+    class: 'relative flex flex-1 min-h-0 w-full flex-col overflow-hidden',
+    '(document:click)': 'onDocumentClick($event)',
+  },
+})
+export class ChatPageComponent implements OnInit, OnDestroy {
+  readonly #featureFlags = inject(FeatureFlagService);
+  readonly #skillsApi = inject(SkillsService);
+  readonly #route = inject(ActivatedRoute);
+  readonly #router = inject(Router);
+  protected readonly chat = inject(ChatService);
+  protected readonly i18n = inject(I18nService);
+
+  readonly input = model('');
+
+  protected readonly skillsPicker = viewChild<ElementRef<HTMLElement>>('skillsPicker');
+
+  readonly skillsEnabled = signal(false);
+  readonly isSkillsMenuOpen = signal(false);
+  readonly selectedSkillCount = computed(() => this.chat.selectedSkillIds().length);
+
+  readonly skillsTriggerLabel = computed(() => {
+    const count = this.selectedSkillCount();
+    if (count === 0) {
+      return this.i18n.t().chat.skills;
+    }
+    return this.i18n.tReplace(this.i18n.t().chat.skillsSelected, { count });
+  });
+
+  readonly skillsMenuStyle = signal<{ top: string; right: string } | null>(null);
+
+  readonly bubbleMessages = computed((): ChatMessageView[] => {
+    const streamingId = this.chat.streamingMessageId();
+    return this.chat.messages()
+      .filter(
+        message => message.id === streamingId
+          || message.content.trim() !== ''
+          || hasItems(message.toolSteps)
+          || hasItems(message.sources),
+      )
+      .map(message => ({
+        id: message.id,
+        role: message.role,
+        content: message.content,
+        timestamp: message.timestamp,
+        toolSteps: message.toolSteps,
+        sources: message.sources?.map(source => ({
+          text: source.snippet,
+          score: 1,
+          url: source.url,
+          title: source.title,
+          publishedAt: source.publishedAt ?? undefined,
+        })),
+      }));
+  });
+
+  readonly footerLabels = computed(() => {
+    const t = this.i18n.t().rag;
+    return {
+      sources: t.sources,
+      similarity: t.similarity,
+      basedOn: t.basedOn,
+      openReference: t.openReference,
+    };
+  });
+
+  readonly chatPrompts = computed((): NxPrompt[] => {
+    return this.i18n.t().chat.suggestedPrompts.map(prompt => ({
+      key: prompt.key,
+      label: prompt.label,
+      description: prompt.description,
+    }));
+  });
+
+  readonly #routeSessionId = toSignal(
+    this.#route.paramMap.pipe(map(params => params.get('sessionId'))),
+    { initialValue: this.#route.snapshot.paramMap.get('sessionId') },
+  );
+
+  constructor() {
+    effect(() => {
+      const sessionId = this.#routeSessionId();
+      if (!hasText(sessionId) || !this.chat.sessionsReady()) {
+        return;
+      }
+      // Missing session → ChatService redirects to `/chat` (no toast).
+      this.chat.selectSession(sessionId);
+    });
+  }
+
+  ngOnInit() {
+    const legacySession = this.#route.snapshot.queryParamMap.get('session');
+    if (hasText(legacySession)) {
+      void this.#router.navigate(['/chat', legacySession], { replaceUrl: true });
+    }
+
+    this.chat.loadProviders();
+    const skillsOn = this.#featureFlags.isEnabled(FEATURE_FLAG_KEYS.MODULE_SKILLS);
+    this.skillsEnabled.set(skillsOn);
+    if (skillsOn) {
+      this.#skillsApi.listEnabled().subscribe({
+        next: (skills) => {
+          const options = skills.map(skill => ({
+            id: skill.id,
+            name: skill.name,
+          }));
+          this.chat.setAvailableSkills(options);
+        },
+        error: () => this.chat.setAvailableSkills([]),
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    this.chat.abortStream();
+  }
+
+  /** Switches to the selected provider. */
+  onProviderChange(provider: string | string[]) {
+    if (typeof provider === 'string') {
+      this.chat.setProvider(provider);
+    }
+  }
+
+  /** Switches to the selected model. */
+  setSelectedModel(modelName: string | string[]) {
+    if (typeof modelName === 'string') {
+      this.chat.setModel(modelName);
+    }
+  }
+
+  /** Opens or closes the skills menu. */
+  toggleSkillsMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const willOpen = !this.isSkillsMenuOpen();
+    if (willOpen) {
+      this.#positionSkillsMenu();
+    } else {
+      this.skillsMenuStyle.set(null);
+    }
+    this.isSkillsMenuOpen.set(willOpen);
+  }
+
+  /** Turns a skill on or off for the next message. */
+  onSkillToggle(event: MouseEvent, skillId: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.chat.toggleSkillId(skillId);
+  }
+
+  /** Puts a suggested prompt in the input. */
+  onPromptSelect(label: string): void {
+    this.input.set(label);
+  }
+
+  /** Sends the typed message. */
+  send() {
+    const text = this.input().trim();
+    if (text === '' || this.chat.isLoading()) {
+      return;
+    }
+    if (!this.chat.isSelectedProviderAvailable()) {
+      this.chat.sendMessage(text);
+      return;
+    }
+    this.input.set('');
+    this.chat.sendMessage(text);
+  }
+
+  /** Closes the skills menu when the user clicks outside it. */
+  onDocumentClick(event: MouseEvent): void {
+    const root = this.skillsPicker()?.nativeElement;
+    if (root?.contains(event.target as Node) === true) {
+      return;
+    }
+    this.isSkillsMenuOpen.set(false);
+    this.skillsMenuStyle.set(null);
+  }
+
+  #positionSkillsMenu(): void {
+    const root = this.skillsPicker()?.nativeElement;
+    if (root === undefined) {
+      return;
+    }
+    const rect = root.getBoundingClientRect();
+    this.skillsMenuStyle.set({
+      top: `${String(Math.round(rect.bottom + 4))}px`,
+      right: `${String(Math.round(window.innerWidth - rect.right))}px`,
+    });
+  }
+}

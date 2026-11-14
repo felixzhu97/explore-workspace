@@ -1,0 +1,488 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  "
+>
+  <changeSet author="felix.zhu" id="0d1af408-6bf8-5bf7-a2ac-592bac5b3bb4" dbms="h2">
+    <createTable tableName="rag_document">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)" defaultValue="c:legacy-orphan">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="${string.type}(500)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="file_name" type="${string.type}(255)"/>
+      <column name="file_size" type="BIGINT"/>
+      <column name="status" type="${string.type}(50)" defaultValue="PROCESSING">
+        <constraints nullable="false"/>
+      </column>
+      <column name="chunk_count" type="INT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_rag_document_status" tableName="rag_document">
+      <column name="status"/>
+    </createIndex>
+    <createIndex indexName="idx_rag_document_owner_key" tableName="rag_document">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="a08afedd-ece9-5848-99e8-e14de9e7f52a" dbms="h2">
+    <createTable tableName="document_chunk">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="document_id" type="${uuid.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)" defaultValue="c:legacy-orphan">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="chunk_index" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="metadata" type="${clob.type}"/>
+      <column name="embedding" type="${clob.type}"/>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addForeignKeyConstraint
+      baseTableName="document_chunk"
+      baseColumnNames="document_id"
+      constraintName="fk_document_chunk_document_id"
+      referencedTableName="rag_document"
+      referencedColumnNames="id"
+      onDelete="CASCADE"/>
+    <createIndex indexName="idx_document_chunk_document_id" tableName="document_chunk">
+      <column name="document_id"/>
+    </createIndex>
+    <createIndex indexName="idx_document_chunk_owner_key" tableName="document_chunk">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="79e089c1-5533-5fb0-b383-c1bb6bb3afd2" dbms="h2">
+    <createTable tableName="chat_session">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="title" type="${string.type}(100)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_activity_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_chat_session_last_activity" tableName="chat_session">
+      <column name="last_activity_at"/>
+    </createIndex>
+    <createIndex indexName="idx_chat_session_owner_key" tableName="chat_session">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="85ec1090-f36e-5297-a210-3cc686653977" dbms="h2">
+    <createTable tableName="SPRING_AI_CHAT_MEMORY">
+      <column name="conversation_id" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content" type="LONGVARCHAR">
+        <constraints nullable="false"/>
+      </column>
+      <column name="type" type="${string.type}(10)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="timestamp" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="sequence_id" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex
+      indexName="SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX"
+      tableName="SPRING_AI_CHAT_MEMORY">
+      <column name="conversation_id"/>
+      <column name="timestamp" descending="true"/>
+    </createIndex>
+    <createIndex
+      indexName="SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_SEQUENCE_ID_IDX"
+      tableName="SPRING_AI_CHAT_MEMORY">
+      <column name="conversation_id"/>
+      <column name="sequence_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="933a1069-8517-5d29-b5db-47f7dc885767" dbms="h2">
+    <createTable tableName="chat_web_source">
+      <column name="conversation_id" type="${string.type}(36)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="content_hash" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="query" type="${string.type}(512)"/>
+      <column name="sources_json" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addPrimaryKey
+      tableName="chat_web_source"
+      columnNames="conversation_id, content_hash"
+      constraintName="pk_chat_web_source"/>
+    <createIndex indexName="idx_chat_web_source_conversation_id" tableName="chat_web_source">
+      <column name="conversation_id"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="69b7a243-a9fd-5404-ac3e-fd2cadf3ff2d" dbms="h2">
+    <createTable tableName="ai_invocation_event">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)" defaultValue="c:legacy-orphan">
+        <constraints nullable="false"/>
+      </column>
+      <column name="occurred_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="capability" type="${string.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="operation" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="outcome" type="${string.type}(16)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="latency_ms" type="BIGINT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="provider" type="${string.type}(64)"/>
+      <column name="model" type="${string.type}(128)"/>
+      <column name="session_id" type="${string.type}(36)"/>
+      <column name="document_id" type="${string.type}(36)"/>
+      <column name="agent_type" type="${string.type}(64)"/>
+      <column name="tool_name" type="${string.type}(128)"/>
+      <column name="prompt_tokens" type="INT"/>
+      <column name="completion_tokens" type="INT"/>
+      <column name="error_code" type="${string.type}(64)"/>
+      <column name="error_message" type="${string.type}(512)"/>
+    </createTable>
+    <createIndex indexName="idx_ai_invocation_event_occurred_at" tableName="ai_invocation_event">
+      <column name="occurred_at"/>
+    </createIndex>
+    <createIndex indexName="idx_ai_invocation_event_capability_occurred_at" tableName="ai_invocation_event">
+      <column name="capability"/>
+      <column name="occurred_at"/>
+    </createIndex>
+    <createIndex indexName="idx_ai_invocation_event_session_id" tableName="ai_invocation_event">
+      <column name="session_id"/>
+    </createIndex>
+    <createIndex indexName="idx_ai_invocation_event_model_occurred_at" tableName="ai_invocation_event">
+      <column name="model"/>
+      <column name="occurred_at"/>
+    </createIndex>
+    <createIndex indexName="idx_ai_invocation_event_owner_key" tableName="ai_invocation_event">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="4014d414-5ea0-5495-876c-8c5c22100919" dbms="h2">
+    <createTable tableName="skill">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="${string.type}(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="${string.type}(500)"/>
+      <column name="instructions" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="allowed_tools" type="${clob.type}"/>
+      <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addUniqueConstraint
+      tableName="skill"
+      columnNames="owner_key, name"
+      constraintName="uk_skill_owner_key_name"/>
+    <createIndex indexName="idx_skill_owner_key" tableName="skill">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="9bdf4667-4387-52a5-8c17-4ff9842c2849" dbms="h2">
+    <createTable tableName="pipeline_template">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="${string.type}(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="${string.type}(500)"/>
+      <column name="agent_types" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="topic" type="${string.type}(200)"/>
+      <column name="brief" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="builtin_template_id" type="${string.type}(64)"/>
+      <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addUniqueConstraint
+      tableName="pipeline_template"
+      columnNames="owner_key, name"
+      constraintName="uk_pipeline_template_owner_key_name"/>
+    <createIndex indexName="idx_pipeline_template_owner_key" tableName="pipeline_template">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="97d27590-09b4-571a-8bd6-0ff5fd218e29" dbms="h2">
+    <createTable tableName="custom_agent">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="agent_type" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="${string.type}(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="description" type="${string.type}(500)"/>
+      <column name="system_prompt" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tools" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addUniqueConstraint
+      tableName="custom_agent"
+      columnNames="owner_key, agent_type"
+      constraintName="uk_custom_agent_owner_key_agent_type"/>
+    <createIndex indexName="idx_custom_agent_owner_key" tableName="custom_agent">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="003dff0e-58f7-5e0f-875f-a419955b5ec3" dbms="h2">
+    <createTable tableName="automation_schedule">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="${string.type}(120)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="schedule_kind" type="${string.type}(16)" defaultValue="CRON">
+        <constraints nullable="false"/>
+      </column>
+      <column name="cron_expression" type="${string.type}(80)"/>
+      <column name="timezone" type="${string.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+      <column name="action_type" type="${string.type}(40)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="pipeline_template_id" type="${uuid.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="recipient_email" type="${string.type}(320)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="brief" type="${clob.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="next_run_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_run_at" type="${date.time.type}"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_automation_schedule_owner_key" tableName="automation_schedule">
+      <column name="owner_key"/>
+    </createIndex>
+    <createIndex indexName="idx_automation_schedule_due" tableName="automation_schedule">
+      <column name="enabled"/>
+      <column name="next_run_at"/>
+    </createIndex>
+
+    <createTable tableName="automation_run">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="schedule_id" type="${uuid.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="owner_key" type="${string.type}(80)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="started_at" type="${date.time.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="finished_at" type="${date.time.type}"/>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="status" type="${string.type}(20)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="error_message" type="${string.type}(1000)"/>
+      <column name="result_excerpt" type="${clob.type}"/>
+      <column name="email_status" type="${string.type}(20)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <createIndex indexName="idx_automation_run_schedule_id" tableName="automation_run">
+      <column name="schedule_id"/>
+    </createIndex>
+    <createIndex indexName="idx_automation_run_owner_key" tableName="automation_run">
+      <column name="owner_key"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="1518a7e4-62d0-5f4b-a937-2ed31977aa4b" dbms="h2">
+    <createTable tableName="account">
+      <column name="id" type="${uuid.type}">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="provider" type="${string.type}(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="subject" type="${string.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="email" type="${string.type}(320)"/>
+      <column name="display_name" type="${string.type}(255)"/>
+      <column name="linked_client_id" type="${string.type}(64)"/>
+      <column name="version" type="BIGINT" defaultValueNumeric="0">
+        <constraints nullable="false"/>
+      </column>
+      <column name="created_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_at" type="${date.time.type}" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+    <addUniqueConstraint
+      tableName="account"
+      columnNames="provider, subject"
+      constraintName="uk_account_provider_subject"/>
+    <addUniqueConstraint
+      tableName="account"
+      columnNames="linked_client_id"
+      constraintName="uk_account_linked_client_id"/>
+  </changeSet>
+
+  <changeSet author="felix.zhu" id="6df99825-1d1a-484b-8e50-a944f907ae9c" dbms="h2">
+    <addColumn tableName="account">
+      <column name="user_name" type="${string.type}(256)"/>
+      <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+        <constraints nullable="false"/>
+      </column>
+    </addColumn>
+    <addUniqueConstraint
+      tableName="account"
+      columnNames="provider, user_name"
+      constraintName="uk_account_provider_user_name"/>
+  </changeSet>
+</databaseChangeLog>

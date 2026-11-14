@@ -1,0 +1,200 @@
+<input
+  #docInput
+  type="file"
+  accept=".pdf,.md,.txt,.markdown,application/pdf,text/plain,text/markdown"
+  multiple
+  class="hidden"
+  (change)="onFileSelect($event)"
+/>
+
+<div class="flex min-h-0 flex-1 overflow-hidden">
+  <!-- Document rail: desktop always; mobile when expanded -->
+  <aside
+    class="hidden min-h-0 w-72 shrink-0 flex-col border-r border-black/8 bg-white md:flex"
+    [class.max-md:!flex]="isDocumentPanelOpen()"
+    [class.max-md:absolute]="isDocumentPanelOpen()"
+    [class.max-md:inset-y-0]="isDocumentPanelOpen()"
+    [class.max-md:left-0]="isDocumentPanelOpen()"
+    [class.max-md:z-20]="isDocumentPanelOpen()"
+    [class.max-md:shadow-lg]="isDocumentPanelOpen()"
+  >
+    <div class="flex shrink-0 items-center justify-between gap-2 border-b border-black/8 px-3 py-2.5">
+      <div class="flex min-w-0 items-center gap-2">
+        <h2 class="truncate text-sm font-semibold text-text">{{ i18n.t().rag.documents }}</h2>
+        <z-badge zType="secondary">{{ ragService.availableDocuments().length }}</z-badge>
+      </div>
+      <div class="flex shrink-0 items-center gap-0.5">
+        <button
+          type="button"
+          z-button
+          zType="ghost"
+          zSize="icon"
+          [zDisabled]="ragService.isUploading()"
+          [attr.title]="i18n.t().rag.uploadDocuments"
+          [attr.aria-label]="i18n.t().rag.uploadDocuments"
+          (click)="docInput.click()"
+        >
+          <ng-icon name="lucideUpload" class="size-4!" />
+        </button>
+        <button
+          type="button"
+          z-button
+          zType="ghost"
+          zSize="icon"
+          [attr.title]="i18n.t().rag.selectAll"
+          [attr.aria-label]="i18n.t().rag.selectAll"
+          (click)="ragService.selectAllDocuments()"
+        >
+          <ng-icon name="lucideListChecks" class="size-4!" />
+        </button>
+        <button
+          type="button"
+          z-button
+          zType="ghost"
+          zSize="icon"
+          [attr.title]="i18n.t().rag.clearSelection"
+          [attr.aria-label]="i18n.t().rag.clearSelection"
+          (click)="ragService.clearDocumentSelection()"
+        >
+          <ng-icon name="lucideX" class="size-4!" />
+        </button>
+        <button
+          type="button"
+          z-button
+          zType="ghost"
+          zSize="icon"
+          class="md:hidden"
+          [attr.title]="i18n.t().rag.hideDocuments"
+          [attr.aria-label]="i18n.t().rag.hideDocuments"
+          (click)="isDocumentPanelOpen.set(false)"
+        >
+          <ng-icon name="lucidePanelLeftClose" class="size-4!" />
+        </button>
+      </div>
+    </div>
+
+    @if (ragService.pendingFiles().length > 0) {
+      <div class="flex shrink-0 flex-col gap-2 border-b border-black/8 px-3 py-2">
+        <div class="flex flex-wrap gap-1.5">
+          @for (file of ragService.pendingFiles(); track file.name) {
+            <div class="inline-flex max-w-full items-center gap-1 rounded-md bg-black/4 px-2 py-1 text-xs text-text">
+              <span class="max-w-28 truncate">{{ file.name }}</span>
+              @let status = getUploadStatus(file.name);
+              @if (status !== undefined) {
+                <span class="shrink-0 text-muted-foreground">{{ status.status }}</span>
+              }
+              <button
+                type="button"
+                z-button
+                zType="ghost"
+                zSize="icon"
+                class="size-5!"
+                [zDisabled]="ragService.isUploading()"
+                [attr.title]="i18n.t().rag.clearSelection"
+                [attr.aria-label]="i18n.t().rag.clearSelection"
+                (click)="removePendingFile($index)"
+              >
+                <ng-icon name="lucideX" class="size-3!" />
+              </button>
+            </div>
+          }
+        </div>
+        <button
+          type="button"
+          z-button
+          zType="secondary"
+          zSize="sm"
+          class="w-full"
+          [zDisabled]="ragService.isUploading()"
+          (click)="uploadFiles()"
+        >
+          {{ ragService.isUploading() ? i18n.t().rag.uploading : i18n.t().rag.upload }}
+        </button>
+      </div>
+    }
+
+    <div class="min-h-0 flex-1 overflow-y-auto p-2">
+      @if (ragService.isLoadingDocuments()) {
+        <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().common.thinking }}</p>
+      } @else if (ragService.availableDocuments().length === 0) {
+        <p class="px-1 text-xs text-muted-foreground">{{ i18n.t().rag.noDocuments }}</p>
+      } @else {
+        <ul class="flex flex-col gap-0.5" role="list">
+          @for (doc of ragService.availableDocuments(); track doc.id) {
+            <li class="flex items-center gap-2 rounded-md p-1.5 hover:bg-black/4">
+              <input
+                type="checkbox"
+                class="size-3.5 shrink-0 accent-black"
+                [checked]="ragService.selectedDocumentIds().has(doc.id)"
+                [attr.aria-label]="doc.title"
+                (change)="ragService.toggleDocumentSelection(doc.id)"
+              />
+              <span class="min-w-0 flex-1 truncate text-sm text-text">{{ doc.title }}</span>
+              <button
+                type="button"
+                z-button
+                zType="ghost"
+                zSize="icon"
+                class="size-7!"
+                [zDisabled]="ragService.deletingDocumentIds().has(doc.id)"
+                [attr.title]="i18n.t().rag.deleteDocument"
+                [attr.aria-label]="i18n.t().rag.deleteDocument"
+                (click)="deleteDocument(doc.id, $event)"
+              >
+                <ng-icon name="lucideTrash2" class="size-3.5!" />
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </aside>
+
+  @if (isDocumentPanelOpen()) {
+    <button
+      type="button"
+      class="absolute inset-0 z-10 bg-black/20 md:hidden"
+      [attr.aria-label]="i18n.t().rag.hideDocuments"
+      (click)="isDocumentPanelOpen.set(false)"
+    ></button>
+  }
+
+  <!-- Q&A column -->
+  <div class="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <div class="flex shrink-0 items-center gap-2 border-b border-black/8 bg-white px-3 py-2 sm:px-4">
+      <button
+        type="button"
+        z-button
+        zType="ghost"
+        zSize="sm"
+        class="md:hidden"
+        [attr.title]="i18n.t().rag.showDocuments"
+        [attr.aria-label]="i18n.t().rag.showDocuments"
+        (click)="isDocumentPanelOpen.set(true)"
+      >
+        <ng-icon name="lucidePanelLeft" class="size-4!" />
+        <span class="ml-1">{{ i18n.t().rag.documentsShort }}</span>
+      </button>
+      <h2 class="truncate text-base font-semibold text-text">{{ i18n.t().rag.title }}</h2>
+    </div>
+
+    <app-chat-message-pane
+      [messages]="bubbleMessages()"
+      [streamingMessageIds]="ragService.streamingMessageIds()"
+      [thinkingLabel]="i18n.t().common.thinking"
+      [footerLabels]="footerLabels()"
+      [welcomeTitle]="i18n.t().rag.title"
+      [welcomeDescription]="i18n.t().rag.askQuestion"
+      [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+      [prompts]="ragPrompts()"
+      (promptSelected)="onPromptSelect($event)"
+    />
+
+    <app-chat-sender-bar
+      [placeholder]="i18n.t().rag.inputPlaceholder"
+      [isLoading]="ragService.isLoading()"
+      [(value)]="ragService.input"
+      (sent)="ragService.sendMessage()"
+    />
+  </div>
+</div>

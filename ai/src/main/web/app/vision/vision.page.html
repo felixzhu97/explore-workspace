@@ -1,0 +1,40 @@
+<div class="flex shrink-0 items-center justify-center border-b border-black/8 bg-white px-4 py-2.5">
+  <z-segmented
+    [zOptions]="taskOptions()"
+    [formField]="taskField"
+    (zChange)="onTaskChange($event)"
+  />
+</div>
+
+<div class="min-h-0 flex-1 overflow-y-auto bg-surface px-4 py-6">
+  <div class="grid min-h-72 grid-cols-1 gap-6 md:grid-cols-2">
+    <app-media-upload-panel
+      [title]="i18n.t().vision.imageLabel"
+      [imagePreview]="vision.currentState().image"
+      [isLoading]="vision.isLoading()"
+      [dropText]="i18n.t().vision.dropText"
+      [dropHint]="i18n.t().vision.dropHint"
+      [clearLabel]="i18n.t().vision.clearImage"
+      [clickToEnlargeLabel]="i18n.t().vision.clickToEnlarge"
+      [showDetectionOverlay]="vision.activeTask() === 'detect'"
+      [detections]="vision.detections()"
+      (fileSelected)="vision.processFile($event)"
+      (cleared)="vision.clearImage()"
+      (zoomRequested)="vision.openZoom($event)"
+    />
+
+    <app-media-result-panel
+      [title]="i18n.t().vision.resultLabel"
+      [result]="vision.currentState().result"
+      [error]="vision.currentState().error"
+      [isLoading]="vision.isLoading()"
+      [canAnalyze]="vision.canAnalyze()"
+      [emptyLabel]="i18n.t().vision.noImageYet"
+      [noDetectionsLabel]="i18n.t().vision.noDetections"
+      [analyzeLabel]="i18n.t().vision.startAnalyze"
+      [analyzingLabel]="i18n.t().vision.analyzing"
+      [processingTimeLabel]="vision.processingTimeLabel()"
+      (analyzeRequested)="vision.analyzeImage()"
+    />
+  </div>
+</div>

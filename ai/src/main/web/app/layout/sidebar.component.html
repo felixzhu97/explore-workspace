@@ -1,0 +1,298 @@
+<aside
+  data-sidebar-panel
+  class="
+    fixed top-0 left-0 z-90 flex h-dvh min-h-dvh flex-col overflow-visible
+    border-r border-sidebar-border bg-sidebar text-sidebar-foreground
+    transition-all duration-250 ease-out
+    max-md:pb-[env(safe-area-inset-bottom)]
+  "
+  [class]="sidebarClasses()"
+>
+  <div class="flex h-13 shrink-0 items-center justify-between border-b border-sidebar-border px-4">
+    @if (!isCollapsed()) {
+      <span class="text-base font-semibold text-sidebar-foreground md:hidden">AI</span>
+      <button
+        type="button"
+        class="
+          relative hidden size-8 cursor-pointer items-center justify-center rounded-md
+          border-none bg-transparent transition-all duration-150
+          hover:bg-sidebar-accent
+          md:flex
+        "
+        [attr.aria-label]="i18n.t().sidebar.collapse"
+        (click)="toggleCollapse()"
+      >
+        <svg class="size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="
+          flex size-6 shrink-0 cursor-w-resize items-center justify-center rounded-md
+          border-none bg-transparent transition-all duration-150
+          hover:bg-sidebar-accent
+          max-md:hidden
+        "
+        [attr.aria-label]="i18n.t().sidebar.collapse"
+        (click)="toggleCollapse()"
+      >
+        <svg class="size-5 text-sidebar-foreground" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM10 5V19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H10Z"
+          />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="
+          flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md
+          border-none bg-transparent text-sidebar-foreground/70 transition-all duration-150
+          hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
+          md:hidden
+        "
+        [attr.aria-label]="i18n.t().sidebar.closeMenu"
+        (click)="sidebar.closeSidebar()"
+      >
+        ✕
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="
+          flex size-6 shrink-0 cursor-e-resize items-center justify-center rounded-md
+          border-none bg-transparent transition-all duration-150
+          hover:bg-sidebar-accent
+        "
+        [attr.aria-label]="i18n.t().sidebar.expand"
+        (click)="toggleCollapse()"
+      >
+        <svg class="size-5 text-sidebar-foreground/70" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M9.35719 3H14.6428C15.7266 2.99999 16.6007 2.99998 17.3086 3.05782C18.0375 3.11737 18.6777 3.24318 19.27 3.54497C20.2108 4.02433 20.9757 4.78924 21.455 5.73005C21.7568 6.32234 21.8826 6.96253 21.9422 7.69138C22 8.39925 22 9.27339 22 10.3572V13.6428C22 14.7266 22 15.6008 21.9422 16.3086C21.8826 17.0375 21.7568 17.6777 21.455 18.27C20.9757 19.2108 20.2108 19.9757 19.27 20.455C18.6777 20.7568 18.0375 20.8826 17.3086 20.9422C16.6008 21 15.7266 21 14.6428 21H9.35717C8.27339 21 7.39925 21 6.69138 20.9422C5.96253 20.8826 5.32234 20.7568 4.73005 20.455C3.78924 19.9757 3.02433 19.2108 2.54497 18.27C2.24318 17.6777 2.11737 17.0375 2.05782 16.3086C1.99998 15.6007 1.99999 14.7266 2 13.6428V10.3572C1.99999 9.27341 1.99998 8.39926 2.05782 7.69138C2.11737 6.96253 2.24318 6.32234 2.54497 5.73005C3.02433 4.78924 3.78924 4.02433 4.73005 3.54497C5.32234 3.24318 5.96253 3.11737 6.69138 3.05782C7.39926 2.99998 8.27341 2.99999 9.35719 3ZM6.85424 5.05118C6.24907 5.10062 5.90138 5.19279 5.63803 5.32698C5.07354 5.6146 4.6146 6.07354 4.32698 6.63803C4.19279 6.90138 4.10062 7.24907 4.05118 7.85424C4.00078 8.47108 4 9.26339 4 10.4V13.6C4 14.7366 4.00078 15.5289 4.05118 16.1458C4.10062 16.7509 4.19279 17.0986 4.32698 17.362C4.6146 17.9265 5.07354 18.3854 5.63803 18.673C5.90138 18.8072 6.24907 18.8994 6.85424 18.9488C7.47108 18.9992 8.26339 19 9.4 19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H9.4C8.26339 5 7.47108 5.00078 6.85424 5.05118ZM10 5V19H14.6C15.7366 19 16.5289 18.9992 17.1458 18.9488C17.7509 18.8994 18.0986 18.8072 18.362 18.673C18.9265 18.3854 19.3854 17.9265 19.673 17.362C19.8072 17.0986 19.8994 16.7509 19.9488 16.1458C19.9992 15.5289 20 14.7366 20 13.6V10.4C20 9.26339 19.9992 8.47108 19.9488 7.85424C19.8994 7.24907 19.8072 6.90138 19.673 6.63803C19.3854 6.07354 18.9265 5.6146 18.362 5.32698C18.0986 5.19279 17.7509 5.10062 17.1458 5.05118C16.5289 5.00078 15.7366 5 14.6 5H10Z"
+          />
+        </svg>
+      </button>
+    }
+  </div>
+
+  <div class="flex min-h-0 flex-1 flex-col">
+    @if (!isCollapsed()) {
+      <nav class="relative z-30 shrink-0 overflow-visible p-2">
+        <z-sidebar-group>
+          <button
+            type="button"
+            z-sidebar-menu-button
+            [title]="t().sidebar.newChat"
+            (click)="startNewChat()"
+          >
+            <span class="size-3.5 shrink-0">
+              <svg
+                class="size-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path
+                  d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12.5 14.5l-4 1 1-4Z"
+                />
+              </svg>
+            </span>
+            <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+              {{ t().sidebar.newChat }}
+            </span>
+          </button>
+
+          @for (tab of primaryTabs(); track tab.key) {
+            <a
+              z-sidebar-menu-button
+              [routerLink]="tab.path"
+              [zActive]="isNavActive(tab.path)"
+              [title]="t().nav[tab.labelKey]"
+              (click)="onNavClick()"
+            >
+              <span class="size-3.5 shrink-0" [innerHTML]="getIcon(tab.key)"></span>
+              <span class="min-w-0 flex-1 overflow-hidden text-left text-ellipsis">
+                {{ t().nav[tab.labelKey] }}
+              </span>
+            </a>
+          }
+
+          <app-sidebar-more-menu
+            [sections]="moreSections()"
+            [isCollapsed]="false"
+            [iconFor]="navIconFn"
+            (navigated)="onNavClick()"
+          />
+        </z-sidebar-group>
+      </nav>
+
+      <div class="min-h-0 flex-1 overflow-y-auto border-t border-sidebar-border">
+        @if (displaySessions().length > 0) {
+          <div class="px-2 pt-1 pb-2">
+            @if (pinnedSessions().length > 0) {
+              <div class="mb-2">
+                <button
+                  type="button"
+                  class="
+                    group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-sm
+                    font-medium text-[#8F8F8F] no-underline transition-all duration-150
+                    hover:text-[#8F8F8F]
+                  "
+                  (click)="isPinnedExpanded.update(v => !v)"
+                >
+                  {{ t().sidebar.pinned }}
+                  <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <svg
+                      class="size-3 transition-transform duration-200"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      [class.rotate-90]="isPinnedExpanded()"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </span>
+                </button>
+                @if (isPinnedExpanded()) {
+                  <z-sidebar-group class="space-y-0.5">
+                    @for (session of pinnedSessions(); track session.id) {
+                      <app-session-item
+                        [session]="session"
+                        [isActive]="sessionList.activeSessionId() === session.id"
+                        [isCollapsed]="isCollapsed()"
+                        (selected)="onSessionSelect(session.id)"
+                        (pinToggleRequested)="onSessionPin(session.id)"
+                        (deleteRequested)="onSessionDelete(session.id)"
+                      />
+                    }
+                  </z-sidebar-group>
+                }
+              </div>
+            }
+
+            @if (recentSessions().length > 0) {
+              <button
+                type="button"
+                class="
+                  group mb-1 inline-flex cursor-pointer items-center gap-1 px-2 text-sm
+                  font-medium text-[#8F8F8F] no-underline transition-all duration-150
+                  hover:text-[#8F8F8F]
+                "
+                (click)="isRecentsExpanded.update(v => !v)"
+              >
+                {{ t().sidebar.recents }}
+                <span class="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <svg
+                    class="size-3 transition-transform duration-200"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    [class.rotate-90]="isRecentsExpanded()"
+                  >
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </span>
+              </button>
+              @if (isRecentsExpanded()) {
+                <z-sidebar-group class="space-y-0.5">
+                  @for (session of recentSessions(); track session.id) {
+                    <app-session-item
+                      [session]="session"
+                      [isActive]="sessionList.activeSessionId() === session.id"
+                      [isCollapsed]="isCollapsed()"
+                      (selected)="onSessionSelect(session.id)"
+                      (pinToggleRequested)="onSessionPin(session.id)"
+                      (deleteRequested)="onSessionDelete(session.id)"
+                    />
+                  }
+                </z-sidebar-group>
+              }
+            }
+          </div>
+        }
+      </div>
+    } @else {
+      <div
+        class="
+          relative z-30 flex flex-col items-center gap-1 overflow-visible
+          border-t border-sidebar-border py-2
+        "
+      >
+        <button
+          type="button"
+          z-sidebar-menu-button
+          zIconOnly
+          [zFull]="false"
+          [title]="t().sidebar.newChat"
+          (click)="startNewChat()"
+        >
+          <svg
+            class="size-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12.5 14.5l-4 1 1-4Z" />
+          </svg>
+        </button>
+
+        @for (tab of primaryTabs(); track tab.key) {
+          <a
+            z-sidebar-menu-button
+            zIconOnly
+            [zFull]="false"
+            [routerLink]="tab.path"
+            [zActive]="isNavActive(tab.path)"
+            [title]="t().nav[tab.labelKey]"
+            (click)="onNavClick()"
+          >
+            <span [innerHTML]="getIcon(tab.key)"></span>
+          </a>
+        }
+
+        <app-sidebar-more-menu
+          [sections]="moreSections()"
+          [isCollapsed]="true"
+          [iconFor]="navIconFn"
+          (navigated)="onNavClick()"
+        />
+      </div>
+    }
+  </div>
+
+  <div
+    class="relative z-20 mt-auto shrink-0 overflow-visible border-t border-sidebar-border p-2"
+  >
+    <app-sidebar-user-menu [isCollapsed]="isCollapsed()" />
+  </div>
+</aside>
+
+<div
+  class="
+    pointer-events-none fixed inset-0 z-85 hidden bg-black/40 opacity-0
+    transition-opacity duration-250 max-md:block
+  "
+  tabindex="-1"
+  role="button"
+  [class.opacity-100]="sidebar.isMobileOpen()"
+  [class.pointer-events-auto]="sidebar.isMobileOpen()"
+  [attr.aria-label]="i18n.t().sidebar.closeOverlay"
+  (click)="sidebar.closeSidebar()"
+  (keydown.escape)="sidebar.closeSidebar()"
+></div>

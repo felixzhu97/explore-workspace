@@ -1,0 +1,74 @@
+# Render Blueprint — production backend (Starter)
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: explore-ai
+    runtime: docker
+    plan: starter
+    region: oregon
+    healthCheckPath: /actuator/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: JAVA_TOOL_OPTIONS
+        value: "-XX:MaxRAMPercentage=60.0"
+      - key: APP_AUTOMATION_SCAN_ENABLED
+        value: "false"
+      - key: RAG_EMBEDDING_PROVIDER
+        value: hash
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: IMAGE_PROVIDER
+        value: openai
+      - key: IMAGE_API_KEY
+        sync: false
+      - key: IMAGE_BASE_URL
+        value: https://api.openai.com/v1
+      - key: TTS_API_KEY
+        sync: false
+      - key: LAUNCHDARKLY_ENABLED
+        value: "true"
+      - key: LAUNCHDARKLY_SDK_KEY
+        sync: false
+      - key: METRICS_ADMIN_API_KEY
+        sync: false
+      - key: APP_BILLING_PLAN
+        value: free
+      - key: APP_MAIL_ENABLED
+        value: "true"
+      - key: APP_MAIL_PROVIDER
+        value: resend
+      - key: APP_MAIL_FROM
+        sync: false
+      - key: APP_MAIL_RESEND_API_KEY
+        sync: false
+      - key: APP_OAUTH_GOOGLE_ENABLED
+        value: "true"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: APP_OAUTH_SUCCESS_REDIRECT
+        value: https://www.felixzhu.chat/
+      - key: APP_OAUTH_REDIRECT_URI
+        value: https://www.felixzhu.chat/login/oauth2/code/google
+      - key: APP_OAUTH_GITHUB_ENABLED
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: APP_OAUTH_GITHUB_REDIRECT_URI
+        value: https://www.felixzhu.chat/login/oauth2/code/github
+      # Explore IAM is not deployed yet; without this the issuer falls back to localhost:9100.
+      - key: APP_OAUTH_EXPLORE_IAM_RESOURCE_SERVER
+        value: "false"

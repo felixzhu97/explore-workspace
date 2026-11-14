@@ -1,0 +1,84 @@
+package com.ai.account.domain.repository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.ai.account.domain.model.Account;
+import com.ai.account.domain.model.ClientId;
+import com.ai.account.domain.model.ContactEmail;
+import com.ai.account.domain.model.ExternalIdentity;
+import com.ai.testsupport.AbstractDataJpaTest;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+
+class AccountRepositoryTest extends AbstractDataJpaTest {
+
+  private static final ClientId LINKED_CLIENT =
+      ClientId.parseId("55555555-5555-5555-5555-555555555555");
+
+  @Autowired private AccountRepository repository;
+
+  @Test
+  @DisplayName("should find the account by its normalized sign-in identity")
+  void shouldFindTheAccountByItsNormalizedSignInIdentity() {
+    save("github", "gh-42", "dev@example.com");
+    flushAndClear();
+
+    Account found =
+        repository
+            .findByIdentity(ExternalIdentity.createIdentity(" GitHub ", "gh-42"))
+            .orElseThrow();
+
+    assertThat(found.getEmail()).isEqualTo(new ContactEmail("dev@example.com"));
+    assertThat(found.getDisplayName()).isEqualTo("octo");
+    assertThat(repository.findByIdentity(ExternalIdentity.createIdentity("github", "gh-43")))
+        .isEmpty();
+  }
+
+  @Test
+  @DisplayName("should stop finding the account by client id once the browser is unlinked")
+  void shouldStopFindingTheAccountByClientIdOnceTheBrowserIsUnlinked() {
+    save("google", "subject-linked", "linked@example.com");
+    flushAndClear();
+
+    Account linked = repository.findByLinkedClientId(LINKED_CLIENT).orElseThrow();
+    assertThat(linked.getSubject()).isEqualTo("subject-linked");
+
+    linked.unlinkBrowser();
+    repository.save(linked);
+    flushAndClear();
+
+    assertThat(repository.findByLinkedClientId(LINKED_CLIENT)).isEmpty();
+  }
+
+  @Test
+  @DisplayName("should find a provisioned account by user name and page by provider")
+  void shouldFindAProvisionedAccountByUserNameAndPageByProvider() {
+    repository.save(
+        Account.createProvisionedAccount(
+            ExternalIdentity.createIamIdentity("iam-7"), "alice", null, "Alice"));
+    save("github", "gh-7", "dev7@example.com");
+    flushAndClear();
+
+    assertThat(repository.findByProviderAndUserName(ExternalIdentity.EXPLORE_IAM, "alice"))
+        .get()
+        .extracting(Account::getSubject)
+        .isEqualTo("iam-7");
+    assertThat(
+            repository
+                .findByProviderOrderByCreatedAtAsc(
+                    ExternalIdentity.EXPLORE_IAM, PageRequest.of(0, 10))
+                .getContent())
+        .extracting(Account::getUserName)
+        .containsExactly("alice");
+  }
+
+  private void save(String provider, String subject, String email) {
+    Account account =
+        Account.createAccount(
+            ExternalIdentity.createIdentity(provider, subject), new ContactEmail(email), "octo");
+    account.linkBrowser(LINKED_CLIENT, null, null);
+    repository.save(account);
+  }
+}

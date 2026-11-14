@@ -1,0 +1,110 @@
+<div class="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2">
+  <div class="flex flex-col gap-4">
+    <header>
+      <h1 class="text-lg font-semibold text-foreground">{{ i18n.t().generate.tts.title }}</h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().generate.tts.description }}</p>
+    </header>
+
+    <div class="flex flex-col gap-1.5">
+      <label class="text-sm font-medium text-muted-foreground" for="tts-text-input">
+        {{ i18n.t().generate.tts.textLabel }}
+      </label>
+      <textarea
+        id="tts-text-input"
+        z-input
+        class="min-h-28 resize-y"
+        rows="5"
+        [formField]="textField"
+        [placeholder]="i18n.t().generate.tts.textPlaceholder"
+      ></textarea>
+    </div>
+
+    <div class="flex flex-wrap items-end gap-4">
+      <div class="flex min-w-48 flex-1 flex-col gap-1.5">
+        <label class="text-sm font-medium text-muted-foreground" for="voice-select">
+          {{ i18n.t().generate.tts.voiceLabel }}
+        </label>
+        <z-select
+          id="voice-select"
+          [zValue]="voice()"
+          [zPlaceholder]="i18n.t().generate.tts.voiceLabel"
+          (zSelectionChange)="setVoice($event)"
+        >
+          @for (v of availableVoices(); track v.id) {
+            <z-select-item [zValue]="v.id">{{ v.name }} ({{ v.language }})</z-select-item>
+          } @empty {
+            <z-select-item zValue="en-US">English (US)</z-select-item>
+            <z-select-item zValue="en-GB">English (UK)</z-select-item>
+            <z-select-item zValue="zh-CN">中文</z-select-item>
+            <z-select-item zValue="ja-JP">日本語</z-select-item>
+          }
+        </z-select>
+      </div>
+
+      <div class="flex min-w-36 flex-1 flex-col gap-2">
+        <label class="text-sm font-medium text-muted-foreground" for="speed-slider">
+          {{ i18n.t().generate.tts.speedLabel }}: {{ speed().toFixed(1) }}x
+        </label>
+        <z-slider
+          id="speed-slider"
+          [zMin]="0.5"
+          [zMax]="2"
+          [zStep]="0.1"
+          [zValue]="speed()"
+          (zSlideIndexChange)="setSpeed($event)"
+        />
+      </div>
+    </div>
+
+    <button
+      type="button"
+      z-button
+      zFull
+      zSize="lg"
+      [zLoading]="isSynthesizing()"
+      [zDisabled]="text().trim() === '' || isSynthesizing()"
+      (click)="synthesize()"
+    >
+      @if (isSynthesizing()) {
+        {{ i18n.t().generate.tts.synthesizing }}
+      } @else {
+        {{ i18n.t().generate.tts.synthesize }}
+      }
+    </button>
+
+    @let errorText = error();
+    @if (errorText !== null) {
+      <z-alert zType="destructive" [zDescription]="errorText" />
+    }
+  </div>
+
+  <div
+    class="flex min-h-64 flex-col justify-center gap-4 rounded-xl border border-black/8 bg-muted/30 p-6 md:min-h-80"
+  >
+    @if (audioUrl() !== null) {
+      <div class="flex items-center gap-4">
+        <button
+          type="button"
+          z-button
+          zSize="icon"
+          [attr.aria-label]="isPlaying() ? i18n.t().generate.tts.pause : i18n.t().generate.tts.play"
+          (click)="togglePlayPause()"
+        >
+          <ng-icon class="size-5!" [name]="isPlaying() ? 'lucidePause' : 'lucidePlay'" />
+        </button>
+        <div class="flex flex-1 flex-col gap-2">
+          <span class="text-base font-medium text-foreground">{{ i18n.t().generate.tts.audioReady }}</span>
+          <z-progress-bar [progress]="progress()" />
+        </div>
+      </div>
+      <button type="button" z-button zType="outline" class="w-fit" (click)="download()">
+        <ng-icon name="lucideDownload" class="size-4!" />
+        {{ i18n.t().generate.tts.downloadAudio }}
+      </button>
+    } @else {
+      <p class="text-center text-sm text-muted-foreground">
+        {{ i18n.t().generate.tts.emptyState }}
+      </p>
+    }
+  </div>
+</div>

@@ -1,0 +1,406 @@
+package com.ai.rag.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.exception.DomainException;
+import com.ai.rag.domain.model.DocumentChunk;
+import com.ai.rag.domain.model.DocumentId;
+import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.ExtractedDocument;
+import com.ai.rag.domain.model.RagDocument;
+import com.ai.rag.domain.repository.DocumentChunkRepository;
+import com.ai.rag.domain.repository.DocumentReader;
+import com.ai.rag.domain.repository.DocumentRepository;
+import com.ai.rag.domain.repository.DocumentTransformer;
+import com.ai.rag.domain.repository.DocumentWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.multipart.MultipartFile;
+
+@ExtendWith(MockitoExtension.class)
+@DisplayName("DocumentUploadService")
+class DocumentUploadServiceTest {
+
+  private static final OwnerKey TEST_OWNER = OwnerKey.parseKey("c:test-owner");
+
+  @Mock private DocumentReader reader;
+
+  @Mock private DocumentTransformer transformer;
+
+  @Mock private DocumentWriter writer;
+
+  @Mock private DocumentRepository documentRepository;
+
+  @Mock private DocumentChunkRepository chunkRepository;
+
+  @Mock private MultipartFile multipartFile;
+
+  private DocumentUploadService service;
+
+  @BeforeEach
+  void setUp() {
+    service =
+        new DocumentUploadService(
+            reader,
+            transformer,
+            writer,
+            documentRepository,
+            chunkRepository,
+            mock(PlatformTransactionManager.class));
+  }
+
+  @Test
+  @DisplayName("should upload document with string content")
+  void shouldUploadDocumentWithStringContent() {
+    String title = "Test Document";
+    String fileName = "test.txt";
+    String content = "This is test content";
+
+    when(documentRepository.save(any(RagDocument.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+    when(reader.readDocument(any(byte[].class), eq(fileName)))
+        .thenReturn(new ExtractedDocument(content, Map.of("fileName", fileName), fileName));
+    when(transformer.splitDocument(any(ExtractedDocument.class)))
+        .thenReturn(
+            List.of(
+                new ExtractedDocument("chunk1", Map.of("fileName", fileName), fileName),
+                new ExtractedDocument("chunk2", Map.of("fileName", fileName), fileName)));
+    doNothing().when(writer).writeChunks(any());
+
+    DocumentUploadService.UploadResult result =
+        service.uploadDocument(title, fileName, content, "c:test-owner");
+
+    assertThat(result.title()).isEqualTo(title);
+    assertThat(result.status()).isEqualTo(DocumentStatus.READY);
+    assertThat(result.chunkCount()).isEqualTo(2);
+    assertThat(result.documentId()).isNotNull();
+  }
+
+  @Test
+  @DisplayName("should save the document while processing and again when ready")
+  void shouldSaveTheDocumentWhileProcessingAndAgainWhenReady() {
+    String content = "Test content";
+
+    when(documentRepository.save(any(RagDocument.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+    when(reader.readDocument(any(byte[].class), any()))
+        .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+    when(transformer.splitDocument(any(ExtractedDocument.class)))
+        .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
+    doNothing().when(writer).writeChunks(any());
+
+    service.uploadDocument("Title", "file.txt", content, "c:test-owner");
+
+    verify(documentRepository, times(2)).save(any(RagDocument.class));
+  }
+
+  @Nested
+  @DisplayName("upload() - byte[] content")
+  class UploadWithByteArrayContent {
+
+    @Test
+    @DisplayName("should upload document with byte array content")
+    void shouldUploadDocumentWithByteArrayContent() {
+      String title = "Test Document";
+      String fileName = "test.txt";
+      byte[] content = "Test content".getBytes();
+
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(eq(content), eq(fileName)))
+          .thenReturn(new ExtractedDocument("processed", Map.of("fileName", fileName), fileName));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenReturn(
+              List.of(new ExtractedDocument("chunk", Map.of("fileName", fileName), fileName)));
+      doNothing().when(writer).writeChunks(any());
+
+      DocumentUploadService.UploadResult result =
+          service.uploadDocument(title, fileName, content, "c:test-owner");
+
+      assertThat(result.status()).isEqualTo(DocumentStatus.READY);
+    }
+
+    @Test
+    @DisplayName("should mark document as FAILED when the reader cannot extract text")
+    void shouldMarkDocumentAsFailedWhenTheReaderCannotExtractText() {
+      String fileName = "document.pdf";
+      byte[] pdfContent = new byte[] {1, 2, 3};
+
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(eq(pdfContent), eq(fileName)))
+          .thenThrow(
+              DomainException.createUnprocessableError(
+                  "DOCUMENT_UNREADABLE", "Could not extract text from document.pdf"));
+
+      assertThatThrownBy(() -> service.uploadDocument("PDF", fileName, pdfContent, "c:test-owner"))
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
+          .hasMessage("Could not extract text from document.pdf");
+
+      verify(documentRepository, times(2)).save(any(RagDocument.class));
+    }
+
+    @Test
+    @DisplayName("should reject blank text without calling the transformer")
+    void shouldRejectBlankTextWithoutCallingTheTransformer() {
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(any(byte[].class), eq("blank.txt")))
+          .thenReturn(new ExtractedDocument(" \n", Map.of(), "blank.txt"));
+
+      assertThatThrownBy(() -> service.uploadDocument("Blank", "blank.txt", " \n", "c:test-owner"))
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
+          .hasMessage("No text found in blank.txt");
+
+      verifyNoInteractions(transformer, writer);
+    }
+
+    @Test
+    @DisplayName("should reject an empty file before storing anything")
+    void shouldRejectAnEmptyFileBeforeStoringAnything() {
+      assertThatThrownBy(
+              () -> service.uploadDocument("Empty", "empty.txt", new byte[0], "c:test-owner"))
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage("Uploaded file is empty");
+
+      verifyNoInteractions(documentRepository, reader);
+    }
+  }
+
+  @Nested
+  @DisplayName("upload() - MultipartFile")
+  class UploadWithMultipartFile {
+
+    @Test
+    @DisplayName("should upload document from MultipartFile with custom title")
+    void shouldUploadDocumentFromMultipartFileWithCustomTitle() throws IOException {
+      String customTitle = "Custom Title";
+      String originalFileName = "original.txt";
+
+      when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
+      when(multipartFile.getBytes()).thenReturn("content".getBytes());
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(any(byte[].class), eq(originalFileName)))
+          .thenReturn(
+              new ExtractedDocument(
+                  "content", Map.of("fileName", originalFileName), originalFileName));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenReturn(
+              List.of(
+                  new ExtractedDocument(
+                      "chunk", Map.of("fileName", originalFileName), originalFileName)));
+      doNothing().when(writer).writeChunks(any());
+
+      DocumentUploadService.UploadResult result =
+          service.uploadDocument(multipartFile, customTitle, "c:test-owner");
+
+      assertThat(result.title()).isEqualTo(customTitle);
+    }
+
+    @Test
+    @DisplayName("should use file name as title when title is null")
+    void shouldUseFileNameAsTitleWhenTitleIsNull() throws IOException {
+      String originalFileName = "my-document.txt";
+
+      when(multipartFile.getOriginalFilename()).thenReturn(originalFileName);
+      when(multipartFile.getBytes()).thenReturn("content".getBytes());
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(any(byte[].class), eq(originalFileName)))
+          .thenReturn(
+              new ExtractedDocument(
+                  "content", Map.of("fileName", originalFileName), originalFileName));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenReturn(
+              List.of(
+                  new ExtractedDocument(
+                      "chunk", Map.of("fileName", originalFileName), originalFileName)));
+      doNothing().when(writer).writeChunks(any());
+
+      DocumentUploadService.UploadResult result =
+          service.uploadDocument(multipartFile, null, "c:test-owner");
+
+      assertThat(result.title()).isEqualTo(originalFileName);
+    }
+
+    @Test
+    @DisplayName("should throw exception when file read fails")
+    void shouldThrowExceptionWhenFileReadFails() throws IOException {
+      when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
+      when(multipartFile.getBytes()).thenThrow(new IOException("File read error"));
+
+      assertThatThrownBy(() -> service.uploadDocument(multipartFile, "Title", "c:test-owner"))
+          .isInstanceOf(RuntimeException.class)
+          .hasMessageContaining("Failed to read file content");
+    }
+  }
+
+  @Nested
+  @DisplayName("upload() - Error handling")
+  class UploadErrorHandling {
+
+    @Test
+    @DisplayName("should mark document as FAILED when transformer fails")
+    void shouldMarkDocumentAsFailedWhenTransformerFails() {
+      String content = "Test content";
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(any(byte[].class), any()))
+          .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenThrow(new RuntimeException("Transformation failed"));
+
+      assertThatThrownBy(() -> service.uploadDocument("Title", "file.txt", content, "c:test-owner"))
+          .hasMessage("Transformation failed");
+
+      verify(documentRepository, times(2)).save(any(RagDocument.class));
+    }
+
+    @Test
+    @DisplayName("should mark document as FAILED when writer fails")
+    void shouldMarkDocumentAsFailedWhenWriterFails() {
+      String content = "Test content";
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(any(byte[].class), any()))
+          .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenReturn(List.of(new ExtractedDocument("chunk", Map.of(), "test")));
+      doThrow(new RuntimeException("Embedding failed")).when(writer).writeChunks(any());
+
+      assertThatThrownBy(() -> service.uploadDocument("Title", "file.txt", content, "c:test-owner"))
+          .isInstanceOf(RuntimeException.class)
+          .hasMessageContaining("Embedding failed");
+
+      ArgumentCaptor<RagDocument> saved = ArgumentCaptor.forClass(RagDocument.class);
+      verify(documentRepository, times(2)).save(saved.capture());
+      assertThat(saved.getValue().getStatus()).isEqualTo(DocumentStatus.FAILED);
+    }
+
+    @Test
+    @DisplayName("should keep the ingestion error when saving the failure also fails")
+    void shouldKeepTheIngestionErrorWhenSavingTheFailureAlsoFails() {
+      String content = "Test content";
+      RuntimeException saveFailure = new IllegalStateException("database down");
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0))
+          .thenThrow(saveFailure);
+      when(reader.readDocument(any(byte[].class), any()))
+          .thenReturn(new ExtractedDocument(content, Map.of(), "test"));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenThrow(new RuntimeException("Transformation failed"));
+
+      assertThatThrownBy(() -> service.uploadDocument("Title", "file.txt", content, "c:test-owner"))
+          .hasMessage("Transformation failed")
+          .hasSuppressedException(saveFailure);
+    }
+
+    @Test
+    @DisplayName("should hand the writer chunks owned by the uploader")
+    void shouldHandTheWriterChunksOwnedByTheUploader() {
+      when(documentRepository.save(any(RagDocument.class)))
+          .thenAnswer(invocation -> invocation.getArgument(0));
+      when(reader.readDocument(any(byte[].class), any()))
+          .thenReturn(new ExtractedDocument("text", Map.of(), "test"));
+      when(transformer.splitDocument(any(ExtractedDocument.class)))
+          .thenReturn(List.of(new ExtractedDocument("chunk", Map.of("page", 1), "test")));
+
+      service.uploadDocument("Title", "file.txt", "text", "c:test-owner");
+
+      @SuppressWarnings("unchecked")
+      ArgumentCaptor<List<DocumentChunk>> written = ArgumentCaptor.forClass(List.class);
+      verify(writer).writeChunks(written.capture());
+      DocumentChunk chunk = written.getValue().getFirst();
+      assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parseKey("c:test-owner"));
+      assertThat(chunk.getMetadata())
+          .containsEntry("page", 1)
+          .containsEntry("title", "Title")
+          .containsEntry("fileName", "file.txt");
+    }
+  }
+
+  @Nested
+  @DisplayName("delete()")
+  class Delete {
+
+    @Test
+    @DisplayName("should delete document and its chunks")
+    void shouldDeleteDocumentAndItsChunks() {
+      RagDocument document = stored(DocumentStatus.READY, 2);
+      DocumentId docId = document.getId();
+      UUID documentId = docId.getValue();
+
+      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
+          .thenReturn(Optional.of(document));
+
+      service.deleteDocument(documentId, "c:test-owner");
+
+      verify(chunkRepository).deleteChunksByDocumentId(docId);
+      verify(documentRepository).deleteByIdAndOwnerKey(docId, TEST_OWNER);
+    }
+
+    @Test
+    @DisplayName("should throw exception when document not found")
+    void shouldThrowExceptionWhenDocumentNotFound() {
+      UUID documentId = UUID.randomUUID();
+      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
+          .thenReturn(Optional.empty());
+
+      assertThatThrownBy(() -> service.deleteDocument(documentId, "c:test-owner"))
+          .isInstanceOf(DomainException.class)
+          .hasFieldOrPropertyWithValue("code", "DOCUMENT_NOT_FOUND");
+    }
+
+    @Test
+    @DisplayName("should delete chunks even when document has no chunks")
+    void shouldDeleteChunksEvenWhenDocumentHasNoChunks() {
+      RagDocument document = stored(DocumentStatus.FAILED, 0);
+      DocumentId docId = document.getId();
+      UUID documentId = docId.getValue();
+
+      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
+          .thenReturn(Optional.of(document));
+
+      service.deleteDocument(documentId, "c:test-owner");
+
+      verify(chunkRepository).deleteChunksByDocumentId(docId);
+      verify(documentRepository).deleteByIdAndOwnerKey(docId, TEST_OWNER);
+    }
+
+    private RagDocument stored(DocumentStatus status, int chunkCount) {
+      RagDocument document = RagDocument.startIngestion("Test Doc", "test.txt", 100L, "c:test");
+      if (status == DocumentStatus.READY) {
+        document.completeIngestion(chunkCount);
+      } else if (status == DocumentStatus.FAILED) {
+        document.failIngestion();
+      }
+      return document;
+    }
+  }
+}

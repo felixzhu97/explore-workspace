@@ -1,0 +1,40 @@
+package com.ai.common.infra.config;
+
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+/**
+ * Web CORS configuration. CORS origins are externalized via application properties. Uses
+ * allowedOriginPatterns to support wildcards.
+ */
+@Configuration
+@EnableConfigurationProperties(CorsProperties.class)
+@RequiredArgsConstructor
+public class WebCorsConfig implements WebMvcConfigurer {
+
+  private static final String API_PATH_PATTERN = "/api/**";
+
+  private final CorsProperties corsProperties;
+
+  @Override
+  public void addCorsMappings(CorsRegistry registry) {
+    List<String> allowedOrigins = corsProperties.getAllowedOriginPatterns();
+    if (allowedOrigins == null || allowedOrigins.isEmpty()) {
+      return;
+    }
+
+    List<String> patterns = allowedOrigins.stream().map(String::trim).toList();
+
+    registry
+        .addMapping(API_PATH_PATTERN)
+        .allowedOriginPatterns(patterns.toArray(String[]::new))
+        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+        .allowedHeaders("*")
+        .allowCredentials(true)
+        .maxAge(3600);
+  }
+}

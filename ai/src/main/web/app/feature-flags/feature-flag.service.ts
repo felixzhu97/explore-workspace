@@ -1,0 +1,68 @@
+import { Service, signal } from '@angular/core';
+import { createClient, type LDClient } from '@launchdarkly/js-client-sdk';
+import { environment } from '../../environments/environment';
+import {
+  FEATURE_FLAG_KEYS,
+  type FeatureFlagKey,
+  MODULE_FLAG_FALLBACK,
+} from './feature-flag-keys';
+import { hasAnalyticsConsent } from '../privacy/privacy-consent.storage';
+
+const FLAG_KEYS = Object.values(FEATURE_FLAG_KEYS);
+
+@Service()
+export class FeatureFlagService {
+  readonly #flags = signal<Record<FeatureFlagKey, boolean>>(MODULE_FLAG_FALLBACK);
+  #ldStarted = false;
+
+  /** Starts LaunchDarkly when it is set up and analytics are allowed. */
+  async initialize(): Promise<void> {
+    const clientSideId = environment.launchDarklyClientSideId;
+    if (clientSideId === '' || !hasAnalyticsConsent()) {
+      this.#flags.set(environment.featureFlagFallback);
+      return;
+    }
+
+    if (this.#ldStarted) {
+      return;
+    }
+    this.#ldStarted = true;
+
+    const client = createClient(clientSideId, {
+      kind: 'user',
+      key: 'explore-ai-browser',
+      anonymous: true,
+    });
+
+    client.on('change', () => this.#syncFlags(client));
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('LaunchDarkly init timeout')), 5000);
+    });
+
+    try {
+      await Promise.race([client.start(), timeoutPromise]);
+    } catch {
+      this.#flags.set(environment.featureFlagFallback);
+      return;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    this.#syncFlags(client);
+  }
+
+  /** Tells whether the flag is on. */
+  isEnabled(key: FeatureFlagKey): boolean {
+    return this.#flags()[key] === true;
+  }
+
+  #syncFlags(client: LDClient): void {
+    const values = {} as Record<FeatureFlagKey, boolean>;
+    for (const key of FLAG_KEYS) {
+      values[key] = client.boolVariation(key, environment.featureFlagFallback[key]);
+    }
+    this.#flags.set(values);
+  }
+}

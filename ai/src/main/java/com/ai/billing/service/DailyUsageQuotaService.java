@@ -1,0 +1,111 @@
+package com.ai.billing.service;
+
+import com.ai.billing.domain.model.DailyUsage;
+import com.ai.billing.domain.model.QuotaDecision;
+import com.ai.billing.domain.model.QuotaPolicy;
+import com.ai.billing.domain.model.QuotaSubject;
+import com.ai.common.domain.model.OwnerKey;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+/** Shared in-process daily quota counter for HTTP filter and background automations. */
+@Service
+@RequiredArgsConstructor
+public class DailyUsageQuotaService {
+
+  private static final int MAX_TRACKED_KEYS = 100_000;
+
+  private final BillingPlanService billingPlanService;
+  private final Cache<String, DailyUsage> counters =
+      Caffeine.newBuilder()
+          .expireAfterAccess(Duration.ofDays(2))
+          .maximumSize(MAX_TRACKED_KEYS)
+          .build();
+
+  /** Tells whether the daily quota is enforced. */
+  public boolean isEnabled() {
+    return billingPlanService.currentPolicy().isEnforced();
+  }
+
+  /** Consumes one unit of the owner and global quota for background work that has no client IP. */
+  public boolean tryConsume(OwnerKey owner) {
+    return tryConsume(QuotaSubject.createOwnerSubject(owner), null).isAllowed();
+  }
+
+  /**
+   * Atomically consumes one unit of the owner, IP and global daily quota. Nothing is consumed when
+   * any of them is exhausted.
+   *
+   * @param owner owner counter, or {@code null} when the request has no Client Identity
+   * @param address client IP, or {@code null} to skip the per-IP limit
+   */
+  public QuotaDecision tryConsume(QuotaSubject owner, String address) {
+    QuotaPolicy policy = billingPlanService.currentPolicy();
+    List<Charge> charges = new ArrayList<>(3);
+    if (owner != null) {
+      charges.add(new Charge(owner, policy.getDailyLimit()));
+    }
+    if (address != null) {
+      charges.add(new Charge(QuotaSubject.createAddressSubject(address), policy.ipDailyLimit()));
+    }
+    policy
+        .globalDailyLimit()
+        .ifPresent(limit -> charges.add(new Charge(QuotaSubject.GLOBAL, limit)));
+    Charge shown = charges.isEmpty() ? null : charges.getFirst();
+    int shownLimit = shown == null ? policy.getDailyLimit() : shown.limit();
+    if (!policy.isEnforced() || shown == null) {
+      return QuotaDecision.createApproval(policy.getPlan(), shownLimit, shownLimit);
+    }
+
+    LocalDate today = currentDate();
+    List<Charge> consumed = new ArrayList<>(charges.size());
+    for (Charge charge : charges) {
+      if (!consumeQuota(charge, today)) {
+        consumed.forEach(done -> releaseQuota(done.subject(), today));
+        return QuotaDecision.createRefusal(policy.getPlan(), shownLimit);
+      }
+      consumed.add(charge);
+    }
+    return QuotaDecision.createApproval(
+        policy.getPlan(), shownLimit, calculateRemaining(shown, today));
+  }
+
+  private boolean consumeQuota(Charge charge, LocalDate today) {
+    boolean[] granted = {false};
+    counters
+        .asMap()
+        .compute(
+            charge.subject().getKey(),
+            (key, usage) -> {
+              DailyUsage current = usage == null ? DailyUsage.createEmptyUsage(today) : usage;
+              if (current.calculateRemaining(charge.limit(), today) == 0) {
+                return current;
+              }
+              granted[0] = true;
+              return current.consumeQuota(today);
+            });
+    return granted[0];
+  }
+
+  private void releaseQuota(QuotaSubject subject, LocalDate today) {
+    counters.asMap().computeIfPresent(subject.getKey(), (key, usage) -> usage.release(today));
+  }
+
+  private int calculateRemaining(Charge charge, LocalDate today) {
+    DailyUsage usage = counters.getIfPresent(charge.subject().getKey());
+    return usage == null ? charge.limit() : usage.calculateRemaining(charge.limit(), today);
+  }
+
+  private static LocalDate currentDate() {
+    return LocalDate.now(ZoneOffset.UTC);
+  }
+
+  private record Charge(QuotaSubject subject, int limit) {}
+}

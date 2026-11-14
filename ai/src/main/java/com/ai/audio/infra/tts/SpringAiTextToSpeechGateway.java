@@ -1,0 +1,45 @@
+package com.ai.audio.infra.tts;
+
+import com.ai.audio.domain.model.SpeechText;
+import com.ai.audio.domain.model.SynthesizedAudio;
+import com.ai.audio.domain.model.VoiceSelection;
+import com.ai.audio.domain.repository.TextToSpeechGateway;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ai.audio.tts.TextToSpeechModel;
+import org.springframework.ai.audio.tts.TextToSpeechPrompt;
+import org.springframework.ai.audio.tts.TextToSpeechResponse;
+import org.springframework.ai.openai.OpenAiAudioSpeechOptions;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
+
+/** OpenAI text-to-speech repository via Spring AI, active when the TTS provider is openai. */
+@Repository
+@ConditionalOnProperty(name = "app.ai.tts.provider", havingValue = "openai")
+@RequiredArgsConstructor
+public class SpringAiTextToSpeechGateway implements TextToSpeechGateway {
+
+  private final TextToSpeechModel textToSpeechModel;
+
+  @Override
+  public SynthesizedAudio synthesizeSpeech(
+      SpeechText text, VoiceSelection voiceSelection, Double speed) {
+    OpenAiAudioSpeechOptions.Builder optionsBuilder =
+        OpenAiAudioSpeechOptions.builder().voice(voiceSelection.getVoice());
+    if (StringUtils.hasText(voiceSelection.getModel())) {
+      optionsBuilder.model(voiceSelection.getModel());
+    }
+    if (speed != null) {
+      optionsBuilder.speed(speed);
+    }
+
+    TextToSpeechPrompt prompt = new TextToSpeechPrompt(text.getValue(), optionsBuilder.build());
+    TextToSpeechResponse response = textToSpeechModel.call(prompt);
+
+    if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {
+      byte[] audio = response.getResults().getFirst().getOutput();
+      return SynthesizedAudio.createAudio(audio);
+    }
+    return SynthesizedAudio.createEmptyAudio();
+  }
+}

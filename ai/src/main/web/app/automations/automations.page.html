@@ -1,0 +1,268 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col gap-6">
+  <header class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <p class="text-xs tracking-[0.16em] text-muted-foreground uppercase">ExploreAI</p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+        {{ i18n.t().automations.title }}
+      </h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ i18n.t().automations.subtitle }}</p>
+    </div>
+    <button type="button" z-button zType="default" zSize="sm" (click)="startCreate()">
+      {{ i18n.t().automations.newSchedule }}
+    </button>
+  </header>
+
+  <div class="flex flex-col gap-6">
+      @if (error() !== null) {
+        <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {{ error() }}
+        </p>
+      }
+
+      @if (enabledTemplates().length === 0) {
+        <p class="text-sm text-foreground/60">{{ i18n.t().automations.noPipelineTemplates }}</p>
+      }
+
+      @if (showForm()) {
+        <section class="rounded-xl border border-black/8 bg-white p-4">
+          <div class="mt-1 flex flex-col gap-3">
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().common.name }}
+              <input
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [formField]="draftForm.name"
+              />
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automations.pipelineTemplate }}
+              <select
+                #templateSelect
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                (change)="onTemplateChange(templateSelect.value)"
+              >
+                <option value="" disabled [selected]="draftForm.templateId().value() === ''">
+                  {{ i18n.t().automations.pipelineTemplatePlaceholder }}
+                </option>
+                @for (template of enabledTemplates(); track template.id) {
+                  <option
+                    [value]="template.id"
+                    [selected]="template.id === draftForm.templateId().value()"
+                  >
+                    {{ template.name }}
+                  </option>
+                }
+              </select>
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automations.email }}
+              <input
+                type="email"
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [formField]="draftForm.email"
+              />
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automations.timezone }}
+              <input
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [formField]="draftForm.timezone"
+              />
+            </label>
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automations.frequency }}
+              <select
+                #presetSelect
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                (change)="onPresetChange(presetSelect.value)"
+              >
+                @let preset = draftForm.preset().value();
+                <option value="daily" [selected]="preset === 'daily'">
+                  {{ i18n.t().automations.frequencyDaily }}
+                </option>
+                <option value="weekly" [selected]="preset === 'weekly'">
+                  {{ i18n.t().automations.frequencyWeekly }}
+                </option>
+                <option value="custom" [selected]="preset === 'custom'">
+                  {{ i18n.t().automations.frequencyCustom }}
+                </option>
+              </select>
+            </label>
+            @if (draftForm.preset().value() === 'custom') {
+              <div
+                data-run-at
+                class="rounded-xl border border-black/15 bg-black/[0.03] p-3"
+              >
+                <div class="mb-2 flex flex-col gap-0.5">
+                  <span class="text-xs font-semibold text-foreground">
+                    {{ i18n.t().automations.runAt }}
+                  </span>
+                  <span class="text-[11px] font-normal text-foreground/55">
+                    {{ i18n.t().automations.runAtHint }}
+                  </span>
+                </div>
+                <app-instant-picker
+                  dropdownClass="run-at-picker-popup"
+                  [placeholder]="i18n.t().automations.runAtPlaceholder"
+                  [disablePast]="true"
+                  [formField]="draftForm.runAt"
+                />
+              </div>
+            }
+            <label class="text-xs font-medium text-foreground/70">
+              {{ i18n.t().automations.brief }}
+              <textarea
+                rows="4"
+                class="mt-1 w-full rounded-lg border border-black/10 px-3 py-2 text-sm"
+                [placeholder]="i18n.t().automations.briefPlaceholder"
+                [formField]="draftForm.brief"
+              ></textarea>
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                z-button
+                zType="default"
+                zSize="sm"
+                [zDisabled]="isSaving()"
+                (click)="save()"
+              >
+                {{ isSaving() ? i18n.t().common.saving : i18n.t().common.save }}
+              </button>
+              <button type="button" z-button zType="ghost" zSize="sm" (click)="cancelForm()">
+                {{ i18n.t().common.cancel }}
+              </button>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section>
+        @if (isLoading()) {
+          <p class="text-sm text-foreground/50">…</p>
+        } @else if (schedules().length === 0) {
+          <div class="rounded-xl border border-dashed border-black/15 px-4 py-8 text-center">
+            <p class="text-sm font-medium text-foreground">{{ i18n.t().automations.emptyState }}</p>
+            <p class="mt-1 text-xs text-foreground/55">{{ i18n.t().automations.emptyStateHint }}</p>
+          </div>
+        } @else {
+          <ul class="flex flex-col gap-3">
+            @for (schedule of schedules(); track schedule.id) {
+              <li class="rounded-xl border border-black/8 bg-white p-4">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="text-sm font-medium text-foreground">{{ schedule.name }}</p>
+                      <span
+                        class="rounded-md px-1.5 py-0.5 text-[11px] font-medium"
+                        [class.bg-black/6]="schedule.enabled && !isOnceCompleted(schedule)"
+                        [class.text-foreground/70]="schedule.enabled && !isOnceCompleted(schedule)"
+                        [class.bg-emerald-50]="isOnceCompleted(schedule)"
+                        [class.text-emerald-800]="isOnceCompleted(schedule)"
+                        [class.bg-black/4]="!schedule.enabled && !isOnceCompleted(schedule)"
+                        [class.text-foreground/45]="!schedule.enabled && !isOnceCompleted(schedule)"
+                      >
+                        {{ formatStatusLabel(schedule) }}
+                      </span>
+                    </div>
+                    <p class="mt-1 text-xs text-foreground/55">
+                      {{ getTemplateName(schedule.pipelineTemplateId) }} ·
+                      {{ schedule.recipientEmail }}
+                    </p>
+                    <p class="mt-1 text-xs text-foreground/45">
+                      {{ scheduleSummary(schedule) }}
+                    </p>
+                    @if (isOnceCompleted(schedule)) {
+                      <p class="mt-1 text-xs text-emerald-800/80">
+                        {{ i18n.t().automations.onceCompletedHint }}
+                      </p>
+                    }
+                    <p class="mt-1 text-xs text-foreground/45">
+                      {{ i18n.t().automations.nextRun }}:
+                      {{ formatNextRun(schedule) }}
+                      · {{ i18n.t().automations.lastRun }}:
+                      {{ formatDateTime(schedule.lastRunAt) }}
+                    </p>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      z-button
+                      zType="outline"
+                      zSize="sm"
+                      (click)="startEdit(schedule)"
+                    >
+                      {{ i18n.t().common.edit }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="ghost"
+                      zSize="sm"
+                      (click)="toggleEnabled(schedule)"
+                    >
+                      {{
+                        isOnceCompleted(schedule)
+                          ? i18n.t().automations.reschedule
+                          : schedule.enabled
+                            ? i18n.t().automations.disable
+                            : i18n.t().automations.enable
+                      }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="ghost"
+                      zSize="sm"
+                      (click)="showHistory(schedule)"
+                    >
+                      {{ i18n.t().automations.history }}
+                    </button>
+                    <button
+                      type="button"
+                      z-button
+                      zType="destructive"
+                      zSize="sm"
+                      (click)="remove(schedule)"
+                    >
+                      {{ i18n.t().common.delete }}
+                    </button>
+                  </div>
+                </div>
+
+                @if (historyScheduleId() === schedule.id) {
+                  <div class="mt-4 border-t border-black/6 pt-3">
+                    <p class="text-xs font-medium text-foreground/70">
+                      {{ i18n.t().automations.history }}
+                    </p>
+                    @if (runs().length === 0) {
+                      <p class="mt-2 text-xs text-foreground/45">—</p>
+                    } @else {
+                      <ul class="mt-2 flex flex-col gap-2">
+                        @for (run of runs(); track run.id) {
+                          <li class="rounded-lg bg-black/[0.03] px-3 py-2 text-xs text-foreground/70">
+                            <div class="flex flex-wrap gap-2">
+                              <span
+                                >{{ i18n.t().automations.runStatus }}: {{ run.status }}</span
+                              >
+                              <span
+                                >{{ i18n.t().automations.emailStatus }}:
+                                {{ run.emailStatus }}</span
+                              >
+                              <span>{{ formatDateTime(run.startedAt) }}</span>
+                            </div>
+                            @if (run.errorMessage !== null) {
+                              <p class="mt-1 text-red-600">{{ run.errorMessage }}</p>
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+  </div>
+</div>

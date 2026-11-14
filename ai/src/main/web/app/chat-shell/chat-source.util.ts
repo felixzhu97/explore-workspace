@@ -1,0 +1,87 @@
+import type { ChatSourceView } from './chat-bubble-list.component';
+import { hasText, textOr } from '../shared/presence';
+
+const LABEL_MAX_CHARS = 14;
+const TITLE_MAX_CHARS = 80;
+
+/** Shortens text to the limit and adds an ellipsis. */
+export function truncateText(text: string, max: number): string {
+  if (text === '') {
+    return '';
+  }
+  return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
+}
+
+/** Returns the source host without www, or empty. */
+export function getSourceHostname(source: ChatSourceView): string {
+  const raw = source.url?.trim();
+  if (!hasText(raw)) {
+    return '';
+  }
+  try {
+    const host = new URL(raw).hostname.toLowerCase();
+    return host.startsWith('www.') ? host.slice(4) : host;
+  } catch {
+    return '';
+  }
+}
+
+/** Returns a short label for the source. */
+export function getSourceLabel(source: ChatSourceView, fallback: string): string {
+  const host = getSourceHostname(source);
+  if (host !== '') {
+    return truncateText(host, LABEL_MAX_CHARS);
+  }
+  const title = source.title?.trim();
+  if (hasText(title)) {
+    return truncateText(title, LABEL_MAX_CHARS);
+  }
+  return textOr(truncateText(source.text, LABEL_MAX_CHARS), fallback);
+}
+
+/** Returns the favicon URL of the source host. */
+export function getSourceFaviconUrl(source: ChatSourceView): string | null {
+  const host = getSourceHostname(source);
+  if (host === '') {
+    return null;
+  }
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=32`;
+}
+
+/** Returns the first letter of the source label. */
+export function getSourceInitial(source: ChatSourceView, fallback: string): string {
+  const label = getSourceLabel(source, fallback).trim();
+  return (label === '' ? '?' : label.charAt(0)).toUpperCase();
+}
+
+/** Returns the source title, falling back to its host. */
+export function getSourceTitle(source: ChatSourceView, fallback: string): string {
+  const title = source.title?.trim();
+  if (hasText(title)) {
+    return title;
+  }
+  const host = getSourceHostname(source);
+  if (host !== '') {
+    return host;
+  }
+  return textOr(truncateText(source.text, TITLE_MAX_CHARS), fallback);
+}
+
+/** Returns the publish date of the source, or empty. */
+export function getSourcePublishedAt(source: ChatSourceView): string {
+  const direct = source.publishedAt?.trim();
+  if (hasText(direct)) {
+    return direct;
+  }
+  const meta = source.metadata;
+  if (meta === undefined) {
+    return '';
+  }
+  for (const key of ['publishedAt', 'date', 'published', 'published_at']) {
+    const value = meta[key];
+    if (typeof value === 'string' && value.trim() !== '') {
+      return value.trim();
+    }
+  }
+  return '';
+}

@@ -1,0 +1,246 @@
+package com.ai.metrics.domain.model;
+
+import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
+import com.ai.common.domain.model.DomainStrings;
+import com.ai.common.domain.model.OwnerKey;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Immutable;
+
+/**
+ * Append-only record of a single AI invocation for metrics and drill-down. Owner, outcome and error
+ * are fixed at creation, so success events never carry an error and failures always do.
+ */
+@Entity
+@Immutable
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEventId> {
+
+  @NotNull
+  @Column(nullable = false, updatable = false)
+  private Instant occurredAt;
+
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 32)
+  private AiCapability capability;
+
+  @NotBlank
+  @Size(max = 64)
+  @Column(nullable = false, length = 64)
+  private String operation;
+
+  @NotNull
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 16)
+  private InvocationOutcome outcome;
+
+  @Column(nullable = false)
+  private long latencyMs;
+
+  @Size(max = 64)
+  @Column(length = 64)
+  private String provider;
+
+  @Size(max = 128)
+  @Column(length = 128)
+  private String model;
+
+  @Size(max = 36)
+  @Column(length = 36)
+  private String sessionId;
+
+  @Size(max = 36)
+  @Column(length = 36)
+  private String documentId;
+
+  @Size(max = 64)
+  @Column(length = 64)
+  private String agentType;
+
+  @Size(max = 128)
+  @Column(length = 128)
+  private String toolName;
+
+  @Column private Integer promptTokens;
+
+  @Column private Integer completionTokens;
+
+  @Size(max = 64)
+  @Column(length = 64)
+  private String errorCode;
+
+  @Size(max = 512)
+  @Column(length = 512)
+  private String errorMessage;
+
+  private AiInvocationEvent(Builder builder) {
+    super(
+        builder.id != null
+            ? InvocationEventId.createId(builder.id)
+            : InvocationEventId.generateId(),
+        builder.ownerKey);
+    this.occurredAt = Objects.requireNonNullElseGet(builder.occurredAt, Instant::now);
+    this.capability = builder.capability;
+    this.operation = builder.operation;
+    this.outcome = builder.outcome;
+    this.latencyMs = builder.latency.getMillis();
+    this.errorCode = builder.error == null ? null : builder.error.getCode();
+    this.errorMessage = builder.error == null ? null : builder.error.getMessage();
+    this.provider = toNullIfBlank(builder.provider);
+    this.model = toNullIfBlank(builder.model);
+    this.sessionId = toNullIfBlank(builder.sessionId);
+    this.documentId = toNullIfBlank(builder.documentId);
+    this.agentType = toNullIfBlank(builder.agentType);
+    this.toolName = toNullIfBlank(builder.toolName);
+    this.promptTokens = builder.tokens.getPrompt();
+    this.completionTokens = builder.tokens.getCompletion();
+  }
+
+  /** Starts a successful invocation event; optional context goes on the returned builder. */
+  public static Builder createSucceededEvent(
+      AiCapability capability, String operation, Latency latency, OwnerKey ownerKey) {
+    return new Builder(capability, operation, InvocationOutcome.SUCCESS, latency, ownerKey, null);
+  }
+
+  /** Starts a failed invocation event; optional context goes on the returned builder. */
+  public static Builder createFailedEvent(
+      AiCapability capability,
+      String operation,
+      Latency latency,
+      OwnerKey ownerKey,
+      ErrorSummary error) {
+    return new Builder(
+        capability,
+        operation,
+        InvocationOutcome.ERROR,
+        latency,
+        ownerKey,
+        Objects.requireNonNull(error, "error"));
+  }
+
+  /** Returns how long the invocation took. */
+  public Latency latency() {
+    return Latency.createFromMillis(latencyMs);
+  }
+
+  /** Returns the error of a failed invocation, or empty when it succeeded. */
+  public Optional<ErrorSummary> error() {
+    return outcome == InvocationOutcome.ERROR
+        ? Optional.of(ErrorSummary.createSummary(errorCode, errorMessage))
+        : Optional.empty();
+  }
+
+  private static String toNullIfBlank(String value) {
+    return value == null || value.isBlank() ? null : value.trim();
+  }
+
+  /**
+   * Optional context of an event started by {@link #createSucceededEvent} or {@link
+   * #createFailedEvent}.
+   */
+  public static final class Builder {
+    private final AiCapability capability;
+    private final String operation;
+    private final InvocationOutcome outcome;
+    private final Latency latency;
+    private final OwnerKey ownerKey;
+    private final ErrorSummary error;
+    private UUID id;
+    private Instant occurredAt;
+    private String provider;
+    private String model;
+    private String sessionId;
+    private String documentId;
+    private String agentType;
+    private String toolName;
+    private TokenUsage tokens = TokenUsage.UNKNOWN;
+
+    private Builder(
+        AiCapability capability,
+        String operation,
+        InvocationOutcome outcome,
+        Latency latency,
+        OwnerKey ownerKey,
+        ErrorSummary error) {
+      this.capability = Objects.requireNonNull(capability, "capability");
+      this.operation = DomainStrings.requireNonBlank(operation, "operation");
+      this.outcome = outcome;
+      this.latency = Objects.requireNonNull(latency, "latency");
+      this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");
+      this.error = error;
+    }
+
+    /** Sets the id of a stored event. */
+    public Builder id(UUID id) {
+      this.id = id;
+      return this;
+    }
+
+    /** Sets when a stored event happened. */
+    public Builder occurredAt(Instant occurredAt) {
+      this.occurredAt = occurredAt;
+      return this;
+    }
+
+    /** Sets the provider. */
+    public Builder provider(String provider) {
+      this.provider = provider;
+      return this;
+    }
+
+    /** Sets the model. */
+    public Builder model(String model) {
+      this.model = model;
+      return this;
+    }
+
+    /** Sets the chat session id. */
+    public Builder sessionId(String sessionId) {
+      this.sessionId = sessionId;
+      return this;
+    }
+
+    /** Sets the document id. */
+    public Builder documentId(String documentId) {
+      this.documentId = documentId;
+      return this;
+    }
+
+    /** Sets the agent type. */
+    public Builder agentType(String agentType) {
+      this.agentType = agentType;
+      return this;
+    }
+
+    /** Sets the tool name. */
+    public Builder toolName(String toolName) {
+      this.toolName = toolName;
+      return this;
+    }
+
+    /** Sets the token counts. */
+    public Builder tokens(TokenUsage tokens) {
+      this.tokens = Objects.requireNonNull(tokens, "tokens");
+      return this;
+    }
+
+    /** Builds the event. */
+    public AiInvocationEvent build() {
+      return new AiInvocationEvent(this);
+    }
+  }
+}

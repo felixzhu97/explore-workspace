@@ -1,0 +1,59 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm run build",
+  "outputDirectory": "dist/web/browser",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "*": false,
+      "feat/**": false,
+      "feature/**": false,
+      "fix/**": false,
+      "ci/**": false,
+      "test/**": false,
+      "chore/**": false,
+      "docs/**": false,
+      "refactor/**": false,
+      "perf/**": false
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://vercel.live; script-src 'self' 'unsafe-inline' https://*.launchdarkly.com https://www.datadoghq-browser-agent.com https://*.datadoghq.com https://static.cloudflareinsights.com https://vercel.live; connect-src 'self' https://*.launchdarkly.com https://*.datadoghq.com https://browser-intake-us5-datadoghq.com https://*.onrender.com wss://*.onrender.com https://vercel.live wss://ws-us3.pusher.com; font-src 'self' data: https://vercel.live https://assets.vercel.com; frame-src https://vercel.live; form-action 'self'"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://explore-ai-3krr.onrender.com/api/:path*"
+    },
+    {
+      "source": "/oauth2/:path*",
+      "destination": "https://explore-ai-3krr.onrender.com/oauth2/:path*"
+    },
+    {
+      "source": "/login/oauth2/:path*",
+      "destination": "https://explore-ai-3krr.onrender.com/login/oauth2/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

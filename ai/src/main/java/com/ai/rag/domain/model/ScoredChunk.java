@@ -1,0 +1,32 @@
+package com.ai.rag.domain.model;
+
+import java.util.Comparator;
+import java.util.Objects;
+import lombok.Value;
+
+/** A chunk with its similarity to one query, computed once. */
+@Value
+public class ScoredChunk {
+  DocumentChunk chunk;
+  double score;
+
+  /** Orders the most similar chunk first. */
+  public static final Comparator<ScoredChunk> BEST_FIRST =
+      Comparator.comparingDouble(ScoredChunk::getScore).reversed();
+
+  public ScoredChunk(DocumentChunk chunk, double score) {
+    Objects.requireNonNull(chunk, "chunk");
+    this.chunk = chunk;
+    this.score = score;
+  }
+
+  /** Scores the chunk against the query embedding. */
+  public static ScoredChunk createScoredChunk(DocumentChunk chunk, float[] queryEmbedding) {
+    return new ScoredChunk(chunk, chunk.calculateSimilarity(queryEmbedding));
+  }
+
+  /** Tells whether the score reaches the threshold. */
+  public boolean meetsThreshold(double threshold) {
+    return score >= threshold;
+  }
+}

@@ -1,0 +1,25 @@
+package com.ai.chat.controller.dto;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+/** Whether a chat provider can serve requests right now. */
+public enum ProviderStatus {
+  AVAILABLE("available"),
+  UNAVAILABLE("unavailable");
+
+  private final String value;
+
+  ProviderStatus(String value) {
+    this.value = value;
+  }
+
+  @JsonValue
+  public String getValue() {
+    return value;
+  }
+
+  /** Maps availability to a provider status. */
+  public static ProviderStatus createStatus(boolean available) {
+    return available ? AVAILABLE : UNAVAILABLE;
+  }
+}

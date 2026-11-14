@@ -1,0 +1,297 @@
+package com.ai.rag.controller;
+
+import static com.ai.testsupport.MvcStreamTestSupport.STREAM_TIMEOUT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import com.ai.common.controller.GlobalExceptionHandler;
+import com.ai.rag.domain.model.DocumentStatus;
+import com.ai.rag.domain.model.RagDocument;
+import com.ai.rag.service.DocumentUploadService;
+import com.ai.rag.service.RagApplicationService;
+import com.ai.rag.service.RagChatService;
+import com.ai.testsupport.AbstractOwnerScopedControllerTest;
+import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.SliceWebMvcTest;
+import com.ai.vision.service.VisionChatService;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import reactor.core.publisher.Flux;
+
+@SliceWebMvcTest(controllers = RagController.class)
+@Import(GlobalExceptionHandler.class)
+@DisplayName("RagController")
+class RagControllerTest extends AbstractOwnerScopedControllerTest {
+
+  @MockitoBean private RagApplicationService ragApplicationService;
+
+  @MockitoBean private RagChatService ragChatService;
+
+  @MockitoBean private VisionChatService visionChatService;
+
+  @MockitoBean private ObjectProvider<VisionChatService> visionChatServiceProvider;
+
+  @BeforeEach
+  void setUpVisionProvider() {
+    when(visionChatServiceProvider.getIfAvailable()).thenReturn(visionChatService);
+  }
+
+  @Nested
+  @DisplayName("GET /api/rag/documents")
+  class ListDocuments {
+
+    @Test
+    @DisplayName("should return list of documents")
+    void shouldReturnListOfDocuments() {
+      RagDocument doc = createTestDocument("Test Doc", DocumentStatus.READY);
+      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
+
+      assertThat(
+              mvc.get()
+                  .uri("/api/rag/documents")
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.documents.length()")
+          .convertTo(Integer.class)
+          .isEqualTo(1);
+      verify(ragApplicationService).listDocuments(ownerKey());
+    }
+
+    @Test
+    @DisplayName("should return stored chunk count for each document")
+    void shouldReturnStoredChunkCountForEachDocument() {
+      RagDocument doc = createTestDocument("Chunked Doc", DocumentStatus.READY, 17);
+      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
+
+      assertThat(
+              mvc.get()
+                  .uri("/api/rag/documents")
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.documents[0].chunkCount")
+          .convertTo(Integer.class)
+          .isEqualTo(17);
+    }
+
+    @Test
+    @DisplayName("should return empty list when no documents")
+    void shouldReturnEmptyListWhenNoDocuments() {
+      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of());
+
+      assertThat(
+              mvc.get()
+                  .uri("/api/rag/documents")
+                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+          .hasStatusOk()
+          .bodyJson()
+          .extractingPath("$.documents.length()")
+          .convertTo(Integer.class)
+          .isEqualTo(0);
+    }
+  }
+
+  @Test
+  @DisplayName("should upload text file successfully")
+  void shouldUploadTextFileSuccessfully() {
+    MockMultipartFile file =
+        new MockMultipartFile("file", "test.txt", "text/plain", "Hello World".getBytes());
+    RagDocument doc = createTestDocument("test.txt", DocumentStatus.READY);
+    DocumentUploadService.UploadResult uploadResult =
+        new DocumentUploadService.UploadResult(
+            doc.getId(), "test.txt", DocumentStatus.READY, 0, Instant.EPOCH);
+    when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
+        .thenReturn(uploadResult);
+
+    assertThat(
+            mvc.post()
+                .multipart()
+                .uri("/api/rag/documents/upload")
+                .file(file)
+                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+        .hasStatus(HttpStatus.CREATED);
+    verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerKey()));
+  }
+
+  @Test
+  @DisplayName("should use custom title when provided")
+  void shouldUseCustomTitleWhenProvided() {
+    MockMultipartFile file =
+        new MockMultipartFile("file", "original.txt", "text/plain", "Content".getBytes());
+    RagDocument doc = createTestDocument("Custom Title", DocumentStatus.READY);
+    DocumentUploadService.UploadResult uploadResult =
+        new DocumentUploadService.UploadResult(
+            doc.getId(), "Custom Title", DocumentStatus.READY, 0, Instant.EPOCH);
+    when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
+        .thenReturn(uploadResult);
+
+    assertThat(
+            mvc.post()
+                .multipart()
+                .uri("/api/rag/documents/upload")
+                .file(file)
+                .param("title", "Custom Title")
+                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+        .hasStatus(HttpStatus.CREATED);
+    verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
+  }
+
+  @Test
+  @DisplayName("should delete document and return 204")
+  void shouldDeleteDocumentAndReturn204() {
+    UUID docId = UUID.randomUUID();
+    doNothing().when(ragApplicationService).deleteDocument(docId, ownerKey());
+
+    assertThat(
+            mvc.delete()
+                .uri("/api/rag/documents/" + docId)
+                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+        .hasStatus(HttpStatus.NO_CONTENT);
+    verify(ragApplicationService).deleteDocument(docId, ownerKey());
+  }
+
+  @Nested
+  @DisplayName("POST /api/rag/chat/stream")
+  class RagChatStream {
+
+    @Test
+    @DisplayName("should handle RAG chat request")
+    void shouldHandleRagChatRequest() {
+      when(ragChatService.streamChat(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerKey())))
+          .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response ").build()));
+
+      assertThat(
+              mvc.post()
+                  .uri("/api/rag/chat/stream")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"What is AI?\"}")
+                  .exchange(STREAM_TIMEOUT))
+          .hasStatusOk()
+          .bodyText()
+          .asString()
+          .contains("AI response");
+      verify(ragChatService)
+          .streamChat(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerKey()));
+      verifyNoInteractions(visionChatService);
+    }
+
+    @Test
+    @DisplayName("should use documentIds when provided")
+    void shouldUseDocIdsWhenProvided() {
+      List<String> documentIds = List.of(UUID.randomUUID().toString());
+      when(ragChatService.streamChat(
+              eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerKey())))
+          .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
+
+      assertThat(
+              mvc.post()
+                  .uri("/api/rag/chat/stream")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "question": "Question",
+                        "documentIds": ["%s"]
+                      }
+                      """
+                          .formatted(documentIds.getFirst()))
+                  .exchange(STREAM_TIMEOUT))
+          .hasStatusOk();
+      verify(ragChatService)
+          .streamChat(eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerKey()));
+    }
+
+    @Test
+    @DisplayName("should use custom topK when provided")
+    void shouldUseCustomTopKWhenProvided() {
+      when(ragChatService.streamChat(eq("Question"), isNull(), eq(10), isNull(), eq(ownerKey())))
+          .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
+
+      assertThat(
+              mvc.post()
+                  .uri("/api/rag/chat/stream")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"Question\",\"topK\":10}")
+                  .exchange(STREAM_TIMEOUT))
+          .hasStatusOk();
+      verify(ragChatService).streamChat(eq("Question"), isNull(), eq(10), isNull(), eq(ownerKey()));
+    }
+
+    @Test
+    @DisplayName("should stream vision RAG when images provided")
+    void shouldStreamVisionRagWhenImagesProvided() {
+      List<String> images = List.of("iVBORw0KGgo=");
+      when(visionChatService.streamChatWithImages(
+              eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerKey())))
+          .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("token").build()));
+
+      assertThat(
+              mvc.post()
+                  .uri("/api/rag/chat/stream")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(
+                      """
+                      {
+                        "question": "Describe image",
+                        "images": ["iVBORw0KGgo="]
+                      }
+                      """)
+                  .exchange(STREAM_TIMEOUT))
+          .hasStatusOk();
+      verify(visionChatService)
+          .streamChatWithImages(eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerKey()));
+      verify(ragChatService, never()).streamChat(any(), any(), anyInt(), any(), any());
+    }
+
+    @Test
+    @DisplayName("should propagate stream error from service")
+    void shouldPropagateStreamErrorFromService() {
+      when(ragChatService.streamChat(any(), any(), anyInt(), any(), any()))
+          .thenReturn(Flux.error(new RuntimeException("Service error")));
+
+      assertThat(
+              mvc.post()
+                  .uri("/api/rag/chat/stream")
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content("{\"question\":\"Question\"}")
+                  .exchange(STREAM_TIMEOUT))
+          .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+      verify(ragChatService).streamChat(eq("Question"), isNull(), eq(5), isNull(), eq(ownerKey()));
+    }
+  }
+
+  private RagDocument createTestDocument(String title, DocumentStatus status) {
+    return createTestDocument(title, status, status == DocumentStatus.READY ? 1 : 0);
+  }
+
+  private RagDocument createTestDocument(String title, DocumentStatus status, int chunkCount) {
+    RagDocument document = RagDocument.startIngestion(title, title, 1024L, "c:test");
+    if (status == DocumentStatus.READY) {
+      document.completeIngestion(chunkCount);
+    } else if (status == DocumentStatus.FAILED) {
+      document.failIngestion();
+    }
+    return document;
+  }
+}

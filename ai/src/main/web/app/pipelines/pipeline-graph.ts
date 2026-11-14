@@ -1,0 +1,165 @@
+export interface PipelineNode {
+  id: string;
+  agentType: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  tools: string[];
+  position: { x: number; y: number };
+}
+
+export interface PipelineConnection {
+  id: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+}
+
+export interface PipelineGraph {
+  nodes: PipelineNode[];
+  connections: PipelineConnection[];
+}
+
+export interface PipelineInvokeRequest {
+  message: string;
+  nodes: {
+    id: string;
+    agentType: string;
+    name?: string;
+    description?: string;
+    systemPrompt?: string;
+    tools?: string[];
+  }[];
+  edges: { sourceId: string; targetId: string }[];
+}
+
+export type PipelineValidationResult =
+  | { ok: true; order: string[] }
+  | { ok: false; reason: string };
+
+/** Builds the output connector id of a node. */
+export function buildConnectorOutId(nodeId: string): string {
+  return `${nodeId}-out`;
+}
+
+/** Builds the input connector id of a node. */
+export function buildConnectorInId(nodeId: string): string {
+  return `${nodeId}-in`;
+}
+
+/** Reads the node id from a connector id. */
+export function parseNodeIdFromConnector(connectorId: string): string {
+  return connectorId.replace(/-(out|in)$/, '');
+}
+
+/** Checks that the graph is a single connected chain without cycles. */
+export function validatePipeline(graph: PipelineGraph): PipelineValidationResult {
+  const { nodes, connections } = graph;
+  if (nodes.length === 0) {
+    return { ok: false, reason: 'empty' };
+  }
+
+  const byId = new Map(nodes.map(node => [node.id, node]));
+  const outgoing = new Map<string, Set<string>>();
+  const indegree = new Map<string, number>();
+  for (const node of nodes) {
+    outgoing.set(node.id, new Set());
+    indegree.set(node.id, 0);
+  }
+
+  for (const edge of connections) {
+    if (!byId.has(edge.sourceNodeId) || !byId.has(edge.targetNodeId)) {
+      return { ok: false, reason: 'unknownEdge' };
+    }
+    if (edge.sourceNodeId === edge.targetNodeId) {
+      return { ok: false, reason: 'selfLoop' };
+    }
+    const outs = outgoing.get(edge.sourceNodeId);
+    if (outs !== undefined && !outs.has(edge.targetNodeId)) {
+      outs.add(edge.targetNodeId);
+      indegree.set(edge.targetNodeId, (indegree.get(edge.targetNodeId) ?? 0) + 1);
+    }
+  }
+
+  if (nodes.length > 1 && connections.length === 0) {
+    return { ok: false, reason: 'needConnections' };
+  }
+
+  if (nodes.length > 1 && hasOrphan(nodes.map(n => n.id), outgoing)) {
+    return { ok: false, reason: 'orphan' };
+  }
+
+  const ready = [...indegree.entries()]
+    .filter(([, degree]) => degree === 0)
+    .map(([id]) => id);
+  const remaining = new Map(indegree);
+  const order: string[] = [];
+
+  for (let id = ready.shift(); id !== undefined; id = ready.shift()) {
+    const node = byId.get(id);
+    if (node !== undefined) {
+      order.push(node.agentType);
+    }
+    for (const next of outgoing.get(id) ?? []) {
+      const nextDegree = (remaining.get(next) ?? 0) - 1;
+      remaining.set(next, nextDegree);
+      if (nextDegree === 0) {
+        ready.push(next);
+      }
+    }
+  }
+
+  if (order.length !== nodes.length) {
+    return { ok: false, reason: 'cycle' };
+  }
+  return { ok: true, order };
+}
+
+function hasOrphan(ids: string[], outgoing: Map<string, Set<string>>): boolean {
+  const undirected = new Map<string, Set<string>>();
+  for (const id of ids) {
+    undirected.set(id, new Set());
+  }
+  for (const [source, targets] of outgoing) {
+    for (const target of targets) {
+      undirected.get(source)?.add(target);
+      undirected.get(target)?.add(source);
+    }
+  }
+  const [start] = ids;
+  if (start === undefined) {
+    return false;
+  }
+  const visited = new Set<string>([start]);
+  const queue = [start];
+  for (let current = queue.shift(); current !== undefined; current = queue.shift()) {
+    for (const next of undirected.get(current) ?? []) {
+      if (!visited.has(next)) {
+        visited.add(next);
+        queue.push(next);
+      }
+    }
+  }
+  return visited.size !== ids.length;
+}
+
+/** Builds the run request for the graph. */
+export function toPipelineInvokeRequest(
+  message: string,
+  graph: PipelineGraph,
+): PipelineInvokeRequest {
+  return {
+    message,
+    nodes: graph.nodes.map(node => ({
+      id: node.id,
+      agentType: node.agentType,
+      name: node.name,
+      description: node.description,
+      systemPrompt: node.systemPrompt,
+      tools: node.tools,
+    })),
+    edges: graph.connections.map(edge => ({
+      sourceId: edge.sourceNodeId,
+      targetId: edge.targetNodeId,
+    })),
+  };
+}

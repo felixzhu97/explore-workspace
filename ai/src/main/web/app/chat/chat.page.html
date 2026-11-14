@@ -1,0 +1,135 @@
+<!-- Compact controls; compose area stays primary -->
+<div
+  class="relative z-20 flex shrink-0 items-center gap-2 bg-white px-3 py-2 sm:px-4"
+>
+  <div class="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto sm:gap-2">
+    <z-select
+      class="min-w-28 sm:min-w-32"
+      zSize="sm"
+      [zValue]="chat.selectedProvider()"
+      (zSelectionChange)="onProviderChange($event)"
+    >
+      @for (provider of chat.providers(); track provider.name) {
+        <z-select-item
+          [zValue]="provider.name"
+          [zDisabled]="provider.status === 'unavailable'"
+        >
+          {{ provider.displayName }}{{ provider.status === 'unavailable' ? ' (unavailable)' : '' }}
+        </z-select-item>
+      }
+    </z-select>
+
+    <z-select
+      class="min-w-24 sm:min-w-28"
+      zSize="sm"
+      zPlaceholder="Model"
+      [zValue]="chat.selectedModel()"
+      [zDisabled]="chat.isLoadingModels()"
+      (zSelectionChange)="setSelectedModel($event)"
+    >
+      @if (chat.isLoadingModels()) {
+        <z-select-item zValue="" [zDisabled]="true">{{ i18n.t().chat.loadingModels }}</z-select-item>
+      } @else {
+        @for (model of chat.models(); track model.name) {
+          <z-select-item [zValue]="model.name">{{ model.name }}</z-select-item>
+        }
+      }
+    </z-select>
+
+    <div class="hidden shrink-0 items-center lg:flex">
+      <z-switch
+        [zChecked]="chat.toolsEnabled()"
+        (zCheckedChange)="chat.setToolsEnabled($event)"
+      >
+        Tools
+      </z-switch>
+    </div>
+  </div>
+
+  @if (skillsEnabled()) {
+    <div #skillsPicker class="relative shrink-0">
+      <button
+        type="button"
+        z-button
+        zType="outline"
+        zSize="sm"
+        class="gap-1.5 text-xs"
+        aria-haspopup="listbox"
+        [attr.aria-expanded]="isSkillsMenuOpen()"
+        (click)="toggleSkillsMenu($event)"
+      >
+        {{ skillsTriggerLabel() }}
+      </button>
+      @let menuStyle = skillsMenuStyle();
+      @if (isSkillsMenuOpen() && menuStyle !== null) {
+        <div
+          class="fixed z-80 w-64 rounded-xl border border-black/10 bg-white p-1.5 shadow-lg"
+          role="listbox"
+          aria-multiselectable="true"
+          [style.top]="menuStyle.top"
+          [style.right]="menuStyle.right"
+        >
+          @for (skill of chat.availableSkills(); track skill.id) {
+            <button
+              type="button"
+              role="option"
+              class="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-foreground hover:bg-black/4"
+              [attr.aria-selected]="chat.isSkillSelected(skill.id)"
+              (click)="onSkillToggle($event, skill.id)"
+            >
+              <span
+                class="flex size-4 shrink-0 items-center justify-center rounded border border-black/20 text-[10px] leading-none"
+                [class.bg-foreground]="chat.isSkillSelected(skill.id)"
+                [class.text-white]="chat.isSkillSelected(skill.id)"
+                [class.border-foreground]="chat.isSkillSelected(skill.id)"
+              >
+                @if (chat.isSkillSelected(skill.id)) {
+                  ✓
+                }
+              </span>
+              <span class="min-w-0 truncate">{{ skill.name }}</span>
+            </button>
+          } @empty {
+            <p class="px-2.5 py-2 text-xs text-foreground/55">{{ i18n.t().chat.skillsEmpty }}</p>
+          }
+          <a
+            routerLink="/skills"
+            class="mt-0.5 block rounded-lg px-2.5 py-2 text-xs text-foreground/60 hover:bg-black/4 hover:text-foreground"
+          >
+            {{ i18n.t().chat.skillsManage }}
+          </a>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-chat-message-pane
+  [messages]="bubbleMessages()"
+  [isLoading]="chat.isLoadingSession()"
+  [streamingMessageId]="chat.streamingMessageId()"
+  [thinkingLabel]="i18n.t().common.thinking"
+  [footerLabels]="footerLabels()"
+  [welcomeTitle]="i18n.t().chat.welcomeTitle"
+  [welcomeDescription]="i18n.t().chat.welcomeDescription"
+  [promptsTitle]="i18n.t().chat.suggestedPromptsTitle"
+  [prompts]="chatPrompts()"
+  [autoScroll]="true"
+  (promptSelected)="onPromptSelect($event)"
+/>
+
+@let error = chat.error();
+@if (error !== null) {
+  <z-alert
+    class="rounded-none border-x-0 border-t"
+    zType="destructive"
+    [zDescription]="error"
+  />
+}
+
+<app-chat-sender-bar
+  [placeholder]="i18n.t().chat.inputPlaceholder"
+  [isLoading]="chat.isLoading() || chat.isLoadingSession()"
+  [(value)]="input"
+  (sent)="send()"
+/>
