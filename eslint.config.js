@@ -1,7 +1,7 @@
 import nx from '@nx/eslint-plugin';
 
 /** Products allowed in the workspace; `nx g @explore/plugin:product` adds new ones. */
-const products = ['iam'];
+const products = ['ai', 'iam'];
 
 export default [
   ...nx.configs['flat/base'],
