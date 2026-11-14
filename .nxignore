@@ -1,2 +1,2 @@
-# Imported as-is; removed once iam joins the root Gradle build and pnpm workspace.
-iam/
+# Removed once the iam console joins the pnpm workspace.
+iam/console/
