@@ -3,6 +3,7 @@ packages:
 
 catalog:
   nx: 24.0.6
+  yaml: 2.9.0
 
 allowBuilds:
   nx: true
