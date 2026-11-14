@@ -24,7 +24,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
-    implementation("com.unboundid.product.scim2:scim2-sdk-common:6.1.0")
+    implementation(libs.scim2.sdk.common)
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
     runtimeOnly("com.h2database:h2")
 
@@ -35,7 +35,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.1")
+    testImplementation(libs.archunit.junit5)
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 }
 

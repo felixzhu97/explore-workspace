@@ -43,7 +43,7 @@ dependencies {
     implementation("org.springframework.ai:spring-ai-tool-search-advisor")
     implementation("com.launchdarkly:launchdarkly-java-server-sdk:7.17.0")
     implementation("com.github.ben-manes.caffeine:caffeine")
-    implementation("com.unboundid.product.scim2:scim2-sdk-common:6.1.0")
+    implementation(libs.scim2.sdk.common)
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     compileOnly("org.projectlombok:lombok")
@@ -72,7 +72,7 @@ dependencies {
     testImplementation("org.springframework.ai:spring-ai-test")
     testImplementation("org.hamcrest:hamcrest:3.0")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation(libs.archunit.junit5)
 }
 
 if (!cloudMinimal) {

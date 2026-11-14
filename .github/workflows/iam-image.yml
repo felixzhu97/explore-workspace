@@ -7,6 +7,7 @@ on:
       - "iam/server/**"
       - "iam/console/**"
       - "iam/Dockerfile*"
+      - "shared/**"
       - "build-logic/**"
       - "gradle/**"
       - "*.gradle.kts"
