@@ -1,9 +1,9 @@
 package com.iam.scim.infra.client;
 
+import com.explore.provisioning.ScimJsonHttpMessageConverter;
 import com.iam.identity.domain.model.User;
 import com.iam.scim.domain.model.ProvisioningTarget;
 import com.iam.scim.domain.service.ScimTargetGateway;
-import com.iam.scim.infra.ScimJsonHttpMessageConverter;
 import com.iam.scim.mapper.ScimUserMapper;
 import com.unboundid.scim2.common.exceptions.ScimException;
 import com.unboundid.scim2.common.filters.Filter;

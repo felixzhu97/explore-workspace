@@ -1,8 +1,8 @@
 package com.ai.scim.controller;
 
-import com.ai.scim.infra.ScimErrors;
 import com.explore.errors.DomainException;
 import com.explore.errors.Problems;
+import com.explore.provisioning.ScimErrors;
 import com.unboundid.scim2.common.exceptions.ScimException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;

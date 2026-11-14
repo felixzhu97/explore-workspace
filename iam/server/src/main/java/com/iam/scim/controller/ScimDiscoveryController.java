@@ -1,8 +1,9 @@
 package com.iam.scim.controller;
 
-import static com.iam.scim.infra.ScimJsonHttpMessageConverter.SCIM_JSON_VALUE;
+import static com.explore.provisioning.ScimJsonHttpMessageConverter.SCIM_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import com.explore.provisioning.ScimEndpoints;
 import com.iam.scim.service.ScimProvisioningService;
 import com.unboundid.scim2.common.exceptions.ResourceNotFoundException;
 import com.unboundid.scim2.common.exceptions.ScimException;

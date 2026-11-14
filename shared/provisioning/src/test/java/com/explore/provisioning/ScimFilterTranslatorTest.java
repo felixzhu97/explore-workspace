@@ -1,4 +1,4 @@
-package com.iam.scim.infra;
+package com.explore.provisioning;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -40,5 +40,17 @@ class ScimFilterTranslatorTest {
     assertThat(translator.parse(" ")).isEmpty();
     assertThatThrownBy(() -> translator.parse("userName eq \"" + "x".repeat(2000) + "\""))
         .isInstanceOf(BadRequestException.class);
+  }
+
+  @Test
+  @DisplayName("should not repeat the filter value when the filter is malformed")
+  void shouldNotRepeatTheFilterValueWhenTheFilterIsMalformed() {
+    assertThatThrownBy(() -> translator.parse("emails eq \"secret@example.test"))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("invalid filter")
+        .satisfies(
+            ex ->
+                assertThat(((BadRequestException) ex).getScimError().getScimType())
+                    .isEqualTo("invalidFilter"));
   }
 }

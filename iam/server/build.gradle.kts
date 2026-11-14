@@ -25,6 +25,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-liquibase")
     implementation(project(":shared-errors"))
+    implementation(project(":shared-provisioning"))
     implementation(libs.scim2.sdk.common)
     implementation("org.springframework.modulith:spring-modulith-starter-jpa")
     runtimeOnly("com.h2database:h2")
@@ -38,6 +39,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation(libs.archunit.junit5)
     testImplementation(testFixtures(project(":shared-architecture")))
+    testImplementation(testFixtures(project(":shared-provisioning")))
     testImplementation("org.springframework.modulith:spring-modulith-starter-test")
 }
 

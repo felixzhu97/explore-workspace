@@ -53,7 +53,8 @@ Container_Boundary(iam_app, "IAM Application (Spring Boot :9100)") {
         Component(scim_prov_svc, "ScimProvisioningService", "service", "Inbound create / replace / PATCH / delete")
         Component(scim_push, "ScimPushListener + ScimPushService", "service", "@ApplicationModuleListener → idempotent push")
         Component(scim_dom, "SCIM Domain", "domain", "ProvisioningTarget, ProvisionedAccount, ScimTargetGateway")
-        Component(scim_infra, "SCIM Infra", "infra", "ScimSecurityConfig (write:iam_scim), ScimFilterTranslator,\nScimTargetClient (RestClient + OAuth2 client_credentials, @Retryable)")
+        Component(scim_infra, "SCIM Infra", "infra", "ScimSecurityConfig (write:iam_scim),\nScimTargetClient (RestClient + OAuth2 client_credentials, @Retryable)")
+        Component(scim_shared, "shared/provisioning", "library", "SCIM JSON converter, filter translator,\nmeta / ETag, error bodies, provisioning contract")
     }
 
     Container_Boundary(audit, "Audit Module") {
@@ -128,6 +129,7 @@ Rel(scim_push, scim_dom, "Target + account bookkeeping")
 Rel(scim_push, scim_infra, "ScimTargetGateway")
 Rel(scim_infra, explore_ai_scim, "Push users", "SCIM 2.0 / HTTPS")
 Rel(scim_infra, metadata_db, "JPA + event_publication")
+Rel(scim_ctrl, scim_shared, "Converter, filters, ETags")
 Rel(identity_infra, metadata_db, "JPA / SQL")
 Rel(policy_infra, metadata_db, "JPA / SQL")
 Rel(sts_infra, metadata_db, "JPA / SQL")

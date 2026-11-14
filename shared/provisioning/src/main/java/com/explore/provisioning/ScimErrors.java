@@ -1,4 +1,4 @@
-package com.iam.scim.infra;
+package com.explore.provisioning;
 
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import org.springframework.http.ResponseEntity;

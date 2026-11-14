@@ -1,13 +1,13 @@
 package com.iam.scim.mapper;
 
+import com.explore.provisioning.ScimEmails;
+import com.explore.provisioning.ScimMeta;
 import com.iam.identity.domain.model.ExternalId;
 import com.iam.identity.domain.model.User;
 import com.iam.identity.service.UserProfile;
 import com.unboundid.scim2.common.exceptions.BadRequestException;
-import com.unboundid.scim2.common.types.Email;
 import com.unboundid.scim2.common.types.Name;
 import com.unboundid.scim2.common.types.UserResource;
-import java.util.List;
 import org.springframework.stereotype.Component;
 
 /** Maps IAM users to SCIM User resources and back; holds no business rules. */
@@ -34,7 +34,7 @@ public class ScimUserMapper {
     resource.setActive(user.isEnabled());
     if (user.getEmail() != null) {
       resource.setEmails(
-          List.of(new Email().setValue(user.getEmail()).setType("work").setPrimary(true)));
+          ScimEmails.work(user.getEmail()));
     }
     resource.setMeta(
         ScimMeta.create(
@@ -61,7 +61,7 @@ public class ScimUserMapper {
     resource.setActive(user.isEnabled());
     if (user.getEmail() != null) {
       resource.setEmails(
-          List.of(new Email().setValue(user.getEmail()).setType("work").setPrimary(true)));
+          ScimEmails.work(user.getEmail()));
     }
     return resource;
   }
@@ -79,21 +79,10 @@ public class ScimUserMapper {
     }
     return new UserProfile(
         resource.getUserName(),
-        primaryEmail(resource.getEmails()),
+        ScimEmails.primary(resource.getEmails()),
         displayName(resource),
         ExternalId.ofNullable(resource.getExternalId()),
         resource.getActive() == null || resource.getActive());
-  }
-
-  private static String primaryEmail(List<Email> emails) {
-    if (emails == null || emails.isEmpty()) {
-      return null;
-    }
-    return emails.stream()
-        .filter(email -> Boolean.TRUE.equals(email.getPrimary()))
-        .findFirst()
-        .orElse(emails.get(0))
-        .getValue();
   }
 
   private static String displayName(UserResource resource) {

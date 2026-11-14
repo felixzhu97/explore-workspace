@@ -1,6 +1,6 @@
 package com.iam.scim.controller;
 
-import com.iam.scim.infra.ScimErrors;
+import com.explore.provisioning.ScimErrors;
 import com.unboundid.scim2.common.exceptions.ScimException;
 import com.unboundid.scim2.common.messages.ErrorResponse;
 import org.slf4j.Logger;
