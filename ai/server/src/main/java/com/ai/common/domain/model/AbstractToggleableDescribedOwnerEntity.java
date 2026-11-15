@@ -12,15 +12,15 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends AbstractEmbeddable>
-    extends AbstractEnableableNamedOwnerEntity<IdT> {
+public abstract class AbstractToggleableDescribedOwnerEntity<IdT extends AbstractEmbeddable>
+    extends AbstractToggleableNamedOwnerEntity<IdT> {
 
   /** Trimmed description; empty when the owner gave none. */
   @Size(max = 500)
   @Column(nullable = false, length = 500)
   protected String description;
 
-  protected AbstractEnableableDescribedOwnerEntity(
+  protected AbstractToggleableDescribedOwnerEntity(
       IdT id, String ownerId, String name, String description) {
     super(id, ownerId, name);
     this.description = DomainStrings.normalizeDescription(description);

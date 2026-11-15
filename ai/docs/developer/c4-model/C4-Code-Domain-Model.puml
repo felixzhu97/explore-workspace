@@ -83,14 +83,14 @@ package "Common" as pkg_common_kernel {
     --
     +getOwnerIdValue()
   }
-  class AbstractEnableableNamedOwnerEntity <<Abstract>> {
+  class AbstractToggleableNamedOwnerEntity <<Abstract>> {
     +name: String
     +enabled: boolean
     --
     +rename(name)
     +disable()
   }
-  class AbstractEnableableDescribedOwnerEntity <<Abstract>> {
+  class AbstractToggleableDescribedOwnerEntity <<Abstract>> {
     +description: String
     --
     +updateDescription(text)
@@ -143,8 +143,8 @@ package "Common" as pkg_common_kernel {
 
 AbstractImmutableEntity <|-- AbstractOwnerAwareImmutable
 AbstractEntity <|-- AbstractOwnerAwareEntity
-AbstractOwnerAwareEntity <|-- AbstractEnableableNamedOwnerEntity
-AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
+AbstractOwnerAwareEntity <|-- AbstractToggleableNamedOwnerEntity
+AbstractToggleableNamedOwnerEntity <|-- AbstractToggleableDescribedOwnerEntity
 AbstractOwnerAwareEntity --> OwnerId
 AbstractOwnerAwareImmutable --> OwnerId
 
@@ -624,10 +624,10 @@ end note
 
 AbstractOwnerAwareEntity <|-- ChatSession : metadata only
 AbstractOwnerAwareEntity <|-- RagDocument
-AbstractEnableableDescribedOwnerEntity <|-- Skill
-AbstractEnableableDescribedOwnerEntity <|-- PipelineTemplate
-AbstractEnableableDescribedOwnerEntity <|-- CustomAgent
-AbstractEnableableNamedOwnerEntity <|-- AutomationSchedule
+AbstractToggleableDescribedOwnerEntity <|-- Skill
+AbstractToggleableDescribedOwnerEntity <|-- PipelineTemplate
+AbstractToggleableDescribedOwnerEntity <|-- CustomAgent
+AbstractToggleableNamedOwnerEntity <|-- AutomationSchedule
 AbstractOwnerAwareImmutable <|-- AutomationRun
 AbstractEntity <|-- Account
 AbstractOwnerAwareImmutable <|-- AiInvocationEvent

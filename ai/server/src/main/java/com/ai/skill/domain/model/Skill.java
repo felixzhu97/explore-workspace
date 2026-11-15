@@ -1,6 +1,6 @@
 package com.ai.skill.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableDescribedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.StringListJsonAttributeConverter;
 import jakarta.persistence.Column;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
+public class Skill extends AbstractToggleableDescribedOwnerEntity<SkillId> {
 
   @NotBlank
   @Column(nullable = false, columnDefinition = "clob")

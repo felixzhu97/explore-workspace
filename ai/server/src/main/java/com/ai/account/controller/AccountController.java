@@ -1,6 +1,6 @@
 package com.ai.account.controller;
 
-import com.ai.account.controller.dto.AccountMeResponse;
+import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.service.AccountService;
 import com.ai.common.controller.AnonymousId;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +29,7 @@ public class AccountController {
 
   /** Returns the signed-in or guest account for the current request. */
   @GetMapping("/me")
-  public ResponseEntity<AccountMeResponse> getCurrentAccount(HttpServletRequest request) {
+  public ResponseEntity<CurrentAccountResponse> getCurrentAccount(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken) {
       return ResponseEntity.ok(accountService.getCurrentAccount(null));

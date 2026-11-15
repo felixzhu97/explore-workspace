@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.eval.domain.model.OfficialGateResult;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -21,13 +21,13 @@ import org.springframework.ai.evaluation.EvaluationRequest;
 import org.springframework.ai.evaluation.EvaluationResponse;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("OfficialSpringAiEvaluators")
-class OfficialSpringAiEvaluatorsTest {
+@DisplayName("BuiltInSpringAiEvaluators")
+class BuiltInSpringAiEvaluatorsTest {
 
   @Mock private RelevancyEvaluator relevancyEvaluator;
   @Mock private FactCheckingEvaluator factCheckingEvaluator;
 
-  @InjectMocks private OfficialSpringAiEvaluators evaluators;
+  @InjectMocks private BuiltInSpringAiEvaluators evaluators;
 
   @Test
   @DisplayName("should pass without factuality when no context")
@@ -35,7 +35,7 @@ class OfficialSpringAiEvaluatorsTest {
     when(relevancyEvaluator.evaluate(any(EvaluationRequest.class)))
         .thenReturn(new EvaluationResponse(true, 1.0f, "ok", Map.of()));
 
-    OfficialGateResult result = evaluators.evaluateChat("q", "a", List.of());
+    BuiltInGateResult result = evaluators.evaluateChat("q", "a", List.of());
 
     assertThat(result.isPassed()).isTrue();
     assertThat(result.isRelevancyPassed()).isTrue();
@@ -53,7 +53,7 @@ class OfficialSpringAiEvaluatorsTest {
     when(factCheckingEvaluator.evaluate(any(EvaluationRequest.class)))
         .thenReturn(new EvaluationResponse(false, 0.0f, "unsupported", Map.of()));
 
-    OfficialGateResult result = evaluators.evaluateChat("q", "a", List.of("doc text"));
+    BuiltInGateResult result = evaluators.evaluateChat("q", "a", List.of("doc text"));
 
     assertThat(result.isPassed()).isFalse();
     assertThat(result.isFactualityEvaluated()).isTrue();

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.account.controller.dto.AccountMeResponse;
+import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.AccountPlan;
 import com.ai.account.controller.dto.LoginProvider;
@@ -45,7 +45,7 @@ class AccountControllerTest {
   void shouldReturnAnonymousAccountWhenAnonymousIdPresent() {
     when(accountService.getCurrentAccount("cid-123"))
         .thenReturn(
-            new AccountMeResponse(
+            new CurrentAccountResponse(
                 AccountMode.ANONYMOUS,
                 "cid-123",
                 null,
@@ -75,7 +75,7 @@ class AccountControllerTest {
   void shouldReturnAccountWhenIamJwtPresentWithoutClientCookie() {
     when(accountService.getCurrentAccount(null))
         .thenReturn(
-            new AccountMeResponse(
+            new CurrentAccountResponse(
                 AccountMode.AUTHENTICATED,
                 null,
                 "user-1",

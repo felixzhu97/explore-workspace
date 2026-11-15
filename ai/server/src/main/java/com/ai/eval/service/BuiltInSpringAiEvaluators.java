@@ -1,6 +1,6 @@
 package com.ai.eval.service;
 
-import com.ai.eval.domain.model.OfficialGateResult;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +24,13 @@ import org.springframework.stereotype.Service;
     havingValue = "true",
     matchIfMissing = false)
 @RequiredArgsConstructor
-public class OfficialSpringAiEvaluators {
+public class BuiltInSpringAiEvaluators {
 
   private final RelevancyEvaluator relevancyEvaluator;
   private final FactCheckingEvaluator factCheckingEvaluator;
 
   /** Checks relevancy, plus fact-checking when context is given, and combines a pass gate. */
-  public OfficialGateResult evaluateChat(
+  public BuiltInGateResult evaluateChat(
       String userText, String responseContent, List<String> contextTexts) {
     List<Document> documents = toDocuments(contextTexts);
     boolean hasContext = !documents.isEmpty();
@@ -55,7 +55,7 @@ public class OfficialSpringAiEvaluators {
     }
 
     boolean passed = relevancyPassed && (!hasContext || Boolean.TRUE.equals(factualityPassed));
-    return new OfficialGateResult(
+    return new BuiltInGateResult(
         relevancyPassed,
         factualityPassed,
         hasContext,

@@ -14,13 +14,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-@DisplayName("AbstractEnableableDescribedOwnerEntity")
-class AbstractEnableableDescribedOwnerEntityTest {
+@DisplayName("AbstractToggleableDescribedOwnerEntity")
+class AbstractToggleableDescribedOwnerEntityTest {
 
   private static ValidatorFactory validatorFactory;
   private static Validator validator;
 
-  static final class TestEntity extends AbstractEnableableDescribedOwnerEntity<SkillId> {
+  static final class TestEntity extends AbstractToggleableDescribedOwnerEntity<SkillId> {
 
     TestEntity(String description) {
       super(SkillId.generateId(), "c:client-1", "name", description);

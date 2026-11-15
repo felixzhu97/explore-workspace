@@ -3,7 +3,7 @@ package com.ai.account.controller.dto;
 import java.util.List;
 
 /** Current viewer identity: anonymous guest (Anonymous id) or authenticated OAuth user. */
-public record AccountMeResponse(
+public record CurrentAccountResponse(
     AccountMode mode,
     String clientId,
     String userId,

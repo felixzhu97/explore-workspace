@@ -1,6 +1,6 @@
 package com.ai.automation.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableNamedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import jakarta.persistence.AttributeOverride;
@@ -28,7 +28,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<ScheduleId> {
+public class AutomationSchedule extends AbstractToggleableNamedOwnerEntity<ScheduleId> {
 
   /** next_run_at for a one-off schedule that has been claimed or has finished. */
   private static final Instant ONCE_TERMINAL_NEXT = Instant.parse("9999-12-31T23:59:59Z");

@@ -5,7 +5,7 @@ import lombok.Value;
 
 /** Pass/fail gate from Spring AI RelevancyEvaluator and FactCheckingEvaluator. */
 @Value
-public class OfficialGateResult {
+public class BuiltInGateResult {
   boolean relevancyPassed;
   Boolean factualityPassed;
   boolean factualityEvaluated;
@@ -14,7 +14,7 @@ public class OfficialGateResult {
   List<String> feedback;
   boolean passed;
 
-  public OfficialGateResult(
+  public BuiltInGateResult(
       boolean relevancyPassed,
       Boolean factualityPassed,
       boolean factualityEvaluated,

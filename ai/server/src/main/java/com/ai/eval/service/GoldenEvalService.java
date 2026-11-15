@@ -6,7 +6,7 @@ import com.ai.eval.domain.model.CaseEvalOutcome;
 import com.ai.eval.domain.model.GoldenEvalCase;
 import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.ai.eval.domain.model.GoldenSuiteReport;
-import com.ai.eval.domain.model.OfficialGateResult;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import com.ai.eval.domain.repository.GoldenSuiteRepository;
 import com.ai.eval.infra.golden.GoldenRagFixtureSeeder;
 import com.ai.rag.domain.model.SourceCitation;
@@ -38,7 +38,7 @@ public class GoldenEvalService {
   private static final int ANSWER_EXCERPT_LIMIT = 500;
 
   private final GoldenSuiteRepository suiteRepository;
-  private final OfficialSpringAiEvaluators officialEvaluators;
+  private final BuiltInSpringAiEvaluators officialEvaluators;
   private final ChatService chatService;
   private final RagChatService ragChatService;
   private final GoldenRagFixtureSeeder fixtureSeeder;
@@ -67,7 +67,7 @@ public class GoldenEvalService {
     try {
       GeneratedAnswer generated = generateAnswer(evalCase, fixtureIds);
       List<String> context = resolveContext(evalCase, generated.contextTexts());
-      OfficialGateResult gate =
+      BuiltInGateResult gate =
           officialEvaluators.evaluateChat(evalCase.getUserText(), generated.answer(), context);
       return new CaseEvalOutcome(
           evalCase.getId(),

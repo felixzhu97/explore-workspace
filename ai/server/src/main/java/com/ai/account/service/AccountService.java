@@ -1,6 +1,6 @@
 package com.ai.account.service;
 
-import com.ai.account.controller.dto.AccountMeResponse;
+import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.AccountPlan;
 import com.ai.account.controller.dto.LoginProvider;
@@ -46,7 +46,7 @@ public class AccountService {
 
   /** Returns the viewer's account state for the request's Anonymous id. */
   @Transactional
-  public AccountMeResponse getCurrentAccount(String clientId) {
+  public CurrentAccountResponse getCurrentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return createAuthenticatedContext(clientId, iamAccountService.signIn(jwtAuth.getToken()));
@@ -68,7 +68,7 @@ public class AccountService {
       }
     }
 
-    return new AccountMeResponse(
+    return new CurrentAccountResponse(
         AccountMode.ANONYMOUS,
         clientId,
         null,
@@ -143,7 +143,7 @@ public class AccountService {
     return List.copyOf(providers);
   }
 
-  private AccountMeResponse createAuthenticatedContext(String clientId, Account account) {
+  private CurrentAccountResponse createAuthenticatedContext(String clientId, Account account) {
     return createAuthenticatedContext(
         clientId,
         account.getId().toString(),
@@ -151,7 +151,7 @@ public class AccountService {
         account.findDisplayLabel().orElse(null));
   }
 
-  private AccountMeResponse createAuthenticatedContext(String clientId, OAuthSignIn signIn) {
+  private CurrentAccountResponse createAuthenticatedContext(String clientId, OAuthSignIn signIn) {
     return createAuthenticatedContext(
         clientId,
         signIn.identity().getSubject(),
@@ -159,9 +159,9 @@ public class AccountService {
         signIn.displayLabel().orElse(null));
   }
 
-  private AccountMeResponse createAuthenticatedContext(
+  private CurrentAccountResponse createAuthenticatedContext(
       String clientId, String userId, ContactEmail email, String displayName) {
-    return new AccountMeResponse(
+    return new CurrentAccountResponse(
         AccountMode.AUTHENTICATED,
         clientId,
         userId,

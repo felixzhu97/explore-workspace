@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractEmbeddable>
+public abstract class AbstractToggleableNamedOwnerEntity<IdT extends AbstractEmbeddable>
     extends AbstractOwnerAwareEntity<IdT> {
 
   @NotBlank
@@ -24,7 +24,7 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractEmb
   @Column(nullable = false)
   protected boolean enabled;
 
-  protected AbstractEnableableNamedOwnerEntity(IdT id, String ownerId, String name) {
+  protected AbstractToggleableNamedOwnerEntity(IdT id, String ownerId, String name) {
     super(id, OwnerId.parseKey(ownerId));
     this.name = DomainStrings.requireName(name);
     this.enabled = true;

@@ -1,6 +1,6 @@
 package com.ai.pipeline.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableDescribedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.StringListJsonAttributeConverter;
 import jakarta.persistence.Column;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<PipelineTemplateId> {
+public class PipelineTemplate extends AbstractToggleableDescribedOwnerEntity<PipelineTemplateId> {
 
   /** Brief used when the user has not written one; the pipelines canvas uses the same text. */
   public static final String GENERIC_BRIEF =

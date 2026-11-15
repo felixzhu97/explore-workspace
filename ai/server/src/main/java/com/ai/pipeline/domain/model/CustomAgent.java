@@ -1,6 +1,6 @@
 package com.ai.pipeline.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableDescribedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.StringListJsonAttributeConverter;
 import jakarta.persistence.Column;
@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAgentId> {
+public class CustomAgent extends AbstractToggleableDescribedOwnerEntity<CustomAgentId> {
 
   private static final Pattern AGENT_TYPE_PATTERN = Pattern.compile("^[a-z][a-z0-9_-]{0,63}$");
 
