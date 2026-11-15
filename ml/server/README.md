@@ -19,7 +19,7 @@ module contract: [`docs/developer/python-services.md`](../docs/developer/python-
 ## Run
 
 ```bash
-cd python_ml
+cd server
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt --override overrides.txt
 cp .env.example .env          # secrets only; loaded at startup
@@ -51,13 +51,13 @@ Settings are constants in code; edit the file to change one.
 | [`config.py`](config.py) | `HOST`, `PORT`, `BASE_URL` (media URLs), `LOCAL_MODELS_ROOT` (`~/Codes/models`) |
 | `<module>/config.py` | Models, backends, thresholds and service URLs for that module |
 
-Only secrets come from `python_ml/.env` ([`.env.example`](.env.example)):
+Only secrets come from `server/.env` ([`.env.example`](.env.example)):
 `DATABASE_URL` and `REDIS_PASSWORD` (recommendation) and
 `OPENAI_API_KEY` (RAG with the OpenAI provider).
 
 ## Batch jobs and training
 
-Run from `python_ml/` so package imports resolve:
+Run from `server/` so package imports resolve:
 
 ```bash
 python -m recommendation.run_jobs --job suggestions
@@ -71,7 +71,7 @@ python -m speech.training.eval_wer --help
 ## Tests
 
 ```bash
-cd python_ml
+cd server
 pytest -q                     # app tests (tests/)
 pytest -q tests rag/tests     # what CI runs
 ```
@@ -79,6 +79,6 @@ pytest -q tests rag/tests     # what CI runs
 ## Container
 
 ```bash
-docker build -t explore-ml python_ml
-docker run -p 8000:8000 --env-file python_ml/.env explore-ml
+docker build -t explore-ml server
+docker run -p 8000:8000 --env-file server/.env explore-ml
 ```

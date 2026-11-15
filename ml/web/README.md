@@ -1,13 +1,13 @@
 # ui
 
 The model test UI is a local Angular app for exercising the modules of the
-Explore ML app under `../python_ml/`. Each module gets one page, and every
+Explore ML app under `../server/`. Each module gets one page, and every
 endpoint of that module can be called from its page. Controls come from
 [NG-ZORRO](https://ng.ant.design/), layout uses inline
 [Tailwind CSS](https://tailwindcss.com/) classes, and charts use
 [D3](https://d3js.org/).
 
-Keep this directory a sibling of `python_ml/`. Do not nest the UI under the
+Keep this directory a sibling of `server/`. Do not nest the UI under the
 API tree.
 
 ## Get started
@@ -21,7 +21,7 @@ npm start
 ```
 
 This serves the app at <http://localhost:4210>. Start the Python app first
-(`cd python_ml && uvicorn main:app --port 8000`); the overview page shows
+(`cd server && uvicorn main:app --port 8000`); the overview page shows
 which modules are up.
 
 ## Backend proxy

@@ -12,7 +12,7 @@ updates:
       prefix: "chore"
 
   - package-ecosystem: "pip"
-    directory: "/python_ml/image_playground"
+    directory: "/server/image_playground"
     schedule:
       interval: "weekly"
     groups:
@@ -30,7 +30,7 @@ updates:
         versions: [">=0.40"]
 
   - package-ecosystem: "pip"
-    directory: "/python_ml/rag"
+    directory: "/server/rag"
     schedule:
       interval: "weekly"
     groups:
@@ -43,7 +43,7 @@ updates:
         versions: [">=6.5"]
 
   - package-ecosystem: "pip"
-    directory: "/python_ml/recommendation"
+    directory: "/server/recommendation"
     schedule:
       interval: "weekly"
     groups:
@@ -56,7 +56,7 @@ updates:
         versions: [">=6.5"]
 
   - package-ecosystem: "pip"
-    directory: "/python_ml/speech"
+    directory: "/server/speech"
     schedule:
       interval: "weekly"
     groups:
@@ -65,7 +65,7 @@ updates:
           - "*"
 
   - package-ecosystem: "pip"
-    directory: "/python_ml/video"
+    directory: "/server/video"
     schedule:
       interval: "weekly"
     groups:
@@ -83,7 +83,7 @@ updates:
         versions: [">=0.40"]
 
   - package-ecosystem: "pip"
-    directory: "/python_ml/vision"
+    directory: "/server/vision"
     schedule:
       interval: "weekly"
     groups:
@@ -92,7 +92,7 @@ updates:
           - "*"
 
   - package-ecosystem: "docker"
-    directory: "/python_ml"
+    directory: "/server"
     schedule:
       interval: "weekly"
     groups:

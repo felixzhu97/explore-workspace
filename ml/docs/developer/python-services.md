@@ -1,6 +1,6 @@
 # Python ML modules — one app, identical package layout
 
-Explore ML runs six optional Python modules under `python_ml/` as one FastAPI
+Explore ML runs six optional Python modules under `server/` as one FastAPI
 app on port `8000`. Sibling product clients call their **API only**; that API
 calls this app over loopback.
 
@@ -11,7 +11,7 @@ one folder of flat files (no sub-folders inside a layer).
 ## App layout
 
 ```
-python_ml/
+server/
 ├── README.md
 ├── .env.example          # secrets only (DATABASE_URL, REDIS_PASSWORD, OPENAI_API_KEY)
 ├── requirements.txt      # -r each module's requirements.txt
@@ -29,7 +29,7 @@ python_ml/
 ## Module layout
 
 ```
-python_ml/<module>/
+server/<module>/
 ├── README.md
 ├── __init__.py
 ├── module.py             # the contract the app loads (below)
@@ -47,10 +47,10 @@ python_ml/<module>/
 ```
 
 Runtime dirs (`<module>/output/`, `rag/uploads/`, `rag/data/qdrant`) are
-never committed. Repo-level fixtures: `data/` (sibling of `python_ml/`).
+never committed. Repo-level fixtures: `data/` (sibling of `server/`).
 
-Imports are absolute from `python_ml/`: `from rag.service.query import …`,
-`from vision import config`. Run scripts as modules from `python_ml/`, for
+Imports are absolute from `server/`: `from rag.service.query import …`,
+`from vision import config`. Run scripts as modules from `server/`, for
 example `python -m recommendation.run_jobs --job explore`.
 
 ## Module contract
@@ -71,7 +71,7 @@ domain error handlers (`rag.module.register_exception_handlers`).
 ## Start
 
 ```bash
-cd python_ml
+cd server
 uvicorn main:app --port 8000      # or: python main.py (HOST / PORT)
 ```
 
@@ -80,7 +80,7 @@ uvicorn main:app --port 8000      # or: python main.py (HOST / PORT)
 | `GET /health` | `{status: ok \| degraded, modules: {name: {status, latency_ms, …}}}` |
 | `GET /docs` | OpenAPI UI for every module |
 
-The UI dev server proxies `/ml/*` to this app (`ui/proxy.conf.json`).
+The UI dev server proxies `/ml/*` to this app (`:web/proxy.conf.json`).
 
 ## Routes
 

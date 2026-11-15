@@ -129,7 +129,7 @@ flowchart TB
   Light --> API
 ```
 
-`LOCAL_MODELS_ROOT` lives in one place (`python_ml/config.py`). Change
+`LOCAL_MODELS_ROOT` lives in one place (`server/config.py`). Change
 `IMAGE_BACKEND`, `VOICE_BACKEND`, or model ids in the module's `config.py`
 without renaming routes.
 
@@ -241,7 +241,7 @@ there instead of hard-coding ad-hoc clients.
 ### Easiest product wiring
 
 **Prefer one base URL and timeouts—nothing else for first connect.** The
-`ui/` proxy points at the same `http://localhost:8000`.
+`web/` proxy points at the same `http://localhost:8000`.
 
 ```mermaid
 flowchart LR

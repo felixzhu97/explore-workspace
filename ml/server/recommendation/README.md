@@ -4,7 +4,7 @@ Package `recommendation` in the single Explore ML app (port 8000):
 `module.py` / `config.py` / `controller/` / `service/` / `domain/` / `infra/` /
 `tests/` / `training/`, plus `celery_app.py`, `tasks.py` and the `run_*.py`
 batch entry points. Setup and run commands:
-[`python_ml/README.md`](../README.md).
+[`server/README.md`](../README.md).
 
 Offline and online recommendation stack for Explore products:
 
@@ -15,12 +15,12 @@ Offline and online recommendation stack for Explore products:
 
 ## Setup
 
-Install from `python_ml/` as described there. LightFM is optional
+Install from `server/` as described there. LightFM is optional
 (`requirements-optional.txt`) because it does not build on Python 3.12;
 without it the suggestions job skips that source.
 
 Use the same Postgres, Redis and Cassandra as the product backend. The
-secrets `DATABASE_URL` and `REDIS_PASSWORD` come from `python_ml/.env`;
+secrets `DATABASE_URL` and `REDIS_PASSWORD` come from `server/.env`;
 `REDIS_URL`, `CASSANDRA_CONTACT_POINTS`, `CASSANDRA_KEYSPACE` and
 `CASSANDRA_LOCAL_DC` are constants in [`config.py`](config.py).
 
@@ -31,7 +31,7 @@ implicit ALS with an Annoy index, then friend-of-friend) and write to Redis
 `recommendation:user:{userId}`. Friend-of-friend reads at most
 `FRIEND_OF_FRIEND_FOLLOWING_LIMIT` (500) followees per user.
 
-Run every command below from `python_ml/`:
+Run every command below from `server/`:
 
 ```bash
 python -m recommendation.run_user_suggestions
@@ -129,6 +129,6 @@ The broker is `CELERY_BROKER_URL` (`redis://localhost:6379/0`) in
 ## Tests
 
 ```bash
-cd python_ml
+cd server
 pytest -q recommendation/tests
 ```

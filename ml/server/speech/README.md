@@ -14,7 +14,7 @@ Package `speech` in the single Explore ML app (port 8000): `module.py` /
 
 ## Setup
 
-Setup and run commands: [`python_ml/README.md`](../README.md). Models load
+Setup and run commands: [`server/README.md`](../README.md). Models load
 lazily on the first request.
 
 ## API
@@ -49,7 +49,7 @@ CPU.
 
 | Constant | Value |
 | -------- | ----- |
-| `BASE_URL` (shared, `python_ml/config.py`) | `http://localhost:8000` |
+| `BASE_URL` (shared, `server/config.py`) | `http://localhost:8000` |
 | `VOICE_OUTPUT` / `ASR_UPLOADS` | `speech/output/voice` / `speech/output/asr` |
 | `VOICE_BACKEND` | `"qwen"` (or `"edge"`) |
 | `TTS_MODEL` / `TTS_LANGUAGE` / `TTS_SPEAKER` | local Qwen3-TTS / `"Chinese"` / `""` |
@@ -74,6 +74,6 @@ and base ASR checkpoints. See the
 ## Tests
 
 ```bash
-cd python_ml
+cd server
 pytest -q speech/tests
 ```

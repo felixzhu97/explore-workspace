@@ -17,7 +17,7 @@ import { findHelper, mlUrl, type HelperId } from './helpers';
           {{ currentHelper.name }}
         </h1>
         <p class="m-0 text-caption text-muted">
-          python_ml/{{ currentHelper.module }} · 端口 8000 · 代理 /ml ·
+          server/{{ currentHelper.module }} · 端口 8000 · 代理 /ml ·
           <a [href]="docsUrl" target="_blank">OpenAPI</a>
         </p>
         <div class="flex items-center gap-4">

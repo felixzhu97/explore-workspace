@@ -67,10 +67,10 @@ export LOCAL_MODELS_ROOT="$HOME/Codes/models"
 3. Put a small train and eval split under `data/finetune/<area>/`. Commit only
    tiny fixtures; keep real data on disk or in a private Hub dataset.
 4. Install training dependencies for the module you tune. Every command
-   below runs from `python_ml/`, the same directory the app starts from:
+   below runs from `server/`, the same directory the app starts from:
 
 ```bash
-cd python_ml
+cd server
 pip install -r <module>/requirements-train.txt
 ```
 
@@ -84,7 +84,7 @@ Warm-start the feed ranker from the current checkpoint and continue on recent
 engagement.
 
 ```bash
-cd python_ml
+cd server
 MODEL_DIR="$LOCAL_MODELS_ROOT/recommendation/models"
 python -m recommendation.run_jobs --job feed_rank \
   --init-from "$MODEL_DIR/feed_ranker.pt" \
@@ -110,7 +110,7 @@ label under `train/` and `eval/`. Git tracks only `.jsonl` files under
 `data/finetune/`, so the vision image folders stay local.
 
 ```bash
-cd python_ml
+cd server
 python -m vision.training.train_head \
   --data ../data/finetune/vision \
   --output "$LOCAL_MODELS_ROOT/vision/models/resnet50-ft-$(date +%Y%m%d)"
@@ -135,7 +135,7 @@ Fine-tune the embedding model on query and passage pairs. Keep 768 dimensions
 so the vector store schema stays the same.
 
 ```bash
-cd python_ml
+cd server
 python -m rag.training.train_embedding \
   --train ../data/finetune/rag/pairs.jsonl \
   --output "$LOCAL_MODELS_ROOT/embed/models/nomic-embed-ft-$(date +%Y%m%d)"
@@ -176,7 +176,7 @@ the fair baseline. RAG serves `qwen3-coder:30b` (`LLM_MODEL` in `rag/config.py`)
 run a second comparison against it before you switch.
 
 ```bash
-cd python_ml
+cd server
 hf jobs uv run --flavor l40sx1 --timeout 6h --secrets HF_TOKEN \
   rag/training/train_sft.py \
   --dataset <you>/rag-sft --push-to <you>/rag-llm-ft
@@ -196,7 +196,7 @@ Train a LoRA on 20 to 200 captioned images. Upload them as a private Hub
 dataset first.
 
 ```bash
-cd python_ml
+cd server
 hf jobs uv run --flavor a100-large --timeout 6h --secrets HF_TOKEN \
   image_playground/training/train_lora.py \
   --dataset <you>/my-style --instance-prompt "a photo in my-style" \
@@ -224,7 +224,7 @@ Promote by setting `IMAGE_LORA_PATH` to the directory (and optionally
 Upload `audio` and `text` pairs as a Hub dataset, then:
 
 ```bash
-cd python_ml
+cd server
 hf jobs uv run --flavor l40sx1 --timeout 6h --secrets HF_TOKEN \
   speech/training/train_asr.py \
   --dataset <you>/asr-domain --push-to <you>/qwen3-asr-ft

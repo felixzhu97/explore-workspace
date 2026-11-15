@@ -9,7 +9,7 @@ Video has no `training/`.
 
 ## Setup
 
-Setup and run commands: [`python_ml/README.md`](../README.md). The pipeline
+Setup and run commands: [`server/README.md`](../README.md). The pipeline
 warms up at startup.
 
 On macOS without CUDA, local generation is skipped: jobs fail with "Local
@@ -37,7 +37,7 @@ CPU.
 
 | Constant | Value |
 | -------- | ----- |
-| `BASE_URL` (shared, `python_ml/config.py`) | `http://localhost:8000` |
+| `BASE_URL` (shared, `server/config.py`) | `http://localhost:8000` |
 | `VIDEO_OUTPUT` | `video/output/video` |
 | `COGVIDEOX_MODEL` | `THUDM/CogVideoX-2b` (Hugging Face id; `LOCAL_MODELS_ROOT` is not used) |
 
@@ -46,6 +46,6 @@ The app sets `HF_ENDPOINT=https://hf-mirror.com` when it is unset.
 ## Tests
 
 ```bash
-cd python_ml
+cd server
 pytest -q video/tests
 ```

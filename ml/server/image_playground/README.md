@@ -14,7 +14,7 @@ model.
 
 ## Setup
 
-Setup and run commands: [`python_ml/README.md`](../README.md). The pipeline
+Setup and run commands: [`server/README.md`](../README.md). The pipeline
 loads on the first generate request, not at startup.
 
 ## API
@@ -38,7 +38,7 @@ CPU.
 
 | Constant | Value |
 | -------- | ----- |
-| `BASE_URL` (shared, `python_ml/config.py`) | `http://localhost:8000` |
+| `BASE_URL` (shared, `server/config.py`) | `http://localhost:8000` |
 | `IMAGE_OUTPUT` | `image_playground/output/image` |
 | `IMAGE_BACKEND` / `IMAGE_MODEL` | `"qwen"` / per backend |
 | `IMAGE_LORA_PATH` / `IMAGE_LORA_SCALE` | `None` / `1.0` |
@@ -63,6 +63,6 @@ See the [fine-tuning guide](../../docs/user-guide/fine-tuning.md).
 ## Tests
 
 ```bash
-cd python_ml
+cd server
 pytest -q image_playground/tests
 ```

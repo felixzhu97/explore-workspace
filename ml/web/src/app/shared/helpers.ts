@@ -1,6 +1,6 @@
 export type HelperId = 'recommendation' | 'vision' | 'rag' | 'image' | 'speech' | 'video';
 
-/** One module of the `python_ml` app, keyed in `/health` by its package name. */
+/** One module of the `server` app, keyed in `/health` by its package name. */
 export interface Helper {
   id: HelperId;
   name: string;

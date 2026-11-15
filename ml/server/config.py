@@ -1,4 +1,4 @@
-"""Settings shared by every module. Only secrets come from python_ml/.env."""
+"""Settings shared by every module. Only secrets come from server/.env."""
 
 import os
 from pathlib import Path

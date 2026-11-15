@@ -171,7 +171,7 @@ sequenceDiagram
    reports `degraded`, or the app is down.
 3. Treat `/docs` + `/api/v1/...` as the contract.
 4. Change the port only together with your upstream URL and `BASE_URL`
-   in `python_ml/config.py`.
+   in `server/config.py`.
 5. Prefer loopback or private network URLs—not public ingress.
 
 ## Checklist

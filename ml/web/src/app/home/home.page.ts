@@ -47,7 +47,7 @@ const ROUND_TRIP = '往返';
                   <span class="font-display text-tagline font-semibold text-ink">{{
                     helper.name
                   }}</span>
-                  <span class="text-caption text-muted">python_ml/{{ helper.module }}</span>
+                  <span class="text-caption text-muted">server/{{ helper.module }}</span>
                   <nz-badge
                     [nzStatus]="health ? badgeStatus(health.status) : 'processing'"
                     [nzText]="

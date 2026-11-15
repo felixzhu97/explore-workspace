@@ -3,7 +3,7 @@
 Package `rag` in the single Explore ML app (port 8000): `module.py` /
 `config.py` / `controller/` / `service/` / `domain/` / `infra/` / `tests/` /
 `training/`. Setup and run commands:
-[`python_ml/README.md`](../README.md).
+[`server/README.md`](../README.md).
 
 Retrieval Augmented Generation (RAG) helper: index documents, webpages, posts
 and comments into Qdrant, then answer questions from the retrieved chunks.
@@ -38,17 +38,17 @@ ollama pull qwen3-coder:30b   # or point LLM_MODEL at a smaller model
 ollama serve
 ```
 
-2. Install and run the app from `python_ml/` (the RAG tests need only
+2. Install and run the app from `server/` (the RAG tests need only
    `rag/requirements.txt`):
 
 ```bash
-cd python_ml
+cd server
 uv pip install -r requirements.txt --override overrides.txt
 uvicorn main:app --port 8000
 ```
 
 Qdrant needs no separate process: with `QDRANT_URL` empty the module stores
-vectors under `QDRANT_PATH` (`python_ml/rag/data/qdrant`). To use a server
+vectors under `QDRANT_PATH` (`server/rag/data/qdrant`). To use a server
 instead, start one and set `QDRANT_URL = "http://localhost:6333"` in
 `config.py`:
 
@@ -59,13 +59,13 @@ docker run -d -p 6333:6333 qdrant/qdrant
 ## Configuration
 
 Constants in [`config.py`](config.py); only `OPENAI_API_KEY` comes from
-`python_ml/.env`.
+`server/.env`.
 
 | Constant                 | Description                                   | Value |
 | ------------------------ | --------------------------------------------- | ----- |
-| `UPLOADS_DIR`            | Saved uploads                                 | `python_ml/rag/uploads` |
+| `UPLOADS_DIR`            | Saved uploads                                 | `server/rag/uploads` |
 | `QDRANT_URL`             | Qdrant server; empty means embedded           | `""` |
-| `QDRANT_PATH`            | Embedded Qdrant directory                     | `python_ml/rag/data/qdrant` |
+| `QDRANT_PATH`            | Embedded Qdrant directory                     | `server/rag/data/qdrant` |
 | `QDRANT_TIMEOUT`         | Qdrant client timeout (seconds)               | `30` |
 | `QDRANT_VECTOR_SIZE`     | Unused by collections, which are created with 768 dimensions | `768` |
 | `EMBEDDING_PROVIDER`     | `"ollama"` or `"openai"`                      | `"ollama"` |
@@ -181,7 +181,7 @@ nothing is stored.
 ### Health
 
 RAG reports `{status: ok | degraded, qdrant, embeddings}` in the app's
-`GET /health` (see [`python_ml/README.md`](../README.md)).
+`GET /health` (see [`server/README.md`](../README.md)).
 
 ## Usage Examples
 
@@ -263,7 +263,7 @@ Query -> embed question -> search each collection (top_k)
 ## Development
 
 ```bash
-cd python_ml
+cd server
 pytest -q rag/tests           # 8 test files
 uvicorn main:app --reload
 ```

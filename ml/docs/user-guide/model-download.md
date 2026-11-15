@@ -4,7 +4,7 @@
 
 Fetch local checkpoints only when you chose a local generative or rerank
 backend. The app reads one root, `~/Codes/models` (`LOCAL_MODELS_ROOT`
-in `python_ml/config.py`). Keep large weights out of git.
+in `server/config.py`). Keep large weights out of git.
 
 Speech, Image Playground, RAG rerank and recommendation read paths under this
 root. Video loads `COGVIDEOX_MODEL` as a Hugging Face id and ignores the root.
@@ -141,7 +141,7 @@ the constant in the module's `config.py`—`/api/v1` routes stay unchanged:
 `ASR_MODEL` and `TTS_MODEL` (`speech/config.py`), `IMAGE_MODEL` and
 `IMAGE_LORA_PATH` (`image_playground/config.py`), `COGVIDEOX_MODEL`
 (`video/config.py`, Hub id). To move the root itself, change
-`LOCAL_MODELS_ROOT` in `python_ml/config.py`.
+`LOCAL_MODELS_ROOT` in `server/config.py`.
 
 RAG rerank is on. It calls a sidecar that serves
 `$LOCAL_MODELS_ROOT/rerank/models/Qwen3-Reranker-8B`; `rag/config.py`

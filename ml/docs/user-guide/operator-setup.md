@@ -11,7 +11,7 @@ Install Python 3.11+ and [uv](https://docs.astral.sh/uv/) (or pip), plus a
 way to run the process (local venv, container, or process manager).
 Optional:
 
-- Vector DB — RAG uses embedded Qdrant under `python_ml/rag/data/qdrant`;
+- Vector DB — RAG uses embedded Qdrant under `server/rag/data/qdrant`;
   set `QDRANT_URL` in `rag/config.py` for a server
 - Local LLM runtime — Ollama for RAG embeddings and chat
 - PostgreSQL, Redis and Cassandra — when recommendation reads real
@@ -25,10 +25,10 @@ Video or rerank backend ([Model download](model-download.md)).
 
 1. Choose **one** capability to prove first (recommendation, vision, RAG, or
    media).
-2. Install from `python_ml/` and copy the secrets file:
+2. Install from `server/` and copy the secrets file:
 
 ```bash
-cd python_ml
+cd server
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt --override overrides.txt
 cp .env.example .env
@@ -92,8 +92,8 @@ Every module is always loaded; `status` is `ok` or `degraded`.
 ## Container
 
 ```bash
-docker build -t explore-ml python_ml
-docker run -p 8000:8000 --env-file python_ml/.env explore-ml
+docker build -t explore-ml server
+docker run -p 8000:8000 --env-file server/.env explore-ml
 ```
 
 ## Optional dependencies
@@ -127,7 +127,7 @@ Keep these aligned:
 
 - **Base URL** — the address your API uses (`http://localhost:8000`)
 - **`BASE_URL`** — same address, when it is not `localhost:8000`
-- **Secrets** — DB, Redis, API keys in `python_ml/.env` or a secret store
+- **Secrets** — DB, Redis, API keys in `server/.env` or a secret store
 - **`LOCAL_MODELS_ROOT`** — where local generative / rerank weights live
 - **Timeouts** — owned by the product API, not the browser
 

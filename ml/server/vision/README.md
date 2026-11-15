@@ -3,7 +3,7 @@
 Package `vision` in the single Explore ML app (port 8000): `module.py` /
 `config.py` / `controller/` / `service/` / `domain/` / `infra/` / `tests/` /
 `training/`. Setup and run commands:
-[`python_ml/README.md`](../README.md). The models load at startup.
+[`server/README.md`](../README.md). The models load at startup.
 
 ## API
 
@@ -59,6 +59,6 @@ check relies on ImageNet ids. See the
 ## Tests
 
 ```bash
-cd python_ml
+cd server
 pytest -q vision/tests
 ```

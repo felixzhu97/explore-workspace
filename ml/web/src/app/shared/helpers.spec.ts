@@ -1,7 +1,7 @@
 import { HELPERS, findHelper, mlUrl, toProxyUrl } from './helpers';
 
 describe('helper registry', () => {
-  it('should key every helper by its python_ml package name', () => {
+  it('should key every helper by its server package name', () => {
     expect(HELPERS.map((helper) => helper.module)).toEqual([
       'recommendation',
       'vision',
