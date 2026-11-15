@@ -204,8 +204,8 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 | Abstract Audit Event | 不可变审计聚合基类 | Immutable audit aggregate base; `occurred_at` column | `AbstractAuditEvent` | implemented |
 | Abstract Embeddable | 可嵌入值对象基类 | Embeddable VO and typed id base | `com.explore.kernel.AbstractEmbeddable` (`shared/kernel`) | implemented |
 | Domain Strings | 域字符串校验 | Shared non-blank string validation | `DomainStrings.requireNonBlank` | implemented |
-| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | Pattern | e.g. `User.isLoginEnabled`, `AllowPolicy.getStatements` | implemented |
-| Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `PolicyStatementsJsonConverter` | implemented |
+| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | Pattern | e.g. `User.isLoginEnabled`, `Policy.getStatements` | implemented |
+| Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `RulesJsonConverter` | implemented |
 | Optimistic Locking | 乐观锁 | Concurrent update detection via `@Version` | `AbstractEntity.version` | implemented |
 | Liquibase Changelog | Liquibase 变更日志 | Versioned SQL schema migrations | `db/changelog/0.1.xml` | implemented |
 | Schema Validation | 模式校验 | Hibernate validates entities against DB schema | `spring.jpa.hibernate.ddl-auto: validate` | implemented |
@@ -260,7 +260,7 @@ Cross-bounded-context value objects in `com.iam.common.domain.model`
 | Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | implemented |
 | Reason Code | 理由码 | Machine-readable authorization outcome | Value Object | `ReasonCode` | implemented |
 | Explicit Deny Reason | 显式拒绝理由 | Matched Deny statement | Constant | `ReasonCode.EXPLICIT_DENY` | implemented |
-| Explicit Allow Reason | 显式允许理由 | Matched Allow statement | Constant | `ReasonCode.EXPLICIT_ALLOW` | implemented |
+| Explicit Allow Reason | 显式允许理由 | Matched Allow statement | Constant | `ReasonCode.EXPLICIT_PERMIT` | implemented |
 | Implicit Deny Reason | 隐式拒绝理由 | No Allow matched | Constant | `ReasonCode.IMPLICIT_DENY` | implemented |
 
 ---
@@ -331,15 +331,15 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Allow Policy | 允许策略 | Document of statements (Effect, Permission, Resource) | Aggregate | `AllowPolicy` | implemented |
-| Policy Statement | 策略语句 | Single Allow or Deny rule block | Value Object | `PolicyStatement` | implemented |
+| Allow Policy | 允许策略 | Document of statements (Effect, Permission, Resource) | Aggregate | `Policy` | implemented |
+| Policy Statement | 策略语句 | Single Allow or Deny rule block | Value Object | `Rule` | implemented |
 | Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | see §5.5 |
 | Policy Binding | 策略绑定 | Links an Allow Policy to a principal resource name | Aggregate | `PolicyBinding` | implemented |
 | Permission | 权限 | Catalog entry: code, Resource, and GitHub-style `oauthScope` | Aggregate | `com.iam.policy.domain.model.Permission` | implemented |
 | Access Tuple | 访问元组 | Principal + Permission + Resource (Policy Troubleshooter shape) | Value Object | `AccessTuple` | implemented |
 | Access Decision | 访问决策 | Allow or Deny with reason | Value Object | `AccessDecision` | implemented |
 | Policy Engine | 策略引擎 | Evaluates policies: Deny > Allow > Implicit Deny | Domain Service | `PolicyEngine` | implemented |
-| Allow Policy Created Event | 允许策略已创建事件 | Allow Policy created | Domain Event | `AllowPolicyCreatedEvent` | implemented |
+| Allow Policy Created Event | 允许策略已创建事件 | Allow Policy created | Domain Event | `PolicyCreatedEvent` | implemented |
 | Policy Attached Event | 策略已绑定事件 | Policy Binding created | Domain Event | `PolicyAttachedEvent` | implemented |
 | Permission Created Event | 权限已创建事件 | Permission catalog entry created | Domain Event | `PermissionCreatedEvent` | implemented |
 | Access Evaluated Event | 访问已评估事件 | Access Tuple evaluated to an Access Decision | Domain Event | `AccessEvaluatedEvent` | implemented |
@@ -383,7 +383,7 @@ Immutable **aggregate roots** for append-only audit rows (Google Cloud Audit Log
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
 | Admin Activity | 管理活动 | Management-plane action with actor, target, outcome | Aggregate | `AdminActivity` | implemented |
-| Data Access Log | 数据访问日志 | Persisted Allow/Deny with reason code | Aggregate | `DataAccessLog` | implemented |
+| Data Access Log | 数据访问日志 | Persisted Permit/Deny with reason code | Aggregate | `DataAccessLog` | implemented |
 | Audit Actor | 审计主体 | Principal that performed a management action | Value Object | `AuditActor` | implemented |
 | Audit Target | 审计目标 | Resource type and id affected | Value Object | `AuditTarget` | implemented |
 | Audit Outcome | 审计结果 | Success or failure | Enum | `AuditOutcome` | implemented |

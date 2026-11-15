@@ -3,7 +3,7 @@ package com.iam.policy.domain.converter;
 import com.iam.common.domain.model.Effect;
 import com.iam.common.domain.model.Permission;
 import com.iam.common.domain.model.Resource;
-import com.iam.policy.domain.model.PolicyStatement;
+import com.iam.policy.domain.model.Rule;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.ArrayList;
@@ -14,57 +14,67 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-/** Persists policy statements as JSON in a single column. */
+/** Persists policy rules as JSON in a single column. */
 @Converter(autoApply = false)
-public class PolicyStatementsJsonConverter
-    implements AttributeConverter<List<PolicyStatement>, String> {
+public class RulesJsonConverter implements AttributeConverter<List<Rule>, String> {
 
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   @Override
-  public String convertToDatabaseColumn(List<PolicyStatement> attribute) {
+  public String convertToDatabaseColumn(List<Rule> attribute) {
     if (attribute == null) {
       return null;
     }
     try {
       List<Map<String, Object>> payload = new ArrayList<>();
-      for (PolicyStatement statement : attribute) {
+      for (Rule rule : attribute) {
         payload.add(
             Map.of(
-                "effect", statement.effect().name(),
-                "actions", statement.actions().stream().map(Permission::value).toList(),
-                "resources", statement.resources().stream().map(Resource::value).toList()));
+                "effect", rule.effect().name(),
+                "actions", rule.actions().stream().map(Permission::value).toList(),
+                "resources", rule.resources().stream().map(Resource::value).toList()));
       }
       return OBJECT_MAPPER.writeValueAsString(payload);
     } catch (JacksonException ex) {
-      throw new IllegalStateException("Failed to serialize policy statements", ex);
+      throw new IllegalStateException("Failed to serialize policy rules", ex);
     }
   }
 
   @Override
-  public List<PolicyStatement> convertToEntityAttribute(String dbData) {
+  public List<Rule> convertToEntityAttribute(String dbData) {
     if (dbData == null) {
       return List.of();
     }
     try {
       List<Map<String, Object>> payload =
           OBJECT_MAPPER.readValue(dbData, new TypeReference<List<Map<String, Object>>>() {});
-      List<PolicyStatement> statements = new ArrayList<>();
+      List<Rule> rules = new ArrayList<>();
       for (Map<String, Object> row : payload) {
-        Effect effect = Effect.valueOf((String) row.get("effect"));
+        Effect effect = parseStoredEffect((String) row.get("effect"));
         @SuppressWarnings("unchecked")
         List<String> actions = (List<String>) row.get("actions");
         @SuppressWarnings("unchecked")
         List<String> resources = (List<String>) row.get("resources");
-        statements.add(
-            PolicyStatement.createPolicyStatement(
+        rules.add(
+            Rule.createRule(
                 effect,
                 actions.stream().map(Permission::new).collect(Collectors.toSet()),
                 resources.stream().map(Resource::new).collect(Collectors.toSet())));
       }
-      return List.copyOf(statements);
+      return List.copyOf(rules);
     } catch (JacksonException ex) {
-      throw new IllegalStateException("Failed to deserialize policy statements", ex);
+      throw new IllegalStateException("Failed to deserialize policy rules", ex);
     }
+  }
+
+  private static Effect parseStoredEffect(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new IllegalArgumentException("effect must not be blank");
+    }
+    String normalized = raw.trim().toUpperCase();
+    if ("ALLOW".equals(normalized)) {
+      return Effect.PERMIT;
+    }
+    return Effect.valueOf(normalized);
   }
 }

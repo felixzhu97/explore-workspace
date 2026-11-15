@@ -5,4 +5,4 @@ package com.iam.policy.domain.event;
  *
  * @param policyId allow policy id
  */
-public record AllowPolicyCreatedEvent(String policyId) {}
+public record PolicyCreatedEvent(String policyId) {}

@@ -4,11 +4,11 @@ import com.iam.common.domain.model.Effect;
 import com.iam.common.domain.model.ReasonCode;
 import com.iam.policy.domain.model.AccessDecision;
 import com.iam.policy.domain.model.AccessTuple;
-import com.iam.policy.domain.model.AllowPolicy;
-import com.iam.policy.domain.model.PolicyStatement;
+import com.iam.policy.domain.model.Policy;
+import com.iam.policy.domain.model.Rule;
 import java.util.List;
 
-/** Evaluates policy documents with Deny &gt; Allow &gt; implicit Deny semantics. */
+/** Evaluates policy documents with Deny &gt; Permit &gt; implicit Deny semantics. */
 public class PolicyEngine {
 
   /**
@@ -18,23 +18,23 @@ public class PolicyEngine {
    * @param policies policies attached to the principal
    * @return authorization decision
    */
-  public AccessDecision evaluate(AccessTuple context, List<AllowPolicy> policies) {
-    boolean allowMatched = false;
-    for (AllowPolicy policy : policies) {
-      for (PolicyStatement statement : policy.getStatements()) {
-        if (!statement.matchesPermissionAndResource(context.action(), context.resource())) {
+  public AccessDecision evaluate(AccessTuple context, List<Policy> policies) {
+    boolean permitMatched = false;
+    for (Policy policy : policies) {
+      for (Rule rule : policy.getRules()) {
+        if (!rule.matchesPermissionAndResource(context.action(), context.resource())) {
           continue;
         }
-        if (statement.effect() == Effect.DENY) {
+        if (rule.effect() == Effect.DENY) {
           return new AccessDecision(Effect.DENY, ReasonCode.EXPLICIT_DENY);
         }
-        if (statement.effect() == Effect.ALLOW) {
-          allowMatched = true;
+        if (rule.effect() == Effect.PERMIT) {
+          permitMatched = true;
         }
       }
     }
-    if (allowMatched) {
-      return new AccessDecision(Effect.ALLOW, ReasonCode.EXPLICIT_ALLOW);
+    if (permitMatched) {
+      return new AccessDecision(Effect.PERMIT, ReasonCode.EXPLICIT_PERMIT);
     }
     return new AccessDecision(Effect.DENY, ReasonCode.IMPLICIT_DENY);
   }

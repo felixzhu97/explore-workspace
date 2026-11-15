@@ -19,10 +19,10 @@ import com.iam.identity.domain.model.Group;
 import com.iam.identity.domain.model.Role;
 import com.iam.identity.domain.model.TotpCredential;
 import com.iam.identity.domain.model.User;
-import com.iam.policy.domain.model.AllowPolicy;
+import com.iam.policy.domain.model.Policy;
 import com.iam.policy.domain.model.Permission;
 import com.iam.policy.domain.model.PolicyBinding;
-import com.iam.policy.domain.model.PolicyStatement;
+import com.iam.policy.domain.model.Rule;
 import com.iam.scim.domain.model.ProvisioningTarget;
 import com.iam.sts.domain.model.ShortLivedCredential;
 import java.time.Duration;
@@ -123,14 +123,14 @@ class EntityPersistenceCharacterizationTest {
 
   @Test
   @DisplayName("should round-trip an allow policy and its binding")
-  void shouldRoundTripAnAllowPolicyAndItsBinding() {
-    AllowPolicy policy =
+  void shouldRoundTripAnPolicyAndItsBinding() {
+    Policy policy =
         saveAndReload(
-            AllowPolicy.createAllowPolicy(
+            Policy.createPolicy(
                 "characterization-policy",
                 List.of(
-                    PolicyStatement.createPolicyStatement(
-                        Effect.ALLOW,
+                    Rule.createRule(
+                        Effect.PERMIT,
                         Set.of(new com.iam.common.domain.model.Permission("iam:ListUsers")),
                         Set.of(new Resource("*"))))));
 

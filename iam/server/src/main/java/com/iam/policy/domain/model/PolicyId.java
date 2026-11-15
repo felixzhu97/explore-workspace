@@ -10,18 +10,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-/** Strongly-typed ID for {@link AllowPolicy}. */
+/** Strongly-typed ID for {@link Policy}. */
 @Embeddable
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @AllArgsConstructor(staticName = "createId")
-public final class AllowPolicyId extends AbstractEmbeddable {
+public final class PolicyId extends AbstractEmbeddable {
 
   @NonNull private String value;
 
   /** Creates a new random id. */
-  public static AllowPolicyId generateId() {
+  public static PolicyId generateId() {
     return createId(UUID.randomUUID().toString());
   }
 

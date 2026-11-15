@@ -284,18 +284,18 @@ ProvisioningTarget ..> UserProvisionedEvent : reacts via listener
 ProvisioningTarget ..> GroupMembershipChangedEvent : reacts via listener
 
 package "Policy" as pkg_policy {
-  class AllowPolicy <<AggregateRoot>> {
+  class Policy <<AggregateRoot>> {
     +name: String
-    +statements: List<PolicyStatement>
+    +statements: List<Rule>
     --
-    +{static} createAllowPolicy(name, statements)
+    +{static} createPolicy(name, statements)
   }
-  class PolicyStatement <<ValueObject>> {
+  class Rule <<ValueObject>> {
     +effect: Effect
     +actions: Set<Permission>
     +resources: Set<Resource>
     --
-    +{static} createPolicyStatement(effect, actions, resources)
+    +{static} createRule(effect, actions, resources)
     +matchesPermissionAndResource(action, resource)
   }
   class PolicyBinding <<AggregateRoot>> {
@@ -329,7 +329,7 @@ package "Policy" as pkg_policy {
   class PolicyEngine <<DomainService>> {
     +evaluate(context, policies)
   }
-  class AllowPolicyCreatedEvent <<DomainEvent>> {
+  class PolicyCreatedEvent <<DomainEvent>> {
     +policyId: String
   }
   class PolicyAttachedEvent <<DomainEvent>> {
@@ -347,11 +347,11 @@ package "Policy" as pkg_policy {
   }
 }
 
-AllowPolicy --|> AbstractNamedEntity
+Policy --|> AbstractNamedEntity
 PolicyBinding --|> AbstractImmutableEntity
 PermissionCatalogEntry --|> AbstractImmutableEntity
-AllowPolicy "1" *-- "1..*" PolicyStatement : statements
-PolicyBinding --> AllowPolicy : references policyId
+Policy "1" *-- "1..*" Rule : statements
+PolicyBinding --> Policy : references policyId
 PolicyBinding --> ResourceName
 PermissionCatalogEntry --> Permission
 PermissionCatalogEntry --> Resource
@@ -361,7 +361,7 @@ AccessTuple --> Permission
 AccessTuple --> Resource
 AccessDecision --> Effect
 AccessDecision --> ReasonCode
-PolicyEngine ..> AllowPolicy : reads
+PolicyEngine ..> Policy : reads
 PolicyEngine ..> AccessDecision : returns
 PermissionCatalogEntry ..> PolicyEngine : catalog for Permission/Resource
 

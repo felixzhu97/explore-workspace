@@ -6,14 +6,14 @@ import com.iam.common.domain.model.Resource;
 import java.util.Objects;
 import java.util.Set;
 
-/** Single Allow or Deny statement within a Policy Document. */
-public class PolicyStatement {
+/** Single Permit or Deny statement within a Policy Document. */
+public class Rule {
 
   private final Effect effect;
   private final Set<Permission> actions;
   private final Set<Resource> resources;
 
-  private PolicyStatement(Effect effect, Set<Permission> actions, Set<Resource> resources) {
+  private Rule(Effect effect, Set<Permission> actions, Set<Resource> resources) {
     this.effect = Objects.requireNonNull(effect, "effect");
     this.actions = Set.copyOf(Objects.requireNonNull(actions, "actions"));
     this.resources = Set.copyOf(Objects.requireNonNull(resources, "resources"));
@@ -28,14 +28,14 @@ public class PolicyStatement {
   /**
    * Creates a policy statement.
    *
-   * @param effect Allow or Deny
+   * @param effect Permit or Deny
    * @param actions permitted or denied actions
    * @param resources target resources
    * @return statement value object
    */
-  public static PolicyStatement createPolicyStatement(
+  public static Rule createRule(
       Effect effect, Set<Permission> actions, Set<Resource> resources) {
-    return new PolicyStatement(effect, actions, resources);
+    return new Rule(effect, actions, resources);
   }
 
   /** Returns the statement effect. */

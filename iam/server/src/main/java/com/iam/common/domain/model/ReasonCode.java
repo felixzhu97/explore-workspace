@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class ReasonCode extends AbstractEmbeddable {
 
   public static final ReasonCode EXPLICIT_DENY = new ReasonCode("EXPLICIT_DENY");
-  public static final ReasonCode EXPLICIT_ALLOW = new ReasonCode("EXPLICIT_ALLOW");
+  public static final ReasonCode EXPLICIT_PERMIT = new ReasonCode("EXPLICIT_PERMIT");
   public static final ReasonCode IMPLICIT_DENY = new ReasonCode("IMPLICIT_DENY");
 
   @EqualsAndHashCode.Include

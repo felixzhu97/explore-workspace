@@ -110,7 +110,7 @@ public class DataAccessLog extends AbstractAuditEvent<DataAccessLogId> {
   }
 
   public boolean isAllowed() {
-    return effect == Effect.ALLOW;
+    return effect == Effect.PERMIT;
   }
 
   public boolean isDenied() {

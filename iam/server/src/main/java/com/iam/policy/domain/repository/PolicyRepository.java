@@ -1,7 +1,7 @@
 package com.iam.policy.domain.repository;
 
 import com.iam.common.domain.model.ResourceName;
-import com.iam.policy.domain.model.AllowPolicy;
+import com.iam.policy.domain.model.Policy;
 import com.iam.policy.domain.model.PolicyBinding;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +15,7 @@ public interface PolicyRepository {
    * @param policy policy to store
    * @return stored policy
    */
-  AllowPolicy save(AllowPolicy policy);
+  Policy save(Policy policy);
 
   /**
    * Finds a policy by id.
@@ -23,14 +23,14 @@ public interface PolicyRepository {
    * @param id policy id
    * @return matching policy when present
    */
-  Optional<AllowPolicy> findById(String id);
+  Optional<Policy> findById(String id);
 
   /**
    * Lists all policy documents.
    *
    * @return all policies
    */
-  List<AllowPolicy> findAll();
+  List<Policy> findAll();
 
   /**
    * Persists a policy attachment.
@@ -46,5 +46,5 @@ public interface PolicyRepository {
    * @param principalArn principal ARN
    * @return attached policies
    */
-  List<AllowPolicy> findAttachedToPrincipal(ResourceName principalArn);
+  List<Policy> findAttachedToPrincipal(ResourceName principalArn);
 }

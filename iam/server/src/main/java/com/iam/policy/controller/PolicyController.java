@@ -2,12 +2,12 @@ package com.iam.policy.controller;
 
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.model.AccessDecision;
-import com.iam.policy.domain.model.AllowPolicy;
+import com.iam.policy.domain.model.Policy;
 import com.iam.policy.domain.model.PolicyBinding;
 import com.iam.policy.service.PolicyService;
 import com.iam.policy.service.PolicyService.CreatePolicyCommand;
 import com.iam.policy.service.PolicyService.EvaluateCommand;
-import com.iam.policy.service.PolicyService.StatementInput;
+import com.iam.policy.service.PolicyService.RuleInput;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Policy document CRUD and evaluation API. */
 @RestController
-@RequestMapping("/api/v1/allowPolicies")
+@RequestMapping("/api/v1/policies")
 public class PolicyController {
 
   private final PolicyService policyService;
@@ -43,16 +43,16 @@ public class PolicyController {
    */
   @PostMapping
   @PreAuthorize("hasRole('IAM_ADMIN')")
-  public ResponseEntity<AllowPolicyResponse> createAllowPolicy(
+  public ResponseEntity<PolicyResponse> createPolicy(
       @RequestBody CreatePolicyRequest request) {
-    AllowPolicy policy =
-        policyService.createAllowPolicy(
+    Policy policy =
+        policyService.createPolicy(
             new CreatePolicyCommand(
                 request.name(),
-                request.statements().stream()
-                    .map(s -> new StatementInput(s.effect(), s.actions(), s.resources()))
+                request.rules().stream()
+                    .map(s -> new RuleInput(s.effect(), s.actions(), s.resources()))
                     .toList()));
-    return ResponseEntity.status(HttpStatus.CREATED).body(AllowPolicyResponse.from(policy));
+    return ResponseEntity.status(HttpStatus.CREATED).body(PolicyResponse.from(policy));
   }
 
   /**
@@ -62,8 +62,8 @@ public class PolicyController {
    */
   @GetMapping
   @PreAuthorize("hasAnyRole('IAM_ADMIN', 'IAM_AUDITOR')")
-  public List<AllowPolicyResponse> list() {
-    return policyService.findAll().stream().map(AllowPolicyResponse::from).toList();
+  public List<PolicyResponse> list() {
+    return policyService.findAll().stream().map(PolicyResponse::from).toList();
   }
 
   /**
@@ -73,10 +73,10 @@ public class PolicyController {
    * @param request attachment payload
    * @return created attachment
    */
-  @PostMapping("/{allowPolicy}:createPolicyBinding")
+  @PostMapping("/{policy}:createPolicyBinding")
   @PreAuthorize("hasRole('IAM_ADMIN')")
   public PolicyBindingResponse createPolicyBinding(
-      @PathVariable("allowPolicy") String policy, @RequestBody AttachPolicyRequest request) {
+      @PathVariable("policy") String policy, @RequestBody AttachPolicyRequest request) {
     PolicyBinding attachment =
         policyService.createPolicyBinding(policy, new ResourceName(request.principalArn()));
     return new PolicyBindingResponse(
@@ -104,10 +104,10 @@ public class PolicyController {
   }
 
   /** Request body for creating a policy document. */
-  public record CreatePolicyRequest(String name, List<StatementRequest> statements) {}
+  public record CreatePolicyRequest(String name, List<RuleRequest> rules) {}
 
-  /** Single policy statement input. */
-  public record StatementRequest(String effect, List<String> actions, List<String> resources) {}
+  /** Single policy rule input. */
+  public record RuleRequest(String effect, List<String> actions, List<String> resources) {}
 
   /** Request body for attaching a policy to a principal. */
   public record AttachPolicyRequest(String principalArn) {}
@@ -117,9 +117,9 @@ public class PolicyController {
       String principalId, String principalArn, String action, String resource) {}
 
   /** Policy document summary. */
-  public record AllowPolicyResponse(String id, String name) {
-    static AllowPolicyResponse from(AllowPolicy policy) {
-      return new AllowPolicyResponse(policy.getId().getValue(), policy.getName());
+  public record PolicyResponse(String id, String name) {
+    static PolicyResponse from(Policy policy) {
+      return new PolicyResponse(policy.getId().getValue(), policy.getName());
     }
   }
 
