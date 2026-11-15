@@ -47,7 +47,7 @@ class PermissionControllerTest {
 
     String body =
         mockMvc
-            .perform(get("/api/v1/permissions/{permissionPoint}", "read:chat"))
+            .perform(get("/api/v1/permissions/{scope}", "read:chat"))
             .andExpect(status().isOk())
             .andReturn()
             .getResponse()
