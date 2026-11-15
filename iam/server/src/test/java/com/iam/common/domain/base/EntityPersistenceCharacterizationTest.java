@@ -24,7 +24,7 @@ import com.iam.policy.domain.model.Permission;
 import com.iam.policy.domain.model.PolicyAssignment;
 import com.iam.policy.domain.model.Rule;
 import com.iam.scim.domain.model.ProvisioningTarget;
-import com.iam.sts.domain.model.ShortLivedCredential;
+import com.iam.sts.domain.model.TokenExchange;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -154,9 +154,9 @@ class EntityPersistenceCharacterizationTest {
 
   @Test
   @DisplayName("should round-trip a short-lived credential")
-  void shouldRoundTripAShortLivedCredential() {
+  void shouldRoundTripATokenExchange() {
     saveAndReload(
-        ShortLivedCredential.createShortLivedCredential(
+        TokenExchange.createTokenExchange(
             ResourceName.createRoleResourceName("characterization-role"),
             "session",
             "user:characterized",

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="n2-token-exchange-rename-table" author="felix.zhu">
+    <comment>RFC 8693: ShortLivedCredential table → token_exchange.</comment>
+    <renameTable oldTableName="short_lived_credential" newTableName="token_exchange"/>
+  </changeSet>
+</databaseChangeLog>

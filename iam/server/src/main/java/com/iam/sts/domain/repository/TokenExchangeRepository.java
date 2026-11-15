@@ -1,10 +1,10 @@
 package com.iam.sts.domain.repository;
 
-import com.iam.sts.domain.model.ShortLivedCredential;
+import com.iam.sts.domain.model.TokenExchange;
 import java.util.Optional;
 
 /** Persistence port for assumed-role sessions. */
-public interface ShortLivedCredentialRepository {
+public interface TokenExchangeRepository {
 
   /**
    * Persists an assumed-role session.
@@ -12,7 +12,7 @@ public interface ShortLivedCredentialRepository {
    * @param session session to store
    * @return stored session
    */
-  ShortLivedCredential save(ShortLivedCredential session);
+  TokenExchange save(TokenExchange session);
 
   /**
    * Finds a session by id.
@@ -20,5 +20,5 @@ public interface ShortLivedCredentialRepository {
    * @param id session id
    * @return matching session when present
    */
-  Optional<ShortLivedCredential> findById(String id);
+  Optional<TokenExchange> findById(String id);
 }

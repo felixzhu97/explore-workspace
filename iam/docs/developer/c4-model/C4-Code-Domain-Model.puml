@@ -366,13 +366,13 @@ PolicyEngine ..> AccessDecision : returns
 PermissionCatalogEntry ..> PolicyEngine : catalog for Permission/Resource
 
 package "Short-lived credentials" as pkg_sts {
-  class ShortLivedCredential <<AggregateRoot>> {
+  class TokenExchange <<AggregateRoot>> {
     +roleArn: ResourceName
     +sessionName: String
     +callerPrincipal: String
     +expiresAt: Instant
     --
-    +{static} createShortLivedCredential(roleArn, sessionName, callerPrincipal, expiresAt)
+    +{static} createTokenExchange(roleArn, sessionName, callerPrincipal, expiresAt)
     +isExpired(now)
   }
   class RoleAssumedEvent <<DomainEvent>> {
@@ -380,8 +380,8 @@ package "Short-lived credentials" as pkg_sts {
   }
 }
 
-ShortLivedCredential --|> AbstractImmutableEntity
-ShortLivedCredential --> ResourceName
+TokenExchange --|> AbstractImmutableEntity
+TokenExchange --> ResourceName
 RoleAssumedEvent ..> Role : roleId
 
 package "Federation" as pkg_federation {

@@ -35,7 +35,7 @@ objects live in `domain.model` (no `domain.vo`).
 | -------------- | ------ | ------------ | -------------- | ---------- | ------ | ----- |
 | Identity       | 身份   | `com.iam.identity` | `/identity` | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` | partial | AIP-121; `User` / Group / Role / RoleAssignment |
 | Policy         | 策略   | `com.iam.policy` | `/allow-policies` | `/api/v1/allowPolicies`, `/api/v1/permissions` | partial | Policy Engine + Permission catalog |
-| Short-lived credentials | 临时凭证 | `com.iam.sts` | — | `/api/v1/shortLivedCredentials` | partial | ShortLivedCredential JWT |
+| Short-lived credentials | 临时凭证 | `com.iam.sts` | — | `/api/v1/tokenExchanges` | partial | TokenExchange JWT |
 | Federation     | 联邦   | `com.iam.federation` | `/oauth-clients` | OIDC + `/api/v1/oauthClients` | partial | SAS Provider + `OAuthClient` |
 | Console        | 控制台 | — | `/` | — | partial | Login + OAuth client registration |
 | Audit          | 审计   | `com.iam.audit` | `/audit` | `/api/v1/adminActivities`, `/api/v1/dataAccessLogs` | partial | AdminActivity + DataAccessLog |
@@ -350,10 +350,10 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Short-Lived Credential | 短期凭证 | Temporary JWT after role impersonation | Aggregate | `ShortLivedCredential` | implemented |
+| Token Exchange | 短期凭证 | Temporary JWT after role impersonation | Aggregate | `TokenExchange` | implemented |
 | Impersonation Policy | 模拟策略 | Who may create short-lived credentials for a Role | Concept | `ImpersonationPolicy` on `Role` | implemented |
-| Create Short-Lived Credential | 创建短期凭证 | Exchange caller identity for role session credentials | Use Case | `ShortLivedCredentialService` | implemented |
-| Session Expired | 会话已过期 | Whether credentials are no longer valid | Behavior | `ShortLivedCredential.isExpired` | implemented |
+| Create Token Exchange | 创建短期凭证 | Exchange caller identity for role session credentials | Use Case | `TokenExchangeService` | implemented |
+| Session Expired | 会话已过期 | Whether credentials are no longer valid | Behavior | `TokenExchange.isExpired` | implemented |
 | Role Assumed Event | 角色已扮演事件 | Caller obtained short-lived credentials for a Role | Domain Event | `RoleAssumedEvent` | implemented |
 
 ---

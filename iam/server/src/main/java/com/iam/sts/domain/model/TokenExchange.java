@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class ShortLivedCredential extends AbstractImmutableEntity<ShortLivedCredentialId> {
+public class TokenExchange extends AbstractImmutableEntity<TokenExchangeId> {
 
   @Embedded
   @AttributeOverride(
@@ -41,8 +41,8 @@ public class ShortLivedCredential extends AbstractImmutableEntity<ShortLivedCred
   @Column(nullable = false)
   private Instant expiresAt;
 
-  private ShortLivedCredential(
-      ShortLivedCredentialId id,
+  private TokenExchange(
+      TokenExchangeId id,
       ResourceName roleArn,
       String sessionName,
       String callerPrincipal,
@@ -55,10 +55,10 @@ public class ShortLivedCredential extends AbstractImmutableEntity<ShortLivedCred
   }
 
   /** Creates a new assumed-role session. */
-  public static ShortLivedCredential createShortLivedCredential(
+  public static TokenExchange createTokenExchange(
       ResourceName roleArn, String sessionName, String callerPrincipal, Instant expiresAt) {
-    return new ShortLivedCredential(
-        ShortLivedCredentialId.generateId(), roleArn, sessionName, callerPrincipal, expiresAt);
+    return new TokenExchange(
+        TokenExchangeId.generateId(), roleArn, sessionName, callerPrincipal, expiresAt);
   }
 
   /** Returns true when the session has expired. */

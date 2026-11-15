@@ -10,18 +10,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-/** Strongly-typed ID for {@link ShortLivedCredential}. */
+/** Strongly-typed ID for {@link TokenExchange}. */
 @Embeddable
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @AllArgsConstructor(staticName = "createId")
-public final class ShortLivedCredentialId extends AbstractEmbeddable {
+public final class TokenExchangeId extends AbstractEmbeddable {
 
   @NonNull private String value;
 
   /** Creates a new random id. */
-  public static ShortLivedCredentialId generateId() {
+  public static TokenExchangeId generateId() {
     return createId(UUID.randomUUID().toString());
   }
 

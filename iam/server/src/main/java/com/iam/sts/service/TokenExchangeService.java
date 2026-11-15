@@ -4,8 +4,8 @@ import com.iam.common.domain.model.ResourceName;
 import com.iam.identity.domain.model.Role;
 import com.iam.identity.domain.repository.RoleRepository;
 import com.iam.sts.domain.event.RoleAssumedEvent;
-import com.iam.sts.domain.model.ShortLivedCredential;
-import com.iam.sts.domain.repository.ShortLivedCredentialRepository;
+import com.iam.sts.domain.model.TokenExchange;
+import com.iam.sts.domain.repository.TokenExchangeRepository;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
@@ -21,10 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Issues temporary JWT credentials for an assumed IAM role. */
 @Service
-public class ShortLivedCredentialService {
+public class TokenExchangeService {
 
   private final RoleRepository roleRepository;
-  private final ShortLivedCredentialRepository sessionRepository;
+  private final TokenExchangeRepository sessionRepository;
   private final JwtEncoder jwtEncoder;
   private final ApplicationEventPublisher eventPublisher;
   private final Duration sessionTtl;
@@ -38,9 +38,9 @@ public class ShortLivedCredentialService {
    * @param eventPublisher domain event publisher
    * @param sessionTtl session time-to-live
    */
-  public ShortLivedCredentialService(
+  public TokenExchangeService(
       RoleRepository roleRepository,
-      ShortLivedCredentialRepository sessionRepository,
+      TokenExchangeRepository sessionRepository,
       JwtEncoder jwtEncoder,
       ApplicationEventPublisher eventPublisher,
       @Value("${app.security.token.assume-role-ttl:PT1H}") Duration sessionTtl) {
@@ -58,7 +58,7 @@ public class ShortLivedCredentialService {
    * @return access token and session metadata
    */
   @Transactional
-  public AssumeRoleResult createShortLivedCredential(AssumeRoleCommand command) {
+  public TokenExchangeResult createTokenExchange(TokenExchangeCommand command) {
     Objects.requireNonNull(command, "command");
     ResourceName roleArn = new ResourceName(command.roleArn());
     Role role =
@@ -67,16 +67,16 @@ public class ShortLivedCredentialService {
             .orElseThrow(() -> new IllegalArgumentException("role not found: " + roleArn));
     String caller = currentPrincipal();
     Instant expiresAt = Instant.now().plus(sessionTtl);
-    ShortLivedCredential session =
+    TokenExchange session =
         sessionRepository.save(
-            ShortLivedCredential.createShortLivedCredential(
+            TokenExchange.createTokenExchange(
                 roleArn, command.sessionName(), caller, expiresAt));
     String accessToken = encodeToken(session, role);
     eventPublisher.publishEvent(new RoleAssumedEvent(role.getId().getValue()));
-    return new AssumeRoleResult(accessToken, session.getExpiresAt(), session.getId().getValue());
+    return new TokenExchangeResult(accessToken, session.getExpiresAt(), session.getId().getValue());
   }
 
-  private String encodeToken(ShortLivedCredential session, Role role) {
+  private String encodeToken(TokenExchange session, Role role) {
     Instant now = Instant.now();
     JwtClaimsSet claims =
         JwtClaimsSet.builder()
@@ -100,9 +100,9 @@ public class ShortLivedCredentialService {
     return auth.getName();
   }
 
-  /** Input for AssumeRole. */
-  public record AssumeRoleCommand(String roleArn, String sessionName) {}
+  /** Input for token exchange. */
+  public record TokenExchangeCommand(String roleArn, String sessionName) {}
 
-  /** Temporary credentials returned by AssumeRole. */
-  public record AssumeRoleResult(String accessToken, Instant expiration, String sessionId) {}
+  /** Token exchange outcome before RFC 8693 response shaping. */
+  public record TokenExchangeResult(String accessToken, Instant expiration, String sessionId) {}
 }
