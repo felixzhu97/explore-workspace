@@ -280,6 +280,6 @@ app:
       tokenizer-path: ${VISION_CAPTION_TOKENIZER:models/blip_tokenizer}
       max-length: 50
     ocr:
-      tessdata-path: ${TESSDATA_PATH:models/tessdata}
+      tessdata-path: ${TESSDATA_PREFIX:models/tessdata}
       languages: eng+chi_sim
       page-seg-mode: 3
