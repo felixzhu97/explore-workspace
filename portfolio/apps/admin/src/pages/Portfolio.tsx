@@ -1,0 +1,92 @@
+import { useRef } from 'react'
+import { AgGridReact } from 'ag-grid-react'
+import { ColDef, GridReadyEvent } from 'ag-grid-community'
+import { Card, CardHeader, CardTitle, CardContent, AgGridWrap } from '@/styled'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-quartz.css'
+
+interface PortfolioItem {
+  symbol: string
+  name: string
+  quantity: number
+  avgPrice: number
+  currentPrice: number
+  marketValue: number
+  costBasis: number
+  gainLoss: number
+  gainLossPercent: number
+  allocation: number
+  sector: string
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const portfolioRowData: PortfolioItem[] = [
+  { symbol: 'AAPL', name: 'Apple Inc.', quantity: 50, avgPrice: 175.2, currentPrice: 182.52, marketValue: 9126, costBasis: 8760, gainLoss: 366, gainLossPercent: 4.18, allocation: 18.5, sector: 'Technology' },
+  { symbol: 'MSFT', name: 'Microsoft', quantity: 30, avgPrice: 365.8, currentPrice: 378.91, marketValue: 11367.3, costBasis: 10974, gainLoss: 393.3, gainLossPercent: 3.59, allocation: 23, sector: 'Technology' },
+  { symbol: 'NVDA', name: 'NVIDIA', quantity: 20, avgPrice: 850, currentPrice: 875.28, marketValue: 17505.6, costBasis: 17000, gainLoss: 505.6, gainLossPercent: 2.98, allocation: 35.5, sector: 'Technology' },
+  { symbol: 'TSLA', name: 'Tesla', quantity: 25, avgPrice: 240, currentPrice: 248.34, marketValue: 6208.5, costBasis: 6000, gainLoss: 208.5, gainLossPercent: 3.48, allocation: 12.6, sector: 'Automotive' },
+  { symbol: 'GOOGL', name: 'Alphabet', quantity: 15, avgPrice: 138.5, currentPrice: 142.5, marketValue: 2137.5, costBasis: 2077.5, gainLoss: 60, gainLossPercent: 2.89, allocation: 4.3, sector: 'Technology' },
+  { symbol: 'BABA', name: 'Alibaba', quantity: 100, avgPrice: 75, currentPrice: 78.45, marketValue: 7845, costBasis: 7500, gainLoss: 345, gainLossPercent: 4.6, allocation: 15.9, sector: 'E-commerce' },
+  { symbol: 'JPM', name: 'JPMorgan Chase', quantity: 40, avgPrice: 145.2, currentPrice: 148.75, marketValue: 5950, costBasis: 5808, gainLoss: 142, gainLossPercent: 2.45, allocation: 12.1, sector: 'Finance' },
+]
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const gainLossCellClass = (value: number | undefined) => value !== undefined ? (value >= 0 ? 'cell-accent cell-font-semibold' : 'cell-destructive cell-font-semibold') : ''
+// eslint-disable-next-line react-refresh/only-export-components
+export const formatPortfolioPrice = (value: number | null | undefined) => value != null ? `¥${Number(value).toFixed(2)}` : ''
+// eslint-disable-next-line react-refresh/only-export-components
+export const formatMarketValue = (value: number | null | undefined) => value != null ? `¥${Number(value).toFixed(2)}` : ''
+// eslint-disable-next-line react-refresh/only-export-components
+export const formatGainLoss = (value: number | null | undefined) => value != null ? `${value >= 0 ? '+' : ''}¥${Number(value).toFixed(2)}` : ''
+// eslint-disable-next-line react-refresh/only-export-components
+export const formatGainLossPercent = (value: number | null | undefined) => value != null ? `${value >= 0 ? '+' : ''}${Number(value).toFixed(2)}%` : ''
+// eslint-disable-next-line react-refresh/only-export-components
+export const formatAllocation = (value: number | null | undefined) => value != null ? `${Number(value).toFixed(1)}%` : ''
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const portfolioColumnDefs: ColDef<PortfolioItem>[] = [
+  { field: 'symbol', headerName: 'Symbol', sortable: true, filter: true, width: 100, pinned: 'left' },
+  { field: 'name', headerName: 'Name', sortable: true, filter: true, flex: 1 },
+  { field: 'sector', headerName: 'Sector', sortable: true, filter: true, width: 120 },
+  { field: 'quantity', headerName: 'Quantity', sortable: true, filter: 'agNumberColumnFilter', width: 100 },
+  { field: 'avgPrice', headerName: 'Avg Price', sortable: true, filter: 'agNumberColumnFilter', width: 110, valueFormatter: (p) => formatPortfolioPrice(p.value) },
+  { field: 'currentPrice', headerName: 'Current Price', sortable: true, filter: 'agNumberColumnFilter', width: 120, valueFormatter: (p) => formatPortfolioPrice(p.value) },
+  { field: 'marketValue', headerName: 'Market Value', sortable: true, filter: 'agNumberColumnFilter', width: 130, valueFormatter: (p) => formatMarketValue(p.value), cellClass: 'cell-font-semibold' },
+  { field: 'costBasis', headerName: 'Cost Basis', sortable: true, filter: 'agNumberColumnFilter', width: 120, valueFormatter: (p) => formatPortfolioPrice(p.value) },
+  { field: 'gainLoss', headerName: 'Gain/Loss', sortable: true, filter: 'agNumberColumnFilter', width: 120, valueFormatter: (p) => formatGainLoss(p.value), cellClass: (p) => gainLossCellClass(p.value) },
+  { field: 'gainLossPercent', headerName: 'Gain/Loss %', sortable: true, filter: 'agNumberColumnFilter', width: 120, valueFormatter: (p) => formatGainLossPercent(p.value), cellClass: (p) => gainLossCellClass(p.value) },
+  { field: 'allocation', headerName: 'Allocation %', sortable: true, filter: 'agNumberColumnFilter', width: 130, valueFormatter: (p) => formatAllocation(p.value) },
+]
+
+export function Portfolio() {
+  const gridRef = useRef<AgGridReact<PortfolioItem>>(null)
+
+  const onGridReady = (params: GridReadyEvent<PortfolioItem>) => {
+    params.api.sizeColumnsToFit()
+  }
+
+  return (
+    <Card className="glass">
+      <CardHeader style={{ paddingBottom: '1rem' }}>
+        <CardTitle style={{ fontSize: '1.5rem' }}>Portfolio</CardTitle>
+        <p style={{ margin: 0, marginTop: 4, fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>View your complete investment portfolio</p>
+      </CardHeader>
+      <CardContent>
+        <AgGridWrap className="ag-theme-quartz-dark ag-robinhood">
+          <AgGridReact<PortfolioItem>
+            ref={gridRef}
+            rowData={portfolioRowData}
+            columnDefs={portfolioColumnDefs}
+            defaultColDef={{ resizable: true, sortable: true, filter: true }}
+            pagination
+            paginationPageSize={20}
+            rowSelection="multiple"
+            animateRows
+            theme="legacy"
+            onGridReady={onGridReady}
+          />
+        </AgGridWrap>
+      </CardContent>
+    </Card>
+  )
+}

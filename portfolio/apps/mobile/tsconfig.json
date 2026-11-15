@@ -1,0 +1,25 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "types": [
+      "react",
+      "react-native",
+      "jest"
+    ],
+    "jsx": "react-native",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.d.ts"
+  ]
+}

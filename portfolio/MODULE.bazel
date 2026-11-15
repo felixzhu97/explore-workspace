@@ -1,0 +1,32 @@
+module(
+    name = "explore_portfolio",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_java", version = "8.11.0")
+bazel_dep(name = "rules_jvm_external", version = "6.7")
+
+
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+maven.install(
+    artifacts = [
+        "org.springframework.boot:spring-boot-starter-web",
+        "org.springframework.boot:spring-boot-starter-data-jpa",
+        "org.springframework.boot:spring-boot-starter-validation",
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.liquibase:liquibase-core",
+        "com.h2database:h2",
+        "org.junit.platform:junit-platform-console",
+        "org.projectlombok:lombok",
+        "org.springframework.security:spring-security-crypto",
+    ],
+    boms = [
+        "org.springframework.boot:spring-boot-dependencies:3.4.3",
+    ],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "https://repo1.maven.org/maven2",
+    ],
+)
+use_repo(maven, "maven")
