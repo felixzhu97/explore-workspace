@@ -3,7 +3,12 @@ package com.ai.billing.domain.model;
 import java.util.Objects;
 import lombok.Value;
 
-/** Outcome of one quota check; the single source of the {@code X-Quota-*} response headers. */
+/**
+ * Outcome of one quota check; the single source of {@code RateLimit-*} response headers.
+ *
+ * @see <a href="https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-ratelimit-headers">IETF
+ *     RateLimit headers</a>
+ */
 @Value
 public class QuotaDecision {
   boolean allowed;

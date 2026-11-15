@@ -76,9 +76,9 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
             : null;
     QuotaDecision decision =
         dailyUsageQuotaService.tryConsume(owner, AnonymousId.resolveLimitAddress(request));
-    response.setHeader("X-Quota-Limit", String.valueOf(decision.getLimit()));
-    response.setHeader("X-Quota-Remaining", String.valueOf(decision.getRemaining()));
-    response.setHeader("X-Quota-Plan", decision.getPlan().getValue());
+    response.setHeader("RateLimit-Limit", String.valueOf(decision.getLimit()));
+    response.setHeader("RateLimit-Remaining", String.valueOf(decision.getRemaining()));
+    response.setHeader("RateLimit-Policy", decision.getPlan().getValue());
     if (!decision.isAllowed()) {
       response.setStatus(429);
       response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
