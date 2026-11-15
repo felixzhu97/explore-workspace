@@ -7,10 +7,10 @@ import static org.mockito.Mockito.when;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.account.service.OwnerErasureService;
-import com.ai.common.controller.ClientIdentityCookieFactory;
+import com.ai.common.controller.AnonymousIdCookieFactory;
 import com.ai.common.domain.model.OwnerKey;
-import com.ai.common.infra.config.ClientIdentityProperties;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.common.infra.config.AnonymousIdProperties;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class PrivacyControllerTest {
             mvc.delete()
                 .uri("/api/privacy/sessions")
                 .with(
-                    ClientIdentityRequestPostProcessor.withClientId(
+                    AnonymousIdRequestPostProcessor.withClientId(
                         "c:11111111-1111-1111-1111-111111111111")))
         .hasStatus(HttpStatus.NO_CONTENT);
     verify(ownerErasureService).eraseAllForOwner(OWNER);
@@ -57,24 +57,24 @@ class PrivacyControllerTest {
     assertThat(mvc.post().uri("/api/privacy/reset-identity"))
         .hasStatus(HttpStatus.NO_CONTENT)
         .cookies()
-        .containsCookie("ea_cid");
+        .containsCookie("explore_anonymous_id");
   }
 
   @TestConfiguration
   static class CookieTestConfig {
 
     @Bean
-    ClientIdentityProperties clientIdentityProperties() {
-      ClientIdentityProperties properties = new ClientIdentityProperties();
-      properties.setCookieName("ea_cid");
+    AnonymousIdProperties clientIdentityProperties() {
+      AnonymousIdProperties properties = new AnonymousIdProperties();
+      properties.setCookieName("explore_anonymous_id");
       properties.setSecure(false);
       properties.setSameSite("Lax");
       return properties;
     }
 
     @Bean
-    ClientIdentityCookieFactory clientIdentityCookieFactory(ClientIdentityProperties properties) {
-      return new ClientIdentityCookieFactory(properties);
+    AnonymousIdCookieFactory clientIdentityCookieFactory(AnonymousIdProperties properties) {
+      return new AnonymousIdCookieFactory(properties);
     }
   }
 }

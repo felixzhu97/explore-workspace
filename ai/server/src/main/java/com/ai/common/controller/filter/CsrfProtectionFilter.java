@@ -48,7 +48,7 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
       return true;
     }
     if (hasServiceAuthHeaders(request)) {
-      // Sibling BFFs use X-Service-Key + X-Client-Id (no browser cookie session).
+      // Sibling BFFs use X-Service-Key + Anonymous-Id (no browser cookie session).
       return true;
     }
     String path = request.getRequestURI();
@@ -83,8 +83,8 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
   }
 
   private static boolean hasServiceAuthHeaders(HttpServletRequest request) {
-    String serviceKey = request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER);
-    String clientId = request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER);
+    String serviceKey = request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER);
+    String clientId = request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER);
     return serviceKey != null && !serviceKey.isBlank() && clientId != null && !clientId.isBlank();
   }
 }

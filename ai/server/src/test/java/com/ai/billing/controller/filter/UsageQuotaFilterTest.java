@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.ai.billing.infra.config.BillingProperties;
 import com.ai.billing.service.BillingPlanService;
 import com.ai.billing.service.DailyUsageQuotaService;
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -81,7 +81,7 @@ class UsageQuotaFilterTest {
   private static MockHttpServletRequest postChat(String clientId) {
     MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/chat");
     request.setServletPath("/api/chat");
-    request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
+    request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, clientId);
     return request;
   }
 }

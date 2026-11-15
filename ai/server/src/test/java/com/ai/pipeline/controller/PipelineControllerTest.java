@@ -10,7 +10,7 @@ import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.service.PipelineService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.explore.errors.DomainException;
 import java.util.List;
@@ -42,7 +42,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/agent-types")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$")
@@ -62,7 +62,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/missing/health")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatus(HttpStatus.NOT_FOUND);
   }
 
@@ -76,7 +76,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/k8s/health")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatusOk();
   }
 
@@ -92,7 +92,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/missing")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatus(HttpStatus.NOT_FOUND);
   }
 
@@ -106,7 +106,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/k8s")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatusOk();
   }
 
@@ -125,7 +125,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
                     .uri("/api/pipelines/supervisor/invoke/sse")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{\"message\":\"hello\"}")
-                    .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))))
+                    .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey()))))
         .hasStatusOk()
         .bodyText()
         .asString()
@@ -141,7 +141,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
                 .uri("/api/pipelines/k8s/invoke/sse")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"message\":\" \"}")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatus(400);
   }
 

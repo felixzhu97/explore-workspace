@@ -790,9 +790,9 @@ public class EmailAlreadyExistsException extends RuntimeException {
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ClientIdentityRequiredException.class)
-    public ProblemDetail handleClientIdentityRequired(ClientIdentityRequiredException ex) {
-        return Problems.of(HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Client identity required");
+    @ExceptionHandler(AnonymousIdRequiredException.class)
+    public ProblemDetail handleAnonymousIdRequired(AnonymousIdRequiredException ex) {
+        return Problems.of(HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Anonymous id required");
     }
 
     @ExceptionHandler(Exception.class)

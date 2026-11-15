@@ -1,20 +1,20 @@
 package com.ai.common.controller;
 
-import com.ai.common.infra.config.ClientIdentityProperties;
+import com.ai.common.infra.config.AnonymousIdProperties;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
-/** Builds Set-Cookie values for anonymous client identity. */
+/** Builds Set-Cookie values for anonymous anonymous id. */
 @Component
 @RequiredArgsConstructor
-public class ClientIdentityCookieFactory {
+public class AnonymousIdCookieFactory {
 
-  private final ClientIdentityProperties properties;
+  private final AnonymousIdProperties properties;
 
-  /** Returns the name of the Client Identity cookie. */
+  /** Returns the name of the Anonymous id cookie. */
   public String getCookieName() {
     return properties.getCookieName();
   }
@@ -30,7 +30,7 @@ public class ClientIdentityCookieFactory {
         .build();
   }
 
-  /** Creates an empty, immediately expiring cookie that removes the client identity. */
+  /** Creates an empty, immediately expiring cookie that removes the anonymous id. */
   public ResponseCookie clearCookie() {
     return ResponseCookie.from(properties.getCookieName(), "")
         .httpOnly(true)
@@ -42,7 +42,7 @@ public class ClientIdentityCookieFactory {
   }
 
   /** Creates a new random client id. */
-  public String generateClientId() {
+  public String generateAnonymousId() {
     return UUID.randomUUID().toString();
   }
 }

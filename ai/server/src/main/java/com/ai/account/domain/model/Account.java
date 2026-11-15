@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.NaturalId;
 
-/** Signed-in OAuth / IAM identity, optionally linked to one browser Client Identity. */
+/** Signed-in OAuth / IAM identity, optionally linked to one browser Anonymous id. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)

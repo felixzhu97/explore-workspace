@@ -10,7 +10,7 @@ import com.ai.account.controller.dto.AccountPlan;
 import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.service.AccountService;
 import com.ai.common.controller.GlobalExceptionHandler;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.time.Instant;
 import org.junit.jupiter.api.AfterEach;
@@ -41,8 +41,8 @@ class AccountControllerTest {
   }
 
   @Test
-  @DisplayName("should return anonymous account when client identity present")
-  void shouldReturnAnonymousAccountWhenClientIdentityPresent() {
+  @DisplayName("should return anonymous account when anonymous id present")
+  void shouldReturnAnonymousAccountWhenAnonymousIdPresent() {
     when(accountService.getCurrentAccount("cid-123"))
         .thenReturn(
             new AccountMeResponse(
@@ -58,7 +58,7 @@ class AccountControllerTest {
     var result =
         mvc.get()
             .uri("/api/account/me")
-            .with(ClientIdentityRequestPostProcessor.withClientId("cid-123"))
+            .with(AnonymousIdRequestPostProcessor.withClientId("cid-123"))
             .exchange();
 
     assertThat(result).hasStatusOk();
@@ -105,13 +105,13 @@ class AccountControllerTest {
   }
 
   @Test
-  @DisplayName("should fail when client identity missing")
-  void shouldFailWhenClientIdentityMissing() {
+  @DisplayName("should fail when anonymous id missing")
+  void shouldFailWhenAnonymousIdMissing() {
     assertThat(mvc.get().uri("/api/account/me"))
         .hasStatus(HttpStatus.UNAUTHORIZED)
         .bodyJson()
         .extractingPath("$.type")
         .asString()
-        .isEqualTo("https://www.felixzhu.chat/problems/client-identity-required");
+        .isEqualTo("https://www.felixzhu.chat/problems/anonymous-id-required");
   }
 }

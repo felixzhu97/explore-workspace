@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Resolves data {@link OwnerKey} from guest Client Identity and/or OAuth / IAM JWT. */
+/** Resolves data {@link OwnerKey} from guest Anonymous id and/or OAuth / IAM JWT. */
 @Service
 @RequiredArgsConstructor
 public class CurrentOwnerResolver {
@@ -20,7 +20,7 @@ public class CurrentOwnerResolver {
   private final AccountRepository accountRepository;
   private final IamAccountService iamAccountService;
 
-  /** Resolves owner from guest Client Identity and/or OAuth / IAM JWT authentication. */
+  /** Resolves owner from guest Anonymous id and/or OAuth / IAM JWT authentication. */
   @Transactional
   public OwnerKey resolveOwner(String clientId, Authentication authentication) {
     Optional<Account> fromAuth = resolveSignedInUser(authentication);

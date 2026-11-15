@@ -8,9 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.controller.ClientIdentity;
-import com.ai.common.controller.ClientIdentityCookieFactory;
-import com.ai.common.infra.config.ClientIdentityProperties;
+import com.ai.common.controller.AnonymousId;
+import com.ai.common.controller.AnonymousIdCookieFactory;
+import com.ai.common.infra.config.AnonymousIdProperties;
 import com.ai.common.infra.config.ServiceAuthProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -27,8 +27,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("ClientIdentityFilter")
-class ClientIdentityFilterTest {
+@DisplayName("AnonymousIdFilter")
+class AnonymousIdFilterTest {
 
   private static final String SERVICE_KEY = "bff-secret";
   private static final String CLIENT_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
@@ -39,20 +39,20 @@ class ClientIdentityFilterTest {
 
   @Mock private FilterChain filterChain;
 
-  private ClientIdentityProperties properties;
+  private AnonymousIdProperties properties;
   private ServiceAuthProperties serviceAuthProperties;
-  private ClientIdentityFilter filter;
+  private AnonymousIdFilter filter;
 
   @BeforeEach
   void setUp() {
-    properties = new ClientIdentityProperties();
-    properties.setCookieName("ea_cid");
+    properties = new AnonymousIdProperties();
+    properties.setCookieName("explore_anonymous_id");
     properties.setSecure(false);
     properties.setSameSite("Lax");
     serviceAuthProperties = new ServiceAuthProperties();
     filter =
-        new ClientIdentityFilter(
-            new ClientIdentityCookieFactory(properties), serviceAuthProperties);
+        new AnonymousIdFilter(
+            new AnonymousIdCookieFactory(properties), serviceAuthProperties);
   }
 
   @Test
@@ -63,13 +63,13 @@ class ClientIdentityFilterTest {
     filter.doFilter(request, response, filterChain);
 
     ArgumentCaptor<String> attr = ArgumentCaptor.forClass(String.class);
-    verify(request).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), attr.capture());
+    verify(request).setAttribute(eq(AnonymousId.REQUEST_ATTRIBUTE), attr.capture());
     assertThat(attr.getValue())
         .matches("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     ArgumentCaptor<String> header = ArgumentCaptor.forClass(String.class);
     verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), header.capture());
-    assertThat(header.getValue()).contains("ea_cid=");
+    assertThat(header.getValue()).contains("explore_anonymous_id=");
     assertThat(header.getValue()).contains("HttpOnly");
     assertThat(header.getValue()).contains("SameSite=Lax");
     verify(filterChain).doFilter(request, response);
@@ -78,11 +78,11 @@ class ClientIdentityFilterTest {
   @Test
   void shouldReuseExistingCookieWhenValidUuidPresent() throws Exception {
     when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("ea_cid", CLIENT_ID)});
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("explore_anonymous_id", CLIENT_ID)});
 
     filter.doFilter(request, response, filterChain);
 
-    verify(request).setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, CLIENT_ID);
+    verify(request).setAttribute(AnonymousId.REQUEST_ATTRIBUTE, CLIENT_ID);
     verify(response, never()).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
     verify(filterChain).doFilter(request, response);
   }
@@ -93,19 +93,19 @@ class ClientIdentityFilterTest {
 
     filter.doFilter(request, response, filterChain);
 
-    verify(request, never()).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), any());
+    verify(request, never()).setAttribute(eq(AnonymousId.REQUEST_ATTRIBUTE), any());
     verify(filterChain).doFilter(request, response);
   }
 
   @Test
-  @DisplayName("should issue Client Identity for A2A message paths")
+  @DisplayName("should issue Anonymous id for A2A message paths")
   void shouldFilterA2aMessagePaths() throws Exception {
     when(request.getRequestURI()).thenReturn("/a2a/v1/message:send");
     when(request.getCookies()).thenReturn(null);
 
     filter.doFilter(request, response, filterChain);
 
-    verify(request).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), anyString());
+    verify(request).setAttribute(eq(AnonymousId.REQUEST_ATTRIBUTE), anyString());
     verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
     verify(filterChain).doFilter(request, response);
   }
@@ -122,12 +122,12 @@ class ClientIdentityFilterTest {
     @Test
     void shouldUseClientIdHeaderWhenServiceKeyValid() throws Exception {
       when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-      when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
-      when(request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER)).thenReturn(CLIENT_ID);
+      when(request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
+      when(request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER)).thenReturn(CLIENT_ID);
 
       filter.doFilter(request, response, filterChain);
 
-      verify(request).setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, CLIENT_ID);
+      verify(request).setAttribute(AnonymousId.REQUEST_ATTRIBUTE, CLIENT_ID);
       verify(response, never()).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
       verify(request, never()).getCookies();
       verify(filterChain).doFilter(request, response);
@@ -136,13 +136,13 @@ class ClientIdentityFilterTest {
     @Test
     void shouldFallBackToCookieWhenServiceKeyInvalid() throws Exception {
       when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-      when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn("wrong-key");
+      when(request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER)).thenReturn("wrong-key");
       when(request.getCookies()).thenReturn(null);
 
       filter.doFilter(request, response, filterChain);
 
       ArgumentCaptor<String> attr = ArgumentCaptor.forClass(String.class);
-      verify(request).setAttribute(eq(ClientIdentity.REQUEST_ATTRIBUTE), attr.capture());
+      verify(request).setAttribute(eq(AnonymousId.REQUEST_ATTRIBUTE), attr.capture());
       assertThat(attr.getValue()).isNotEqualTo(CLIENT_ID);
       verify(response).addHeader(eq(HttpHeaders.SET_COOKIE), anyString());
       verify(filterChain).doFilter(request, response);
@@ -151,8 +151,8 @@ class ClientIdentityFilterTest {
     @Test
     void shouldFallBackToCookieWhenClientIdHeaderInvalid() throws Exception {
       when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-      when(request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
-      when(request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER)).thenReturn("not-a-uuid");
+      when(request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
+      when(request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER)).thenReturn("not-a-uuid");
       when(request.getCookies()).thenReturn(null);
 
       filter.doFilter(request, response, filterChain);

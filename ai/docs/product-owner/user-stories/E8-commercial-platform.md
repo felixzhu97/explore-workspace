@@ -48,19 +48,19 @@
    **WHEN** 打开侧栏账号菜单  
    **THEN** `/api/account/me` 返回 `mode=anonymous`  
    **AND** 不显示登录入口（`loginAvailable=false`，`loginProviders=[]`）  
-   **AND** 会话仍按 Client Identity 隔离
+   **AND** 会话仍按 Anonymous id 隔离
 
 2. **Scenario** 启用 Google 后可登录
    **GIVEN** `APP_OAUTH_GOOGLE_ENABLED=true` 且 Client 凭证已配置  
    **WHEN** 用户选择 Continue with Google 并完成授权  
-   **THEN** 账号关联到当前 Client Identity  
+   **THEN** 账号关联到当前 Anonymous id  
    **AND** `/api/account/me` 返回 `mode=authenticated` 与邮箱  
    **AND** 侧栏显示登出
 
 3. **Scenario** 启用 GitHub 后可登录
    **GIVEN** `APP_OAUTH_GITHUB_ENABLED=true` 且 GitHub OAuth App 凭证已配置  
    **WHEN** 用户选择 Continue with GitHub 并完成授权  
-   **THEN** 账号关联到当前 Client Identity（`provider=github`）  
+   **THEN** 账号关联到当前 Anonymous id（`provider=github`）  
    **AND** `/api/account/me` 返回 `mode=authenticated`  
    **AND** `loginProviders` 包含 `github`
 
@@ -68,7 +68,7 @@
    **GIVEN** 用户已登录  
    **WHEN** 用户选择 Log out  
    **THEN** 会话认证清除  
-   **AND** 仍可使用访客模式（Client Identity cookie 保留）
+   **AND** 仍可使用访客模式（Anonymous id cookie 保留）
 
 ### 状态
 
@@ -89,7 +89,7 @@ Jira:
 ### Acceptance criteria
 
 1. **Scenario** Guest data uses client owner key
-   **GIVEN** the visitor is anonymous with Client Identity cookie  
+   **GIVEN** the visitor is anonymous with Anonymous id cookie  
    **WHEN** they create chat / skills / pipelines / automations  
    **THEN** rows are stored with `owner_key = c:{clientId}`
 

@@ -13,7 +13,7 @@ import com.ai.chat.domain.model.WebSource;
 import com.ai.chat.service.ChatService;
 import com.ai.chat.service.SessionHistory;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.OwnerKeyFixtures;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.explore.errors.DomainException;
@@ -58,7 +58,7 @@ class ChatControllerTest extends AbstractOwnerScopedControllerTest {
                   .uri("/api/chat")
                   .contentType(MediaType.APPLICATION_JSON)
                   .content("{\"message\":\"Hello\"}")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.response")

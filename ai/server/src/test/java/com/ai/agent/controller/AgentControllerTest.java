@@ -10,7 +10,7 @@ import com.ai.agent.service.AgentService;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ class AgentControllerTest extends AbstractOwnerScopedControllerTest {
         assertThat(
                 mvc.get()
                     .uri("/api/agents")
-                    .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                    .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
             .hasStatusOk()
             .bodyJson();
     json.extractingPath("$[0].type").isEqualTo("research");
@@ -60,7 +60,7 @@ class AgentControllerTest extends AbstractOwnerScopedControllerTest {
                 .uri("/api/agents/research/invoke")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"message\":\"hi\"}")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.reply")

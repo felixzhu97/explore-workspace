@@ -56,8 +56,8 @@ class DailyUsageQuotaServiceTest {
   }
 
   @Test
-  @DisplayName("should count against the ip limit when the request has no client identity")
-  void shouldCountAgainstTheIpLimitWhenTheRequestHasNoClientIdentity() {
+  @DisplayName("should count against the ip limit when the request has no anonymous id")
+  void shouldCountAgainstTheIpLimitWhenTheRequestHasNoAnonymousId() {
     assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isEqualTo(2);
     assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isEqualTo(1);
     assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isZero();

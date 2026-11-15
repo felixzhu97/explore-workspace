@@ -25,7 +25,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.SecurityContextRepository;
 
 /**
- * Optional OAuth2 Login plus JWT resource server. Guest Client Identity stays open; IAM Bearer
+ * Optional OAuth2 Login plus JWT resource server. Guest Anonymous id stays open; IAM Bearer
  * tokens must include GitHub-style module scopes for gated paths.
  *
  * @see CsrfProtectionFilter

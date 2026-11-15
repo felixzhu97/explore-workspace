@@ -4,7 +4,7 @@ import com.ai.billing.domain.model.QuotaDecision;
 import com.explore.errors.Problems;
 import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.service.DailyUsageQuotaService;
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import com.ai.common.domain.model.OwnerKey;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Free/Pro daily hard quota per Client Identity (commercial cost guardrail).
+ * Free/Pro daily hard quota per Anonymous id (commercial cost guardrail).
  *
  * @see <a href="https://docs.stripe.com/billing/subscriptions/usage-based">Stripe usage-based
  *     billing</a>
@@ -69,13 +69,13 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    Object attr = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
+    Object attr = request.getAttribute(AnonymousId.REQUEST_ATTRIBUTE);
     QuotaSubject owner =
         attr instanceof String id && !id.isBlank()
             ? QuotaSubject.createOwnerSubject(OwnerKey.createClientKey(id))
             : null;
     QuotaDecision decision =
-        dailyUsageQuotaService.tryConsume(owner, ClientIdentity.resolveLimitAddress(request));
+        dailyUsageQuotaService.tryConsume(owner, AnonymousId.resolveLimitAddress(request));
     response.setHeader("X-Quota-Limit", String.valueOf(decision.getLimit()));
     response.setHeader("X-Quota-Remaining", String.valueOf(decision.getRemaining()));
     response.setHeader("X-Quota-Plan", decision.getPlan().getValue());

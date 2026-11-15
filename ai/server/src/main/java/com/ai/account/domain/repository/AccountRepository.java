@@ -20,7 +20,7 @@ public interface AccountRepository extends Repository<Account, AccountId> {
     return findByProviderAndSubject(identity.getProvider(), identity.getSubject());
   }
 
-  /** Finds the account linked to a browser Client Identity. */
+  /** Finds the account linked to a browser Anonymous id. */
   Optional<Account> findByLinkedClientId(ClientId linkedClientId);
 
   /** Finds an account by id. */

@@ -57,9 +57,9 @@ class CsrfProtectionFilterTest {
   void shouldPassAPostThroughWhenSiblingBffServiceAuthHeadersArePresent() throws Exception {
     MockHttpServletRequest request =
         new MockHttpServletRequest("POST", "/api/agents/support/invoke");
-    request.addHeader(ClientIdentityFilter.SERVICE_KEY_HEADER, "dev-service-key");
+    request.addHeader(AnonymousIdFilter.SERVICE_KEY_HEADER, "dev-service-key");
     request.addHeader(
-        ClientIdentityFilter.CLIENT_ID_HEADER, "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        AnonymousIdFilter.ANONYMOUS_ID_HEADER, "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
     filter.doFilter(request, response, chain);
 

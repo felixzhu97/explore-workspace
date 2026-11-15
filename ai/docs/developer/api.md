@@ -1297,7 +1297,7 @@ with content type `application/problem+json`:
 | `400`       | `/problems/validation-error`         | Request validation failed        |
 | `400`       | `/problems/invalid-parameter`        | Parameter has the wrong type     |
 | `400`       | `/problems/bad-request`              | Invalid request parameters       |
-| `401`       | `/problems/client-identity-required` | Client Identity cookie missing   |
+| `401`       | `/problems/anonymous-id-required` | Anonymous id cookie missing   |
 | `403`       | `/problems/csrf-rejected`            | CSRF protection header missing   |
 | `404`       | `/problems/session-not-found`        | Chat session does not exist      |
 | `404`       | `/problems/document-not-found`       | Document does not exist          |
@@ -1354,9 +1354,9 @@ Trusted backends (e.g. whatsfeed NestJS BFF) can call `/api/**` on behalf of an 
 | Header | Required | Description |
 | ------ | -------- | ----------- |
 | `X-Service-Key` | Yes | Shared secret configured on explore-ai |
-| `X-Client-Id` | Yes | End-user anonymous id (UUID v4) propagated from the BFF |
+| `Anonymous-Id` | Yes | End-user anonymous id (UUID v4) propagated from the BFF |
 
-When both headers are valid, explore-ai sets `ClientIdentity` from `X-Client-Id` and does **not** issue or overwrite the `ea_cid` cookie.
+When both headers are valid, explore-ai sets `AnonymousId` from `Anonymous-Id` and does **not** issue or overwrite the `explore_anonymous_id` cookie.
 
 If the service key is missing, invalid, or not configured, the normal HttpOnly cookie flow applies unchanged.
 
@@ -1381,6 +1381,6 @@ Billing defaults remain `free` when unset.
 ```bash
 curl -X GET "${BASE_URL}/api/chat/sessions" \
   -H "X-Service-Key: ${EXPLORE_AI_SERVICE_KEY}" \
-  -H "X-Client-Id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+  -H "Anonymous-Id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 ```
 

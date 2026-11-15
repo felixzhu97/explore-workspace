@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.ai.a2a.domain.model.A2aTask;
 import com.ai.a2a.service.A2aService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class A2aMessageControllerTest extends AbstractOwnerScopedControllerTest {
                       }
                     }
                     """)
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.status.state")

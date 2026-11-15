@@ -24,14 +24,14 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
-  @DisplayName("should return 401 with the client identity problem type when identity is missing")
-  void shouldReturn401WithTheClientIdentityProblemTypeWhenIdentityIsMissing() {
+  @DisplayName("should return 401 with the anonymous id problem type when identity is missing")
+  void shouldReturn401WithTheAnonymousIdProblemTypeWhenIdentityIsMissing() {
     ProblemDetail problem =
-        handler.handleClientIdentityRequired(new ClientIdentityRequiredException());
+        handler.handleAnonymousIdRequired(new AnonymousIdRequiredException());
 
     assertThat(problem.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    assertThat(problem.getType()).isEqualTo(URI.create("https://www.felixzhu.chat/problems/client-identity-required"));
-    assertThat(problem.getDetail()).isEqualTo("Client identity required");
+    assertThat(problem.getType()).isEqualTo(URI.create("https://www.felixzhu.chat/problems/anonymous-id-required"));
+    assertThat(problem.getDetail()).isEqualTo("Anonymous id required");
   }
 
   @Test

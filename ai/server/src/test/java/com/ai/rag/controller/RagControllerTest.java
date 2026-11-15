@@ -19,7 +19,7 @@ import com.ai.rag.service.DocumentUploadService;
 import com.ai.rag.service.RagApplicationService;
 import com.ai.rag.service.RagChatService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.service.VisionChatService;
 import java.time.Instant;
@@ -69,7 +69,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
@@ -87,7 +87,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents[0].chunkCount")
@@ -103,7 +103,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
@@ -129,7 +129,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                 .multipart()
                 .uri("/api/rag/documents/upload")
                 .file(file)
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatus(HttpStatus.CREATED);
     verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerKey()));
   }
@@ -152,7 +152,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                 .uri("/api/rag/documents/upload")
                 .file(file)
                 .param("title", "Custom Title")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatus(HttpStatus.CREATED);
     verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
   }
@@ -166,7 +166,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.delete()
                 .uri("/api/rag/documents/" + docId)
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
         .hasStatus(HttpStatus.NO_CONTENT);
     verify(ragApplicationService).deleteDocument(docId, ownerKey());
   }

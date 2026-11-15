@@ -1,6 +1,6 @@
 package com.ai.common.controller.filter;
 
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import com.ai.common.infra.config.RateLimitProperties;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -70,8 +70,8 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    Object attr = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
-    String address = ClientIdentity.resolveLimitAddress(request);
+    Object attr = request.getAttribute(AnonymousId.REQUEST_ATTRIBUTE);
+    String address = AnonymousId.resolveLimitAddress(request);
     String clientKey =
         attr instanceof String clientId && !clientId.isBlank()
             ? clientId

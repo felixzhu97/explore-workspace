@@ -1,8 +1,8 @@
 package com.ai.common.controller.filter;
 
-import com.ai.common.controller.ClientIdentity;
-import com.ai.common.controller.ClientIdentityCookieFactory;
-import com.ai.common.infra.config.ClientIdentityProperties;
+import com.ai.common.controller.AnonymousId;
+import com.ai.common.controller.AnonymousIdCookieFactory;
+import com.ai.common.infra.config.AnonymousIdProperties;
 import com.ai.common.infra.config.ServiceAuthProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,7 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Issues and resolves an anonymous browser client id via HttpOnly cookie, or accepts a trusted BFF
- * identity via {@code X-Service-Key} + {@code X-Client-Id}.
+ * identity via {@code X-Service-Key} + {@code Anonymous-Id}.
  *
  * @see <a
  *     href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">OWASP
@@ -31,18 +31,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 20)
-@EnableConfigurationProperties({ClientIdentityProperties.class, ServiceAuthProperties.class})
+@EnableConfigurationProperties({AnonymousIdProperties.class, ServiceAuthProperties.class})
 @RequiredArgsConstructor
-public class ClientIdentityFilter extends OncePerRequestFilter {
+public class AnonymousIdFilter extends OncePerRequestFilter {
 
   public static final String SERVICE_KEY_HEADER = "X-Service-Key";
-  public static final String CLIENT_ID_HEADER = "X-Client-Id";
+  public static final String ANONYMOUS_ID_HEADER = "Anonymous-Id";
 
   private static final Pattern UUID_PATTERN =
       Pattern.compile(
           "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
-  private final ClientIdentityCookieFactory cookieFactory;
+  private final AnonymousIdCookieFactory cookieFactory;
   private final ServiceAuthProperties serviceAuthProperties;
 
   @Override
@@ -51,8 +51,8 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     if (path == null) {
       return true;
     }
-    // Include OAuth callback paths so login can link the browser Client Identity cookie.
-    // A2A message APIs also need Owner Key from Client Identity (or trusted BFF headers).
+    // Include OAuth callback paths so login can link the browser Anonymous id cookie.
+    // A2A message APIs also need Owner Key from Anonymous id (or trusted BFF headers).
     return !path.startsWith("/api/")
         && !path.startsWith("/a2a/")
         && !path.startsWith("/login/oauth2/")
@@ -65,8 +65,8 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     String serviceClientId = resolveServiceClientId(request);
     if (serviceClientId != null) {
-      request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, serviceClientId);
-      request.setAttribute(ClientIdentity.TRUSTED_SERVICE_ATTRIBUTE, Boolean.TRUE);
+      request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, serviceClientId);
+      request.setAttribute(AnonymousId.TRUSTED_SERVICE_ATTRIBUTE, Boolean.TRUE);
       filterChain.doFilter(request, response);
       return;
     }
@@ -76,10 +76,10 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     if (existing != null) {
       clientId = existing;
     } else {
-      clientId = cookieFactory.generateClientId();
+      clientId = cookieFactory.generateAnonymousId();
       response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issueCookie(clientId).toString());
     }
-    request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
+    request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, clientId);
     filterChain.doFilter(request, response);
   }
 
@@ -91,7 +91,7 @@ public class ClientIdentityFilter extends OncePerRequestFilter {
     if (!constantTimeEquals(serviceKey, serviceAuthProperties.getApiKey())) {
       return null;
     }
-    String clientId = request.getHeader(CLIENT_ID_HEADER);
+    String clientId = request.getHeader(ANONYMOUS_ID_HEADER);
     if (clientId == null || !UUID_PATTERN.matcher(clientId).matches()) {
       return null;
     }

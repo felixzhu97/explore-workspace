@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import com.ai.common.infra.config.RateLimitProperties;
 import jakarta.servlet.FilterChain;
 import java.time.Clock;
@@ -82,7 +82,7 @@ class ClientRateLimitFilterTest {
   void shouldSkipIpLimitWhenRequestComesFromTrustedService() throws Exception {
     for (int i = 0; i < 4; i++) {
       MockHttpServletRequest request = post("/api/rag/chat", UUID.randomUUID().toString());
-      request.setAttribute(ClientIdentity.TRUSTED_SERVICE_ATTRIBUTE, Boolean.TRUE);
+      request.setAttribute(AnonymousId.TRUSTED_SERVICE_ATTRIBUTE, Boolean.TRUE);
       filter.doFilter(request, new MockHttpServletResponse(), filterChain);
     }
 
@@ -94,7 +94,7 @@ class ClientRateLimitFilterTest {
   void shouldNotLimitReadRequests() throws Exception {
     properties.setRequestsPerWindow(0);
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/chat/sessions");
-    request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, "client-a");
+    request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, "client-a");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     filter.doFilter(request, response, filterChain);
@@ -106,7 +106,7 @@ class ClientRateLimitFilterTest {
   private static MockHttpServletRequest post(String path, String clientId) {
     MockHttpServletRequest request = new MockHttpServletRequest("POST", path);
     request.setRemoteAddr(ADDRESS);
-    request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
+    request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, clientId);
     return request;
   }
 }

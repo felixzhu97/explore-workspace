@@ -43,7 +43,7 @@ public class DailyUsageQuotaService {
    * Atomically consumes one unit of the owner, IP and global daily quota. Nothing is consumed when
    * any of them is exhausted.
    *
-   * @param owner owner counter, or {@code null} when the request has no Client Identity
+   * @param owner owner counter, or {@code null} when the request has no Anonymous id
    * @param address client IP, or {@code null} to skip the per-IP limit
    */
   public QuotaDecision tryConsume(QuotaSubject owner, String address) {

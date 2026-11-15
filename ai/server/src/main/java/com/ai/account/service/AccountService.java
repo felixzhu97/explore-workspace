@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Resolves the current account from IAM JWT, OAuth session, or linked Client Identity. */
+/** Resolves the current account from IAM JWT, OAuth session, or linked Anonymous id. */
 @Service
 @EnableConfigurationProperties({
   OAuthGoogleProperties.class,
@@ -44,7 +44,7 @@ public class AccountService {
   private final OAuthGithubProperties oauthGithubProperties;
   private final OAuthExploreIamProperties oauthExploreIamProperties;
 
-  /** Returns the viewer's account state for the request's Client Identity. */
+  /** Returns the viewer's account state for the request's Anonymous id. */
   @Transactional
   public AccountMeResponse getCurrentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -59,7 +59,7 @@ public class AccountService {
           .orElseGet(() -> createAuthenticatedContext(clientId, signIn.get()));
     }
 
-    // Session may be missing after a host mismatch; Client Identity link still proves login.
+    // Session may be missing after a host mismatch; Anonymous id link still proves login.
     if (ClientId.isValid(clientId)) {
       Optional<Account> byClient =
           accountRepository.findByLinkedClientId(ClientId.parseId(clientId));
@@ -108,7 +108,7 @@ public class AccountService {
     return saved;
   }
 
-  /** Clears OAuth ↔ Client Identity link so the browser returns to guest mode. */
+  /** Clears OAuth ↔ Anonymous id link so the browser returns to guest mode. */
   @Transactional
   public void unlinkClient(String clientId) {
     if (!ClientId.isValid(clientId)) {

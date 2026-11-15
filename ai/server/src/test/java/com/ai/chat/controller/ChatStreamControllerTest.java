@@ -13,7 +13,7 @@ import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
 import com.ai.skill.service.SkillService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -123,7 +123,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                         "toolsEnabled": false
                       }
                       """)
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk()
           .bodyText()
@@ -200,7 +200,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                       }
                       """
                           .formatted(skillId))
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
 

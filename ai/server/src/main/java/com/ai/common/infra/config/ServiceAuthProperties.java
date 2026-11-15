@@ -12,7 +12,7 @@ public class ServiceAuthProperties {
 
   /**
    * Shared secret for trusted BFF / service callers ({@code X-Service-Key}). When blank,
-   * service-key client identity is disabled and cookie flow is used.
+   * service-key anonymous id is disabled and cookie flow is used.
    */
   private String apiKey = "";
 
