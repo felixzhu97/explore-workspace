@@ -2,6 +2,7 @@ package com.ai.common.controller.filter;
 
 import com.ai.common.controller.AnonymousId;
 import com.ai.common.controller.AnonymousIdCookieFactory;
+import com.ai.common.controller.BearerAuthorization;
 import com.ai.common.infra.config.AnonymousIdProperties;
 import com.ai.common.infra.config.ServiceAuthProperties;
 import jakarta.servlet.FilterChain;
@@ -23,7 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Issues and resolves an anonymous browser client id via HttpOnly cookie, or accepts a trusted BFF
- * identity via {@code X-Service-Key} + {@code Anonymous-Id}.
+ * identity via {@code Authorization: Bearer} + {@code Anonymous-Id}.
  *
  * @see <a
  *     href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">OWASP
@@ -35,7 +36,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class AnonymousIdFilter extends OncePerRequestFilter {
 
-  public static final String SERVICE_KEY_HEADER = "X-Service-Key";
   public static final String ANONYMOUS_ID_HEADER = "Anonymous-Id";
 
   private static final Pattern UUID_PATTERN =
@@ -87,8 +87,8 @@ public class AnonymousIdFilter extends OncePerRequestFilter {
     if (!serviceAuthProperties.isEnabled()) {
       return null;
     }
-    String serviceKey = request.getHeader(SERVICE_KEY_HEADER);
-    if (!constantTimeEquals(serviceKey, serviceAuthProperties.getApiKey())) {
+    String bearer = BearerAuthorization.extractToken(request);
+    if (!constantTimeEquals(bearer, serviceAuthProperties.getApiKey())) {
       return null;
     }
     String clientId = request.getHeader(ANONYMOUS_ID_HEADER);

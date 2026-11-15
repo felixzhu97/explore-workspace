@@ -186,7 +186,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Daily Usage              | 当日用量 | Requests counted for one quota subject on one UTC day    | Value Object      | `DailyUsage`                                 | Resets when the day changes |
 | Quota Subject            | 配额对象 | Who a quota counter belongs to: an owner, an IP address, or everyone | Value Object | `QuotaSubject`                          | Distinct key prefixes so counters never collide; guest requests and automations share the owner counter |
 | Quota Decision           | 配额判定 | Outcome of one quota check: allowed, plan, limit, remaining | Value Object   | `QuotaDecision`                              | Single source for the `RateLimit-*` response headers; a refused request reports 0 remaining |
-| Metrics Admin Key        | Metrics 管理密钥 | Shared secret protecting `/api/metrics/**` when configured | Technical         | `MetricsAdminAuthFilter`, `METRICS_ADMIN_API_KEY` | Header `X-Admin-Key`; empty key keeps local Metrics UI open |
+| Metrics Admin Key        | Metrics 管理密钥 | Shared secret protecting `/api/metrics/**` when configured | Technical         | `MetricsAdminAuthFilter`, `METRICS_ADMIN_API_KEY` | Header `Authorization: Bearer`; empty key keeps local Metrics UI open |
 | Account Me               | 当前账号 | Viewer identity: anonymous Anonymous id, OAuth Login session, or IAM Bearer JWT | Use Case          | `AccountController` `/api/account/me` | `mode=anonymous\|authenticated`; native clients may omit Anonymous id cookie when `Authorization: Bearer` is present |
 | Account                  | 账号 | Persisted OAuth / IAM subject; browser sessions may link a Anonymous id cookie | Entity            | `Account`, `account` | Provider+subject unique; one account per browser; login merges `c:` rows into `u:{id}`; provider `explore-iam` for IAM tokens |
 | External Identity        | 外部身份 | Normalized sign-in provider + subject pair                | Value Object      | `ExternalIdentity`                           | Same normalization for save and lookup; `unknown` provider rejected |
@@ -451,7 +451,7 @@ Enterprise Agent Platforms to copy **shape** from (Gallery + Studio + Runtime AP
 | IBM watsonx Orchestrate | Skill catalog + router | Skill + Supervisor |
 | OpenAI Agents / Assistants | Thin public invoke + streaming | `/api/agents` façade |
 
-**Trust split:** peer/user A2A → IAM Bearer + `write:ai_agent`; sibling BFF → `X-Service-Key` + `Anonymous-Id`. Siblings **consume** Explore AI. They do not embed vendor agent SDKs.
+**Trust split:** peer/user A2A → IAM Bearer + `write:ai_agent`; sibling BFF → `Authorization: Bearer` + `Anonymous-Id`. Siblings **consume** Explore AI. They do not embed vendor agent SDKs.
 
 
 ---

@@ -122,7 +122,7 @@ class AnonymousIdFilterTest {
     @Test
     void shouldUseClientIdHeaderWhenServiceKeyValid() throws Exception {
       when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-      when(request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
+      when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + SERVICE_KEY);
       when(request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER)).thenReturn(CLIENT_ID);
 
       filter.doFilter(request, response, filterChain);
@@ -136,7 +136,7 @@ class AnonymousIdFilterTest {
     @Test
     void shouldFallBackToCookieWhenServiceKeyInvalid() throws Exception {
       when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-      when(request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER)).thenReturn("wrong-key");
+      when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer wrong-key");
       when(request.getCookies()).thenReturn(null);
 
       filter.doFilter(request, response, filterChain);
@@ -151,7 +151,7 @@ class AnonymousIdFilterTest {
     @Test
     void shouldFallBackToCookieWhenClientIdHeaderInvalid() throws Exception {
       when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-      when(request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER)).thenReturn(SERVICE_KEY);
+      when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + SERVICE_KEY);
       when(request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER)).thenReturn("not-a-uuid");
       when(request.getCookies()).thenReturn(null);
 

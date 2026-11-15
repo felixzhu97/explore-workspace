@@ -1,5 +1,6 @@
 package com.ai.common.controller.filter;
 
+import com.ai.common.controller.BearerAuthorization;
 import com.explore.errors.Problems;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -48,7 +49,7 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
       return true;
     }
     if (hasServiceAuthHeaders(request)) {
-      // Sibling BFFs use X-Service-Key + Anonymous-Id (no browser cookie session).
+      // Sibling BFFs use Authorization Bearer + Anonymous-Id (no browser cookie session).
       return true;
     }
     String path = request.getRequestURI();
@@ -83,8 +84,8 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
   }
 
   private static boolean hasServiceAuthHeaders(HttpServletRequest request) {
-    String serviceKey = request.getHeader(AnonymousIdFilter.SERVICE_KEY_HEADER);
+    String bearer = BearerAuthorization.extractToken(request);
     String clientId = request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER);
-    return serviceKey != null && !serviceKey.isBlank() && clientId != null && !clientId.isBlank();
+    return bearer != null && !bearer.isBlank() && clientId != null && !clientId.isBlank();
   }
 }

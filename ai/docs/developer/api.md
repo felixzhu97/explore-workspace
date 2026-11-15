@@ -1353,7 +1353,7 @@ Trusted backends (e.g. whatsfeed NestJS BFF) can call `/api/**` on behalf of an 
 
 | Header | Required | Description |
 | ------ | -------- | ----------- |
-| `X-Service-Key` | Yes | Shared secret configured on explore-ai |
+| `Authorization: Bearer` | Yes | Shared secret configured on explore-ai |
 | `Anonymous-Id` | Yes | End-user anonymous id (UUID v4) propagated from the BFF |
 
 When both headers are valid, explore-ai sets `AnonymousId` from `Anonymous-Id` and does **not** issue or overwrite the `explore_anonymous_id` cookie.
@@ -1380,7 +1380,7 @@ Billing defaults remain `free` when unset.
 
 ```bash
 curl -X GET "${BASE_URL}/api/chat/sessions" \
-  -H "X-Service-Key: ${EXPLORE_AI_SERVICE_KEY}" \
+  -H "Authorization: Bearer: ${EXPLORE_AI_SERVICE_KEY}" \
   -H "Anonymous-Id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
 ```
 
