@@ -48,7 +48,7 @@ public class VisionController {
   }
 
   /** Detects objects in the uploaded image. */
-  @PostMapping("/detect")
+  @PostMapping(":detect")
   public DetectResponse detectObjects(
       @RequestParam(value = "file", required = false) MultipartFile file,
       HttpServletRequest request)

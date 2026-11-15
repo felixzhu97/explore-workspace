@@ -283,7 +283,7 @@ describe('httpErrorInterceptor', () => {
         title: 'Service Unavailable',
         status: 503,
         detail: 'Image provider not configured',
-        instance: '/api/images/generate',
+        instance: '/api/images:generate',
       });
 
       expect(error.code).toBe('SERVICE_UNAVAILABLE');
@@ -564,9 +564,9 @@ describe('httpErrorInterceptor', () => {
 
 async function interceptError(status: number, body: unknown): Promise<AppError> {
   const mockNext = vi.fn().mockReturnValue(
-    throwError(() => new HttpErrorResponse({ status, url: '/api/images/generate', error: body })),
+    throwError(() => new HttpErrorResponse({ status, url: '/api/images:generate', error: body })),
   );
-  const request = new HttpRequest('POST', '/api/images/generate', {});
+  const request = new HttpRequest('POST', '/api/images:generate', {});
   const interceptor = TestBed.runInInjectionContext(
     () => httpErrorInterceptor(request, mockNext),
   );

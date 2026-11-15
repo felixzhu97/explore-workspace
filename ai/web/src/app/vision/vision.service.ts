@@ -158,7 +158,7 @@ export class VisionService {
 
   #detectObjects(file: File): Observable<VisionResult> {
     return this.#http
-      .post<DetectResponse>(`${API_BASE_URL}/vision/detect`, buildImageForm(file))
+      .post<DetectResponse>(`${API_BASE_URL}/vision:detect`, buildImageForm(file))
       .pipe(map(response => ({ task: 'detect', ...response })));
   }
 

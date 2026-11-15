@@ -47,7 +47,7 @@ public class ImageController {
   }
 
   /** Generate an image from text prompt. */
-  @PostMapping("/generate")
+  @PostMapping(":generate")
   public ImageGenerationResponse generateImage(@Valid @RequestBody ImageGenerationRequest request) {
     GeneratedImage image =
         imageGenerationService.generateImage(

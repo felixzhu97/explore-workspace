@@ -36,7 +36,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
@@ -57,7 +57,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
@@ -87,7 +87,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"prompt\":\"Sunset\"}"))
         .hasStatusOk()
@@ -108,7 +108,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """
@@ -135,7 +135,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"prompt\":\"Test\"}"))
         .hasStatusOk()
@@ -153,7 +153,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"prompt\":\"Test\"}"))
         .hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
@@ -173,7 +173,7 @@ class ImageControllerTest {
 
     assertThat(
             mvc.post()
-                .uri("/api/images/generate")
+                .uri("/api/images:generate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     """

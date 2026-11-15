@@ -122,7 +122,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             exchangeStream(
                 mvc.post()
-                    .uri("/api/pipelines/supervisor/invoke/sse")
+                    .uri("/api/pipelines/supervisor:streamInvoke")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{\"message\":\"hello\"}")
                     .with(AnonymousIdRequestPostProcessor.withClientId(ownerId()))))
@@ -138,7 +138,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   void shouldRejectBlankMessage() {
     assertThat(
             mvc.post()
-                .uri("/api/pipelines/k8s/invoke/sse")
+                .uri("/api/pipelines/k8s:streamInvoke")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"message\":\" \"}")
                 .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))

@@ -70,7 +70,7 @@ public class AgentController {
   }
 
   /** Streams one Agent run as SSE. */
-  @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeStream(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeBody body,

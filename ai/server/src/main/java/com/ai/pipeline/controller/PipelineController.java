@@ -80,7 +80,7 @@ public class PipelineController {
   }
 
   /** Streams a supervisor run. */
-  @PostMapping(value = "/supervisor/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "/supervisor:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       @Valid @RequestBody AgentInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
@@ -91,7 +91,7 @@ public class PipelineController {
   }
 
   /** Streams a pipeline run. */
-  @PostMapping(value = "/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = ":streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokePipeline(
       @Valid @RequestBody PipelineInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
@@ -121,7 +121,7 @@ public class PipelineController {
   }
 
   /** Streams a single agent run. */
-  @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeAgent(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeRequest request,

@@ -37,7 +37,7 @@ Container_Boundary(chat_domain, "Chat Domain") {
 ' DOMAIN 2: PIPELINE [flag-guarded]
 ' ============================================================
 Container_Boundary(pipeline_domain, "Pipeline Domain") {
-    Container(pipeline_controller, "PipelineController", "@RestController", "/api/pipelines/* (agent-types, invoke/sse)")
+    Container(pipeline_controller, "PipelineController", "@RestController", "/api/pipelines/* (agent-types, :streamInvoke)")
     Container(pipeline_template_controller, "PipelineTemplateController", "@RestController", "/api/pipelines/template-definitions + /api/pipelines/templates CRUD")
     Container(pipeline_service, "PipelineService", "Application Service", "Worker / Supervisor / Pipeline 编排入口")
     Container(pipeline_template_service, "PipelineTemplateService", "Application Service", "内置模版定义 + 已保存模版")

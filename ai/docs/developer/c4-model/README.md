@@ -119,9 +119,9 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
 | Worker 列表 / 健康 | `GET /api/pipelines/agent-types`, `.../health` | `PipelineController`, `PipelineService` |
-| 单 Worker SSE | `POST /api/pipelines/{type}/invoke/sse` | `SpringAiWorkerAgentInvoker` |
-| Supervisor SSE | `POST /api/pipelines/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
-| 画布图 SSE | `POST /api/pipelines/invoke/sse` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`tools` 快照 |
+| 单 Worker SSE | `POST /api/pipelines/{type}:streamInvoke` | `SpringAiWorkerAgentInvoker` |
+| Supervisor SSE | `POST /api/pipelines/supervisor:streamInvoke` | `SpringAiSupervisorRouter` |
+| 画布图 SSE | `POST /api/pipelines:streamInvoke` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`tools` 快照 |
 
 Worker 定义来自 Pipeline 内置目录：`AgentTemplateCatalog`（`classpath:agent-templates/{lang}.json`）经 `CatalogAgentRegistry` 提供调色板种子；画布双击编辑的是**图内节点副本**。Classpath Agent Skills：`AgentSkillsRuntime`（`com.ai.common`，`app.agent-skills`）。
 
@@ -132,7 +132,7 @@ Sibling / 外部 Agent 的 Published Language；不暴露 system prompt。默认
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
 | 列表 / 详情 | `GET /api/agents`, `GET /api/agents/{type}` | `AgentController`, `AgentService` |
-| 同步 / SSE 调用 | `POST /api/agents/{type}/invoke`, `.../invoke/sse` | 委托 `PipelineService` |
+| 同步 / SSE 调用 | `POST /api/agents/{type}/invoke`, `...:streamInvoke` | 委托 `PipelineService` |
 | Agent Card | `GET /.well-known/agent-card.json` | `AgentCardController`（公开） |
 | A2A Task | `POST /a2a/v1/message:send`, `.../message:stream` | `A2aMessageController`（IAM `write:ai_agent`） |
 
@@ -159,7 +159,7 @@ Sibling / 外部 Agent 的 Published Language；不暴露 system prompt。默认
 | 能力 | API | 实现 | 依赖 |
 | --- | --- | --- | --- |
 | Caption | `POST /api/vision/caption` | `OnnxBlipCaptioner` | `models/blip_*.onnx` |
-| Detect | `POST /api/vision/detect` | `OnnxYoloDetector` | `models/yolov8n.onnx` |
+| Detect | `POST /api/vision:detect` | `OnnxYoloDetector` | `models/yolov8n.onnx` |
 | OCR | `POST /api/vision/ocr` | `Tess4jOcrEngine` | Tesseract + `models/tessdata/` |
 | Health | `GET /api/vision/health` | — | 各 Provider 就绪状态 |
 

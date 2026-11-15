@@ -14,7 +14,7 @@ export interface ImageSize {
   height: number;
 }
 
-/** POST /api/images/generate */
+/** POST /api/images:generate */
 export interface ImageGenerationRequest {
   prompt: string;
   model?: string;
@@ -205,7 +205,7 @@ export class ImageService {
   }
 
   #generateImage(request: ImageGenerationRequest): Observable<ImageGenerationResponse> {
-    return this.#http.post<ImageGenerationResponse>(`${API_BASE_URL}/images/generate`, request);
+    return this.#http.post<ImageGenerationResponse>(`${API_BASE_URL}/images:generate`, request);
   }
 
   #getImageModels(): Observable<string[]> {

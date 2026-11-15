@@ -420,7 +420,7 @@ curl -X POST "${BASE_URL}/api/vision/caption" \
 ### Object Detection
 
 ```bash
-curl -X POST "${BASE_URL}/api/vision/detect" \
+curl -X POST "${BASE_URL}/api/vision:detect" \
   -F "file=@/path/to/image.jpg"
 ```
 
@@ -704,7 +704,7 @@ curl -X POST "${BASE_URL}/api/tools/chat" \
 Generate an image from a text prompt.
 
 ```bash
-curl -X POST "${BASE_URL}/api/images/generate" \
+curl -X POST "${BASE_URL}/api/images:generate" \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "A beautiful sunset over the ocean",

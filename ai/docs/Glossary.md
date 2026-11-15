@@ -233,7 +233,7 @@ Shared persistence and aggregate bases. Feature modules inherit these types inst
 | Agent Definition         | Agent 定义      | Name, type, tools, and system prompt                          | Entity         | `AgentDefinition`                                  | Runtime is always `single` on Pipeline workers  |
 | Agent Registry           | Agent 注册表     | Lookup of builtin Agent definitions                          | Repository     | `AgentRegistry`, `CatalogAgentRegistry`            | `?lang=` for display; no client agent library   |
 | Agent Template           | Agent 模版      | Multilingual builtin agent definition (prompt, tools)         | Catalog        | `AgentTemplate`, `agent-templates/{lang}.json`     | Owned by Pipeline application layer             |
-| Agent Pipeline           | 工作流流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline` (`com.ai.pipeline`)                | Canvas + `POST /api/pipelines/invoke/sse` |
+| Agent Pipeline           | 工作流流水线     | User-authored multi-agent graph executed in topological order | Aggregate      | `AgentPipeline` (`com.ai.pipeline`)                | Canvas + `POST /api/pipelines:streamInvoke` |
 | Pipeline Node            | 流水线节点         | Graph node with editable agent snapshot                         | Value Object   | `AgentPipeline.PipelineNode`                       | Double-click edit: name / prompt / tools        |
 | Pipeline Edge            | 流水线边          | Directed handoff between nodes                                | Value Object   | `AgentPipeline.PipelineEdge`                       | —                                               |
 | Pipeline Template        | 工作流模版        | Multilingual builtin or owner-saved linear agentTypes + brief | Entity / Catalog | `BuiltinPipelineTemplate` (builtin), `PipelineTemplate` (saved, table `pipeline_template`, fields `topic`, `brief`, `builtinTemplateId`), `pipeline-templates/{lang}.json` | `GET/POST /api/pipelines/templates*`; formerly Workflow Template |
@@ -353,7 +353,7 @@ PROCESSING → READY
 | Preferred Term (English)  | 中文   | Definition                                    | Type             | Code Mapping                      | Notes                                                |
 | ------------------------- | ---- | --------------------------------------------- | ---------------- | --------------------------------- | ---------------------------------------------------- |
 | Image Generation          | 图像生成 | Generate images from text prompts             | Use Case         | `ImageGenerationService`                     | Spring AI `ImageModel`                               |
-| Image Generation Request  | 生成请求 | Request with prompt, size, quality, etc.      | DTO              | `ImageGenerationRequest`          | POST `/api/images/generate`                          |
+| Image Generation Request  | 生成请求 | Request with prompt, size, quality, etc.      | DTO              | `ImageGenerationRequest`          | POST `/api/images:generate`                          |
 | Image Generation Response | 生成响应 | Response with `imageUrl` and/or `imageBase64` | DTO              | `ImageGenerationResponse`         | Fields: `imageUrl`, `imageBase64`, `model`, `status` |
 | Prompt                    | 提示词  | Text describing the desired image             | Business Concept | `ImageGenerationRequest.prompt()` | —                                                    |
 | Generated Image           | 生成图像 | Domain result of image generation             | Value Object     | `GeneratedImage`                  | URL or base64 payload                                |
@@ -368,7 +368,7 @@ PROCESSING → READY
 | ------------------------ | ---- | -------------------------------------------------------- | ----------------- | -------------------------- | -------------------------------------------------------- |
 | Image Analysis           | 图像分析 | Standalone caption, detect, and OCR over uploaded images | Capability        | `VisionAnalysisService`    | Frontend route `/vision`                                 |
 | Caption                  | 图像描述 | Natural-language description of image content            | Use Case Behavior | `POST /api/vision/caption` | ONNX Runtime + BLIP ONNX; multipart `file`               |
-| Object Detection         | 目标检测 | List detected objects with confidence and bbox           | Use Case Behavior | `POST /api/vision/detect`  | ONNX Runtime + YOLOv8 ONNX (COCO 80 classes)             |
+| Object Detection         | 目标检测 | List detected objects with confidence and bbox           | Use Case Behavior | `POST /api/vision:detect`  | ONNX Runtime + YOLOv8 ONNX (COCO 80 classes)             |
 | OCR                      | 文字识别 | Extract visible text from image                          | Use Case Behavior | `POST /api/vision/ocr`     | Tess4J + Tesseract; returns `fullText`                   |
 | Caption Engine           | 描述引擎 | Natural-language image captioning                        | Infrastructure    | `OnnxBlipCaptioner`        | ONNX Runtime + BLIP ONNX (vision encoder + text decoder) |
 | Detect Engine            | 检测引擎 | Real-time object detection                               | Infrastructure    | `OnnxYoloDetector`         | ONNX Runtime + YOLOv8 ONNX                               |
