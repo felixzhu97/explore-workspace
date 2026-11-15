@@ -3,7 +3,7 @@ package com.ai.billing.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,7 +65,7 @@ class QuotaValueObjectsTest {
   @Test
   @DisplayName("should keep owner and address counters apart when the values look alike")
   void shouldKeepOwnerAndAddressCountersApartWhenTheValuesLookAlike() {
-    QuotaSubject owner = QuotaSubject.createOwnerSubject(OwnerKey.createClientKey("203.0.113.7"));
+    QuotaSubject owner = QuotaSubject.createOwnerSubject(OwnerId.createClientKey("203.0.113.7"));
     QuotaSubject address = QuotaSubject.createAddressSubject("203.0.113.7");
 
     assertThat(owner).isNotEqualTo(address).isNotEqualTo(QuotaSubject.GLOBAL);

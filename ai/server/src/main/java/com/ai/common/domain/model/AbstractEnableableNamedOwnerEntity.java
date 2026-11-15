@@ -24,8 +24,8 @@ public abstract class AbstractEnableableNamedOwnerEntity<IdT extends AbstractEmb
   @Column(nullable = false)
   protected boolean enabled;
 
-  protected AbstractEnableableNamedOwnerEntity(IdT id, String ownerKey, String name) {
-    super(id, OwnerKey.parseKey(ownerKey));
+  protected AbstractEnableableNamedOwnerEntity(IdT id, String ownerId, String name) {
+    super(id, OwnerId.parseKey(ownerId));
     this.name = DomainStrings.requireName(name);
     this.enabled = true;
   }

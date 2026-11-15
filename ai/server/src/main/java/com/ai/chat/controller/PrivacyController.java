@@ -3,7 +3,7 @@ package com.ai.chat.controller;
 import com.ai.account.controller.OwnerContext;
 import com.ai.account.service.OwnerErasureService;
 import com.ai.common.controller.AnonymousIdCookieFactory;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class PrivacyController {
   /** Deletes all durable data owned by the current owner key. */
   @DeleteMapping("/sessions")
   public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
-    OwnerKey owner = ownerContext.requireOwner(request);
+    OwnerId owner = ownerContext.requireOwner(request);
     ownerErasureService.eraseAllForOwner(owner);
     return ResponseEntity.noContent().build();
   }

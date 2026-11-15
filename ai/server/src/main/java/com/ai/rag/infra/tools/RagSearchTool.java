@@ -39,8 +39,8 @@ public class RagSearchTool implements DocumentSearchTool {
     if (query == null || query.isBlank()) {
       return "请提供有效的搜索查询";
     }
-    Optional<String> ownerKey = getCurrentOwnerKey();
-    if (ownerKey.isEmpty()) {
+    Optional<String> ownerId = getCurrentOwnerId();
+    if (ownerId.isEmpty()) {
       return UNKNOWN_OWNER_MESSAGE;
     }
 
@@ -52,7 +52,7 @@ public class RagSearchTool implements DocumentSearchTool {
 
       var retrieval =
           ragApplicationService.retrieveContext(
-              query, documentIdList, DEFAULT_TOP_K, ownerKey.get());
+              query, documentIdList, DEFAULT_TOP_K, ownerId.get());
 
       if (retrieval.sources().isEmpty()) {
         return "没有找到与您查询相关的文档内容。请尝试不同的搜索关键词。";
@@ -69,12 +69,12 @@ public class RagSearchTool implements DocumentSearchTool {
   @Override
   @Tool(name = "list_documents", description = "List all documents in the knowledge base")
   public String listDocuments() {
-    Optional<String> ownerKey = getCurrentOwnerKey();
-    if (ownerKey.isEmpty()) {
+    Optional<String> ownerId = getCurrentOwnerId();
+    if (ownerId.isEmpty()) {
       return UNKNOWN_OWNER_MESSAGE;
     }
     try {
-      var documents = ragApplicationService.listSearchableDocuments(ownerKey.get());
+      var documents = ragApplicationService.listSearchableDocuments(ownerId.get());
 
       if (documents.isEmpty()) {
         return "知识库中暂无文档，请先上传文档。";
@@ -97,8 +97,8 @@ public class RagSearchTool implements DocumentSearchTool {
     }
   }
 
-  private Optional<String> getCurrentOwnerKey() {
-    Optional<String> bound = ToolEventChannel.getCurrentOwnerKey();
+  private Optional<String> getCurrentOwnerId() {
+    Optional<String> bound = ToolEventChannel.getCurrentOwnerId();
     if (bound.isPresent()) {
       return bound;
     }

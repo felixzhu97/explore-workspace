@@ -28,7 +28,7 @@ class A2aMessageControllerTest extends AbstractOwnerScopedControllerTest {
     A2aTask task = A2aTask.createSubmitted("task-1");
     task.markWorking();
     task.completeWithText("answer");
-    when(a2aService.sendMessage(any(), eq(ownerKey()), anyString())).thenReturn(task);
+    when(a2aService.sendMessage(any(), eq(ownerId()), anyString())).thenReturn(task);
 
     assertThat(
             mvc.post()
@@ -44,7 +44,7 @@ class A2aMessageControllerTest extends AbstractOwnerScopedControllerTest {
                       }
                     }
                     """)
-                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.status.state")

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
@@ -27,8 +27,8 @@ import org.springframework.context.ApplicationEventPublisher;
 @DisplayName("ToolService chat and search")
 class ToolServiceChatTest {
 
-  private static final OwnerKey OWNER =
-      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
+  private static final OwnerId OWNER =
+      OwnerId.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Mock private ChatClientProvider chatClientProvider;
   @Mock private WeatherTools weatherTools;

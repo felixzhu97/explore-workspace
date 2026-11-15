@@ -48,8 +48,8 @@ public class RagController {
   @GetMapping("/documents")
   @Operation(summary = "List documents for the current owner")
   public ResponseEntity<DocumentListResponse> listDocuments(HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
-    List<RagDocument> documents = ragApplicationService.listDocuments(ownerKey);
+    String ownerId = ownerContext.requireValue(request);
+    List<RagDocument> documents = ragApplicationService.listDocuments(ownerId);
     return ResponseEntity.ok(
         new DocumentListResponse(documents.stream().map(RagController::toSummary).toList()));
   }
@@ -60,9 +60,9 @@ public class RagController {
       @RequestParam("file") MultipartFile file,
       @RequestParam(value = "title", required = false) String title,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     DocumentUploadService.UploadResult result =
-        ragApplicationService.uploadDocument(file, title, ownerKey);
+        ragApplicationService.uploadDocument(file, title, ownerId);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             new UploadDocumentResponse(
@@ -77,16 +77,16 @@ public class RagController {
   @Operation(summary = "RAG streaming chat")
   public Flux<ServerSentEvent<String>> streamRagChat(
       @Valid @RequestBody RagChatRequest request, HttpServletRequest httpRequest) {
-    String ownerKey = ownerContext.requireValue(httpRequest);
+    String ownerId = ownerContext.requireValue(httpRequest);
     if (!request.images().isEmpty()) {
       VisionChatService visionChat = visionChatService.getIfAvailable();
       if (visionChat != null) {
         return visionChat.streamChatWithImages(
-            request.question(), request.documentIds(), request.images(), request.topK(), ownerKey);
+            request.question(), request.documentIds(), request.images(), request.topK(), ownerId);
       }
     }
     return ragChatService.streamChat(
-        request.question(), request.documentIds(), request.topK(), request.sessionId(), ownerKey);
+        request.question(), request.documentIds(), request.topK(), request.sessionId(), ownerId);
   }
 
   @DeleteMapping("/documents/{id}")

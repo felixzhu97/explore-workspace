@@ -1,6 +1,6 @@
 package com.ai.account.domain.model;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.explore.errors.DomainException;
 import com.explore.kernel.AbstractEntity;
 import jakarta.persistence.Column;
@@ -134,13 +134,13 @@ public class Account extends AbstractEntity<AccountId> {
   }
 
   /** Returns the data partition of this account. */
-  public OwnerKey createOwnerKey() {
-    return OwnerKey.createAccountKey(getId().toString());
+  public OwnerId createOwnerId() {
+    return OwnerId.createAccountKey(getId().toString());
   }
 
   /** Returns the guest partition of the linked browser, when one is linked. */
-  public Optional<OwnerKey> findGuestOwnerKey() {
-    return Optional.ofNullable(linkedClientId).map(id -> OwnerKey.createClientKey(id.getValue()));
+  public Optional<OwnerId> findGuestOwnerId() {
+    return Optional.ofNullable(linkedClientId).map(id -> OwnerId.createClientKey(id.getValue()));
   }
 
   /** Returns the name to show for this account: display name first, then email. */

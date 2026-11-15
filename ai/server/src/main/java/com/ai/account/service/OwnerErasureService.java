@@ -1,7 +1,7 @@
 package com.ai.account.service;
 
 import com.ai.account.domain.event.OwnerErasureRequestedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,8 +20,8 @@ public class OwnerErasureService {
 
   /** Erases all data stored for the owner. */
   @Transactional
-  public void eraseAllForOwner(OwnerKey ownerKey) {
-    Objects.requireNonNull(ownerKey, "ownerKey");
-    eventPublisher.publishEvent(new OwnerErasureRequestedEvent(ownerKey));
+  public void eraseAllForOwner(OwnerId ownerId) {
+    Objects.requireNonNull(ownerId, "ownerId");
+    eventPublisher.publishEvent(new OwnerErasureRequestedEvent(ownerId));
   }
 }

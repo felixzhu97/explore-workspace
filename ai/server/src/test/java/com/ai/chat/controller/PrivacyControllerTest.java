@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import com.ai.account.controller.OwnerContext;
 import com.ai.account.service.OwnerErasureService;
 import com.ai.common.controller.AnonymousIdCookieFactory;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.infra.config.AnonymousIdProperties;
 import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
@@ -27,8 +27,8 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 @DisplayName("PrivacyController")
 class PrivacyControllerTest {
 
-  private static final OwnerKey OWNER =
-      OwnerKey.createClientKey("11111111-1111-1111-1111-111111111111");
+  private static final OwnerId OWNER =
+      OwnerId.createClientKey("11111111-1111-1111-1111-111111111111");
 
   @Autowired private MockMvcTester mvc;
 

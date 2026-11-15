@@ -34,10 +34,10 @@ public class AgentController {
   @GetMapping
   public ResponseEntity<List<AgentSummaryResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     List<AgentSummaryResponse> agents =
-        agentService.listAgents(ownerKey, language).stream()
+        agentService.listAgents(ownerId, language).stream()
             .map(AgentSummaryResponse::createResponse)
             .toList();
     return ResponseEntity.ok(agents);
@@ -49,10 +49,10 @@ public class AgentController {
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     return ResponseEntity.ok(
-        AgentSummaryResponse.createResponse(agentService.getAgent(agentType, ownerKey, language)));
+        AgentSummaryResponse.createResponse(agentService.getAgent(agentType, ownerId, language)));
   }
 
   /** Runs one Agent and returns the reply. */
@@ -62,11 +62,11 @@ public class AgentController {
       @Valid @RequestBody AgentInvokeBody body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     return ResponseEntity.ok(
         AgentInvokeResponse.createResponse(
-            agentService.invoke(agentType, body.message(), ownerKey, language)));
+            agentService.invoke(agentType, body.message(), ownerId, language)));
   }
 
   /** Streams one Agent run as SSE. */
@@ -76,8 +76,8 @@ public class AgentController {
       @Valid @RequestBody AgentInvokeBody body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
-    return agentService.invokeStream(agentType, body.message(), ownerKey, language);
+    return agentService.invokeStream(agentType, body.message(), ownerId, language);
   }
 }

@@ -1,6 +1,6 @@
 package com.ai.common.domain.event;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 
 /**
  * AI invocation failed event.
@@ -21,7 +21,7 @@ public record AiInvocationFailedEvent(
     String capability,
     String operation,
     long latencyMs,
-    OwnerKey owner,
+    OwnerId owner,
     String provider,
     String model,
     String sessionId,

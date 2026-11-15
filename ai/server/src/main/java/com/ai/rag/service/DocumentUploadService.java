@@ -2,7 +2,7 @@ package com.ai.rag.service;
 
 import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.event.OwnerErasureRequestedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
@@ -69,8 +69,8 @@ public class DocumentUploadService {
    * rolls back.
    */
   public UploadResult uploadDocument(
-      String title, String fileName, String content, String ownerKey) {
-    return uploadDocument(title, fileName, content.getBytes(StandardCharsets.UTF_8), ownerKey);
+      String title, String fileName, String content, String ownerId) {
+    return uploadDocument(title, fileName, content.getBytes(StandardCharsets.UTF_8), ownerId);
   }
 
   /**
@@ -78,9 +78,9 @@ public class DocumentUploadService {
    * back.
    */
   public UploadResult uploadDocument(
-      String title, String fileName, byte[] fileContent, String ownerKey) {
+      String title, String fileName, byte[] fileContent, String ownerId) {
     RagDocument document =
-        RagDocument.startIngestion(title, fileName, fileContent.length, ownerKey);
+        RagDocument.startIngestion(title, fileName, fileContent.length, ownerId);
     RagDocument processing = transactions.execute(status -> documentRepository.save(document));
 
     try {
@@ -92,9 +92,9 @@ public class DocumentUploadService {
   }
 
   /** Ingests the uploaded file; the title falls back to its file name. */
-  public UploadResult uploadDocument(MultipartFile file, String title, String ownerKey) {
+  public UploadResult uploadDocument(MultipartFile file, String title, String ownerId) {
     try {
-      return uploadDocument(title, file.getOriginalFilename(), file.getBytes(), ownerKey);
+      return uploadDocument(title, file.getOriginalFilename(), file.getBytes(), ownerId);
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to read file content", e);
     }
@@ -102,23 +102,23 @@ public class DocumentUploadService {
 
   /** Lists all documents of the owner. */
   @Transactional(readOnly = true)
-  public List<RagDocument> listAll(String ownerKey) {
-    return documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey.parseKey(ownerKey));
+  public List<RagDocument> listAll(String ownerId) {
+    return documentRepository.findAllByOwnerIdOrderByCreatedAtDesc(OwnerId.parseKey(ownerId));
   }
 
   /** Deletes the owner's document and all its chunks; throws if the document is not found. */
   @Transactional
-  public void deleteDocument(UUID documentId, String ownerKey) {
-    OwnerKey owner = OwnerKey.parseKey(ownerKey);
+  public void deleteDocument(UUID documentId, String ownerId) {
+    OwnerId owner = OwnerId.parseKey(ownerId);
     RagDocument document =
         documentRepository
-            .findByIdAndOwnerKey(DocumentId.createId(documentId), owner)
+            .findByIdAndOwnerId(DocumentId.createId(documentId), owner)
             .orElseThrow(
                 () ->
                     DomainException.createNotFoundError(
                         "DOCUMENT_NOT_FOUND", "Document not found: " + documentId));
     chunkRepository.deleteChunksByDocumentId(document.getId());
-    documentRepository.deleteByIdAndOwnerKey(document.getId(), owner);
+    documentRepository.deleteByIdAndOwnerId(document.getId(), owner);
   }
 
   private void recordFailure(RagDocument document, RuntimeException cause) {
@@ -160,14 +160,14 @@ public class DocumentUploadService {
   @EventListener
   @Transactional
   void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
-    chunkRepository.deleteChunksByOwnerKey(event.ownerKey());
-    documentRepository.deleteAllByOwnerKey(event.ownerKey());
+    chunkRepository.deleteChunksByOwnerId(event.ownerId());
+    documentRepository.deleteAllByOwnerId(event.ownerId());
   }
 
   @EventListener
   @Transactional
   void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
-    chunkRepository.reassignChunkOwner(event.fromOwnerKey(), event.toOwnerKey());
-    documentRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    chunkRepository.reassignChunkOwner(event.fromOwnerId(), event.toOwnerId());
+    documentRepository.reassignOwnerId(event.fromOwnerId(), event.toOwnerId());
   }
 }

@@ -39,10 +39,10 @@ public class PipelineController {
   @GetMapping("/agent-types")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = resolveLanguage(lang, request);
     List<AgentInfoResponse> agents =
-        pipelineService.listAgents(ownerKey, language).stream()
+        pipelineService.listAgents(ownerId, language).stream()
             .map(AgentInfoResponse::createResponse)
             .toList();
     return ResponseEntity.ok(agents);
@@ -61,10 +61,10 @@ public class PipelineController {
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     return ResponseEntity.ok(
         AgentInfoResponse.createResponse(
-            pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
+            pipelineService.getHealth(agentType, ownerId, resolveLanguage(lang, request))));
   }
 
   /** Returns the health of one agent. */
@@ -73,10 +73,10 @@ public class PipelineController {
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     return ResponseEntity.ok(
         AgentHealthResponse.createResponse(
-            pipelineService.getHealth(agentType, ownerKey, resolveLanguage(lang, request))));
+            pipelineService.getHealth(agentType, ownerId, resolveLanguage(lang, request))));
   }
 
   /** Streams a supervisor run. */
@@ -85,9 +85,9 @@ public class PipelineController {
       @Valid @RequestBody AgentInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
-    String ownerKey = ownerContext.requireValue(httpRequest);
+    String ownerId = ownerContext.requireValue(httpRequest);
     return pipelineService.invokeSupervisor(
-        request.message(), ownerKey, resolveLanguage(lang, httpRequest));
+        request.message(), ownerId, resolveLanguage(lang, httpRequest));
   }
 
   /** Streams a pipeline run. */
@@ -96,7 +96,7 @@ public class PipelineController {
       @Valid @RequestBody PipelineInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
-    String ownerKey = ownerContext.requireValue(httpRequest);
+    String ownerId = ownerContext.requireValue(httpRequest);
     List<AgentPipeline.PipelineNode> nodes =
         request.nodes().stream()
             .map(
@@ -116,7 +116,7 @@ public class PipelineController {
     return pipelineService.invokePipeline(
         request.message(),
         AgentPipeline.createPipeline(nodes, edges),
-        ownerKey,
+        ownerId,
         resolveLanguage(lang, httpRequest));
   }
 
@@ -127,9 +127,9 @@ public class PipelineController {
       @Valid @RequestBody AgentInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest httpRequest) {
-    String ownerKey = ownerContext.requireValue(httpRequest);
+    String ownerId = ownerContext.requireValue(httpRequest);
     return pipelineService.invokeAgent(
-        agentType, request.message(), ownerKey, resolveLanguage(lang, httpRequest));
+        agentType, request.message(), ownerId, resolveLanguage(lang, httpRequest));
   }
 
   private static String resolveLanguage(String lang, HttpServletRequest request) {

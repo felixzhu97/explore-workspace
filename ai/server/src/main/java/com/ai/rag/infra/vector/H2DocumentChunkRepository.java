@@ -1,6 +1,6 @@
 package com.ai.rag.infra.vector;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.ScoredChunk;
@@ -27,7 +27,7 @@ public class H2DocumentChunkRepository
 
   private static final String TABLE_NAME = "document_chunk";
   private static final String SELECT_COLUMNS =
-      "SELECT id, document_id, owner_key, content, chunk_index, embedding, metadata, created_at";
+      "SELECT id, document_id, owner_id, content, chunk_index, embedding, metadata, created_at";
 
   private final JdbcTemplate jdbcTemplate;
   private final ObjectMapper objectMapper;
@@ -48,7 +48,7 @@ public class H2DocumentChunkRepository
         "MERGE INTO "
             + TABLE_NAME
             + " (id, document_id, content, chunk_index, embedding,"
-            + " metadata, created_at, owner_key) "
+            + " metadata, created_at, owner_id) "
             + "KEY (id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     jdbcTemplate.update(
@@ -60,7 +60,7 @@ public class H2DocumentChunkRepository
         embeddingString,
         metadataJson,
         chunk.getCreatedAt().toString(),
-        chunk.getOwnerKey().getValue());
+        chunk.getOwnerId().getValue());
   }
 
   @Override
@@ -79,15 +79,15 @@ public class H2DocumentChunkRepository
 
   @Override
   @Transactional
-  public void deleteChunksByOwnerKey(OwnerKey ownerKey) {
-    jdbcTemplate.update("DELETE FROM " + TABLE_NAME + " WHERE owner_key = ?", ownerKey.getValue());
+  public void deleteChunksByOwnerId(OwnerId ownerId) {
+    jdbcTemplate.update("DELETE FROM " + TABLE_NAME + " WHERE owner_id = ?", ownerId.getValue());
   }
 
   @Override
   @Transactional
-  public void reassignChunkOwner(OwnerKey from, OwnerKey to) {
+  public void reassignChunkOwner(OwnerId from, OwnerId to) {
     jdbcTemplate.update(
-        "UPDATE " + TABLE_NAME + " SET owner_key = ? WHERE owner_key = ?",
+        "UPDATE " + TABLE_NAME + " SET owner_id = ? WHERE owner_id = ?",
         to.getValue(),
         from.getValue());
   }
@@ -95,11 +95,11 @@ public class H2DocumentChunkRepository
   @Override
   @Transactional(readOnly = true)
   public List<ScoredChunk> searchChunks(
-      float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds) {
+      float[] queryEmbedding, int topK, String ownerId, List<UUID> documentIds) {
     if (queryEmbedding.length == 0) {
       return List.of();
     }
-    return loadCandidates(ownerKey, documentIds).stream()
+    return loadCandidates(ownerId, documentIds).stream()
         .filter(chunk -> chunk.isComparableWith(queryEmbedding))
         .map(chunk -> ScoredChunk.createScoredChunk(chunk, queryEmbedding))
         .sorted(ScoredChunk.BEST_FIRST)
@@ -109,22 +109,22 @@ public class H2DocumentChunkRepository
 
   @Override
   @Transactional(readOnly = true)
-  public List<DocumentChunk> findLeadingChunks(String ownerKey, List<UUID> documentIds, int limit) {
+  public List<DocumentChunk> findLeadingChunks(String ownerId, List<UUID> documentIds, int limit) {
     if (documentIds.isEmpty()) {
       return List.of();
     }
     StringBuilder sql = buildOwnerScopedSelect(documentIds);
     sql.append(" ORDER BY chunk_index, document_id LIMIT ?");
     List<Object> args = new ArrayList<>();
-    args.add(ownerKey);
+    args.add(ownerId);
     args.addAll(documentIds);
     args.add(limit);
     return jdbcTemplate.query(sql.toString(), chunkRowMapper, args.toArray());
   }
 
-  private List<DocumentChunk> loadCandidates(String ownerKey, List<UUID> documentIds) {
+  private List<DocumentChunk> loadCandidates(String ownerId, List<UUID> documentIds) {
     List<Object> args = new ArrayList<>();
-    args.add(ownerKey);
+    args.add(ownerId);
     args.addAll(documentIds);
     return jdbcTemplate.query(
         buildOwnerScopedSelect(documentIds).toString(), chunkRowMapper, args.toArray());
@@ -135,7 +135,7 @@ public class H2DocumentChunkRepository
         new StringBuilder(SELECT_COLUMNS)
             .append(" FROM ")
             .append(TABLE_NAME)
-            .append(" WHERE owner_key = ?");
+            .append(" WHERE owner_id = ?");
     if (!documentIds.isEmpty()) {
       sql.append(" AND document_id IN (")
           .append(documentIds.stream().map(id -> "?").collect(Collectors.joining(",")))

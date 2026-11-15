@@ -2,7 +2,7 @@ package com.ai.chat.domain.repository;
 
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import java.time.Instant;
 import java.util.List;
@@ -17,10 +17,10 @@ public interface ChatSessionRepository
   Optional<ChatSession> findById(ChatSessionId id);
 
   /** Finds the owner's session by id. */
-  Optional<ChatSession> findByIdAndOwnerKey(ChatSessionId id, OwnerKey ownerKey);
+  Optional<ChatSession> findByIdAndOwnerId(ChatSessionId id, OwnerId ownerId);
 
   /** Lists the owner's sessions, most recently active first. */
-  List<ChatSession> findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey ownerKey);
+  List<ChatSession> findAllByOwnerIdOrderByLastActivityAtDesc(OwnerId ownerId);
 
   /** Lists every owner's sessions with no activity since the cutoff, oldest first. */
   List<ChatSession> findAllByLastActivityAtBeforeOrderByLastActivityAtAsc(Instant cutoff);

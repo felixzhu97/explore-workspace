@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
@@ -37,7 +37,7 @@ class ChunkRowMapperTest {
       DocumentId.createId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
   private static final ChunkId TEST_CHUNK_ID =
       ChunkId.parseId("223e4567-e89b-12d3-a456-426614174001");
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:owner");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:owner");
 
   @BeforeEach
   void setUp() {
@@ -99,12 +99,12 @@ class ChunkRowMapperTest {
     assertThat(sql)
         .contains("id")
         .contains("document_id")
-        .contains("owner_key,")
+        .contains("owner_id,")
         .contains("content")
         .contains("embedding")
         .contains("metadata")
         .contains("created_at")
-        .contains("owner_key = ?");
+        .contains("owner_id = ?");
   }
 
   @Test

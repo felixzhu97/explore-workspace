@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Immutable entity partitioned by owner_key. */
+/** Immutable entity partitioned by owner_id. */
 @MappedSuperclass
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -19,15 +19,15 @@ public abstract class AbstractOwnerAwareImmutable<IdT extends AbstractEmbeddable
 
   @NotNull
   @Column(nullable = false, length = 80)
-  protected OwnerKey ownerKey;
+  protected OwnerId ownerId;
 
-  protected AbstractOwnerAwareImmutable(IdT id, OwnerKey ownerKey) {
+  protected AbstractOwnerAwareImmutable(IdT id, OwnerId ownerId) {
     super(id);
-    this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");
+    this.ownerId = Objects.requireNonNull(ownerId, "ownerId");
   }
 
-  /** Returns the persisted owner_key value (c:… or u:…). */
-  public String getOwnerKeyValue() {
-    return ownerKey.getValue();
+  /** Returns the persisted owner_id value (c:… or u:…). */
+  public String getOwnerIdValue() {
+    return ownerId.getValue();
   }
 }

@@ -27,7 +27,7 @@ class AgentControllerTest extends AbstractOwnerScopedControllerTest {
   @Test
   @DisplayName("should list agents without system prompt")
   void shouldListAgents() {
-    when(agentService.listAgents(eq(ownerKey()), anyString()))
+    when(agentService.listAgents(eq(ownerId()), anyString()))
         .thenReturn(
             List.of(
                 AgentDefinition.createDefinition(
@@ -42,7 +42,7 @@ class AgentControllerTest extends AbstractOwnerScopedControllerTest {
         assertThat(
                 mvc.get()
                     .uri("/api/agents")
-                    .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
+                    .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
             .hasStatusOk()
             .bodyJson();
     json.extractingPath("$[0].type").isEqualTo("research");
@@ -52,7 +52,7 @@ class AgentControllerTest extends AbstractOwnerScopedControllerTest {
   @Test
   @DisplayName("should invoke agent and return reply")
   void shouldInvokeAgent() {
-    when(agentService.invoke(eq("research"), eq("hi"), eq(ownerKey()), anyString()))
+    when(agentService.invoke(eq("research"), eq("hi"), eq(ownerId()), anyString()))
         .thenReturn(AgentRun.createCompleted("research", "hi", "hello"));
 
     assertThat(
@@ -60,7 +60,7 @@ class AgentControllerTest extends AbstractOwnerScopedControllerTest {
                 .uri("/api/agents/research/invoke")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"message\":\"hi\"}")
-                .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.reply")

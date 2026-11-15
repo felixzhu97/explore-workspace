@@ -1,6 +1,6 @@
 package com.ai.rag.domain.model;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +14,11 @@ public class DocumentChunk {
   /** Longest excerpt shown to the model or the user for one chunk. */
   public static final int EXCERPT_LENGTH = 500;
 
-  private static final String OWNER_KEY_METADATA_KEY = "ownerKey";
+  private static final String OWNER_KEY_METADATA_KEY = "ownerId";
 
   private final ChunkId id;
   private final DocumentId documentId;
-  private final OwnerKey ownerKey;
+  private final OwnerId ownerId;
   private final String content;
   private final int chunkIndex;
   private final Map<String, Object> metadata;
@@ -28,7 +28,7 @@ public class DocumentChunk {
   private DocumentChunk(
       ChunkId id,
       DocumentId documentId,
-      OwnerKey ownerKey,
+      OwnerId ownerId,
       String content,
       int chunkIndex,
       Map<String, Object> metadata,
@@ -36,7 +36,7 @@ public class DocumentChunk {
       Instant createdAt) {
     this.id = Objects.requireNonNull(id, "id cannot be null");
     this.documentId = Objects.requireNonNull(documentId, "documentId cannot be null");
-    this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey cannot be null");
+    this.ownerId = Objects.requireNonNull(ownerId, "ownerId cannot be null");
     this.content = Objects.requireNonNull(content, "content cannot be null");
     this.chunkIndex = chunkIndex;
     this.metadata = withoutOwner(metadata);
@@ -48,26 +48,26 @@ public class DocumentChunk {
   public static DocumentChunk createChunk(
       ChunkId id,
       DocumentId documentId,
-      OwnerKey ownerKey,
+      OwnerId ownerId,
       String content,
       int chunkIndex,
       Map<String, Object> metadata) {
     return new DocumentChunk(
-        id, documentId, ownerKey, content, chunkIndex, metadata, null, Instant.now());
+        id, documentId, ownerId, content, chunkIndex, metadata, null, Instant.now());
   }
 
   /** Restores a stored chunk. */
   public static DocumentChunk restoreChunk(
       ChunkId id,
       DocumentId documentId,
-      OwnerKey ownerKey,
+      OwnerId ownerId,
       String content,
       int chunkIndex,
       Map<String, Object> metadata,
       float[] embedding,
       Instant createdAt) {
     return new DocumentChunk(
-        id, documentId, ownerKey, content, chunkIndex, metadata, embedding, createdAt);
+        id, documentId, ownerId, content, chunkIndex, metadata, embedding, createdAt);
   }
 
   private static Map<String, Object> withoutOwner(Map<String, Object> metadata) {
@@ -82,7 +82,7 @@ public class DocumentChunk {
   /** Returns a copy with the embedding. */
   public DocumentChunk copyWithEmbedding(float[] embedding) {
     return new DocumentChunk(
-        id, documentId, ownerKey, content, chunkIndex, metadata, embedding, createdAt);
+        id, documentId, ownerId, content, chunkIndex, metadata, embedding, createdAt);
   }
 
   /** Cosine similarity to the query embedding; 0 when either side is missing or sizes differ. */

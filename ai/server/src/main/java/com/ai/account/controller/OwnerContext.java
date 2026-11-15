@@ -2,7 +2,7 @@ package com.ai.account.controller;
 
 import com.ai.account.service.CurrentOwnerResolver;
 import com.ai.common.controller.AnonymousId;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-/** Web helper: cookie Anonymous id and/or IAM JWT → data {@link OwnerKey}. */
+/** Web helper: cookie Anonymous id and/or IAM JWT → data {@link OwnerId}. */
 @Component
 @RequiredArgsConstructor
 public class OwnerContext {
@@ -18,7 +18,7 @@ public class OwnerContext {
   private final CurrentOwnerResolver currentOwnerResolver;
 
   /** Resolves the request's owner key from an IAM JWT, else from the Anonymous id cookie. */
-  public OwnerKey requireOwner(HttpServletRequest request) {
+  public OwnerId requireOwner(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return currentOwnerResolver.resolveFromJwt(jwtAuth.getToken());

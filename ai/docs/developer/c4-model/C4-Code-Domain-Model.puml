@@ -33,7 +33,7 @@ note as N_LAYERS
   @EventListener handleXxxEvent methods, synchronously
   in the publisher's transaction; no cross-feature injection.
   JPA repositories extend Spring Data Repository<T, ID>;
-  owner isolation is an explicit OwnerKey query argument.
+  owner isolation is an explicit OwnerId query argument.
   LLM tools and workflows are application ports in service.
   Rule violations raise DomainException(kind, code).
   Aggregates encapsulate invariants; application orchestrates use cases.
@@ -74,14 +74,14 @@ TypedId --> AbstractImmutableEntity : embedded id
 ' ── Common (owner-aware bases) ─────────────────────────────
 package "Common" as pkg_common_kernel {
   class AbstractOwnerAwareImmutable <<Abstract>> {
-    +ownerKey: OwnerKey NOT NULL
+    +ownerId: OwnerId NOT NULL
     --
-    +getOwnerKeyValue()
+    +getOwnerIdValue()
   }
   class AbstractOwnerAwareEntity <<Abstract>> {
-    +ownerKey: OwnerKey NOT NULL
+    +ownerId: OwnerId NOT NULL
     --
-    +getOwnerKeyValue()
+    +getOwnerIdValue()
   }
   class AbstractEnableableNamedOwnerEntity <<Abstract>> {
     +name: String
@@ -97,7 +97,7 @@ package "Common" as pkg_common_kernel {
     +enable()
     +updateEnabledState(enabled)
   }
-  class OwnerKey <<ValueObject>> {
+  class OwnerId <<ValueObject>> {
     +value: String
     --
     +{static} forClient(id)
@@ -110,16 +110,16 @@ package "Common" as pkg_common_kernel {
     @NoRepositoryBean extends Repository<E, I>
     --
     +save(entity)
-    +findByIdAndOwnerKey(id, ownerKey)
-    +findAllByOwnerKeyOrderByNameAsc(ownerKey)
-    +deleteByIdAndOwnerKey(id, ownerKey)
-    +existsByOwnerKeyAndNameIgnoringId(ownerKey, name, excludeId)
+    +findByIdAndOwnerId(id, ownerId)
+    +findAllByOwnerIdOrderByNameAsc(ownerId)
+    +deleteByIdAndOwnerId(id, ownerId)
+    +existsByOwnerIdAndNameIgnoringId(ownerId, name, excludeId)
   }
   class AiInvocationCompletedEvent <<DomainEvent>> {
     +capability: String
     +operation: String
     +latencyMs: long
-    +owner: OwnerKey
+    +owner: OwnerId
     +provider: String
     +model: String
     +sessionId: String
@@ -130,7 +130,7 @@ package "Common" as pkg_common_kernel {
     +capability: String
     +operation: String
     +latencyMs: long
-    +owner: OwnerKey
+    +owner: OwnerId
     +provider: String
     +model: String
     +sessionId: String
@@ -145,20 +145,20 @@ AbstractImmutableEntity <|-- AbstractOwnerAwareImmutable
 AbstractEntity <|-- AbstractOwnerAwareEntity
 AbstractOwnerAwareEntity <|-- AbstractEnableableNamedOwnerEntity
 AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity
-AbstractOwnerAwareEntity --> OwnerKey
-AbstractOwnerAwareImmutable --> OwnerKey
+AbstractOwnerAwareEntity --> OwnerId
+AbstractOwnerAwareImmutable --> OwnerId
 
 ' ── chat ───────────────────────────────────────────────────
 package "Chat" as pkg_chat {
   class ChatSession <<AggregateRoot>> {
     +id: ChatSessionId
-    +ownerKey: OwnerKey
+    +ownerId: OwnerId
     +title: SessionTitle
     +lastActivityAt: Instant
     --
-    +{static} create(title, ownerKey)
-    +{static} startDefault(ownerKey)
-    +{static} startWithId(id, ownerKey)
+    +{static} create(title, ownerId)
+    +{static} startDefault(ownerId)
+    +{static} startWithId(id, ownerId)
     +rename(newTitle)
     +needsGeneratedTitle()
     +applyGeneratedTitle(title)
@@ -203,7 +203,7 @@ package "Chat" as pkg_chat {
   interface ChatSessionRepository <<Repository>> {
     +save(session)
     +findById(id)
-    +findByIdAndOwnerKey(id, ownerKey)
+    +findByIdAndOwnerId(id, ownerId)
   }
   interface ChatWebSourcesRepository <<Repository>> {
     +findByConversationId(conversationId)
@@ -221,12 +221,12 @@ ChatMessage --> MessageRole
 package "RAG" as pkg_rag {
   class RagDocument <<AggregateRoot>> {
     +id: DocumentId
-    +ownerKey: OwnerKey
+    +ownerId: OwnerId
     +title: String
     +status: DocumentStatus
     +chunkCount: int
     --
-    +{static} startIngestion(title, fileName, fileSize, ownerKey)
+    +{static} startIngestion(title, fileName, fileSize, ownerId)
     +completeIngestion(chunkCount)
     +failIngestion()
     +createChunk(index, content, sourceMetadata)
@@ -235,7 +235,7 @@ package "RAG" as pkg_rag {
   class DocumentChunk <<Entity>> {
     +id: ChunkId
     +documentId: DocumentId
-    +ownerKey: OwnerKey
+    +ownerId: OwnerId
     +content: String
     --
     +{static} create(...)
@@ -260,7 +260,7 @@ package "RAG" as pkg_rag {
   }
   interface DocumentRepository <<Repository>> {
     +save(document)
-    +findByIdAndOwnerKey(id, ownerKey)
+    +findByIdAndOwnerId(id, ownerId)
   }
 }
 
@@ -305,11 +305,11 @@ package "Pipeline" as pkg_pipeline {
   interface PipelineTemplateRepository <<Repository>> {
   }
   interface CustomAgentRepository <<Repository>> {
-    +findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(ownerKey)
+    +findAllByOwnerIdAndEnabledTrueOrderByNameAsc(ownerId)
   }
   interface AgentRegistry <<Repository>> {
     +listBuiltins(language)
-    +listAll(ownerKey, language)
+    +listAll(ownerId, language)
   }
 }
 
@@ -368,7 +368,7 @@ package "Skill" as pkg_skill {
     +toPromptSection()
   }
   interface SkillRepository <<Repository>> {
-    +findEnabledByOwnerKeyAndIds(ownerKey, ids)
+    +findEnabledByOwnerIdAndIds(ownerId, ids)
   }
 }
 
@@ -405,12 +405,12 @@ package "Automation" as pkg_automation {
   class AutomationRun <<Entity>> {
     @DynamicUpdate
     +id: RunId
-    +ownerKey: OwnerKey
+    +ownerId: OwnerId
     +status: RunStatus
     +startedAt: Instant
     +finishedAt: Instant
     --
-    +{static} start(scheduleId, ownerKey, startedAt)
+    +{static} start(scheduleId, ownerId, startedAt)
     +markSucceeded(excerpt, emailStatus)
     +markFailedBeforeEmail(error)
     +markSkippedForQuota()
@@ -446,8 +446,8 @@ package "Account" as pkg_account {
     +reactivateAccount()
     +isActive(): boolean
     +unlinkBrowser()
-    +createOwnerKey()
-    +findGuestOwnerKey(): Optional
+    +createOwnerId()
+    +findGuestOwnerId(): Optional
     +findDisplayLabel(): Optional
   }
   class ExternalIdentity <<ValueObject>> {
@@ -469,11 +469,11 @@ package "Account" as pkg_account {
     +{static} isValid(raw)
   }
   class OwnerErasureRequestedEvent <<DomainEvent>> {
-    +ownerKey: OwnerKey
+    +ownerId: OwnerId
   }
   class GuestLinkedToAccountEvent <<DomainEvent>> {
-    +fromOwnerKey: OwnerKey
-    +toOwnerKey: OwnerKey
+    +fromOwnerId: OwnerId
+    +toOwnerId: OwnerId
   }
   note bottom of Account
     SCIM (planned): IAM pushes Users to /scim/v2/Users.
@@ -486,7 +486,7 @@ package "Account" as pkg_account {
 
 Account --> ExternalIdentity : identified by
 GuestLinkedToAccountEvent ..> Account : published on link
-OwnerErasureRequestedEvent ..> OwnerKey : erase all rows of
+OwnerErasureRequestedEvent ..> OwnerId : erase all rows of
 Account --> ContactEmail
 Account --> ClientId : linked browser
 
@@ -516,7 +516,7 @@ package "Billing" as pkg_billing {
   class QuotaSubject <<ValueObject>> {
     +key: String
     --
-    +{static} owner(ownerKey)
+    +{static} owner(ownerId)
     +{static} address(ip)
     +{static} GLOBAL
   }
@@ -553,11 +553,11 @@ package "Metrics" as pkg_metrics {
     @Immutable
     +capability: AiCapability
     +outcome: InvocationOutcome
-    +ownerKey: OwnerKey (required at creation)
+    +ownerId: OwnerId (required at creation)
     +latencyMs: long
     --
-    +{static} createSucceededEvent(capability, operation, latency, ownerKey)
-    +{static} createFailedEvent(capability, operation, latency, ownerKey, error)
+    +{static} createSucceededEvent(capability, operation, latency, ownerId)
+    +{static} createFailedEvent(capability, operation, latency, ownerId, error)
   }
   class Latency <<ValueObject>> {
     +millis: long
@@ -610,14 +610,14 @@ package "Tool Calling" as pkg_tools {
 
 ' ── cross-cutting (kernel note) ─────────────────────────────
 note as KERNEL_NOTE
-  OwnerKey and owner-aware entity bases live in
+  OwnerId and owner-aware entity bases live in
   the **Common** package above.
-  Value objects and attribute converters (OwnerKey, enums, JSON lists)
+  Value objects and attribute converters (OwnerId, enums, JSON lists)
   live in domain.model next to the entities that use them.
   Typed ids are @Embeddable Lombok classes on AbstractEmbeddable,
   mapped to native UUID columns.
-  Owner-scoped repository methods take the OwnerKey explicitly
-  (findByIdAndOwnerKey, deleteByIdAndOwnerKey); services own
+  Owner-scoped repository methods take the OwnerId explicitly
+  (findByIdAndOwnerId, deleteByIdAndOwnerId); services own
   the @Transactional boundary.
   Default JPA snake_case naming; no @Table/@Column(name=) in domain.
 end note
@@ -635,11 +635,11 @@ AbstractOwnerAwareImmutable <|-- AiInvocationEvent
 OwnerScopedRepository <|-- SkillRepository
 OwnerScopedRepository <|-- PipelineTemplateRepository
 
-ChatSession ..> OwnerKey : owned by
-RagDocument ..> OwnerKey : owned by
-Skill ..> OwnerKey : owned by
-Account ..> OwnerKey : links browser
-AiInvocationEvent ..> OwnerKey : attributed to
+ChatSession ..> OwnerId : owned by
+RagDocument ..> OwnerId : owned by
+Skill ..> OwnerId : owned by
+Account ..> OwnerId : links browser
+AiInvocationEvent ..> OwnerId : attributed to
 AutomationSchedule ..> PipelineTemplate : by id (PipelineTemplateId)
 AiInvocationEvent --> Latency
 AiInvocationEvent --> ErrorSummary

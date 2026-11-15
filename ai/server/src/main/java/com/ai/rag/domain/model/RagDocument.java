@@ -2,7 +2,7 @@ package com.ai.rag.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareEntity;
 import com.ai.common.domain.model.DomainStrings;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,8 +47,8 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
       Long fileSize,
       DocumentStatus status,
       int chunkCount,
-      String ownerKey) {
-    super(id, OwnerKey.parseKey(ownerKey));
+      String ownerId) {
+    super(id, OwnerId.parseKey(ownerId));
     this.title = resolveTitle(title, fileName);
     this.fileName = fileName;
     this.fileSize = fileSize;
@@ -61,12 +61,12 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
    * #UNTITLED}; empty files are rejected.
    */
   public static RagDocument startIngestion(
-      String title, String fileName, long fileSize, String ownerKey) {
+      String title, String fileName, long fileSize, String ownerId) {
     if (fileSize <= 0) {
       throw new IllegalArgumentException("Uploaded file is empty");
     }
     return new RagDocument(
-        DocumentId.generateId(), title, fileName, fileSize, DocumentStatus.PROCESSING, 0, ownerKey);
+        DocumentId.generateId(), title, fileName, fileSize, DocumentStatus.PROCESSING, 0, ownerId);
   }
 
   private static String resolveTitle(String title, String fileName) {
@@ -111,7 +111,7 @@ public class RagDocument extends AbstractOwnerAwareEntity<DocumentId> {
       metadata.put(FILE_NAME_METADATA_KEY, fileName);
     }
     return DocumentChunk.createChunk(
-        ChunkId.generateId(), getId(), ownerKey, content, index, metadata);
+        ChunkId.generateId(), getId(), ownerId, content, index, metadata);
   }
 
   @Override

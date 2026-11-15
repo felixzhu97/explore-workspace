@@ -1,10 +1,10 @@
 package com.ai.account.domain.event;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 
 /**
  * Owner erasure requested event.
  *
- * @param ownerKey owner partition whose rows must be deleted
+ * @param ownerId owner partition whose rows must be deleted
  */
-public record OwnerErasureRequestedEvent(OwnerKey ownerKey) {}
+public record OwnerErasureRequestedEvent(OwnerId ownerId) {}

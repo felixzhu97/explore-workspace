@@ -9,7 +9,7 @@ import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.explore.errors.DomainException;
 import java.time.Instant;
 import java.util.List;
@@ -46,9 +46,9 @@ class CurrentOwnerResolverTest {
     when(accountRepository.findByLinkedClientId(ClientId.parseId(CLIENT_ID)))
         .thenReturn(Optional.empty());
 
-    OwnerKey key = resolver.resolveOwner(CLIENT_ID, null);
+    OwnerId key = resolver.resolveOwner(CLIENT_ID, null);
 
-    assertThat(key).isEqualTo(OwnerKey.createClientKey(CLIENT_ID));
+    assertThat(key).isEqualTo(OwnerId.createClientKey(CLIENT_ID));
   }
 
   @Test
@@ -58,21 +58,21 @@ class CurrentOwnerResolverTest {
     when(accountRepository.findByLinkedClientId(ClientId.parseId(CLIENT_ID)))
         .thenReturn(Optional.of(account));
 
-    OwnerKey key =
+    OwnerId key =
         resolver.resolveOwner(
             CLIENT_ID,
             new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
 
-    assertThat(key).isEqualTo(account.createOwnerKey());
+    assertThat(key).isEqualTo(account.createOwnerId());
   }
 
   @Test
   @DisplayName("should stay a guest without a lookup when the client id is not a UUID")
   void shouldStayAGuestWithoutALookupWhenTheClientIdIsNotAUuid() {
-    OwnerKey key = resolver.resolveOwner("cid-legacy", null);
+    OwnerId key = resolver.resolveOwner("cid-legacy", null);
 
-    assertThat(key).isEqualTo(OwnerKey.createClientKey("cid-legacy"));
+    assertThat(key).isEqualTo(OwnerId.createClientKey("cid-legacy"));
     verifyNoInteractions(accountRepository);
   }
 
@@ -90,9 +90,9 @@ class CurrentOwnerResolverTest {
         new DefaultOidcUser(AuthorityUtils.createAuthorityList("ROLE_USER"), idToken);
     OAuth2AuthenticationToken auth = new OAuth2AuthenticationToken(oidcUser, List.of(), "google");
 
-    OwnerKey key = resolver.resolveOwner(CLIENT_ID, auth);
+    OwnerId key = resolver.resolveOwner(CLIENT_ID, auth);
 
-    assertThat(key).isEqualTo(account.createOwnerKey());
+    assertThat(key).isEqualTo(account.createOwnerId());
   }
 
   @Test
@@ -125,12 +125,12 @@ class CurrentOwnerResolverTest {
     Jwt jwt = IamAccountServiceTest.jwt("iam-sub", "iam@example.com");
     when(iamAccountService.signIn(jwt)).thenReturn(account);
 
-    OwnerKey key =
+    OwnerId key =
         resolver.resolveOwner(
             CLIENT_ID,
             new JwtAuthenticationToken(jwt, AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-    assertThat(key).isEqualTo(account.createOwnerKey());
+    assertThat(key).isEqualTo(account.createOwnerId());
     verifyNoInteractions(accountRepository);
   }
 }

@@ -35,8 +35,8 @@ public class AutomationController {
   /** Lists the owner's automation schedules. */
   @GetMapping
   public List<AutomationScheduleResponse> listSchedules(HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
-    return automationService.listSchedules(ownerKey).stream()
+    String ownerId = ownerContext.requireValue(request);
+    return automationService.listSchedules(ownerId).stream()
         .map(AutomationScheduleResponse::createResponse)
         .toList();
   }
@@ -47,8 +47,8 @@ public class AutomationController {
       @PathVariable String id,
       @RequestParam(value = "limit", defaultValue = "20") int limit,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
-    return automationService.listRuns(ownerKey, id, limit).stream()
+    String ownerId = ownerContext.requireValue(request);
+    return automationService.listRuns(ownerId, id, limit).stream()
         .map(AutomationRunResponse::createResponse)
         .toList();
   }
@@ -57,12 +57,12 @@ public class AutomationController {
   @PostMapping
   public ResponseEntity<AutomationScheduleResponse> createSchedule(
       @Valid @RequestBody CreateAutomationScheduleRequest body, HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(
             AutomationScheduleResponse.createResponse(
                 automationService.createSchedule(
-                    ownerKey,
+                    ownerId,
                     body.name(),
                     body.scheduleKind(),
                     body.cronExpression(),
@@ -79,10 +79,10 @@ public class AutomationController {
       @PathVariable String id,
       @Valid @RequestBody UpdateAutomationScheduleRequest body,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     return AutomationScheduleResponse.createResponse(
         automationService.updateSchedule(
-            ownerKey,
+            ownerId,
             id,
             body.name(),
             body.scheduleKind(),
@@ -100,16 +100,16 @@ public class AutomationController {
       @PathVariable String id,
       @Valid @RequestBody SetAutomationEnabledRequest body,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     return AutomationScheduleResponse.createResponse(
-        automationService.setEnabled(ownerKey, id, body.enabled()));
+        automationService.setEnabled(ownerId, id, body.enabled()));
   }
 
   /** Deletes an automation schedule. */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteSchedule(@PathVariable String id, HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
-    automationService.deleteSchedule(ownerKey, id);
+    String ownerId = ownerContext.requireValue(request);
+    automationService.deleteSchedule(ownerId, id);
     return ResponseEntity.noContent().build();
   }
 }

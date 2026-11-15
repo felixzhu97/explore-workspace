@@ -21,8 +21,8 @@ public abstract class AbstractEnableableDescribedOwnerEntity<IdT extends Abstrac
   protected String description;
 
   protected AbstractEnableableDescribedOwnerEntity(
-      IdT id, String ownerKey, String name, String description) {
-    super(id, ownerKey, name);
+      IdT id, String ownerId, String name, String description) {
+    super(id, ownerId, name);
     this.description = DomainStrings.normalizeDescription(description);
   }
 

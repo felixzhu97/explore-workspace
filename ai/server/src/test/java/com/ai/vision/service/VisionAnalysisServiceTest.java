@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.vision.domain.model.CaptionResult;
 import com.ai.vision.domain.model.Detection;
 import com.ai.vision.domain.model.OcrResult;
@@ -30,8 +30,8 @@ import org.springframework.mock.web.MockMultipartFile;
 @DisplayName("VisionAnalysisService")
 class VisionAnalysisServiceTest {
 
-  private static final OwnerKey OWNER =
-      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
+  private static final OwnerId OWNER =
+      OwnerId.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Mock private ImageCaptioner captioner;
 

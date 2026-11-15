@@ -106,7 +106,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.createOptions("openai", "deepseek-v4-flash", false),
-              ownerKey()))
+              ownerId()))
           .thenReturn(Flux.just("Hi", " there"));
 
       assertThat(
@@ -123,7 +123,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                         "toolsEnabled": false
                       }
                       """)
-                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey()))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerId()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk()
           .bodyText()
@@ -135,7 +135,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
               "22222222-2222-2222-2222-222222222222",
               "Hello",
               TextChatOptions.createOptions("openai", "deepseek-v4-flash", false),
-              ownerKey());
+              ownerId());
     }
 
     @Test
@@ -155,7 +155,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should use stateless stream when sessionId missing")
     void shouldUseStatelessStreamWhenSessionIdMissing() {
-      when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerKey())))
+      when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerId())))
           .thenReturn(Flux.just("token"));
 
       assertThat(
@@ -180,9 +180,9 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should attach skill system prompt when skillIds provided")
     void shouldAttachSkillSystemPromptWhenSkillIdsProvided() {
       String skillId = "11111111-2222-3333-4444-555555555555";
-      when(skillService.buildSkillsPrompt(ownerKey(), List.of(skillId)))
+      when(skillService.buildSkillsPrompt(ownerId(), List.of(skillId)))
           .thenReturn(java.util.Optional.of("## Active Skills\n### Brief Style\nBe concise."));
-      when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerKey())))
+      when(chatService.streamChat(any(), any(TextChatOptions.class), eq(ownerId())))
           .thenReturn(Flux.just("ok"));
 
       assertThat(
@@ -200,7 +200,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                       }
                       """
                           .formatted(skillId))
-                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerKey()))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerId()))
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
 
@@ -212,7 +212,7 @@ class ChatStreamControllerTest extends AbstractOwnerScopedControllerTest {
                       options.skillSystemPrompt() != null
                           && options.skillSystemPrompt().contains("## Active Skills")
                           && options.skillSystemPrompt().contains("Brief Style")),
-              eq(ownerKey()));
+              eq(ownerId()));
     }
   }
 }

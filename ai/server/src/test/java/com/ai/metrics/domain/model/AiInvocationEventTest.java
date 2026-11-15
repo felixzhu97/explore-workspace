@@ -3,15 +3,15 @@ package com.ai.metrics.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("AiInvocationEvent")
 class AiInvocationEventTest {
 
-  private static final OwnerKey OWNER =
-      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
+  private static final OwnerId OWNER =
+      OwnerId.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Test
   @DisplayName("should record success without error when built from succeeded")
@@ -31,7 +31,7 @@ class AiInvocationEventTest {
     assertThat(event.getModel()).isEqualTo("gpt");
     assertThat(event.getPromptTokens()).isEqualTo(3);
     assertThat(event.getCompletionTokens()).isEqualTo(4);
-    assertThat(event.getOwnerKey()).isEqualTo(OWNER);
+    assertThat(event.getOwnerId()).isEqualTo(OWNER);
     assertThat(event.error()).isEmpty();
   }
 
@@ -72,7 +72,7 @@ class AiInvocationEventTest {
                 AiInvocationEvent.createSucceededEvent(
                     AiCapability.CHAT, "chat", Latency.createFromMillis(1), null))
         .isInstanceOf(NullPointerException.class)
-        .hasMessageContaining("ownerKey");
+        .hasMessageContaining("ownerId");
   }
 
   @Test

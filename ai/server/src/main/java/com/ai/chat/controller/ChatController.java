@@ -81,12 +81,12 @@ public class ChatController {
   @PostMapping
   public ResponseEntity<ChatResponse> sendMessage(
       @Valid @RequestBody ChatRequest request, HttpServletRequest httpRequest) {
-    String ownerKey = ownerContext.requireValue(httpRequest);
+    String ownerId = ownerContext.requireValue(httpRequest);
     String response;
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
-      response = chatService.sendMessage(request.sessionId(), request.message(), ownerKey);
+      response = chatService.sendMessage(request.sessionId(), request.message(), ownerId);
     } else {
-      response = chatService.sendMessage(request.message(), ownerKey);
+      response = chatService.sendMessage(request.message(), ownerId);
     }
 
     return ResponseEntity.ok(ChatResponse.createResponse(response));

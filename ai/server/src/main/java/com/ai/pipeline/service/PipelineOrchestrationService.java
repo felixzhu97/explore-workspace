@@ -2,7 +2,7 @@ package com.ai.pipeline.service;
 
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.event.AiInvocationFailedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.model.AgentType;
@@ -34,29 +34,29 @@ public class PipelineOrchestrationService {
   private final ApplicationEventPublisher eventPublisher;
 
   /** Lists the agents. */
-  public List<AgentDefinition> listAgents(String ownerKey, String language) {
-    return registry.listAll(ownerKey, language);
+  public List<AgentDefinition> listAgents(String ownerId, String language) {
+    return registry.listAll(ownerId, language);
   }
 
   /** Returns an agent with its health. */
-  public AgentDefinition getHealth(AgentType type, String ownerKey, String language) {
-    return registry.requireAgent(type, ownerKey, language);
+  public AgentDefinition getHealth(AgentType type, String ownerId, String language) {
+    return registry.requireAgent(type, ownerId, language);
   }
 
   /** Streams a supervisor run as SSE: plans routing, runs workers and synthesizes the answer. */
   public Flux<ServerSentEvent<String>> invokeSupervisor(
-      String message, String ownerKey, String language) {
+      String message, String ownerId, String language) {
     long startedAt = System.nanoTime();
     return Mono.fromCallable(
             () -> {
-              List<AgentDefinition> workers = registry.listWorkers(ownerKey, language);
+              List<AgentDefinition> workers = registry.listWorkers(ownerId, language);
               return supervisorRouter.planRoute(message, workers);
             })
         .subscribeOn(Schedulers.boundedElastic())
-        .flatMapMany(plan -> executePlan(message, plan, ownerKey, language))
+        .flatMapMany(plan -> executePlan(message, plan, ownerId, language))
         .doOnComplete(
-            () -> recordAgent("supervisor", "agent.supervisor", ownerKey, startedAt, null))
-        .doOnError(err -> recordAgent("supervisor", "agent.supervisor", ownerKey, startedAt, err))
+            () -> recordAgent("supervisor", "agent.supervisor", ownerId, startedAt, null))
+        .doOnError(err -> recordAgent("supervisor", "agent.supervisor", ownerId, startedAt, err))
         .onErrorResume(
             err ->
                 Flux.just(
@@ -67,14 +67,14 @@ public class PipelineOrchestrationService {
 
   /** Streams a direct invocation of one worker agent as SSE, delegating supervisor types. */
   public Flux<ServerSentEvent<String>> invokeAgent(
-      AgentType type, String message, String ownerKey, String language) {
+      AgentType type, String message, String ownerId, String language) {
     if (type.isSupervisor()) {
-      return invokeSupervisor(message, ownerKey, language);
+      return invokeSupervisor(message, ownerId, language);
     }
 
     long startedAt = System.nanoTime();
     try {
-      AgentDefinition agent = registry.requireAgent(type, ownerKey, language);
+      AgentDefinition agent = registry.requireAgent(type, ownerId, language);
       return Flux.concat(
               Flux.just(buildHandoffEvent(type.getValue(), "direct invoke")),
               workerInvoker
@@ -82,37 +82,37 @@ public class PipelineOrchestrationService {
                   .map(PipelineOrchestrationService::buildMessageEvent),
               Flux.just(buildDoneEvent()))
           .doOnComplete(
-              () -> recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, null))
-          .doOnError(err -> recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, err));
+              () -> recordAgent(type.getValue(), "agent.invoke", ownerId, startedAt, null))
+          .doOnError(err -> recordAgent(type.getValue(), "agent.invoke", ownerId, startedAt, err));
     } catch (DomainException e) {
-      recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, e);
+      recordAgent(type.getValue(), "agent.invoke", ownerId, startedAt, e);
       return Flux.just(buildErrorEvent(e.getMessage()), buildDoneEvent());
     }
   }
 
   /** Runs one worker agent and returns the final answer (supervisor types are rejected). */
-  public String invokeAgentSync(AgentType type, String message, String ownerKey, String language) {
+  public String invokeAgentSync(AgentType type, String message, String ownerId, String language) {
     if (type.isSupervisor()) {
       throw DomainException.createInvalidError(
           "SUPERVISOR_SYNC_UNSUPPORTED", "Use streaming invoke for the supervisor agent");
     }
     long startedAt = System.nanoTime();
     try {
-      AgentDefinition agent = registry.requireAgent(type, ownerKey, language);
+      AgentDefinition agent = registry.requireAgent(type, ownerId, language);
       String reply = workerInvoker.invokeAgent(agent, message);
-      recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, null);
+      recordAgent(type.getValue(), "agent.invoke", ownerId, startedAt, null);
       return reply;
     } catch (RuntimeException e) {
-      recordAgent(type.getValue(), "agent.invoke", ownerKey, startedAt, e);
+      recordAgent(type.getValue(), "agent.invoke", ownerId, startedAt, e);
       throw e;
     }
   }
 
   /** Records an agent run; a null error means it succeeded. */
   private void recordAgent(
-      String agentType, String operation, String ownerKey, long startedAt, Throwable error) {
+      String agentType, String operation, String ownerId, long startedAt, Throwable error) {
     long latencyMs = (System.nanoTime() - startedAt) / 1_000_000L;
-    OwnerKey owner = OwnerKey.parseKey(ownerKey);
+    OwnerId owner = OwnerId.parseKey(ownerId);
     if (error == null) {
       eventPublisher.publishEvent(
           new AiInvocationCompletedEvent(
@@ -136,10 +136,10 @@ public class PipelineOrchestrationService {
 
   /** Streams a pipeline run as SSE, feeding each node's output into the next node in order. */
   public Flux<ServerSentEvent<String>> invokePipeline(
-      String message, AgentPipeline pipeline, String ownerKey, String language) {
+      String message, AgentPipeline pipeline, String ownerId, String language) {
     try {
       List<AgentPipeline.PipelineNode> order = pipeline.resolveExecutionOrder();
-      return runPipelineStreamed(message, order, ownerKey, language)
+      return runPipelineStreamed(message, order, ownerId, language)
           .onErrorResume(
               err ->
                   Flux.just(
@@ -153,7 +153,7 @@ public class PipelineOrchestrationService {
 
   /** Blocking pipeline execution for background automation (no SSE). */
   public String invokePipelineSync(
-      String message, AgentPipeline pipeline, String ownerKey, String language) {
+      String message, AgentPipeline pipeline, String ownerId, String language) {
     if (message == null || message.isBlank()) {
       throw new IllegalArgumentException("message must not be blank");
     }
@@ -163,7 +163,7 @@ public class PipelineOrchestrationService {
     long startedAt = System.nanoTime();
     try {
       for (AgentPipeline.PipelineNode node : order) {
-        AgentDefinition agent = resolveNode(node, ownerKey, language);
+        AgentDefinition agent = resolveNode(node, ownerId, language);
         String stepInput =
             """
                         Original user request:
@@ -182,21 +182,21 @@ public class PipelineOrchestrationService {
         }
         all.append(current);
       }
-      recordAgent("pipeline", "agent.pipeline.sync", ownerKey, startedAt, null);
+      recordAgent("pipeline", "agent.pipeline.sync", ownerId, startedAt, null);
       return all.toString().trim();
     } catch (RuntimeException ex) {
-      recordAgent("pipeline", "agent.pipeline.sync", ownerKey, startedAt, ex);
+      recordAgent("pipeline", "agent.pipeline.sync", ownerId, startedAt, ex);
       throw ex;
     }
   }
 
   private Flux<ServerSentEvent<String>> runPipelineStreamed(
-      String message, List<AgentPipeline.PipelineNode> order, String ownerKey, String language) {
+      String message, List<AgentPipeline.PipelineNode> order, String ownerId, String language) {
     AtomicReference<String> current = new AtomicReference<>(message);
     return Flux.fromIterable(order)
         .concatMap(
             node -> {
-              AgentDefinition agent = resolveNode(node, ownerKey, language);
+              AgentDefinition agent = resolveNode(node, ownerId, language);
               String stepInput =
                   """
                             Original user request:
@@ -222,18 +222,18 @@ public class PipelineOrchestrationService {
   }
 
   private Flux<ServerSentEvent<String>> executePlan(
-      String originalMessage, RoutingPlan plan, String ownerKey, String language) {
+      String originalMessage, RoutingPlan plan, String ownerId, String language) {
     List<Flux<ServerSentEvent<String>>> stages = new ArrayList<>();
     stages.add(Flux.just(buildHandoffEvent(plan.getPrimaryAgent().getValue(), plan.getReason())));
 
     if (plan.getSubtasks().isEmpty()) {
-      AgentDefinition primary = registry.requireAgent(plan.getPrimaryAgent(), ownerKey, language);
+      AgentDefinition primary = registry.requireAgent(plan.getPrimaryAgent(), ownerId, language);
       stages.add(
           workerInvoker
               .invokeStream(primary, originalMessage)
               .map(PipelineOrchestrationService::buildMessageEvent));
     } else {
-      stages.add(runSubtasksAndSynthesize(originalMessage, plan, ownerKey, language));
+      stages.add(runSubtasksAndSynthesize(originalMessage, plan, ownerId, language));
     }
 
     stages.add(Flux.just(buildDoneEvent()));
@@ -241,7 +241,7 @@ public class PipelineOrchestrationService {
   }
 
   private Flux<ServerSentEvent<String>> runSubtasksAndSynthesize(
-      String originalMessage, RoutingPlan plan, String ownerKey, String language) {
+      String originalMessage, RoutingPlan plan, String ownerId, String language) {
     return Mono.fromCallable(
             () -> {
               List<RoutingPlan.Subtask> subtasks = plan.getSubtasks();
@@ -255,7 +255,7 @@ public class PipelineOrchestrationService {
                                     () -> {
                                       AgentDefinition worker =
                                           registry.requireAgent(
-                                              subtask.getAgentType(), ownerKey, language);
+                                              subtask.getAgentType(), ownerId, language);
                                       String answer =
                                           workerInvoker.invokeAgent(
                                               worker, subtask.getInstruction());
@@ -271,7 +271,7 @@ public class PipelineOrchestrationService {
               }
               String collected = String.join("", workerOutputs);
               AgentDefinition synthesizer =
-                  registry.requireAgent(plan.getPrimaryAgent(), ownerKey, language);
+                  registry.requireAgent(plan.getPrimaryAgent(), ownerId, language);
               String synthesisPrompt =
                   """
                             Original user request:
@@ -293,10 +293,10 @@ public class PipelineOrchestrationService {
   }
 
   private AgentDefinition resolveNode(
-      AgentPipeline.PipelineNode node, String ownerKey, String language) {
+      AgentPipeline.PipelineNode node, String ownerId, String language) {
     return node.hasOwnPrompt()
         ? node.buildDefinition()
-        : node.buildDefinition(registry.requireAgent(node.getAgentType(), ownerKey, language));
+        : node.buildDefinition(registry.requireAgent(node.getAgentType(), ownerId, language));
   }
 
   /** Builds an SSE message event. */

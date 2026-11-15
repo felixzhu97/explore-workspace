@@ -3,7 +3,7 @@ package com.ai.skill.service;
 import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.event.OwnerErasureRequestedEvent;
 import com.ai.common.domain.model.DomainStrings;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.domain.repository.SkillRepository;
@@ -25,21 +25,21 @@ public class SkillService {
   private final SkillRepository skillRepository;
 
   /** Lists the owner's skills. */
-  public List<Skill> listSkills(String ownerKey) {
-    return skillRepository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parseKey(ownerKey));
+  public List<Skill> listSkills(String ownerId) {
+    return skillRepository.findAllByOwnerIdOrderByNameAsc(OwnerId.parseKey(ownerId));
   }
 
   /**
    * Builds the "Active Skills" system prompt from the owner's enabled skills among {@code
    * skillIds}; unknown, invalid or disabled ids are ignored.
    */
-  public Optional<String> buildSkillsPrompt(String ownerKey, List<String> skillIds) {
+  public Optional<String> buildSkillsPrompt(String ownerId, List<String> skillIds) {
     List<SkillId> ids = parseSkillIds(skillIds);
     if (ids.isEmpty()) {
       return Optional.empty();
     }
     List<Skill> skills =
-        skillRepository.findEnabledByOwnerKeyAndIds(OwnerKey.parseKey(ownerKey), ids);
+        skillRepository.findEnabledByOwnerIdAndIds(OwnerId.parseKey(ownerId), ids);
     return Optional.ofNullable(SkillSystemPromptBuilder.buildPrompt(skills));
   }
 
@@ -49,31 +49,31 @@ public class SkillService {
   }
 
   /** Returns the owner's skill. */
-  public Skill getSkill(String ownerKey, String id) {
-    return findOwnedSkill(ownerKey, id);
+  public Skill getSkill(String ownerId, String id) {
+    return findOwnedSkill(ownerId, id);
   }
 
   /** Creates a skill, rejecting a taken name. */
   public Skill createSkill(
-      String ownerKey,
+      String ownerId,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    assertNameAvailable(ownerKey, name, null);
-    Skill skill = Skill.createSkill(ownerKey, name, description, instructions, allowedTools);
+    assertNameAvailable(ownerId, name, null);
+    Skill skill = Skill.createSkill(ownerId, name, description, instructions, allowedTools);
     return skillRepository.save(skill);
   }
 
   /** Copies a built-in skill template into the owner's skills. */
-  public Skill createFromTemplate(String ownerKey, String templateId, String language) {
+  public Skill createFromTemplate(String ownerId, String templateId, String language) {
     SkillTemplate template =
         SkillTemplateCatalog.findById(templateId, language)
             .orElseThrow(
                 () -> new IllegalArgumentException("Unknown skill template: " + templateId));
     return createSkill(
-        ownerKey,
-        findNextAvailableName(ownerKey, template.name()),
+        ownerId,
+        findNextAvailableName(ownerId, template.name()),
         template.description(),
         template.instructions(),
         template.allowedTools());
@@ -81,51 +81,51 @@ public class SkillService {
 
   /** Replaces the owner's skill, keeping names unique per owner. */
   public Skill updateSkill(
-      String ownerKey,
+      String ownerId,
       String id,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    Skill skill = findOwnedSkill(ownerKey, id);
-    assertNameAvailable(ownerKey, name, skill.getId());
+    Skill skill = findOwnedSkill(ownerId, id);
+    assertNameAvailable(ownerId, name, skill.getId());
     skill.update(name, description, instructions, allowedTools);
     return skillRepository.save(skill);
   }
 
   /** Enables or disables the owner's skill. */
-  public Skill setEnabled(String ownerKey, String id, boolean enabled) {
-    Skill skill = findOwnedSkill(ownerKey, id);
+  public Skill setEnabled(String ownerId, String id, boolean enabled) {
+    Skill skill = findOwnedSkill(ownerId, id);
     skill.updateEnabledState(enabled);
     return skillRepository.save(skill);
   }
 
   /** Deletes the owner's skill. */
-  public void deleteSkill(String ownerKey, String id) {
-    findOwnedSkill(ownerKey, id);
-    skillRepository.deleteByIdAndOwnerKey(SkillId.parseId(id), OwnerKey.parseKey(ownerKey));
+  public void deleteSkill(String ownerId, String id) {
+    findOwnedSkill(ownerId, id);
+    skillRepository.deleteByIdAndOwnerId(SkillId.parseId(id), OwnerId.parseKey(ownerId));
   }
 
-  private Skill findOwnedSkill(String ownerKey, String id) {
+  private Skill findOwnedSkill(String ownerId, String id) {
     return skillRepository
-        .findByIdAndOwnerKey(SkillId.parseId(id), OwnerKey.parseKey(ownerKey))
+        .findByIdAndOwnerId(SkillId.parseId(id), OwnerId.parseKey(ownerId))
         .orElseThrow(
             () -> DomainException.createNotFoundError("SKILL_NOT_FOUND", "Skill not found: " + id));
   }
 
-  private void assertNameAvailable(String ownerKey, String name, SkillId excludeId) {
+  private void assertNameAvailable(String ownerId, String name, SkillId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
-    if (skillRepository.existsByOwnerKeyAndNameIgnoringId(
-        OwnerKey.parseKey(ownerKey), normalized, excludeId)) {
+    if (skillRepository.existsByOwnerIdAndNameIgnoringId(
+        OwnerId.parseKey(ownerId), normalized, excludeId)) {
       throw DomainException.createConflictError(
           "SKILL_NAME_CONFLICT", "Skill name already exists: " + normalized);
     }
   }
 
-  private String findNextAvailableName(String ownerKey, String baseName) {
-    OwnerKey owner = OwnerKey.parseKey(ownerKey);
+  private String findNextAvailableName(String ownerId, String baseName) {
+    OwnerId owner = OwnerId.parseKey(ownerId);
     return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
-        .filter(name -> !skillRepository.existsByOwnerKeyAndNameIgnoringId(owner, name, null))
+        .filter(name -> !skillRepository.existsByOwnerIdAndNameIgnoringId(owner, name, null))
         .findFirst()
         .orElseGet(
             () ->
@@ -154,11 +154,11 @@ public class SkillService {
 
   @EventListener
   void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
-    skillRepository.deleteAllByOwnerKey(event.ownerKey());
+    skillRepository.deleteAllByOwnerId(event.ownerId());
   }
 
   @EventListener
   void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
-    skillRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    skillRepository.reassignOwnerId(event.fromOwnerId(), event.toOwnerId());
   }
 }

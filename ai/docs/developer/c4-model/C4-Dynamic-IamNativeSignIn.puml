@@ -20,7 +20,7 @@ ios -> iam: 7. POST /oauth2/token + code_verifier
 iam --> ios: 8. access_token (email/profile claims)
 ios -> api: 9. GET /api/account/me\nAuthorization: Bearer
 api -> iam: 10. JWKS / issuer validate
-api -> api: 11. JWT → AccountUser / OwnerKey
+api -> api: 11. JWT → AccountUser / OwnerId
 api --> ios: 12. 200 me payload
 ios --> user: 13. Navigate HomeView
 

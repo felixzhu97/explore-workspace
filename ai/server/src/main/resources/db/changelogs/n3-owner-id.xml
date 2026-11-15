@@ -1,0 +1,21 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+  ">
+  <changeSet id="n3-rename-owner-key-column" author="cursor">
+    <comment>DDD partition id: owner_key → owner_id (naming-standards N3)</comment>
+    <renameColumn tableName="rag_document" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="document_chunk" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="chat_session" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="ai_invocation_event" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="skill" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="pipeline_template" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="custom_agent" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="automation_schedule" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+    <renameColumn tableName="automation_run" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
+  </changeSet>
+</databaseChangeLog>

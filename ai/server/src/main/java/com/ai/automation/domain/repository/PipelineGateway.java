@@ -4,5 +4,5 @@ package com.ai.automation.domain.repository;
 public interface PipelineGateway {
   /** Runs the owner's saved pipeline template and returns its answer. */
   String runSavedTemplate(
-      String ownerKey, String pipelineTemplateId, String brief, String language);
+      String ownerId, String pipelineTemplateId, String brief, String language);
 }

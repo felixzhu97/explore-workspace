@@ -2,7 +2,7 @@ package com.ai.pipeline.domain.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.testsupport.AbstractDataJpaTest;
 import java.util.List;
@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class PipelineTemplateRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:66666666-6666-6666-6666-666666666666");
-  private static final OwnerKey OTHER = OwnerKey.parseKey("c:77777777-7777-7777-7777-777777777777");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:66666666-6666-6666-6666-666666666666");
+  private static final OwnerId OTHER = OwnerId.parseKey("c:77777777-7777-7777-7777-777777777777");
 
   @Autowired private PipelineTemplateRepository repository;
 
@@ -33,11 +33,11 @@ class PipelineTemplateRepositoryTest extends AbstractDataJpaTest {
     flushAndClear();
 
     PipelineTemplate reloaded =
-        repository.findByIdAndOwnerKey(template.getId(), OWNER).orElseThrow();
+        repository.findByIdAndOwnerId(template.getId(), OWNER).orElseThrow();
 
     assertThat(reloaded.getName()).isEqualTo("Research flow");
     assertThat(reloaded.getAgentTypes()).containsExactly("researcher", "writer");
     assertThat(reloaded.getBrief()).isEqualTo("Summarize recent AI news");
-    assertThat(repository.findByIdAndOwnerKey(template.getId(), OTHER)).isEmpty();
+    assertThat(repository.findByIdAndOwnerId(template.getId(), OTHER)).isEmpty();
   }
 }

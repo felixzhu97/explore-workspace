@@ -5,7 +5,7 @@ import com.explore.errors.Problems;
 import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.service.DailyUsageQuotaService;
 import com.ai.common.controller.AnonymousId;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -72,7 +72,7 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
     Object attr = request.getAttribute(AnonymousId.REQUEST_ATTRIBUTE);
     QuotaSubject owner =
         attr instanceof String id && !id.isBlank()
-            ? QuotaSubject.createOwnerSubject(OwnerKey.createClientKey(id))
+            ? QuotaSubject.createOwnerSubject(OwnerId.createClientKey(id))
             : null;
     QuotaDecision decision =
         dailyUsageQuotaService.tryConsume(owner, AnonymousId.resolveLimitAddress(request));

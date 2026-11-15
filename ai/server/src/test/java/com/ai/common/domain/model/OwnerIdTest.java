@@ -6,12 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("OwnerKey")
-class OwnerKeyTest {
+@DisplayName("OwnerId")
+class OwnerIdTest {
 
   @Test
   void shouldBuildClientKeyWhenForClient() {
-    OwnerKey key = OwnerKey.createClientKey("  abc-123  ");
+    OwnerId key = OwnerId.createClientKey("  abc-123  ");
 
     assertThat(key.getValue()).isEqualTo("c:abc-123");
     assertThat(key.isClient()).isTrue();
@@ -20,7 +20,7 @@ class OwnerKeyTest {
 
   @Test
   void shouldBuildAccountKeyWhenForAccount() {
-    OwnerKey key = OwnerKey.createAccountKey("user-9");
+    OwnerId key = OwnerId.createAccountKey("user-9");
 
     assertThat(key.getValue()).isEqualTo("u:user-9");
     assertThat(key.isAccount()).isTrue();
@@ -29,37 +29,37 @@ class OwnerKeyTest {
 
   @Test
   void shouldParseRawValueWhenPrefixed() {
-    assertThat(OwnerKey.parseKey("c:guest").getValue()).isEqualTo("c:guest");
-    assertThat(OwnerKey.parseKey("u:acct").getValue()).isEqualTo("u:acct");
+    assertThat(OwnerId.parseKey("c:guest").getValue()).isEqualTo("c:guest");
+    assertThat(OwnerId.parseKey("u:acct").getValue()).isEqualTo("u:acct");
   }
 
   @Test
   void shouldRejectBlankWhenCreating() {
-    assertThatThrownBy(() -> OwnerKey.createClientKey(" "))
+    assertThatThrownBy(() -> OwnerId.createClientKey(" "))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> OwnerKey.createAccountKey(""))
+    assertThatThrownBy(() -> OwnerId.createAccountKey(""))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> OwnerKey.parseKey("x:nope"))
+    assertThatThrownBy(() -> OwnerId.parseKey("x:nope"))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   @DisplayName("should allow merging a guest key into an account key")
   void shouldAllowMergingAGuestKeyIntoAnAccountKey() {
-    OwnerKey.createClientKey("guest-1").requireMergeableInto(OwnerKey.createAccountKey("user-1"));
+    OwnerId.createClientKey("guest-1").requireMergeableInto(OwnerId.createAccountKey("user-1"));
   }
 
   @Test
   @DisplayName("should reject merging when source is not a guest or target is not an account")
   void shouldRejectMergingWhenSourceIsNotAGuestOrTargetIsNotAnAccount() {
-    OwnerKey guest = OwnerKey.createClientKey("guest-1");
-    OwnerKey account = OwnerKey.createAccountKey("user-1");
+    OwnerId guest = OwnerId.createClientKey("guest-1");
+    OwnerId account = OwnerId.createAccountKey("user-1");
 
-    assertThatThrownBy(() -> account.requireMergeableInto(OwnerKey.createAccountKey("user-2")))
+    assertThatThrownBy(() -> account.requireMergeableInto(OwnerId.createAccountKey("user-2")))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> guest.requireMergeableInto(OwnerKey.createClientKey("guest-2")))
+    assertThatThrownBy(() -> guest.requireMergeableInto(OwnerId.createClientKey("guest-2")))
         .isInstanceOf(IllegalArgumentException.class);
-    assertThatThrownBy(() -> OwnerKey.UNOWNED.requireMergeableInto(account))
+    assertThatThrownBy(() -> OwnerId.UNOWNED.requireMergeableInto(account))
         .isInstanceOf(IllegalArgumentException.class);
   }
 }

@@ -1,6 +1,6 @@
 package com.ai.common.domain.repository;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -19,12 +19,12 @@ public interface OwnerPartitionedRepository<E, I> extends Repository<E, I> {
   /**
    * Deletes every row of the owner.
    *
-   * @param ownerKey owner partition
+   * @param ownerId owner partition
    * @return deleted row count
    */
   @Modifying(flushAutomatically = true)
-  @Query("DELETE FROM #{#entityName} e WHERE e.ownerKey = ?1")
-  int deleteAllByOwnerKey(OwnerKey ownerKey);
+  @Query("DELETE FROM #{#entityName} e WHERE e.ownerId = ?1")
+  int deleteAllByOwnerId(OwnerId ownerId);
 
   /**
    * Moves every row of one owner to another.
@@ -34,6 +34,6 @@ public interface OwnerPartitionedRepository<E, I> extends Repository<E, I> {
    * @return moved row count
    */
   @Modifying(flushAutomatically = true)
-  @Query("UPDATE #{#entityName} e SET e.ownerKey = ?2 WHERE e.ownerKey = ?1")
-  int reassignOwnerKey(OwnerKey from, OwnerKey to);
+  @Query("UPDATE #{#entityName} e SET e.ownerId = ?2 WHERE e.ownerId = ?1")
+  int reassignOwnerId(OwnerId from, OwnerId to);
 }

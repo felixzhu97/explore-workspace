@@ -134,7 +134,7 @@ public class ScimAccountService {
   public void deleteUser(String id, Long expectedVersion) throws ScimException {
     Account account = requireAccount(id);
     requireVersion(account, expectedVersion);
-    ownerErasureService.eraseAllForOwner(account.createOwnerKey());
+    ownerErasureService.eraseAllForOwner(account.createOwnerId());
     accountRepository.delete(account);
     log.info("SCIM deleted account {}", account.getId());
   }

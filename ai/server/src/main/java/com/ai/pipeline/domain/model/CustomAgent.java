@@ -17,7 +17,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Saved pipeline agent definition partitioned by owner_key. */
+/** Saved pipeline agent definition partitioned by owner_id. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
@@ -40,13 +40,13 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
 
   private CustomAgent(
       CustomAgentId id,
-      String ownerKey,
+      String ownerId,
       String agentType,
       String name,
       String description,
       String systemPrompt,
       List<String> tools) {
-    super(id, ownerKey, name, description);
+    super(id, ownerId, name, description);
     this.agentType = requireAgentType(agentType);
     this.systemPrompt = DomainStrings.requireNonBlank(systemPrompt, "systemPrompt");
     this.tools = copyTools(tools);
@@ -54,14 +54,14 @@ public class CustomAgent extends AbstractEnableableDescribedOwnerEntity<CustomAg
 
   /** Creates an enabled agent with a new id after validating its type key. */
   public static CustomAgent createAgent(
-      String ownerKey,
+      String ownerId,
       String agentType,
       String name,
       String description,
       String systemPrompt,
       List<String> tools) {
     return new CustomAgent(
-        CustomAgentId.generateId(), ownerKey, agentType, name, description, systemPrompt, tools);
+        CustomAgentId.generateId(), ownerId, agentType, name, description, systemPrompt, tools);
   }
 
   /** Replaces name, description, system prompt and tools, bumping the update timestamp. */

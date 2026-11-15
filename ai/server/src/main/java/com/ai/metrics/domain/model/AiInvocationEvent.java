@@ -2,7 +2,7 @@ package com.ai.metrics.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
 import com.ai.common.domain.model.DomainStrings;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -92,7 +92,7 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
         builder.id != null
             ? InvocationEventId.createId(builder.id)
             : InvocationEventId.generateId(),
-        builder.ownerKey);
+        builder.ownerId);
     this.occurredAt = Objects.requireNonNullElseGet(builder.occurredAt, Instant::now);
     this.capability = builder.capability;
     this.operation = builder.operation;
@@ -112,8 +112,8 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
 
   /** Starts a successful invocation event; optional context goes on the returned builder. */
   public static Builder createSucceededEvent(
-      AiCapability capability, String operation, Latency latency, OwnerKey ownerKey) {
-    return new Builder(capability, operation, InvocationOutcome.SUCCESS, latency, ownerKey, null);
+      AiCapability capability, String operation, Latency latency, OwnerId ownerId) {
+    return new Builder(capability, operation, InvocationOutcome.SUCCESS, latency, ownerId, null);
   }
 
   /** Starts a failed invocation event; optional context goes on the returned builder. */
@@ -121,14 +121,14 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
       AiCapability capability,
       String operation,
       Latency latency,
-      OwnerKey ownerKey,
+      OwnerId ownerId,
       ErrorSummary error) {
     return new Builder(
         capability,
         operation,
         InvocationOutcome.ERROR,
         latency,
-        ownerKey,
+        ownerId,
         Objects.requireNonNull(error, "error"));
   }
 
@@ -157,7 +157,7 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
     private final String operation;
     private final InvocationOutcome outcome;
     private final Latency latency;
-    private final OwnerKey ownerKey;
+    private final OwnerId ownerId;
     private final ErrorSummary error;
     private UUID id;
     private Instant occurredAt;
@@ -174,13 +174,13 @@ public class AiInvocationEvent extends AbstractOwnerAwareImmutable<InvocationEve
         String operation,
         InvocationOutcome outcome,
         Latency latency,
-        OwnerKey ownerKey,
+        OwnerId ownerId,
         ErrorSummary error) {
       this.capability = Objects.requireNonNull(capability, "capability");
       this.operation = DomainStrings.requireNonBlank(operation, "operation");
       this.outcome = outcome;
       this.latency = Objects.requireNonNull(latency, "latency");
-      this.ownerKey = Objects.requireNonNull(ownerKey, "ownerKey");
+      this.ownerId = Objects.requireNonNull(ownerId, "ownerId");
       this.error = error;
     }
 

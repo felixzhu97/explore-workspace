@@ -3,7 +3,7 @@ package com.ai.metrics.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
@@ -90,7 +90,7 @@ class MetricsServiceTest {
   void shouldFilterDrilldownByCapabilityAndDay() {
     eventRepository.events.add(
         AiInvocationEvent.createSucceededEvent(
-                AiCapability.CHAT, "chat.stream", Latency.createFromMillis(12), OwnerKey.UNOWNED)
+                AiCapability.CHAT, "chat.stream", Latency.createFromMillis(12), OwnerId.UNOWNED)
             .sessionId("s1")
             .build());
 

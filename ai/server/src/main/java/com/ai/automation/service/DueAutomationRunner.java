@@ -49,14 +49,14 @@ public class DueAutomationRunner {
   }
 
   private void executeOne(AutomationSchedule schedule) {
-    AutomationRun run = AutomationRun.startRun(schedule.getId(), schedule.getOwnerKeyValue());
-    if (!dailyUsageQuotaService.tryConsume(schedule.getOwnerKey())) {
+    AutomationRun run = AutomationRun.startRun(schedule.getId(), schedule.getOwnerIdValue());
+    if (!dailyUsageQuotaService.tryConsume(schedule.getOwnerId())) {
       run.markSkippedForQuota();
     } else {
       try {
         String answer =
             pipelineGateway.runSavedTemplate(
-                schedule.getOwnerKeyValue(),
+                schedule.getOwnerIdValue(),
                 schedule.getPipelineTemplateId().toString(),
                 schedule.getBrief(),
                 "en");

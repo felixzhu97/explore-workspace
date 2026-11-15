@@ -2,7 +2,7 @@ package com.ai.tools.service;
 
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.event.AiInvocationFailedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.DocumentSearchTool;
 import com.ai.common.service.llm.TextChatOptions;
@@ -52,7 +52,7 @@ public class ToolService {
   }
 
   /** Answers the question via a tool-enabled OpenAI chat client and records the invocation. */
-  public String chatWithTools(String question, OwnerKey owner) {
+  public String chatWithTools(String question, OwnerId owner) {
     long startedAt = System.nanoTime();
     try {
       ChatClient chatClient =

@@ -91,7 +91,7 @@ Jira:
 1. **Scenario** Guest data uses client owner key
    **GIVEN** the visitor is anonymous with Anonymous id cookie  
    **WHEN** they create chat / skills / pipelines / automations  
-   **THEN** rows are stored with `owner_key = c:{clientId}`
+   **THEN** rows are stored with `owner_id = c:{clientId}`
 
 2. **Scenario** OAuth login merges guest into account
    **GIVEN** guest rows exist under `c:{clientId}`  
