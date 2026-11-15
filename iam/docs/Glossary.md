@@ -235,7 +235,7 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 | Password Hashing | 密码哈希 | Stored credentials never plaintext | `PasswordEncoder` (BCrypt) | implemented |
 | Disabled User | 停用用户 | Principal cannot authenticate when disabled | `UserDetails.isEnabled()` | implemented |
 | Consent | 授权同意 | User approves OAuth client scopes | `OAuth2AuthorizationConsentService` | planned |
-| Persistent Signing Key | 持久化签名密钥 | JWKS stable across restarts | `SigningKeyEntity`, `PersistentJwkSourceConfig` | implemented |
+| Persistent Signing Key | 持久化签名密钥 | JWKS stable across restarts | `SigningKey`, `PersistentJwkSourceConfig` | implemented |
 | Implicit Deny | 隐式拒绝 | No matching Allow → Deny | `PolicyEngine` default | implemented |
 | Reason Code | 理由码 | Machine-readable authz/audit outcome | `ReasonCode` VO | implemented |
 | Least Privilege Session | 最小权限会话 | Short TTL temporary credentials | STS + `TokenSettings` | implemented |

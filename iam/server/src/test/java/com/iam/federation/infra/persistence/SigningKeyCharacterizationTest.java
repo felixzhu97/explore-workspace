@@ -16,18 +16,18 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("Signing key persistence characterization")
-class SigningKeyEntityCharacterizationTest {
+class SigningKeyCharacterizationTest {
 
   @Autowired private TestEntityManager em;
 
   @Test
   @DisplayName("should round-trip a signing key")
   void shouldRoundTripASigningKey() {
-    SigningKeyEntity saved =
-        new SimpleJpaRepository<SigningKeyEntity, Object>(
-                SigningKeyEntity.class, em.getEntityManager())
+    SigningKey saved =
+        new SimpleJpaRepository<SigningKey, Object>(
+                SigningKey.class, em.getEntityManager())
             .saveAndFlush(
-                new SigningKeyEntity(SigningKeyId.generateId(), "public-pem", "private-pem"));
+                new SigningKey(SigningKeyId.generateId(), "public-pem", "private-pem"));
     Object id =
         em.getEntityManager()
             .getEntityManagerFactory()
@@ -35,7 +35,7 @@ class SigningKeyEntityCharacterizationTest {
             .getIdentifier(saved);
     em.clear();
 
-    SigningKeyEntity reloaded = em.find(SigningKeyEntity.class, id);
+    SigningKey reloaded = em.find(SigningKey.class, id);
 
     assertThat(reloaded.getPublicKeyPem()).isEqualTo("public-pem");
     assertThat(reloaded.getPrivateKeyPem()).isEqualTo("private-pem");

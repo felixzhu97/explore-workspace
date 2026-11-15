@@ -9,4 +9,5 @@
     <include file="db/changelog/n2-policy-rule.xml"/>
     <include file="db/changelog/n2-policy-assignment.xml"/>
     <include file="db/changelog/n2-token-exchange.xml"/>
+    <include file="db/changelog/n2-signing-key.xml"/>
 </databaseChangeLog>

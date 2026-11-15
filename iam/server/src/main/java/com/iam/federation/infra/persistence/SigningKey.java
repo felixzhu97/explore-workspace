@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 /** Persisted RSA signing key pair for the OIDC Authorization Server. */
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-class SigningKeyEntity extends AbstractImmutableEntity<SigningKeyId> {
+class SigningKey extends AbstractImmutableEntity<SigningKeyId> {
 
   @Getter(AccessLevel.PACKAGE)
   @Column(name = "public_key_pem", nullable = false, columnDefinition = "clob")
@@ -20,7 +20,7 @@ class SigningKeyEntity extends AbstractImmutableEntity<SigningKeyId> {
   @Column(name = "private_key_pem", nullable = false, columnDefinition = "clob")
   private String privateKeyPem;
 
-  SigningKeyEntity(SigningKeyId id, String publicKeyPem, String privateKeyPem) {
+  SigningKey(SigningKeyId id, String publicKeyPem, String privateKeyPem) {
     super(id);
     this.publicKeyPem = publicKeyPem;
     this.privateKeyPem = privateKeyPem;

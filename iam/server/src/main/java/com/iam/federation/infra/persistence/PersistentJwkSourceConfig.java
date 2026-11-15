@@ -34,7 +34,7 @@ public class PersistentJwkSourceConfig {
   @Bean
   @Transactional
   JWKSource<SecurityContext> jwkSource() {
-    SigningKeyEntity entity =
+    SigningKey entity =
         signingKeyRepository
             .findFirstByOrderByCreatedAtDesc()
             .orElseGet(this::generateAndPersistKey);
@@ -42,16 +42,16 @@ public class PersistentJwkSourceConfig {
     return new ImmutableJWKSet<>(new JWKSet(rsaKey));
   }
 
-  private SigningKeyEntity generateAndPersistKey() {
+  private SigningKey generateAndPersistKey() {
     KeyPair keyPair = generateRsaKey();
     String publicPem = toPem(keyPair.getPublic().getEncoded(), "PUBLIC KEY");
     String privatePem = toPem(keyPair.getPrivate().getEncoded(), "PRIVATE KEY");
-    SigningKeyEntity entity =
-        new SigningKeyEntity(SigningKeyId.generateId(), publicPem, privatePem);
+    SigningKey entity =
+        new SigningKey(SigningKeyId.generateId(), publicPem, privatePem);
     return signingKeyRepository.save(entity);
   }
 
-  private RSAKey toRsaKey(SigningKeyEntity entity) {
+  private RSAKey toRsaKey(SigningKey entity) {
     try {
       RSAPublicKey publicKey = parsePublicKey(entity.getPublicKeyPem());
       RSAPrivateKey privateKey = parsePrivateKey(entity.getPrivateKeyPem());
