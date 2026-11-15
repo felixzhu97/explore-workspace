@@ -1,0 +1,40 @@
+@startuml
+!ROUNDED_STYLE=1
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+UpdateElementStyle("person", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("container", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("node", "#FFFFFF", "#000000", "#000000")
+UpdateBoundaryStyle("", $bgColor="#FFFFFF", $fontColor="#000000", $borderColor="#000000")
+UpdateRelStyle("#000000", "#000000")
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+
+LAYOUT_WITH_LEGEND()
+title [C4 Deployment] Explore ML - Local Development
+
+Deployment_Node(dev_machine, "Dev machine", "macOS / Linux") {
+  Deployment_Node(py_app, "python_ml (venv, one uvicorn)", "Python 3.12") {
+    Container(app, "ML app", "FastAPI", ":8000; recommendation, vision, rag, image_playground, speech, video")
+    ContainerDb(qdrant, "Qdrant (embedded)", "Files", "python_ml/rag/data/qdrant; or a remote QDRANT_URL")
+  }
+  Deployment_Node(ollama_node, "Ollama", ":11434") {
+    Container(ollama, "Ollama", "LLM runtime", "Embedding + chat models")
+  }
+  Deployment_Node(weights_node, "~/Codes/models", "LOCAL_MODELS_ROOT, outside the repo") {
+    ContainerDb(weights, "Model weights", "Files", "asr, tts, image, rerank, recommendation, fine-tuned outputs")
+  }
+  Deployment_Node(data_node, "data/", "in git") {
+    ContainerDb(fixtures, "Fixtures", "JSONL", "data/finetune/* small eval and training sets")
+  }
+  Deployment_Node(ui_node, "ui/ (Node 22)", "ng serve :4210") {
+    Container(ui, "Model Test UI", "Angular", "Proxies /ml to :8000")
+  }
+}
+
+Rel(ui, app, "/ml", "HTTP + SSE + WS")
+Rel(app, qdrant, "embedded client")
+Rel(app, ollama, "HTTP")
+Rel(app, weights, "reads")
+
+SHOW_LEGEND()
+@enduml
