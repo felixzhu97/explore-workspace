@@ -5,3 +5,6 @@
 -r image_playground/requirements.txt
 -r speech/requirements.txt
 -r video/requirements.txt
+
+# Pin transformers for qwen-asr/qwen-tts
+transformers==4.57.6

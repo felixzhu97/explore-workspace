@@ -6,7 +6,14 @@
     http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
   ">
+  <!--
+    Fresh databases already create owner_id in 0.1.xml.
+    This changeset only renames legacy owner_key columns when present.
+  -->
   <changeSet id="n3-rename-owner-key-column" author="cursor">
+    <preConditions onFail="MARK_RAN">
+      <columnExists tableName="rag_document" columnName="owner_key"/>
+    </preConditions>
     <comment>DDD partition id: owner_key → owner_id (naming-standards N3)</comment>
     <renameColumn tableName="rag_document" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
     <renameColumn tableName="document_chunk" oldColumnName="owner_key" newColumnName="owner_id" columnDataType="${string.type}(80)"/>
