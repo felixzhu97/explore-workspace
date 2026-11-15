@@ -62,7 +62,7 @@ class VisionFunctionalVerificationIT {
     mockMvc
         .perform(multipart("/api/vision/ocr"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.type").value("/problems/invalid-file"));
+        .andExpect(jsonPath("$.type").value("https://www.felixzhu.chat/problems/invalid-file"));
   }
 
   @Test

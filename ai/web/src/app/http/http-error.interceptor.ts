@@ -16,11 +16,11 @@ export interface AppError {
   status: number;
   timestamp: Instant;
   details?: unknown;
-  /** RFC 9457 problem type from the API, such as `/problems/invalid-file`. */
+  /** RFC 9457 problem type from the API (absolute URI). */
   type?: string;
 }
 
-const PROBLEM_TYPE_PREFIX = '/problems/';
+const PROBLEM_TYPE_URI_PREFIX = 'https://www.felixzhu.chat/problems/';
 
 export { SKIP_ERROR_NOTIFICATION };
 
@@ -52,18 +52,21 @@ function normalizeError(error: HttpErrorResponse): AppError {
  *
  * Servers deployed before the problem-detail change send `errorCode` instead;
  * it maps to the same type, so `IMAGE_PROVIDER_NOT_CONFIGURED` becomes
- * `/problems/image-provider-not-configured`.
+ * `${PROBLEM_TYPE_URI_PREFIX}image-provider-not-configured`.
  */
 export function readProblemType(body: unknown): string | null {
   if (body === null || typeof body !== 'object') {
     return null;
   }
   const { type, errorCode } = body as Record<string, unknown>;
-  if (typeof type === 'string' && type.startsWith(PROBLEM_TYPE_PREFIX)) {
+  if (typeof type === 'string' && type.startsWith(PROBLEM_TYPE_URI_PREFIX)) {
     return type;
   }
+  if (typeof type === 'string' && type.startsWith('/problems/')) {
+    return PROBLEM_TYPE_URI_PREFIX + type.slice('/problems/'.length);
+  }
   if (typeof errorCode === 'string' && errorCode !== '') {
-    return PROBLEM_TYPE_PREFIX + errorCode.toLowerCase().replaceAll('_', '-');
+    return PROBLEM_TYPE_URI_PREFIX + errorCode.toLowerCase().replaceAll('_', '-');
   }
   return null;
 }

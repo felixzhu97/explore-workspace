@@ -4,6 +4,7 @@ import com.ai.common.controller.ClientIdentity;
 import com.ai.common.infra.config.RateLimitProperties;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.explore.errors.Problems;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -86,9 +87,10 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
       response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       byte[] body =
           """
-                    {"type":"/problems/rate-limited","title":"Too Many Requests",
+                    {"type":"%s","title":"Too Many Requests",
                     "status":429,"detail":"Too many requests"}
                     """
+              .formatted(Problems.typeOf("RATE_LIMITED"))
               .strip()
               .getBytes(StandardCharsets.UTF_8);
       response.getOutputStream().write(body);

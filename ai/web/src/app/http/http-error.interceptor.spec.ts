@@ -279,7 +279,7 @@ describe('httpErrorInterceptor', () => {
 
     it('should keep the detail and problem type of a 503 problem detail', async () => {
       const error = await interceptError(503, {
-        type: '/problems/image-provider-not-configured',
+        type: 'https://www.felixzhu.chat/problems/image-provider-not-configured',
         title: 'Service Unavailable',
         status: 503,
         detail: 'Image provider not configured',
@@ -288,7 +288,7 @@ describe('httpErrorInterceptor', () => {
 
       expect(error.code).toBe('SERVICE_UNAVAILABLE');
       expect(error.message).toBe('Image provider not configured');
-      expect(error.type).toBe('/problems/image-provider-not-configured');
+      expect(error.type).toBe('https://www.felixzhu.chat/problems/image-provider-not-configured');
     });
 
     it('should map a legacy error code to its problem type', async () => {
@@ -299,7 +299,7 @@ describe('httpErrorInterceptor', () => {
       });
 
       expect(error.message).toBe('Image provider not configured');
-      expect(error.type).toBe('/problems/image-provider-not-configured');
+      expect(error.type).toBe('https://www.felixzhu.chat/problems/image-provider-not-configured');
     });
 
     it('should leave the problem type empty when a problem detail uses about:blank', async () => {

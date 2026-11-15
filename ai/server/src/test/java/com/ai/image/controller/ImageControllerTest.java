@@ -160,7 +160,7 @@ class ImageControllerTest {
         .bodyJson()
         .extractingPath("$.type")
         .asString()
-        .isEqualTo("/problems/image-generation-failed");
+        .isEqualTo("https://www.felixzhu.chat/problems/image-generation-failed");
   }
 
   @Test

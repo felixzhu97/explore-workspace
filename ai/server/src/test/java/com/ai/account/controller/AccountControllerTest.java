@@ -112,6 +112,6 @@ class AccountControllerTest {
         .bodyJson()
         .extractingPath("$.type")
         .asString()
-        .isEqualTo("/problems/client-identity-required");
+        .isEqualTo("https://www.felixzhu.chat/problems/client-identity-required");
   }
 }

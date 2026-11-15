@@ -1,6 +1,7 @@
 package com.ai.billing.controller.filter;
 
 import com.ai.billing.domain.model.QuotaDecision;
+import com.explore.errors.Problems;
 import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.service.DailyUsageQuotaService;
 import com.ai.common.controller.ClientIdentity;
@@ -85,9 +86,10 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
           .getOutputStream()
           .write(
               """
-                    {"type":"/problems/quota-exceeded","title":"Too Many Requests",
+                    {"type":"%s","title":"Too Many Requests",
                     "status":429,"detail":"Daily plan quota exceeded"}
                     """
+                  .formatted(Problems.typeOf("QUOTA_EXCEEDED"))
                   .strip()
                   .getBytes(StandardCharsets.UTF_8));
       return;

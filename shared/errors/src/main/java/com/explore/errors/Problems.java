@@ -11,8 +11,8 @@ import org.springframework.http.ProblemDetail;
  */
 public final class Problems {
 
-  /** Path prefix of every problem type this platform defines. */
-  public static final String TYPE_PREFIX = "/problems/";
+  /** Absolute URI prefix of every problem type this platform defines (RFC 9457 §3.1.1). */
+  public static final String TYPE_PREFIX = "https://www.felixzhu.chat/problems/";
 
   private Problems() {}
 
@@ -41,10 +41,11 @@ public final class Problems {
   }
 
   /**
-   * Returns the problem type for an error code, such as {@code /problems/session-not-found}.
+   * Returns the problem type for an error code, such as {@code
+   * https://www.felixzhu.chat/problems/session-not-found}.
    *
    * @param code the stable error code, in {@code UPPER_SNAKE_CASE}
-   * @return the relative problem type URI
+   * @return the absolute problem type URI
    */
   public static URI typeOf(String code) {
     return URI.create(TYPE_PREFIX + code.toLowerCase(Locale.ROOT).replace('_', '-'));

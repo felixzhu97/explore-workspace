@@ -70,7 +70,7 @@ class VisionControllerTest extends AbstractOwnerScopedControllerTest {
         .bodyJson()
         .extractingPath("$.type")
         .asString()
-        .isEqualTo("/problems/invalid-file");
+        .isEqualTo("https://www.felixzhu.chat/problems/invalid-file");
   }
 
   @Test
