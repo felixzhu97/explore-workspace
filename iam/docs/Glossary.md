@@ -33,7 +33,7 @@ objects live in `domain.model` (no `domain.vo`).
 
 | Preferred Term | 中文   | Java Package | Frontend Route | API Prefix | Status | Notes |
 | -------------- | ------ | ------------ | -------------- | ---------- | ------ | ----- |
-| Identity       | 身份   | `com.iam.identity` | `/identity` | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` | partial | AIP-121; `User` / Group / Role / RoleBinding |
+| Identity       | 身份   | `com.iam.identity` | `/identity` | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` | partial | AIP-121; `User` / Group / Role / RoleAssignment |
 | Policy         | 策略   | `com.iam.policy` | `/allow-policies` | `/api/v1/allowPolicies`, `/api/v1/permissions` | partial | Policy Engine + Permission catalog |
 | Short-lived credentials | 临时凭证 | `com.iam.sts` | — | `/api/v1/shortLivedCredentials` | partial | ShortLivedCredential JWT |
 | Federation     | 联邦   | `com.iam.federation` | `/oauth-clients` | OIDC + `/api/v1/oauthClients` | partial | SAS Provider + `OAuthClient` |
@@ -318,7 +318,7 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 | Group Deleted Event | 组已删除事件 | Group removed | Domain Event | `GroupDeletedEvent` | implemented |
 | Role Created Event | 角色已创建事件 | Role created | Domain Event | `RoleCreatedEvent` | implemented |
 | Role | 角色 | Named collection of permissions (Google IAM role) | Aggregate | `Role` | implemented |
-| Role Binding | 角色绑定 | Links a principal to a Role | Entity | `RoleBinding` | implemented |
+| Role Assignment | 角色绑定 | Links a principal to a Role | Entity | `RoleAssignment` | implemented |
 | Assign Role | 分配角色 | Bind a role to a user | Behavior | `User.assignRole` | implemented |
 | Impersonation Policy | 模拟策略 | Who may obtain short-lived credentials for a Role | Value Object | `ImpersonationPolicy` | implemented |
 | Federated Identity | 联邦身份 | Maps external provider + subject to local user | Aggregate | `FederatedIdentity` | implemented |
@@ -334,13 +334,13 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 | Allow Policy | 允许策略 | Document of statements (Effect, Permission, Resource) | Aggregate | `Policy` | implemented |
 | Policy Statement | 策略语句 | Single Allow or Deny rule block | Value Object | `Rule` | implemented |
 | Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | see §5.5 |
-| Policy Binding | 策略绑定 | Links an Allow Policy to a principal resource name | Aggregate | `PolicyBinding` | implemented |
+| Policy Assignment | 策略绑定 | Links an Allow Policy to a principal resource name | Aggregate | `PolicyAssignment` | implemented |
 | Permission | 权限 | Catalog entry: code, Resource, and GitHub-style `oauthScope` | Aggregate | `com.iam.policy.domain.model.Permission` | implemented |
 | Access Tuple | 访问元组 | Principal + Permission + Resource (Policy Troubleshooter shape) | Value Object | `AccessTuple` | implemented |
 | Access Decision | 访问决策 | Allow or Deny with reason | Value Object | `AccessDecision` | implemented |
 | Policy Engine | 策略引擎 | Evaluates policies: Deny > Allow > Implicit Deny | Domain Service | `PolicyEngine` | implemented |
 | Allow Policy Created Event | 允许策略已创建事件 | Allow Policy created | Domain Event | `PolicyCreatedEvent` | implemented |
-| Policy Attached Event | 策略已绑定事件 | Policy Binding created | Domain Event | `PolicyAttachedEvent` | implemented |
+| Policy Attached Event | 策略已绑定事件 | Policy Assignment created | Domain Event | `PolicyAttachedEvent` | implemented |
 | Permission Created Event | 权限已创建事件 | Permission catalog entry created | Domain Event | `PermissionCreatedEvent` | implemented |
 | Access Evaluated Event | 访问已评估事件 | Access Tuple evaluated to an Access Decision | Domain Event | `AccessEvaluatedEvent` | implemented |
 

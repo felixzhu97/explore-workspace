@@ -11,7 +11,7 @@ import com.iam.policy.domain.event.PolicyAttachedEvent;
 import com.iam.policy.domain.model.AccessDecision;
 import com.iam.policy.domain.model.AccessTuple;
 import com.iam.policy.domain.model.Policy;
-import com.iam.policy.domain.model.PolicyBinding;
+import com.iam.policy.domain.model.PolicyAssignment;
 import com.iam.policy.domain.model.Rule;
 import com.iam.policy.domain.repository.PolicyRepository;
 import com.iam.policy.domain.service.PolicyEngine;
@@ -87,12 +87,12 @@ public class PolicyService {
    * @return attachment
    */
   @Transactional
-  public PolicyBinding createPolicyBinding(String policyId, ResourceName principalArn) {
+  public PolicyAssignment createPolicyAssignment(String policyId, ResourceName principalArn) {
     policyRepository
         .findById(policyId)
         .orElseThrow(() -> new IllegalArgumentException("Policy not found: " + policyId));
-    PolicyBinding attachment =
-        policyRepository.saveAttachment(PolicyBinding.createPolicyBinding(policyId, principalArn));
+    PolicyAssignment attachment =
+        policyRepository.saveAttachment(PolicyAssignment.createPolicyAssignment(policyId, principalArn));
     eventPublisher.publishEvent(new PolicyAttachedEvent(attachment.getId().getValue()));
     return attachment;
   }

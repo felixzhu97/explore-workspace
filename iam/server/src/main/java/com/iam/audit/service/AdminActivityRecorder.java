@@ -141,7 +141,7 @@ public class AdminActivityRecorder {
 
   @EventListener
   void handlePolicyAttachedEvent(PolicyAttachedEvent event) {
-    recordSuccess("policy:AttachPolicy", "PolicyBinding", event.policyBindingId());
+    recordSuccess("policy:AttachPolicy", "PolicyAssignment", event.policyAssignmentId());
   }
 
   @EventListener

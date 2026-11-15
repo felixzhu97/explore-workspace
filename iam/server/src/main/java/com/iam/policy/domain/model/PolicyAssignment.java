@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class PolicyBinding extends AbstractImmutableEntity<PolicyBindingId> {
+public class PolicyAssignment extends AbstractImmutableEntity<PolicyAssignmentId> {
 
   @NotBlank
   @Size(max = 36)
@@ -31,7 +31,7 @@ public class PolicyBinding extends AbstractImmutableEntity<PolicyBindingId> {
   @Valid
   private ResourceName principalArn;
 
-  private PolicyBinding(PolicyBindingId id, String policyId, ResourceName principalArn) {
+  private PolicyAssignment(PolicyAssignmentId id, String policyId, ResourceName principalArn) {
     super(id);
     this.policyId = policyId;
     this.principalArn = principalArn;
@@ -44,7 +44,7 @@ public class PolicyBinding extends AbstractImmutableEntity<PolicyBindingId> {
    * @param principalArn target principal
    * @return new attachment
    */
-  public static PolicyBinding createPolicyBinding(String policyId, ResourceName principalArn) {
-    return new PolicyBinding(PolicyBindingId.generateId(), policyId, principalArn);
+  public static PolicyAssignment createPolicyAssignment(String policyId, ResourceName principalArn) {
+    return new PolicyAssignment(PolicyAssignmentId.generateId(), policyId, principalArn);
   }
 }

@@ -63,7 +63,7 @@ public class User extends AbstractEntity<UserId> {
 
   @Getter(AccessLevel.NONE)
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private final List<RoleBinding> roleAssignments = new ArrayList<>();
+  private final List<RoleAssignment> roleAssignments = new ArrayList<>();
 
   private User(
       UserId id,
@@ -251,7 +251,7 @@ public class User extends AbstractEntity<UserId> {
     if (hasRole(normalized)) {
       return false;
     }
-    roleAssignments.add(new RoleBinding(this, normalized));
+    roleAssignments.add(new RoleAssignment(this, normalized));
     touch();
     return true;
   }
@@ -269,7 +269,7 @@ public class User extends AbstractEntity<UserId> {
   /** Returns assigned role ids. */
   public List<String> assignedRoleIds() {
     return Collections.unmodifiableList(
-        roleAssignments.stream().map(RoleBinding::roleId).toList());
+        roleAssignments.stream().map(RoleAssignment::roleId).toList());
   }
 
   private static String normalizeDisplayName(String displayName) {

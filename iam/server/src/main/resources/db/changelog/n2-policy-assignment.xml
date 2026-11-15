@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="n2-policy-assignment-rename-tables" author="felix.zhu">
+    <comment>ANSI INCITS 359: PolicyBinding and RoleBinding → Assignment.</comment>
+    <dropForeignKeyConstraint baseTableName="policy_binding"
+        constraintName="fk_policy_binding_policy"/>
+    <renameTable oldTableName="policy_binding" newTableName="policy_assignment"/>
+    <addForeignKeyConstraint baseTableName="policy_assignment"
+        baseColumnNames="policy_id"
+        referencedTableName="policy"
+        referencedColumnNames="id"
+        constraintName="fk_policy_assignment_policy"/>
+    <dropForeignKeyConstraint baseTableName="role_binding"
+        constraintName="fk_role_binding_user"/>
+    <dropForeignKeyConstraint baseTableName="role_binding"
+        constraintName="fk_role_binding_role"/>
+    <renameTable oldTableName="role_binding" newTableName="role_assignment"/>
+    <addForeignKeyConstraint baseTableName="role_assignment"
+        baseColumnNames="user_id"
+        referencedTableName="directory_user"
+        referencedColumnNames="id"
+        constraintName="fk_role_assignment_user"/>
+    <addForeignKeyConstraint baseTableName="role_assignment"
+        baseColumnNames="role_id"
+        referencedTableName="role"
+        referencedColumnNames="id"
+        constraintName="fk_role_assignment_role"/>
+  </changeSet>
+</databaseChangeLog>

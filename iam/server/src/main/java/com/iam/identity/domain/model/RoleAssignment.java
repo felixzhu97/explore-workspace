@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class RoleBinding {
+public class RoleAssignment {
 
   @EmbeddedId private Pk id;
 
@@ -30,7 +30,7 @@ public class RoleBinding {
   @JoinColumn(nullable = false)
   private User user;
 
-  RoleBinding(User user, String roleId) {
+  RoleAssignment(User user, String roleId) {
     this.user = Objects.requireNonNull(user, "user");
     this.id = new Pk(user.getId(), DomainStrings.requireNonBlank(roleId, "roleId"));
   }

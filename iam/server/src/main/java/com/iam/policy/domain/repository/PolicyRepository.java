@@ -2,7 +2,7 @@ package com.iam.policy.domain.repository;
 
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.model.Policy;
-import com.iam.policy.domain.model.PolicyBinding;
+import com.iam.policy.domain.model.PolicyAssignment;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +38,7 @@ public interface PolicyRepository {
    * @param attachment attachment to store
    * @return stored attachment
    */
-  PolicyBinding saveAttachment(PolicyBinding attachment);
+  PolicyAssignment saveAttachment(PolicyAssignment attachment);
 
   /**
    * Returns policies attached to the given principal ARN.

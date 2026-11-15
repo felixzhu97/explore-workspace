@@ -7,4 +7,5 @@
 
     <include file="db/changelog/0.1.xml"/>
     <include file="db/changelog/n2-policy-rule.xml"/>
+    <include file="db/changelog/n2-policy-assignment.xml"/>
 </databaseChangeLog>

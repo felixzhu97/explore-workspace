@@ -21,7 +21,7 @@ import com.iam.identity.domain.model.TotpCredential;
 import com.iam.identity.domain.model.User;
 import com.iam.policy.domain.model.Policy;
 import com.iam.policy.domain.model.Permission;
-import com.iam.policy.domain.model.PolicyBinding;
+import com.iam.policy.domain.model.PolicyAssignment;
 import com.iam.policy.domain.model.Rule;
 import com.iam.scim.domain.model.ProvisioningTarget;
 import com.iam.sts.domain.model.ShortLivedCredential;
@@ -64,8 +64,8 @@ class EntityPersistenceCharacterizationTest {
   }
 
   @Test
-  @DisplayName("should round-trip a user with role bindings and no external id")
-  void shouldRoundTripAUserWithRoleBindingsAndNoExternalId() {
+  @DisplayName("should round-trip a user with role assignments and no external id")
+  void shouldRoundTripAUserWithRoleAssignmentsAndNoExternalId() {
     Role role = saveAndReload(Role.createRole("Characterization Role", " "));
     User user = User.createUser("characterized", "characterized@example.test", "{noop}x");
     user.assignRole(idText(role));
@@ -122,8 +122,8 @@ class EntityPersistenceCharacterizationTest {
   }
 
   @Test
-  @DisplayName("should round-trip an allow policy and its binding")
-  void shouldRoundTripAnPolicyAndItsBinding() {
+  @DisplayName("should round-trip a policy and its assignment")
+  void shouldRoundTripAPolicyAndItsAssignment() {
     Policy policy =
         saveAndReload(
             Policy.createPolicy(
@@ -135,7 +135,7 @@ class EntityPersistenceCharacterizationTest {
                         Set.of(new Resource("*"))))));
 
     saveAndReload(
-        PolicyBinding.createPolicyBinding(
+        PolicyAssignment.createPolicyAssignment(
             idText(policy), ResourceName.createUserResourceName("characterized")));
   }
 

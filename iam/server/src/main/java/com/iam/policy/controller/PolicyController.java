@@ -3,7 +3,7 @@ package com.iam.policy.controller;
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.model.AccessDecision;
 import com.iam.policy.domain.model.Policy;
-import com.iam.policy.domain.model.PolicyBinding;
+import com.iam.policy.domain.model.PolicyAssignment;
 import com.iam.policy.service.PolicyService;
 import com.iam.policy.service.PolicyService.CreatePolicyCommand;
 import com.iam.policy.service.PolicyService.EvaluateCommand;
@@ -73,13 +73,13 @@ public class PolicyController {
    * @param request attachment payload
    * @return created attachment
    */
-  @PostMapping("/{policy}:createPolicyBinding")
+  @PostMapping("/{policy}:createPolicyAssignment")
   @PreAuthorize("hasRole('IAM_ADMIN')")
-  public PolicyBindingResponse createPolicyBinding(
+  public PolicyAssignmentResponse createPolicyAssignment(
       @PathVariable("policy") String policy, @RequestBody AttachPolicyRequest request) {
-    PolicyBinding attachment =
-        policyService.createPolicyBinding(policy, new ResourceName(request.principalArn()));
-    return new PolicyBindingResponse(
+    PolicyAssignment attachment =
+        policyService.createPolicyAssignment(policy, new ResourceName(request.principalArn()));
+    return new PolicyAssignmentResponse(
         attachment.getId().getValue(), attachment.getPrincipalArn().value());
   }
 
@@ -124,7 +124,7 @@ public class PolicyController {
   }
 
   /** Policy attachment summary. */
-  public record PolicyBindingResponse(String id, String principalArn) {}
+  public record PolicyAssignmentResponse(String id, String principalArn) {}
 
   /** Authorization decision response. */
   public record AccessDecisionResponse(String effect, String reasonCode) {}

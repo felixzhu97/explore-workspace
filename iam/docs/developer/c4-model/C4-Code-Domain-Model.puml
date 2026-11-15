@@ -191,7 +191,7 @@ package "Identity" as pkg_identity {
     --
     +userId()
   }
-  class RoleBinding <<Entity>> {
+  class RoleAssignment <<Entity>> {
     +userId: String
     +roleId: String
     --
@@ -237,7 +237,7 @@ Group --|> AbstractEntity
 Role --|> AbstractNamedEntity
 TotpCredential --|> AbstractEntity
 Group "1" *-- "0..*" GroupMember : members
-User "1" *-- "0..*" RoleBinding : roleBindings
+User "1" *-- "0..*" RoleAssignment : roleBindings
 User "1" o-- "0..1" TotpCredential : optional
 User "1" o-- "0..*" WebAuthnCredential : passkeys
 Role --> ResourceName
@@ -298,11 +298,11 @@ package "Policy" as pkg_policy {
     +{static} createRule(effect, actions, resources)
     +matchesPermissionAndResource(action, resource)
   }
-  class PolicyBinding <<AggregateRoot>> {
+  class PolicyAssignment <<AggregateRoot>> {
     +policyId: String
     +principalArn: ResourceName
     --
-    +{static} createPolicyBinding(policyId, principalArn)
+    +{static} createPolicyAssignment(policyId, principalArn)
   }
   class "Permission" as PermissionCatalogEntry <<AggregateRoot>> {
     +code: String
@@ -348,11 +348,11 @@ package "Policy" as pkg_policy {
 }
 
 Policy --|> AbstractNamedEntity
-PolicyBinding --|> AbstractImmutableEntity
+PolicyAssignment --|> AbstractImmutableEntity
 PermissionCatalogEntry --|> AbstractImmutableEntity
 Policy "1" *-- "1..*" Rule : statements
-PolicyBinding --> Policy : references policyId
-PolicyBinding --> ResourceName
+PolicyAssignment --> Policy : references policyId
+PolicyAssignment --> ResourceName
 PermissionCatalogEntry --> Permission
 PermissionCatalogEntry --> Resource
 PermissionCatalogEntry --> Scope : oauthScope
