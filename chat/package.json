@@ -1,0 +1,59 @@
+{
+  "name": "explore-chat",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "src/main/web",
+    "src/main/admin",
+    "src/main/mobile"
+  ],
+  "author": "felix zhu <z1434866867@gmail.com>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "explore-chat",
+    "instagram",
+    "chat"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "db:seed": "./scripts/db/seed.sh dev",
+    "check-types": "pnpm -r run --if-present check-types",
+    "tsc": "pnpm -r run --if-present check-types",
+    "dev": "bash scripts/app/start.sh dev",
+    "dev:apps": "turbo run dev --filter=chat-web --concurrency=23",
+    "dev:api": "./gradlew bootRun",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo run lint",
+    "setup": "bash scripts/setup/dev.sh",
+    "setup:inline": "./gradlew classes",
+    "start:server": "./gradlew bootRun",
+    "start:mobile": "pnpm --filter react-native-app start",
+    "start:mobile:ios": "pnpm --filter react-native-app ios",
+    "start:mobile:android": "pnpm --filter react-native-app android",
+    "start:prod": "bash scripts/app/start.sh prod",
+    "start:web": "pnpm --filter chat-web dev",
+    "start:admin": "pnpm --filter chat-admin dev",
+    "stop": "./scripts/app/stop.sh dev",
+    "stop:prod": "./scripts/app/stop.sh prod",
+    "test": "turbo run test",
+    "test:java": "./gradlew checkstyleMain checkstyleTest test",
+    "test:watch": "turbo run test:watch --concurrency=23",
+    "lint:openapi": "pnpm dlx @stoplight/spectral-cli@6.15.0 lint src/main/im-contract/openapi.yaml -r .spectral.yml"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.0",
+    "turbo": "^2.5.4",
+    "typescript": "5.8.2"
+  },
+  "packageManager": "pnpm@10.32.0",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=10"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.2.14",
+      "@types/react-dom": "^19.2.3"
+    }
+  }
+}

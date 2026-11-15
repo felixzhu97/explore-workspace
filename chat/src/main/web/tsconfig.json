@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "allowJs": true,
+    "target": "ES6",
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"],
+      "@/src/*": ["./src/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/layout/*": ["./src/layout/*"],
+      "@/auth/*": ["./src/auth/*"],
+      "@/feed/*": ["./src/feed/*"],
+      "@/chat/*": ["./src/chat/*"],
+      "@/explore/*": ["./src/explore/*"],
+      "@/reels/*": ["./src/reels/*"],
+      "@/search/*": ["./src/search/*"],
+      "@/profile/*": ["./src/profile/*"],
+      "@/calls/*": ["./src/calls/*"],
+      "@/ai/*": ["./src/ai/*"],
+      "@/secondary/*": ["./src/secondary/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "vitest.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next", "**/__test__/**", "**/__tests__/**"]
+}

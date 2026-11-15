@@ -1,0 +1,20 @@
+openapi: 3.0.3
+info:
+  title: Chat AIP REST contract (fragment)
+  version: 1.0.0
+  description: >
+    Spectral entrypoint. IM schemas and chats/messages paths live in
+    src/main/im-contract/openapi.yaml (single source of truth).
+servers:
+  - url: /api/v1
+paths:
+  /users:
+    $ref: "../../src/main/im-contract/openapi.yaml#/paths/~1users"
+  /chats:
+    $ref: "../../src/main/im-contract/openapi.yaml#/paths/~1chats"
+  /chats/{chat}/messages:
+    $ref: "../../src/main/im-contract/openapi.yaml#/paths/~1chats~1{chat}~1messages"
+components:
+  schemas:
+    RpcStatus:
+      $ref: "../../src/main/im-contract/openapi.yaml#/components/schemas/RpcStatus"
