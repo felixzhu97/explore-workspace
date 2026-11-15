@@ -123,13 +123,13 @@ public class SecurityConfig {
       AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry
           auth) {
     auth.requestMatchers("/api/chat", "/api/chat/**", "/api/privacy/**")
-        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_chat"))
+        .access(BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_chat"))
         .requestMatchers("/api/audio/**")
-        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_audio"))
+        .access(BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_audio"))
         .requestMatchers("/api/rag/**")
-        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_rag"))
+        .access(BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_rag"))
         .requestMatchers("/api/images/**", "/api/vision/**")
-        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_media"))
+        .access(BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_media"))
         .requestMatchers(
             "/api/pipelines/**",
             "/api/agents/**",
@@ -137,9 +137,9 @@ public class SecurityConfig {
             "/api/workflows/**",
             "/api/automations/**",
             "/api/skills/**")
-        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_agent"))
+        .access(BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_agent"))
         .requestMatchers("/api/mcp/**", "/api/tools/**", "/api/text-analysis", "/api/eval/**")
-        .access(BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_tools"))
+        .access(BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_tools"))
         .anyRequest()
         .permitAll();
   }
