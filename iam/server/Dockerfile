@@ -1,4 +1,4 @@
-# Build context: the workspace root, e.g. `docker build -f iam/Dockerfile .`
+# Build context: the workspace root, e.g. `docker build -f iam/server/Dockerfile .`
 
 # Frontend: console (Angular) → iam/server/src/main/resources/static
 # npm-global pnpm: corepack+pnpm@11 on Node 20 failed with

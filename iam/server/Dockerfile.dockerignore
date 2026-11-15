@@ -1,4 +1,4 @@
-# Used with `docker build -f iam/Dockerfile .` (workspace root as context).
+# Used with `docker build -f iam/server/Dockerfile .` (workspace root as context).
 .git
 **/.gradle
 **/build
