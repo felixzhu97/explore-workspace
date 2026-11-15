@@ -59,13 +59,16 @@ public class PermissionController {
   /**
    * Gets one permission by code.
    *
-   * @param permission code (resource id)
+   * @param permissionPoint code (resource id); name matches the path variable
    * @return permission
+   * @see <a
+   *     href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/requestmapping-uri-templates.html">Spring
+   *     URI templates</a>
    */
   @GetMapping("/{permissionPoint:.+}")
   @PreAuthorize("hasAnyRole('IAM_ADMIN', 'IAM_AUDITOR')")
-  public PermissionResponse get(@PathVariable String permission) {
-    return PermissionResponse.from(permissionService.get(permission));
+  public PermissionResponse get(@PathVariable("permissionPoint") String permissionPoint) {
+    return PermissionResponse.from(permissionService.get(permissionPoint));
   }
 
   /**
