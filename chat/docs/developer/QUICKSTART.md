@@ -52,8 +52,8 @@ Demo login (seeded on boot): `alice@example.com` / `123456`.
 
 ### Kafka (optional)
 
-Kafka is enabled when `KAFKA_BROKERS` is non-empty (default `localhost:9092`). Set
-`KAFKA_BROKERS=` (empty) to disable; the publisher no-ops and the API still boots.
+Kafka is enabled when `KAFKA_BOOTSTRAP_SERVERS` is non-empty (default `localhost:9092`). Set
+`KAFKA_BOOTSTRAP_SERVERS=` (empty) to disable; the publisher no-ops and the API still boots.
 
 Topics (Nest-aligned): `post.created`, `post.deleted`, `feed.fanout`,
 `comment.created`, `offline-messages`, `analytics.events`.

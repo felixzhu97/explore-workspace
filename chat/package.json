@@ -3,9 +3,9 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "src/main/web",
-    "src/main/admin",
-    "src/main/mobile"
+    "web",
+    "admin",
+    "mobile"
   ],
   "author": "felix zhu <z1434866867@gmail.com>",
   "license": "Apache-2.0",

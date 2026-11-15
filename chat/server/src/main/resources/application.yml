@@ -43,8 +43,8 @@ chat:
     enabled: ${CHAT_IAM_ENABLED:true}
     issuer-uri: ${CHAT_IAM_ISSUER_URI:http://localhost:9100}
   kafka:
-    # Empty KAFKA_BROKERS disables Kafka (no-op publisher). Unset defaults to localhost:9092.
-    brokers: ${KAFKA_BROKERS:localhost:9092}
+    # Empty KAFKA_BOOTSTRAP_SERVERS disables Kafka (no-op publisher). Unset defaults to localhost:9092.
+    brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     topic-offline-messages: ${KAFKA_TOPIC_OFFLINE_MESSAGES:offline-messages}
     topic-post-created: ${KAFKA_TOPIC_POST_CREATED:post.created}
     topic-post-deleted: ${KAFKA_TOPIC_POST_DELETED:post.deleted}

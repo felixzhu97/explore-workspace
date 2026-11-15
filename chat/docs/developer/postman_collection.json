@@ -1,10 +1,10 @@
 {
   "info": {
-    "_postman_id": "whatschat-api-collection",
+    "_postman_id": "explore-chat-api-collection",
     "name": "WhatsChat API",
     "description": "WhatsChat 聊天应用 API 文档",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "whatschat-api"
+    "_exporter_id": "explore-chat-api"
   },
   "item": [
     {

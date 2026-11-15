@@ -118,7 +118,7 @@ Feed, Post, Chat, Message, Call, Notification, and related terms come from the G
 
 ### WebRTC
 
-**Carry Call media with WebRTC.** Audio and video use the IM/RTC client path ([WebRTC Overview RFC 8825](https://datatracker.ietf.org/doc/html/rfc8825), [JSEP RFC 8829](https://datatracker.ietf.org/doc/html/rfc8829), [SDP RFC 8866](https://datatracker.ietf.org/doc/html/rfc8866); [MDN WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)). Prefer specific status over a single unresolved “Connecting…”. For scale beyond 1:1, industry voice stacks often use SFU topologies (for example [How Discord Handles Two and Half Million Concurrent Voice Users](https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc)).
+**Carry Call media with WebRTC.** Audio and video use the IM/RTC client path ([WebRTC Overview RFC 8825](https://datatracker.ietf.org/doc/html/rfc8825), [JSEP RFC 9429](https://datatracker.ietf.org/doc/html/rfc9429), [SDP RFC 8866](https://datatracker.ietf.org/doc/html/rfc8866); [MDN WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)). Prefer specific status over a single unresolved “Connecting…”. For scale beyond 1:1, industry voice stacks often use SFU topologies (for example [How Discord Handles Two and Half Million Concurrent Voice Users](https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc)).
 
 ## Generative assistance
 
@@ -140,7 +140,7 @@ Feed, Post, Chat, Message, Call, Notification, and related terms come from the G
 
 [WebRTC Overview (RFC 8825)](https://datatracker.ietf.org/doc/html/rfc8825)
 
-[JSEP (RFC 8829)](https://datatracker.ietf.org/doc/html/rfc8829)
+[JSEP (RFC 9429)](https://datatracker.ietf.org/doc/html/rfc9429)
 
 [SDP (RFC 8866)](https://datatracker.ietf.org/doc/html/rfc8866)
 
