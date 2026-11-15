@@ -25,7 +25,7 @@ legend right
 endlegend
 
 package "Domain Kernel (shared/kernel)" as pkg_kernel {
-  class AbstractImmutable<IdT> <<Abstract>> {
+  class AbstractImmutableEntity<IdT> <<Abstract>> {
     +id: IdT @EmbeddedId
     +createdAt: Instant @CreationTimestamp
   }
@@ -49,9 +49,9 @@ package "Domain Kernel (shared/kernel)" as pkg_kernel {
   }
 }
 
-AbstractEntity --|> AbstractImmutable
+AbstractEntity --|> AbstractImmutableEntity
 AbstractNamedEntity --|> AbstractEntity
-AbstractAuditEvent --|> AbstractImmutable
+AbstractAuditEvent --|> AbstractImmutableEntity
 
 package "Common" as pkg_common {
   class ResourceName <<ValueObject>> {
@@ -348,8 +348,8 @@ package "Policy" as pkg_policy {
 }
 
 AllowPolicy --|> AbstractNamedEntity
-PolicyBinding --|> AbstractImmutable
-PermissionCatalogEntry --|> AbstractImmutable
+PolicyBinding --|> AbstractImmutableEntity
+PermissionCatalogEntry --|> AbstractImmutableEntity
 AllowPolicy "1" *-- "1..*" PolicyStatement : statements
 PolicyBinding --> AllowPolicy : references policyId
 PolicyBinding --> ResourceName
@@ -380,7 +380,7 @@ package "Short-lived credentials" as pkg_sts {
   }
 }
 
-ShortLivedCredential --|> AbstractImmutable
+ShortLivedCredential --|> AbstractImmutableEntity
 ShortLivedCredential --> ResourceName
 RoleAssumedEvent ..> Role : roleId
 
@@ -424,7 +424,7 @@ package "Federation" as pkg_federation {
   end note
 }
 
-FederatedIdentity --|> AbstractImmutable
+FederatedIdentity --|> AbstractImmutableEntity
 OAuthClient --> ClientId
 OAuthClient --> RedirectUri
 FederatedIdentity ..> User : links

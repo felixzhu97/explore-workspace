@@ -197,7 +197,7 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 
 | Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
 | ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Abstract Immutable | 不可变聚合基类 | Shared domain/JPA base: typed `id` + `createdAt` | `com.explore.kernel.AbstractImmutable` (`shared/kernel`) | implemented |
+| Abstract Immutable | 不可变聚合基类 | Shared domain/JPA base: typed `id` + `createdAt` | `com.explore.kernel.AbstractImmutableEntity` (`shared/kernel`) | implemented |
 | Abstract Entity | 可变聚合基类 | Extends immutable; adds `updatedAt` + `@Version` | `com.explore.kernel.AbstractEntity` (`shared/kernel`) | implemented |
 | Typed Id | 类型化标识 | Embeddable id per aggregate wrapping the UUID string; column stays `id` | e.g. `UserId`, `GroupId`, `RoleId` | implemented |
 | Abstract Named Entity | 具名聚合基类 | Mutable aggregate with unique `name` | `AbstractNamedEntity` | implemented |

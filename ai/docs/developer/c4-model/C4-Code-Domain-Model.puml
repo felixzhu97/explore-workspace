@@ -54,7 +54,7 @@ package "Domain Kernel" as pkg_base {
     +{static} generate()
     +{static} of(text)
   }
-  class AbstractImmutable <<Abstract>> {
+  class AbstractImmutableEntity <<Abstract>> {
     implements Persistable, Serializable
     +id: IdT
     +createdAt: Instant @CreationTimestamp
@@ -68,8 +68,8 @@ package "Domain Kernel" as pkg_base {
 }
 
 AbstractEmbeddable <|-- TypedId
-AbstractImmutable <|-- AbstractEntity
-TypedId --> AbstractImmutable : embedded id
+AbstractImmutableEntity <|-- AbstractEntity
+TypedId --> AbstractImmutableEntity : embedded id
 
 ' ── Common (owner-aware bases) ─────────────────────────────
 package "Common" as pkg_common_kernel {
@@ -141,7 +141,7 @@ package "Common" as pkg_common_kernel {
   }
 }
 
-AbstractImmutable <|-- AbstractOwnerAwareImmutable
+AbstractImmutableEntity <|-- AbstractOwnerAwareImmutable
 AbstractEntity <|-- AbstractOwnerAwareEntity
 AbstractOwnerAwareEntity <|-- AbstractEnableableNamedOwnerEntity
 AbstractEnableableNamedOwnerEntity <|-- AbstractEnableableDescribedOwnerEntity

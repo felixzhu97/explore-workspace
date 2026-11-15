@@ -1,7 +1,7 @@
 package com.ai.common.domain.model;
 
 import com.explore.kernel.AbstractEmbeddable;
-import com.explore.kernel.AbstractImmutable;
+import com.explore.kernel.AbstractImmutableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractOwnerAwareImmutable<IdT extends AbstractEmbeddable>
-    extends AbstractImmutable<IdT> {
+    extends AbstractImmutableEntity<IdT> {
 
   @NotNull
   @Column(nullable = false, length = 80)

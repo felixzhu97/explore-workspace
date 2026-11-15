@@ -30,7 +30,7 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public abstract class AbstractImmutable<IdT extends AbstractEmbeddable>
+public abstract class AbstractImmutableEntity<IdT extends AbstractEmbeddable>
     implements Persistable<IdT>, Serializable {
 
   @EqualsAndHashCode.Include
@@ -47,7 +47,7 @@ public abstract class AbstractImmutable<IdT extends AbstractEmbeddable>
   private boolean persisted;
 
   /** Creates a new entity with an assigned id; it stays new until it is first persisted. */
-  protected AbstractImmutable(IdT id) {
+  protected AbstractImmutableEntity(IdT id) {
     this.id = Objects.requireNonNull(id, "id cannot be null");
   }
 

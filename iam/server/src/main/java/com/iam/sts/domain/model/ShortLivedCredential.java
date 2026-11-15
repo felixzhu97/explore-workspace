@@ -1,6 +1,6 @@
 package com.iam.sts.domain.model;
 
-import com.explore.kernel.AbstractImmutable;
+import com.explore.kernel.AbstractImmutableEntity;
 import com.iam.common.domain.base.DomainStrings;
 import com.iam.common.domain.model.ResourceName;
 import jakarta.persistence.AttributeOverride;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class ShortLivedCredential extends AbstractImmutable<ShortLivedCredentialId> {
+public class ShortLivedCredential extends AbstractImmutableEntity<ShortLivedCredentialId> {
 
   @Embedded
   @AttributeOverride(

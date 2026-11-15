@@ -1,6 +1,6 @@
 package com.iam.policy.domain.model;
 
-import com.explore.kernel.AbstractImmutable;
+import com.explore.kernel.AbstractImmutableEntity;
 import com.iam.common.domain.model.ResourceName;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class PolicyBinding extends AbstractImmutable<PolicyBindingId> {
+public class PolicyBinding extends AbstractImmutableEntity<PolicyBindingId> {
 
   @NotBlank
   @Size(max = 36)

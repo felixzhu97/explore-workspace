@@ -1,6 +1,6 @@
 package com.iam.federation.domain.model;
 
-import com.explore.kernel.AbstractImmutable;
+import com.explore.kernel.AbstractImmutableEntity;
 import com.iam.common.domain.base.DomainStrings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class FederatedIdentity extends AbstractImmutable<FederatedIdentityId> {
+public class FederatedIdentity extends AbstractImmutableEntity<FederatedIdentityId> {
 
   @NotBlank
   @Size(max = 36)
