@@ -1,0 +1,31 @@
+<div class="min-vh-100 d-flex align-items-center justify-content-center p-3">
+  <div class="card shadow-sm" style="width: 100%; max-width: 420px;">
+    <div class="card-body">
+      <div class="h5 mb-3">Admin Login</div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="d-grid gap-3">
+        <div>
+          <label class="form-label">Email or Phone</label>
+          <input class="form-control" formControlName="emailOrPhone" autocomplete="username" />
+        </div>
+
+        <div>
+          <label class="form-label">Password</label>
+          <input
+            class="form-control"
+            formControlName="password"
+            type="password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button class="btn btn-primary" type="submit" [disabled]="loading() || form.invalid">
+          {{ loading() ? 'Signing in...' : 'Sign in' }}
+        </button>
+
+        <div class="text-danger small" *ngIf="error()">{{ error() }}</div>
+      </form>
+    </div>
+  </div>
+</div>
+
