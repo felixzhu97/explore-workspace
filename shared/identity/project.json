@@ -1,4 +1,4 @@
 {
   "name": "shared-identity",
-  "tags": ["type:shared"]
+  "tags": ["scope:shared", "type:lib"]
 }

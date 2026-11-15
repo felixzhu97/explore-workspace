@@ -21,9 +21,12 @@ export default [
           depConstraints: [
             ...products.map((product) => ({
               sourceTag: `scope:${product}`,
-              onlyDependOnLibsWithTags: [`scope:${product}`, 'type:shared'],
+              onlyDependOnLibsWithTags: [`scope:${product}`, 'scope:shared'],
             })),
-            { sourceTag: 'type:shared', onlyDependOnLibsWithTags: ['type:shared'] },
+            {
+              sourceTag: 'scope:shared',
+              onlyDependOnLibsWithTags: ['scope:shared'],
+            },
             { sourceTag: 'type:tool', onlyDependOnLibsWithTags: ['type:tool'] },
             { sourceTag: 'type:infrastructure', onlyDependOnLibsWithTags: [] },
           ],
