@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("/api/pipelines")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PipelineController {
 
@@ -36,7 +36,7 @@ public class PipelineController {
   private final OwnerContext ownerContext;
 
   /** Lists the agents. */
-  @GetMapping("/agent-types")
+  @GetMapping("/pipelines/agent-types")
   public ResponseEntity<List<AgentInfoResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String ownerId = ownerContext.requireValue(request);
@@ -49,14 +49,14 @@ public class PipelineController {
   }
 
   /** Returns the pipeline module health. */
-  @GetMapping("/health")
+  @GetMapping("/pipelines/health")
   public ResponseEntity<PipelineModuleHealthResponse> getModuleHealth() {
     return ResponseEntity.ok(
         new PipelineModuleHealthResponse(HealthStatus.UP, pipelineService.countBuiltins()));
   }
 
   /** Returns one agent. */
-  @GetMapping("/{agentType}")
+  @GetMapping("/pipelines/{agentType}")
   public ResponseEntity<AgentInfoResponse> getAgent(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
@@ -68,7 +68,7 @@ public class PipelineController {
   }
 
   /** Returns the health of one agent. */
-  @GetMapping("/{agentType}/health")
+  @GetMapping("/pipelines/{agentType}/health")
   public ResponseEntity<AgentHealthResponse> getHealth(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
@@ -80,7 +80,7 @@ public class PipelineController {
   }
 
   /** Streams a supervisor run. */
-  @PostMapping(value = "/supervisor:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "pipelines/supervisor:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeSupervisor(
       @Valid @RequestBody AgentInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
@@ -91,7 +91,7 @@ public class PipelineController {
   }
 
   /** Streams a pipeline run. */
-  @PostMapping(value = ":streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "pipelines:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokePipeline(
       @Valid @RequestBody PipelineInvokeRequest request,
       @RequestParam(value = "lang", required = false) String lang,
@@ -121,7 +121,7 @@ public class PipelineController {
   }
 
   /** Streams a single agent run. */
-  @PostMapping(value = "/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "pipelines/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeAgent(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeRequest request,

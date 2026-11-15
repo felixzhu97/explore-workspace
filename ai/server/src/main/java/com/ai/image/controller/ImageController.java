@@ -19,35 +19,35 @@ import org.springframework.web.bind.annotation.RestController;
 
 /** Image generation REST Controller. */
 @RestController
-@RequestMapping("/api/images")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ImageController {
 
   private final ImageGenerationService imageGenerationService;
 
   /** Get available image generation models. */
-  @GetMapping("/models")
+  @GetMapping("/images/models")
   public ResponseEntity<ImageModelsResponse> getImageModels() {
     return ResponseEntity.ok(
         new ImageModelsResponse(imageGenerationService.getAvailableImageModels()));
   }
 
   /** Get available image sizes. */
-  @GetMapping("/sizes")
+  @GetMapping("/images/sizes")
   public ResponseEntity<ImageSizesResponse> getImageSizes() {
     return ResponseEntity.ok(
         new ImageSizesResponse(imageGenerationService.getAvailableImageSizes()));
   }
 
   /** Get available image qualities. */
-  @GetMapping("/qualities")
+  @GetMapping("/images/qualities")
   public ResponseEntity<ImageQualitiesResponse> getImageQualities() {
     return ResponseEntity.ok(
         new ImageQualitiesResponse(imageGenerationService.getAvailableImageQualities()));
   }
 
   /** Generate an image from text prompt. */
-  @PostMapping(":generate")
+  @PostMapping("images:generate")
   public ImageGenerationResponse generateImage(@Valid @RequestBody ImageGenerationRequest request) {
     GeneratedImage image =
         imageGenerationService.generateImage(

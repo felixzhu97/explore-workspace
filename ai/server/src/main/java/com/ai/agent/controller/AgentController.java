@@ -23,7 +23,7 @@ import reactor.core.publisher.Flux;
 
 /** Published Language for sibling products: list and invoke catalog Agents. */
 @RestController
-@RequestMapping("/api/agents")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AgentController {
 
@@ -31,7 +31,7 @@ public class AgentController {
   private final OwnerContext ownerContext;
 
   /** Lists runnable Agent types. */
-  @GetMapping
+  @GetMapping("/agents")
   public ResponseEntity<List<AgentSummaryResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
     String ownerId = ownerContext.requireValue(request);
@@ -44,7 +44,7 @@ public class AgentController {
   }
 
   /** Returns one Agent summary. */
-  @GetMapping("/{agentType}")
+  @GetMapping("/agents/{agentType}")
   public ResponseEntity<AgentSummaryResponse> getAgent(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
@@ -56,7 +56,7 @@ public class AgentController {
   }
 
   /** Runs one Agent and returns the reply. */
-  @PostMapping("/{agentType}/invoke")
+  @PostMapping("/agents/{agentType}/invoke")
   public ResponseEntity<AgentInvokeResponse> invoke(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeBody body,
@@ -70,7 +70,7 @@ public class AgentController {
   }
 
   /** Streams one Agent run as SSE. */
-  @PostMapping(value = "/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "agents/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeStream(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeBody body,
