@@ -451,8 +451,8 @@ Permission `oauthScope` / `code` uses GitHub OAuth scope shape
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
-| Orchestrator | 编排器 | Agent delegating to Subagents | Pattern | `.cursor/agents/orchestrator.md` | dev tooling |
-| Subagent | 子智能体 | Specialized single-purpose Agent | Pattern | `.cursor/agents/*.md` | dev tooling |
+| Orchestrator | 编排器 | Agent delegating to Subagents | Pattern | `~/.cursor/agents/orchestrator.md` | dev tooling |
+| Subagent | 子智能体 | Specialized single-purpose Agent | Pattern | `~/.cursor/agents/*.md` | dev tooling |
 
 ---
 
