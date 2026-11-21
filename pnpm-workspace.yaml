@@ -12,6 +12,7 @@ packages:
   - "portfolio/portal"
   - "portfolio/mobile"
   - "lowcode/web"
+  - "three/web"
 
 catalog:
   "@eslint/js": 10.0.1

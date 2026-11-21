@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-/** Product theme id. */
-export type ThemeId = 'bright' | 'tech';
+/** Product theme id — aligns with `prefers-color-scheme` light/dark naming. */
+export type ThemeId = 'light' | 'dark';
 
 /** RGB color in product space (0..1). */
 export interface RouteColor {
@@ -25,8 +25,8 @@ export interface ThemeAppearance {
 
 const REPO_URL = 'https://github.com/felixzhu97/explore-three';
 
-const BRIGHT_THEME: ThemeAppearance = {
-  type: 'bright',
+const LIGHT_THEME: ThemeAppearance = {
+  type: 'light',
   lightConfig: {
     pointColor: 0xffffff,
     pointIntensity: 3,
@@ -37,8 +37,8 @@ const BRIGHT_THEME: ThemeAppearance = {
   sourceUrl: REPO_URL,
 };
 
-const TECH_THEME: ThemeAppearance = {
-  type: 'tech',
+const DARK_THEME: ThemeAppearance = {
+  type: 'dark',
   lightConfig: {
     pointColor: 0x081b26,
     pointIntensity: 17,
@@ -49,7 +49,7 @@ const TECH_THEME: ThemeAppearance = {
   sourceUrl: REPO_URL,
 };
 
-const BRIGHT_COLORS: readonly RouteColor[] = [
+const LIGHT_COLORS: readonly RouteColor[] = [
   { r: 0.3, g: 0.8, b: 1.0 },
   { r: 1.0, g: 0.5, b: 0.3 },
   { r: 0.5, g: 1.0, b: 0.3 },
@@ -58,7 +58,7 @@ const BRIGHT_COLORS: readonly RouteColor[] = [
   { r: 0.6, g: 0.3, b: 1.0 },
 ];
 
-const TECH_COLORS: readonly RouteColor[] = [
+const DARK_COLORS: readonly RouteColor[] = [
   { r: 0.0, g: 0.8, b: 1.0 },
   { r: 0.0, g: 0.4, b: 0.8 },
   { r: 0.2, g: 1.0, b: 0.8 },
@@ -69,16 +69,16 @@ const TECH_COLORS: readonly RouteColor[] = [
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  readonly brightTheme = BRIGHT_THEME;
-  readonly techTheme = TECH_THEME;
-  readonly brightColors = BRIGHT_COLORS;
-  readonly techColors = TECH_COLORS;
+  readonly lightTheme = LIGHT_THEME;
+  readonly darkTheme = DARK_THEME;
+  readonly lightColors = LIGHT_COLORS;
+  readonly darkColors = DARK_COLORS;
 
   appearance(id: ThemeId): ThemeAppearance {
-    return id === 'bright' ? BRIGHT_THEME : TECH_THEME;
+    return id === 'light' ? LIGHT_THEME : DARK_THEME;
   }
 
   colors(id: ThemeId): readonly RouteColor[] {
-    return id === 'bright' ? BRIGHT_COLORS : TECH_COLORS;
+    return id === 'light' ? LIGHT_COLORS : DARK_COLORS;
   }
 }
