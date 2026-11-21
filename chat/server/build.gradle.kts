@@ -1,27 +1,15 @@
 plugins {
-    java
-    checkstyle
-    id("org.springframework.boot") version "4.1.1"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("jacoco")
+    id("explore.java-conventions")
+    id("explore.java-format-conventions")
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
 }
 
 group = "com.chat"
 version = "0.0.1-SNAPSHOT"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
-}
-
-repositories {
-    mavenCentral()
-    maven { url = uri("https://maven.aliyun.com/repository/public") }
-    maven { url = uri("https://maven.aliyun.com/repository/spring") }
-}
-
 dependencies {
+    implementation(project(":shared-identity"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -52,35 +40,18 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation(libs.archunit.junit5)
 }
 
 checkstyle {
-    toolVersion = "10.21.4"
     configFile = file("config/checkstyle/google_checks.xml")
-    isIgnoreFailures = false
-    maxWarnings = 0
-}
-
-tasks.withType<Checkstyle>().configureEach {
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-jacoco {
-    toolVersion = "0.8.13"
+    configDirectory = file("config/checkstyle")
 }
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
+}
+
+tasks.named<Jar>("jar") {
+    enabled = false
 }

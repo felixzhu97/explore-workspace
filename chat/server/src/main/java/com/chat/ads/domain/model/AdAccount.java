@@ -22,8 +22,7 @@ public class AdAccount extends AbstractEntity {
   @Enumerated(EnumType.STRING)
   private AdAccountStatus status;
 
-  private AdAccount(
-      String id, Instant createdAt, Instant updatedAt, String ownerId, String name) {
+  private AdAccount(String id, Instant createdAt, Instant updatedAt, String ownerId, String name) {
     super(id, createdAt, updatedAt);
     this.ownerId = ownerId;
     this.name = name;

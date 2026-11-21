@@ -253,23 +253,29 @@ describe("MessageBubble", () => {
     });
 
     it("formats time correctly for today messages", () => {
-      const message = createMockMessage({
-        timestamp: new Date("2024-06-15T10:30:00Z"),
-      });
+      const timestamp = new Date("2024-06-15T10:30:00Z");
+      const message = createMockMessage({ timestamp });
       const { getByText } = renderWithProviders(
         <MessageBubble message={message} isMe={true} />,
       );
-      expect(getByText("18:30")).toBeTruthy();
+      const hour = timestamp.getHours().toString().padStart(2, "0");
+      const minute = timestamp.getMinutes().toString().padStart(2, "0");
+      expect(getByText(`${hour}:${minute}`)).toBeTruthy();
     });
 
     it("formats time with date for older messages", () => {
-      const message = createMockMessage({
-        timestamp: new Date("2024-06-10T10:30:00Z"),
-      });
+      const timestamp = new Date("2024-06-10T10:30:00Z");
+      const message = createMockMessage({ timestamp });
       const { getByText } = renderWithProviders(
         <MessageBubble message={message} isMe={true} />,
       );
-      expect(getByText("6/10 18:30")).toBeTruthy();
+      const hour = timestamp.getHours().toString().padStart(2, "0");
+      const minute = timestamp.getMinutes().toString().padStart(2, "0");
+      expect(
+        getByText(
+          `${timestamp.getMonth() + 1}/${timestamp.getDate()} ${hour}:${minute}`,
+        ),
+      ).toBeTruthy();
     });
   });
 

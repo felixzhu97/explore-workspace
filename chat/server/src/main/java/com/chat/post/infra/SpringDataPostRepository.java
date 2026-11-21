@@ -12,8 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SpringDataPostRepository
-    extends JpaRepository<Post, String>, PostRepository {
+public interface SpringDataPostRepository extends JpaRepository<Post, String>, PostRepository {
 
   @Query(
       """
@@ -116,8 +115,7 @@ public interface SpringDataPostRepository
   }
 
   @Override
-  default List<Post> listFeedForAuthors(
-      Collection<String> authorIds, int offset, int limit) {
+  default List<Post> listFeedForAuthors(Collection<String> authorIds, int offset, int limit) {
     if (authorIds == null || authorIds.isEmpty()) {
       return List.of();
     }
@@ -126,8 +124,7 @@ public interface SpringDataPostRepository
   }
 
   @Override
-  default List<Post> listExploreExcluding(
-      Collection<String> authorIds, int offset, int limit) {
+  default List<Post> listExploreExcluding(Collection<String> authorIds, int offset, int limit) {
     int size = Math.max(limit, 1);
     Pageable page = PageRequest.of(offset / size, size);
     if (authorIds == null || authorIds.isEmpty()) {

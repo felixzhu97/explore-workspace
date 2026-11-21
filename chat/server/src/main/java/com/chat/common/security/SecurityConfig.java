@@ -1,5 +1,7 @@
 package com.chat.common.security;
 
+import com.explore.identity.BearerTokenScopeAuthorization;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,12 +11,20 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Chat API security: public auth endpoints; IAM module scopes for messaging / social / admin when
- * Bearer is an Explore IAM JWT.
+ * Chat API security: public auth endpoints; Explore IAM Bearer tokens via OAuth2
+ * resource server with GitHub-style module scopes; Chat HS JWT login via {@link
+ * JwtAuthenticationFilter}.
+ *
+ * <p>Verify IAM: set {@code CHAT_IAM_ISSUER_URI} to a running Explore IAM issuer, obtain an access
+ * token with {@code write:chat_messaging} or {@code write:chat_social}, then {@code curl -H
+ * "Authorization: Bearer $TOKEN" http://localhost:9001/api/v1/chats}.
  *
  * @see <a
  *     href="https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps">GitHub
@@ -29,7 +39,11 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
+  SecurityFilterChain securityFilterChain(
+      HttpSecurity http,
+      JwtAuthenticationFilter jwtFilter,
+      ObjectProvider<IamUserProvisioningFilter> iamUserProvisioningFilter,
+      ObjectProvider<JwtDecoder> jwtDecoder)
       throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
@@ -54,19 +68,30 @@ public class SecurityConfig {
                         "/api/v1/calls/**",
                         "/api/v1/media/**",
                         "/api/v1/notifications/**")
-                    .hasAnyAuthority("ROLE_USER", "SCOPE_write:chat_messaging")
+                    .access(
+                        BearerTokenScopeAuthorization.requireScopeForBearerTokens(
+                            "write:chat_messaging"))
                     .requestMatchers(
                         "/api/v1/posts/**",
                         "/api/v1/users/**",
                         "/api/v1/groups/**",
                         "/api/v1/status/**",
                         "/api/v1/search/**")
-                    .hasAnyAuthority("ROLE_USER", "SCOPE_write:chat_social")
+                    .access(
+                        BearerTokenScopeAuthorization.requireScopeForBearerTokens(
+                            "write:chat_social"))
                     .requestMatchers("/api/v1/**")
                     .authenticated()
                     .anyRequest()
-                    .permitAll())
-        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                    .permitAll());
+    if (jwtDecoder.getIfAvailable() != null) {
+      http.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+      http.addFilterBefore(jwtFilter, BearerTokenAuthenticationFilter.class);
+      iamUserProvisioningFilter.ifAvailable(
+          provisioning -> http.addFilterAfter(provisioning, AuthorizationFilter.class));
+    } else {
+      http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    }
     return http.build();
   }
 }
