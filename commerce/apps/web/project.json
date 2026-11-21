@@ -1,0 +1,19 @@
+{
+  "name": "commerce-web",
+  "tags": ["scope:commerce", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["commerce-server"],
+          "target": "serve",
+          "waitFor": "ready"
+        }
+      ],
+      "readyWhen": { "url": "http://localhost:3000" },
+      "command": "pnpm exec next dev -p 3000",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "commerce-server",
+  "tags": ["scope:commerce", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["mongodb"],
+          "target": "serve",
+          "waitFor": "ready"
+        }
+      ],
+      "readyWhen": { "port": 3001 },
+      "command": "pnpm run dev",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}
