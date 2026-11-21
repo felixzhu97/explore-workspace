@@ -7,7 +7,6 @@ dist/
 # Nx
 .nx/cache/
 .nx/workspace-data/
-
 # Java / Gradle
 .gradle/
 **/build/
@@ -22,7 +21,7 @@ dist/
 # Logs and local data
 *.log
 logs/
-data/
+/data/
 
 # Test reports and coverage
 coverage/
