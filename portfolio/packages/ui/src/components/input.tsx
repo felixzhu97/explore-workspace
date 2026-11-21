@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn } from "@fintech/utils";
+import { cn } from "@explore/portfolio-utils";
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (

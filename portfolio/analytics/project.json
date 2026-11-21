@@ -1,0 +1,12 @@
+{
+  "name": "portfolio-analytics",
+  "tags": ["scope:portfolio", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "readyWhen": { "url": "http://localhost:8800/api/v1/portfolio" },
+      "command": "bash -c 'test -d .venv || python3 -m venv .venv; . .venv/bin/activate; pip install -q -r requirements.txt; alembic upgrade head 2>/dev/null || true; exec python -m uvicorn main:app --host 0.0.0.0 --port 8800 --reload'",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}

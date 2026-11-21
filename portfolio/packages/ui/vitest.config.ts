@@ -28,7 +28,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@fintech/utils': path.resolve(__dirname, '../utils/src'),
+      '@explore/portfolio-utils': path.resolve(__dirname, '../utils/src'),
     },
   },
 });

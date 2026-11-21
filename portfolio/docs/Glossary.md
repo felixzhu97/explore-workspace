@@ -45,7 +45,7 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | MarketData | 市场数据 | `marketdata` | admin | `/api/v1/market-data` | Stored market observations |
 | Preference | 偏好 | `preference` | all | `/api/v1/user-preferences` | User preference |
 | Blockchain | 区块链演示 | `blockchain` | mobile | blockchain routes | Demo wallet / Sepolia |
-| Analytics | 分析 | Python (`apps/server-python`) | admin / portal | `/api/v1` analytics / risk / forecast | VaR, events, MLflow |
+| Analytics | 分析 | Python (`analytics`) | admin / portal | `/api/v1` analytics / risk / forecast | VaR, events, MLflow |
 | Common | 横切 | `common` | — | — | Shared domain kernel bases and value objects |
 
 ---
@@ -95,10 +95,10 @@ Shared persistence and aggregate bases under `com.finpulse.server.common.domain.
 | Preferred Term | 中文 | Notes |
 | -------------- | ---- | ----- |
 | Java API | Java API | Primary HTTP entry, default **:8801** (`src/`, Bazel `//:server`) |
-| Python Analytics API | Python 分析 API | FastAPI in `apps/server-python`, **:8800** |
-| Admin | 管理端 | React + Vite (`apps/admin`), typically :4200 |
-| Portal | 门户 | React + Vite (`apps/portal`), typically :3001 |
-| Mobile | 移动端 | React Native + Expo (`apps/mobile`) |
+| Python Analytics API | Python 分析 API | FastAPI in `analytics`, **:8800** |
+| Admin | 管理端 | React + Vite (`admin`), typically :4200 |
+| Portal | 门户 | React + Vite (`portal`), typically :3001 |
+| Mobile | 移动端 | React Native + Expo (`mobile`) |
 
 ---
 

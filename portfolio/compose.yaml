@@ -1,0 +1,7 @@
+include:
+  - infrastructure/clickhouse/compose.yaml
+  - infrastructure/airflow-db/compose.yaml
+  - infrastructure/airflow-init/compose.yaml
+  - infrastructure/airflow-webserver/compose.yaml
+  - infrastructure/airflow-scheduler/compose.yaml
+  - infrastructure/mlflow/compose.yaml
