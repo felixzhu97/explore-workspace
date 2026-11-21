@@ -1,0 +1,12 @@
+{
+  "name": "lowcode-web",
+  "tags": ["scope:lowcode", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "readyWhen": { "url": "http://localhost:3020" },
+      "command": "pnpm exec next dev -p 3020",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}
