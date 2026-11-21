@@ -22,24 +22,32 @@ guide.
 ### Initial setup
 
 ```bash
-git clone https://github.com/felixzhu97/explore-ml.git
-cd explore-ml
+git clone https://github.com/felixzhu97/explore-workspace.git
+cd explore-workspace
+pnpm install
+cp ml/server/.env.example ml/server/.env
 ```
 
 ### Run the app
+
+From the workspace root:
+
+```bash
+pnpm dev ml
+```
+
+This starts the FastAPI app on port `8000` and the Angular model-test UI on
+`4210`. `GET /health` reports each module's status. Details:
+[`server/README.md`](server/README.md).
+
+Product-only (without Nx):
 
 ```bash
 cd server
 uv venv && source .venv/bin/activate
 uv pip install -r requirements.txt --override overrides.txt
-cp .env.example .env
 uvicorn main:app --port 8000
 ```
-
-This creates a virtualenv, installs every module's dependencies, copies the
-secrets file (loaded automatically) and starts all six modules on port
-`8000`. `GET /health` reports each module's status. Details:
-[`server/README.md`](server/README.md).
 
 | Module           | Package            | Operations under `/api/v1`                      |
 | ---------------- | ------------------ | ----------------------------------------------- |
@@ -55,16 +63,17 @@ walkthrough, see the [User Guide](docs/user-guide/README.md).
 
 ### Start the model test UI (optional)
 
+`pnpm dev ml` already starts `web/` at <http://localhost:4210>. Product-only:
+
 ```bash
-cd ui
-npm ci
-npm start
+cd web
+pnpm install
+pnpm start
 ```
 
-This serves the UI at <http://localhost:4210>. It proxies `/ml/*` to the app
-on port `8000` without CORS setup. Each module has one page where you can call
-all of its endpoints and see the results charted with D3. See
-[:web/README.md](:web/README.md).
+The UI proxies `/ml/*` to the app on port `8000` without CORS setup. Each
+module has one page where you can call all of its endpoints and see the
+results charted with D3. See [`web/README.md`](web/README.md).
 
 ### Configuration
 
