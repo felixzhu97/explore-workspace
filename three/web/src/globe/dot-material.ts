@@ -59,7 +59,7 @@ void main() {
 
 export class DotMaterial extends ShaderMaterial {
   constructor(themeId: ThemeId) {
-    const isBright = themeId === 'bright';
+    const isBright = themeId === 'light';
 
     super({
       side: DoubleSide,
