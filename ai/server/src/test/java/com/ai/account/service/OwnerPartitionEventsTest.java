@@ -87,7 +87,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
     ownerTables =
         jdbcTemplate.queryForList(
             "SELECT LOWER(TABLE_NAME) FROM INFORMATION_SCHEMA.COLUMNS"
-                + " WHERE TABLE_SCHEMA = 'PUBLIC' AND COLUMN_NAME = 'OWNER_KEY'",
+                + " WHERE TABLE_SCHEMA = 'PUBLIC' AND COLUMN_NAME = 'OWNER_ID'",
             String.class);
     assertThat(ownerTables).as("seed every owner table below").hasSize(9);
     guestSessionId = seedOwner(GUEST);

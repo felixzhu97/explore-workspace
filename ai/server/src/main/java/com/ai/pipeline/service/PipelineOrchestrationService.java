@@ -54,8 +54,7 @@ public class PipelineOrchestrationService {
             })
         .subscribeOn(Schedulers.boundedElastic())
         .flatMapMany(plan -> executePlan(message, plan, ownerId, language))
-        .doOnComplete(
-            () -> recordAgent("supervisor", "agent.supervisor", ownerId, startedAt, null))
+        .doOnComplete(() -> recordAgent("supervisor", "agent.supervisor", ownerId, startedAt, null))
         .doOnError(err -> recordAgent("supervisor", "agent.supervisor", ownerId, startedAt, err))
         .onErrorResume(
             err ->

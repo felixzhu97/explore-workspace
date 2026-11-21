@@ -44,7 +44,8 @@ public class PolicyAssignment extends AbstractImmutableEntity<PolicyAssignmentId
    * @param principalArn target principal
    * @return new attachment
    */
-  public static PolicyAssignment createPolicyAssignment(String policyId, ResourceName principalArn) {
+  public static PolicyAssignment createPolicyAssignment(
+      String policyId, ResourceName principalArn) {
     return new PolicyAssignment(PolicyAssignmentId.generateId(), policyId, principalArn);
   }
 }

@@ -7,6 +7,33 @@ product together with the services it depends on.
 The migration plan is in the meta repository:
 [docs/plans/monorepo-migration.md](https://github.com/felixzhu97/explore/blob/main/docs/plans/monorepo-migration.md).
 
+## Start a product
+
+From the workspace root after `pnpm install`:
+
+```bash
+pnpm dev <product>
+```
+
+Each product starts only its own apps and the infrastructure it needs.
+Start another product in the same command when you need it
+(for example `pnpm dev ai iam`).
+
+| Command | What starts |
+|---------|-------------|
+| `pnpm dev ai` | API 9000, web 4200, Ollama 11434 |
+| `pnpm dev iam` | API 9100, console 4201 |
+| `pnpm dev chat` | API 9001, Socket.IO 9002, web 4000, admin 4001, Kafka, Ollama |
+| `pnpm dev ml` | API 8000, web 4210 |
+| `pnpm dev portfolio` | API 8801, analytics 8800, admin 4220, portal 3101 |
+| `pnpm dev commerce` | API 3001, web 3000, admin 4240, MongoDB 27017 |
+
+Expo mobile stays out of `pnpm dev`; start it with
+`pnpm --dir portfolio/mobile start` or
+`pnpm --dir commerce/apps/mobile start`.
+| `pnpm dev lowcode` | web 3020 |
+| `pnpm dev three` | web 4230 |
+
 ## Remote cache
 
 CI uses [Nx Cloud](https://nx.app) as a remote cache. Nx Cloud is a

@@ -16,13 +16,26 @@ catalog:
   yaml: 2.9.1
 
 allowBuilds:
+  '@datadog/native-appsec': false
+  '@datadog/native-iast-taint-tracking': false
+  '@datadog/native-metrics': false
+  '@datadog/pprof': false
   '@parcel/watcher': true
+  '@scarf/scarf': false
+  '@swc/core': true
+  aws-sdk: false
+  better-sqlite3: false
+  core-js-pure: false
+  dd-trace: false
+  es5-ext: false
   esbuild: true
   lmdb: true
+  mongodb-memory-server: false
   msgpackr-extract: true
   nx: true
-  protobufjs: set this to true or false
-  sharp: set this to true or false
+  protobufjs: true
+  serverless: false
+  sharp: true
 
 # https://pnpm.io/settings#overrides
 overrides:

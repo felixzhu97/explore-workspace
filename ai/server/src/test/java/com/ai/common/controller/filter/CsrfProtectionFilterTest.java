@@ -38,7 +38,8 @@ class CsrfProtectionFilterTest {
 
     assertThat(chain.getRequest()).isNull();
     assertThat(response.getStatus()).isEqualTo(403);
-    assertThat(response.getContentAsString()).contains("https://www.felixzhu.chat/problems/csrf-rejected");
+    assertThat(response.getContentAsString())
+        .contains("https://www.felixzhu.chat/problems/csrf-rejected");
   }
 
   @Test

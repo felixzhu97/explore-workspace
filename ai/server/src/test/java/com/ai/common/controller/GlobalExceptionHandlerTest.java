@@ -26,11 +26,11 @@ class GlobalExceptionHandlerTest {
   @Test
   @DisplayName("should return 401 with the anonymous id problem type when identity is missing")
   void shouldReturn401WithTheAnonymousIdProblemTypeWhenIdentityIsMissing() {
-    ProblemDetail problem =
-        handler.handleAnonymousIdRequired(new AnonymousIdRequiredException());
+    ProblemDetail problem = handler.handleAnonymousIdRequired(new AnonymousIdRequiredException());
 
     assertThat(problem.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    assertThat(problem.getType()).isEqualTo(URI.create("https://www.felixzhu.chat/problems/anonymous-id-required"));
+    assertThat(problem.getType())
+        .isEqualTo(URI.create("https://www.felixzhu.chat/problems/client-identity-required"));
     assertThat(problem.getDetail()).isEqualTo("Anonymous id required");
   }
 
@@ -41,7 +41,8 @@ class GlobalExceptionHandlerTest {
         handler.handleIllegalArgument(new IllegalArgumentException("Invalid input"));
 
     assertThat(problem.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-    assertThat(problem.getType()).isEqualTo(URI.create("https://www.felixzhu.chat/problems/bad-request"));
+    assertThat(problem.getType())
+        .isEqualTo(URI.create("https://www.felixzhu.chat/problems/bad-request"));
     assertThat(problem.getDetail()).isEqualTo("Invalid input");
   }
 
@@ -53,7 +54,8 @@ class GlobalExceptionHandlerTest {
             new DataAccessResourceFailureException("jdbc:postgresql://db/secret refused"));
 
     assertThat(problem.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE.value());
-    assertThat(problem.getType()).isEqualTo(URI.create("https://www.felixzhu.chat/problems/chat-memory-error"));
+    assertThat(problem.getType())
+        .isEqualTo(URI.create("https://www.felixzhu.chat/problems/chat-memory-error"));
     assertThat(problem.getDetail()).doesNotContain("jdbc");
   }
 
@@ -64,7 +66,8 @@ class GlobalExceptionHandlerTest {
         handler.handleGenericException(new RuntimeException("NullPointer at secret.Internal"));
 
     assertThat(problem.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    assertThat(problem.getType()).isEqualTo(URI.create("https://www.felixzhu.chat/problems/internal-error"));
+    assertThat(problem.getType())
+        .isEqualTo(URI.create("https://www.felixzhu.chat/problems/internal-error"));
     assertThat(problem.getDetail()).isEqualTo("An unexpected error occurred");
   }
 }

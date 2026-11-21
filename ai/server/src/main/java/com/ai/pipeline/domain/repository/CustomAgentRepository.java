@@ -25,8 +25,7 @@ public interface CustomAgentRepository
   boolean existsByOwnerIdAndAgentType(OwnerId ownerId, String agentType);
 
   /** Tells whether another of the owner's custom agents already has the type key. */
-  boolean existsByOwnerIdAndAgentTypeAndIdNot(
-      OwnerId ownerId, String agentType, CustomAgentId id);
+  boolean existsByOwnerIdAndAgentTypeAndIdNot(OwnerId ownerId, String agentType, CustomAgentId id);
 
   /** Tells whether the owner has a custom agent with the type key other than {@code excludeId}. */
   default boolean existsByOwnerIdAndAgentTypeIgnoringId(

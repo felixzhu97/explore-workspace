@@ -1,0 +1,16 @@
+services:
+  mongodb:
+    image: mongo:7
+    profiles: [commerce]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+volumes:
+  mongodb_data:
