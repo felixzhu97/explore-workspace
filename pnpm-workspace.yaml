@@ -2,6 +2,11 @@ packages:
   - "*/*"
   # chat analytics SDK lives one level deeper than */*
   - "chat/packages/*"
+  - "commerce/packages/*"
+  - "commerce/services/*"
+  - "commerce/apps/*"
+  - "commerce/scripts"
+  - "commerce/server"
 
 catalog:
   "@eslint/js": 10.0.1
@@ -39,8 +44,6 @@ allowBuilds:
 
 # https://pnpm.io/settings#overrides
 overrides:
-  # Mermaid → chevrotain still pulls lodash-es@4.17.23 (GHSA-r5fr-rjxr-66jc / GHSA-f23m-r3pf-42rh).
   lodash-es: '>=4.17.24'
-  # @a2ui/* needs zod 3; Zod 4 breaks its ZodTypeAny / ComponentApi types.
   '@a2ui/angular>zod': '^3.25.76'
   '@a2ui/web_core>zod': '^3.25.76'

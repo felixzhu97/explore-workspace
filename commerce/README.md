@@ -36,6 +36,35 @@ See the [User Story Map](docs/product-owner/User-Story-Map.md) for backlog index
 | Mobile | React Native / Expo (optional) |
 | Diagrams | PlantUML + C4-PlantUML |
 
+## Getting Started (monorepo)
+
+From the **explore-workspace** root:
+
+```bash
+pnpm dev commerce
+```
+
+This starts `commerce-server` (:3001) with MongoDB, `commerce-web` (:3000),
+`commerce-admin` (:4240), and optional mobile.
+
+Product-only (without Nx deps): `pnpm --dir server run dev`,
+`pnpm --dir apps/web run dev`, and `pnpm --dir apps/admin run start`.
+
+## Deployment (docs only)
+
+Do **not** change live Vercel/Lambda settings from this repo until cutover.
+
+| Target | Root Directory (Vercel) | Config |
+|--------|-------------------------|--------|
+| Web shop | `commerce/apps/web` | [`apps/web/vercel.json`](apps/web/vercel.json) |
+| Legacy product root | `commerce` | [`vercel.json`](vercel.json) |
+
+| Target | Path | Config |
+|--------|------|--------|
+| API (Lambda) | `commerce/server` | [`server/serverless.yml`](server/serverless.yml) |
+
+MongoDB for local dev: root `infrastructure/mongodb/compose.yaml` (profile `commerce`), not `docker-compose.server.yml`.
+
 ## Documentation
 
 | Doc | Link |

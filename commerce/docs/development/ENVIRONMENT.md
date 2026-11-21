@@ -30,9 +30,9 @@ NEXT_PUBLIC_DD_VERSION=1.0.0
 NODE_ENV=development
 ```
 
-## Backend environment variables (services/api)
+## Backend environment variables (server)
 
-Create `.env` under `services/api`:
+Create `.env` under `server`:
 
 ```env
 # 服务器配置

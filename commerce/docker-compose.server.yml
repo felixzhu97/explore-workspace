@@ -1,3 +1,4 @@
+# Deprecated: use explore-workspace root compose → infrastructure/mongodb/compose.yaml (profile commerce).
 services:
   mongodb:
     image: mongo:7

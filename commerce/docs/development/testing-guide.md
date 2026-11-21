@@ -15,7 +15,7 @@
 ### 文件组织
 
 ```
-services/api/src/
+server/src/
 ├── __tests__/
 │   ├── controllers/
 │   │   ├── userController.test.ts
@@ -52,13 +52,13 @@ apps/web/
 
 ```bash
 # 运行所有测试
-cd services/api && pnpm test
+cd server && pnpm test
 
 # 监视模式
-cd services/api && pnpm test:watch
+cd server && pnpm test:watch
 
 # 生成覆盖率报告
-cd services/api && pnpm test:coverage
+cd server && pnpm test:coverage
 ```
 
 #### Web 测试
