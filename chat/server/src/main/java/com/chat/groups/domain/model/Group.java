@@ -27,11 +27,9 @@ public class Group extends AbstractEntity {
   @Size(max = 1024)
   private String avatar;
 
-  @NotBlank
-  private String ownerId;
+  @NotBlank private String ownerId;
 
-  private Group(
-      String id, Instant createdAt, Instant updatedAt, String name, String ownerId) {
+  private Group(String id, Instant createdAt, Instant updatedAt, String name, String ownerId) {
     super(id, createdAt, updatedAt);
     this.name = Objects.requireNonNull(name);
     this.ownerId = Objects.requireNonNull(ownerId);

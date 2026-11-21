@@ -16,7 +16,7 @@ style), not an external Safari hand-off.
 - Xcode 16+ / [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 - iOS 17+
 - Explore IAM (`http://localhost:9100`) and Chat API (`http://localhost:9001`)
-  with `CHAT_IAM_ENABLED=true`
+  with `CHAT_IAM_ISSUER_URI=http://localhost:9100`
 
 ## Open
 

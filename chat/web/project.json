@@ -1,0 +1,19 @@
+{
+  "name": "chat-web",
+  "tags": ["scope:chat", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["chat-server"],
+          "target": "serve",
+          "waitFor": "ready"
+        }
+      ],
+      "readyWhen": { "url": "http://localhost:4000" },
+      "command": "pnpm exec next dev -p 4000",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}

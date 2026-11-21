@@ -19,11 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class Message extends AbstractEntity {
 
-  @NotBlank
-  private String chatId;
+  @NotBlank private String chatId;
 
-  @NotBlank
-  private String senderId;
+  @NotBlank private String senderId;
 
   @NotNull
   @Enumerated(EnumType.STRING)

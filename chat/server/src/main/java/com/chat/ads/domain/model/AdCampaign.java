@@ -24,12 +24,7 @@ public class AdCampaign extends AbstractEntity {
   private AdCampaignStatus status;
 
   private AdCampaign(
-      String id,
-      Instant createdAt,
-      Instant updatedAt,
-      String accountId,
-      String name,
-      long budget) {
+      String id, Instant createdAt, Instant updatedAt, String accountId, String name, long budget) {
     super(id, createdAt, updatedAt);
     this.accountId = accountId;
     this.name = name;

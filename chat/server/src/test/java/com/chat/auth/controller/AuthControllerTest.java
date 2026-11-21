@@ -20,14 +20,11 @@ class AuthControllerTest {
   @Test
   void shouldRegisterAndLoginWhenCredentialsValid() throws Exception {
     String email = "user" + System.nanoTime() + "@example.com";
-    String body =
-        "{\"email\":\"" + email + "\",\"password\":\"secret123\",\"username\":\"alice\"}";
+    String body = "{\"email\":\"" + email + "\",\"password\":\"secret123\",\"username\":\"alice\"}";
 
     mockMvc
         .perform(
-            post("/api/v1/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body))
+            post("/api/v1/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.token").isString())
         .andExpect(jsonPath("$.user.email").value(email));

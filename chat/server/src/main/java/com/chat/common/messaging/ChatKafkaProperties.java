@@ -9,8 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ChatKafkaProperties {
 
   /**
-   * Broker list. Empty list disables Kafka (Nest: {@code KAFKA_BOOTSTRAP_SERVERS=}). When the env var is
-   * unset, defaults to {@code localhost:9092}.
+   * Broker list. Empty list disables Kafka (Nest: {@code
+   * KAFKA_BOOTSTRAP_SERVERS=}). When the env var is unset, defaults to {@code
+   * localhost:9092}.
    */
   private List<String> brokers = new ArrayList<>(List.of("localhost:9092"));
 

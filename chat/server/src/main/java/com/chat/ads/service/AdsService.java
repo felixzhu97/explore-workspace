@@ -32,8 +32,7 @@ public class AdsService {
 
   @Transactional(readOnly = true)
   public Map<String, Object> accounts() {
-    return Map.of(
-        "accounts", accountRepository.listAll().stream().map(this::toAccount).toList());
+    return Map.of("accounts", accountRepository.listAll().stream().map(this::toAccount).toList());
   }
 
   @Transactional

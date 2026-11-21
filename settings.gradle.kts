@@ -20,6 +20,9 @@ project(":ai-server").projectDir = file("ai/server")
 include(":iam-server")
 project(":iam-server").projectDir = file("iam/server")
 
+include(":chat-server")
+project(":chat-server").projectDir = file("chat/server")
+
 listOf("architecture", "errors", "identity", "kernel", "provisioning").forEach { library ->
     include(":shared-$library")
     project(":shared-$library").projectDir = file("shared/$library")
