@@ -6,7 +6,7 @@ on:
     paths: &paths
       - "iam/server/**"
       - "iam/console/**"
-      - "iam/Dockerfile*"
+      - "iam/server/Dockerfile*"
       - "shared/**"
       - "build-logic/**"
       - "gradle/**"
@@ -26,4 +26,4 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Build the deploy image
-        run: docker build -f iam/Dockerfile -t explore-iam .
+        run: docker build -f iam/server/Dockerfile -t explore-iam .

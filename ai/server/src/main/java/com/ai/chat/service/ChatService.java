@@ -66,9 +66,7 @@ public class ChatService {
 
   /** Returns the client's sessions, most recently active first. */
   public List<ChatSession> listSessions(String ownerId) {
-    return repository
-        .findAllByOwnerIdOrderByLastActivityAtDesc(OwnerId.parseKey(ownerId))
-        .stream()
+    return repository.findAllByOwnerIdOrderByLastActivityAtDesc(OwnerId.parseKey(ownerId)).stream()
         .map(this::withStoredMessages)
         .toList();
   }

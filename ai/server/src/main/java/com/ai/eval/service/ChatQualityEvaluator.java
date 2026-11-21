@@ -1,8 +1,8 @@
 package com.ai.eval.service;
 
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
-import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.BuiltInGateResult;
+import com.ai.eval.domain.model.ChatEvaluationResult;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.ai.chat.client.AdvisorParams;

@@ -79,8 +79,7 @@ public class DocumentUploadService {
    */
   public UploadResult uploadDocument(
       String title, String fileName, byte[] fileContent, String ownerId) {
-    RagDocument document =
-        RagDocument.startIngestion(title, fileName, fileContent.length, ownerId);
+    RagDocument document = RagDocument.startIngestion(title, fileName, fileContent.length, ownerId);
     RagDocument processing = transactions.execute(status -> documentRepository.save(document));
 
     try {

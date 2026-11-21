@@ -60,8 +60,7 @@ public class CatalogAgentRegistry implements AgentRegistry {
       }
 
       @Override
-      public Optional<AgentDefinition> findByType(
-          AgentType type, String ownerId, String language) {
+      public Optional<AgentDefinition> findByType(AgentType type, String ownerId, String language) {
         return Optional.ofNullable(fixed.get(type.getValue()));
       }
 

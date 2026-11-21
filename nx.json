@@ -9,7 +9,10 @@
       "{workspaceRoot}/gradle.properties",
       "{workspaceRoot}/build-logic/**/*"
     ],
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
     "production": [
       "default",
       "!{projectRoot}/src/test/**/*",
@@ -25,21 +28,38 @@
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
-      }
+      },
+      "exclude": [
+        "portfolio/**",
+        "commerce/**",
+        "lowcode/**",
+        "three/**"
+      ]
     }
   ],
   "targetDefaults": {
     "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"],
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ],
       "cache": true
     },
     "test": {
-      "inputs": ["default", "^production"],
+      "inputs": [
+        "default",
+        "^production"
+      ],
       "cache": true
     },
     "lint": {
-      "inputs": ["default", "{workspaceRoot}/eslint.config.js"],
+      "inputs": [
+        "default",
+        "{workspaceRoot}/eslint.config.js"
+      ],
       "cache": true
     }
   }

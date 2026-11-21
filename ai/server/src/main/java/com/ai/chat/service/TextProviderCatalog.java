@@ -3,6 +3,7 @@ package com.ai.chat.service;
 import com.ai.chat.controller.dto.ModelInfoResponse;
 import com.ai.chat.controller.dto.ProviderInfoResponse;
 import com.ai.chat.controller.dto.ProviderStatus;
+import com.ai.common.service.llm.TextProviderGate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 /** Static catalog of text chat providers and models, gated by Ollama and Anthropic config. */
 @Component
-public class TextProviderCatalog {
+public class TextProviderCatalog implements TextProviderGate {
 
   private static final Map<String, List<ModelInfoResponse>> MODELS_BY_PROVIDER =
       Map.of(

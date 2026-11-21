@@ -6,8 +6,8 @@ import com.iam.common.domain.model.PrincipalId;
 import com.iam.common.domain.model.Resource;
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.event.AccessEvaluatedEvent;
-import com.iam.policy.domain.event.PolicyCreatedEvent;
 import com.iam.policy.domain.event.PolicyAttachedEvent;
+import com.iam.policy.domain.event.PolicyCreatedEvent;
 import com.iam.policy.domain.model.AccessDecision;
 import com.iam.policy.domain.model.AccessTuple;
 import com.iam.policy.domain.model.Policy;
@@ -92,7 +92,8 @@ public class PolicyService {
         .findById(policyId)
         .orElseThrow(() -> new IllegalArgumentException("Policy not found: " + policyId));
     PolicyAssignment attachment =
-        policyRepository.saveAttachment(PolicyAssignment.createPolicyAssignment(policyId, principalArn));
+        policyRepository.saveAttachment(
+            PolicyAssignment.createPolicyAssignment(policyId, principalArn));
     eventPublisher.publishEvent(new PolicyAttachedEvent(attachment.getId().getValue()));
     return attachment;
   }

@@ -38,8 +38,7 @@ public class SkillService {
     if (ids.isEmpty()) {
       return Optional.empty();
     }
-    List<Skill> skills =
-        skillRepository.findEnabledByOwnerIdAndIds(OwnerId.parseKey(ownerId), ids);
+    List<Skill> skills = skillRepository.findEnabledByOwnerIdAndIds(OwnerId.parseKey(ownerId), ids);
     return Optional.ofNullable(SkillSystemPromptBuilder.buildPrompt(skills));
   }
 

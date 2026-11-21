@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.AccountPlan;
+import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.service.AccountService;
 import com.ai.common.controller.GlobalExceptionHandler;
@@ -112,6 +112,6 @@ class AccountControllerTest {
         .bodyJson()
         .extractingPath("$.type")
         .asString()
-        .isEqualTo("https://www.felixzhu.chat/problems/anonymous-id-required");
+        .isEqualTo("https://www.felixzhu.chat/problems/client-identity-required");
   }
 }

@@ -50,9 +50,7 @@ class AnonymousIdFilterTest {
     properties.setSecure(false);
     properties.setSameSite("Lax");
     serviceAuthProperties = new ServiceAuthProperties();
-    filter =
-        new AnonymousIdFilter(
-            new AnonymousIdCookieFactory(properties), serviceAuthProperties);
+    filter = new AnonymousIdFilter(new AnonymousIdCookieFactory(properties), serviceAuthProperties);
   }
 
   @Test
@@ -78,7 +76,8 @@ class AnonymousIdFilterTest {
   @Test
   void shouldReuseExistingCookieWhenValidUuidPresent() throws Exception {
     when(request.getRequestURI()).thenReturn("/api/chat/sessions");
-    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("explore_anonymous_id", CLIENT_ID)});
+    when(request.getCookies())
+        .thenReturn(new Cookie[] {new Cookie("explore_anonymous_id", CLIENT_ID)});
 
     filter.doFilter(request, response, filterChain);
 
