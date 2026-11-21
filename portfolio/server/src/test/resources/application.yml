@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:portfolio-server-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/0.1.xml
+  jpa:
+    hibernate:
+      # Liquibase changelog omits blockchain infra tables; let Hibernate add the gap in tests.
+      ddl-auto: update
+  jackson:
+    property-naming-strategy: SNAKE_CASE

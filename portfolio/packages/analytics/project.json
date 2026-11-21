@@ -1,0 +1,11 @@
+{
+  "name": "portfolio-analytics-sdk",
+  "tags": ["scope:portfolio", "type:lib"],
+  "targets": {
+    "build": {
+      "command": "pnpm exec tsup",
+      "options": { "cwd": "{projectRoot}" },
+      "outputs": ["{projectRoot}/dist"]
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "portfolio-admin",
+  "tags": ["scope:portfolio", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["portfolio-server"],
+          "target": "serve",
+          "waitFor": "ready"
+        }
+      ],
+      "readyWhen": { "url": "http://localhost:4220" },
+      "command": "pnpm exec vite",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}

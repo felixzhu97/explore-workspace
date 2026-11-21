@@ -35,30 +35,30 @@ Chinese docs: see bilingual [docs/Glossary.md](docs/Glossary.md). Living docs li
 | **Risk** | Insights and risk metrics for portfolio monitoring |
 | **Payments / trading** | Payment and trade flows from the mobile client |
 | **Admin** | Client, portfolio, and transaction management console |
-| **Analytics** | Shared `@fintech/analytics` event tracking and GrowthBook A/B hooks |
+| **Analytics** | Shared `@explore/portfolio-analytics` event tracking and GrowthBook A/B hooks |
 
 ## Screenshots
 
 ### Mobile
 
 <p align="center">
-  <img src="./screenshots/finpulse-mobile-dashboard.png" width="200" alt="Mobile dashboard">
-  <img src="./screenshots/finpulse-mobile-watchlist.png" width="200" alt="Mobile watchlist">
-  <img src="./screenshots/finpulse-mobile-stock-detail.png" width="200" alt="Mobile stock detail">
+  <img src="./screenshots/portfolio-mobile-dashboard.png" width="200" alt="Mobile dashboard">
+  <img src="./screenshots/portfolio-mobile-watchlist.png" width="200" alt="Mobile watchlist">
+  <img src="./screenshots/portfolio-mobile-stock-detail.png" width="200" alt="Mobile stock detail">
 </p>
 <p align="center">
-  <img src="./screenshots/finpulse-mobile-insights.png" width="200" alt="Mobile insights">
-  <img src="./screenshots/finpulse-mobile-account.png" width="200" alt="Mobile account">
-  <img src="./screenshots/finpulse-mobile-new-payment.png" width="200" alt="Mobile new payment">
+  <img src="./screenshots/portfolio-mobile-insights.png" width="200" alt="Mobile insights">
+  <img src="./screenshots/portfolio-mobile-account.png" width="200" alt="Mobile account">
+  <img src="./screenshots/portfolio-mobile-new-payment.png" width="200" alt="Mobile new payment">
 </p>
 
 ### Admin
 
 <p align="center">
-  <img src="./screenshots/finpulse-admin-dashboard.png" width="280" alt="Admin dashboard">
-  <img src="./screenshots/finpulse-admin-portfolio.png" width="280" alt="Admin portfolio">
-  <img src="./screenshots/finpulse-admin-transactions.png" width="280" alt="Admin transactions">
-  <img src="./screenshots/finpulse-admin-clients.png" width="280" alt="Admin clients">
+  <img src="./screenshots/portfolio-admin-dashboard.png" width="280" alt="Admin dashboard">
+  <img src="./screenshots/portfolio-admin-portfolio.png" width="280" alt="Admin portfolio">
+  <img src="./screenshots/portfolio-admin-transactions.png" width="280" alt="Admin transactions">
+  <img src="./screenshots/portfolio-admin-clients.png" width="280" alt="Admin clients">
 </p>
 
 ## Tech Stack
@@ -67,10 +67,10 @@ Chinese docs: see bilingual [docs/Glossary.md](docs/Glossary.md). Living docs li
 |-------|--------|
 | Web | React 19 + Vite, Emotion, Radix UI |
 | Mobile | React Native + Expo |
-| Shared packages | `@fintech/analytics`, `@fintech/ui`, `@fintech/utils` |
+| Shared packages | `@explore/portfolio-analytics`, `@explore/portfolio-ui`, `@explore/portfolio-utils` |
 | Backend | Java Spring Boot API (primary entry :8801), Python FastAPI analytics (:8800) |
 | Data | TimescaleDB, Redis, Kafka |
-| Tooling | pnpm workspaces, TypeScript 5; Bazel for root Java API (`src/`) |
+| Tooling | pnpm workspaces, TypeScript 5; Bazel for Java API (`server/`) |
 
 Architecture notes: [docs/developer/c4-model/](docs/developer/c4-model/), [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
 
@@ -87,17 +87,19 @@ Architecture notes: [docs/developer/c4-model/](docs/developer/c4-model/), [docs/
 ## Getting Started
 
 ```bash
-git clone https://github.com/felixzhu97/explore-portfolio.git
-cd explore-portfolio
+git clone https://github.com/felixzhu97/explore-workspace.git
+cd explore-workspace
 pnpm install
+pnpm dev portfolio
 ```
 
-```bash
-pnpm dev:admin    # admin @ http://localhost:4200
-pnpm dev:portal   # portal @ http://localhost:3001
-pnpm dev:mobile   # Expo mobile
-pnpm dev:server   # Docker + Python :8800 + Java :8801 + seed data
-```
+| Surface | Default URL |
+|---------|-------------|
+| Java API | http://localhost:8801 |
+| Analytics | http://localhost:8800 |
+| Admin | http://localhost:4220 |
+| Portal | http://localhost:3101 |
+| Mobile | Expo (`pnpm --dir portfolio/mobile start` if started alone) |
 
 After the backend is up, use `http://127.0.0.1:8801` as the API entry.
 
@@ -106,39 +108,34 @@ After the backend is up, use `http://127.0.0.1:8801` as the API entry.
 
 ## Analytics
 
-Portal, admin, and mobile use `@fintech/analytics` via `AnalyticsProvider` and `useAnalytics().track()` / `identify()`. Events post to `POST /api/v1/analytics/events` (Console transport when no API is configured in development). The admin **Behavior** page (`/behavior`) lists events; row click opens a drawer with user details (`userId`, email, name).
+Portal, admin, and mobile use `@explore/portfolio-analytics` via `AnalyticsProvider` and `useAnalytics().track()` / `identify()`. Events post to `POST /api/v1/analytics/events` (Console transport when no API is configured in development). The admin **Behavior** page (`/behavior`) lists events; row click opens a drawer with user details (`userId`, email, name).
 
 ## Project Structure
 
 ```text
 explore-portfolio/
-├── src/               # Java (Spring): health + user-preferences; Bazel //:server
-├── apps/
-│   ├── admin/         # React admin console
-│   ├── portal/        # React portal
-│   ├── mobile/        # React Native (Expo)
-│   ├── server-python/ # FastAPI services
+├── server/            # Java (Spring) API — Bazel //server:server
+├── analytics/         # FastAPI analytics (:8800)
+├── admin/             # React admin console
+├── portal/            # React investor portal
+├── mobile/            # React Native (Expo)
 ├── packages/
-│   ├── analytics/     # @fintech/analytics
-│   ├── ui/            # @fintech/ui
-│   └── utils/         # @fintech/utils
+│   ├── analytics/     # @explore/portfolio-analytics
+│   ├── ui/            # @explore/portfolio-ui
+│   └── utils/         # @explore/portfolio-utils
 ├── scripts/           # Backend start, seed, database helpers
 └── docs/              # Product, data, and R&D docs (en / zh)
 ```
 
-### Java (root `src/`)
+### Java (`server/`)
 
 Per-feature packages follow `controller → service → domain ← infra` (+ `mapper`).
-Current slice: **preference**. Default port **8802** (H2). For Postgres:
+Bazel targets live under `server/BUILD.bazel`. API listens on **:8801** when started via `pnpm dev:server`.
 
 ```bash
-bazel run //:server
-```
-
-```bash
-bazel run //:server
-bazel test //:UserPreferenceControllerTest
-# or: make -f Makefile.java java-run / java-test
+bazel run //server:server
+bazel test //server:UserPreferenceControllerTest
+# or: make -f server/Makefile.java java-run / java-test
 ```
 
 ## Scripts
@@ -175,15 +172,16 @@ pnpm test:api
 
 ## Deployment
 
-**Vercel (admin)**
+**Vercel (admin)** — configure in the Vercel dashboard only; do not change live project settings from this repo.
 
 | Setting | Value |
 |---------|-------|
-| Root | `/` |
-| Build | `pnpm install && pnpm --filter finpulse-admin build` |
-| Output | `apps/admin/dist` |
+| Root Directory (monorepo) | `portfolio/admin` |
+| Install | `cd ../.. && pnpm install` (see [`admin/vercel.json`](admin/vercel.json)) |
+| Build | `cd ../.. && pnpm --filter portfolio-admin build` |
+| Output | `dist` (under `portfolio/admin`) |
 
-See [`vercel.json`](vercel.json) for project-specific config.
+Legacy single-repo layout (`portfolio/` as root): see [`vercel.json`](vercel.json) at the product root (`outputDirectory`: `admin/dist`).
 
 ## Contributing
 

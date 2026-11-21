@@ -3,11 +3,9 @@ set -e
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-echo "[start-backend] Starting Docker..."
-cd apps/server-python
-docker compose down 2>/dev/null || true
-docker compose up -d
-cd "$ROOT"
+WORKSPACE_ROOT="$(cd "$ROOT/.." && pwd)"
+echo "[start-backend] Starting Docker (workspace compose)..."
+docker compose -f "$WORKSPACE_ROOT/compose.yaml" up -d postgres redis kafka minio
 sleep 3
 
 echo "[start-backend] Waiting for Postgres (5433)..."
@@ -17,7 +15,7 @@ for i in $(seq 1 20); do nc -z 127.0.0.1 9092 2>/dev/null && break; sleep 1; don
 sleep 2
 
 echo "[start-backend] Setting up Python venv..."
-cd apps/server-python
+cd analytics
 if [ ! -d .venv ]; then
   python3 -m venv .venv
 fi
@@ -45,7 +43,7 @@ sleep 1
 echo "[start-backend] Starting Java :8801..."
 PYTHON_BACKEND_URL=http://127.0.0.1:8800 \
 PORT=8801 \
-  bazel run //:server &
+  bazel run //server:server &
 JAVA_PID=$!
 
 echo "[start-backend] Waiting for Java :8801..."
