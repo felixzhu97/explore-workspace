@@ -1,0 +1,6 @@
+# Portfolio dependencies live in the explore-workspace root compose graph.
+# Prefer: cd <workspace-root> && docker compose up postgres redis kafka minio
+name: explore
+
+include:
+  - ../../../../compose.yaml

@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as ProgressPrimitive from "@radix-ui/react-progress";
 
-import { cn } from "@fintech/utils";
+import { cn } from "@explore/portfolio-utils";
 
 function Progress({
   className,

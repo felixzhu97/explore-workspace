@@ -1,0 +1,39 @@
+server:
+  port: ${PORT:8801}
+
+spring:
+  application:
+    name: portfolio
+  datasource:
+    # Embedded H2 file database (no Postgres profile/driver).
+    # MODE=PostgreSQL without DATABASE_TO_LOWER — Liquibase 5 + H2 2 treat
+    # DATABASECHANGELOG as already present when identifiers are force-lowered.
+    url: jdbc:h2:file:./data/finpulse;MODE=PostgreSQL;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/0.1.xml
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      naming:
+        physical-strategy: com.finpulse.server.config.EntityTableNamingStrategy
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
+
+app:
+  python-backend-url: ${PYTHON_BACKEND_URL:http://127.0.0.1:8800}

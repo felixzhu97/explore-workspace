@@ -9,14 +9,14 @@ title Container Diagram (C2) — FinPulse
 Person(user, "User", "Investor, advisor, or operator")
 
 System_Boundary(clients, "Clients") {
-    Container(admin, "Admin", "React + Vite + Emotion", "apps/admin — CRM-style ops UI")
-    Container(portal, "Portal", "React + Vite + Emotion", "apps/portal — investor web")
-    Container(mobile, "Mobile", "Expo + RN", "apps/mobile — on-the-go portfolio")
+    Container(admin, "Admin", "React + Vite + Emotion", "admin — CRM-style ops UI")
+    Container(portal, "Portal", "React + Vite + Emotion", "portal — investor web")
+    Container(mobile, "Mobile", "Expo + RN", "mobile — on-the-go portfolio")
 }
 
 System_Boundary(backend, "Backend") {
     Container(java_api, "Java API", "Spring Boot / Bazel", "Auth + domain CRUD; entry :8801\nsrc/main/java/com/finpulse/server")
-    Container(python_api, "Python Analytics", "FastAPI", "Portfolio aggregate, quotes WS,\nrisk, forecast, events :8800\napps/server-python")
+    Container(python_api, "Python Analytics", "FastAPI", "Portfolio aggregate, quotes WS,\nrisk, forecast, events :8800\nanalytics")
 }
 
 System_Boundary(data, "Data & messaging") {

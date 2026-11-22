@@ -1,10 +1,10 @@
 # Database Scripts
 
-PostgreSQL schema and seed data for the fintech ER model (see [docs/er-diagram](../../docs/er-diagram/)).
+PostgreSQL schema and seed data for the fintech data model (see [C4 docs](../../docs/developer/c4-model/)).
 
 ## Prerequisites
 
-- PostgreSQL 14+ (or use the project's Postgres via `docker-compose` in `apps/server-python/`).
+- PostgreSQL 14+ (or use the workspace Postgres: `docker compose up postgres` from explore-workspace root).
 - Create a database (e.g. `fintech`) if you want a dedicated DB; otherwise run against an existing DB such as `portfolio`.
 
 ## Create database (optional)
