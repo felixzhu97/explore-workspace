@@ -8,9 +8,9 @@ title Deployment (C4) — local/dev + production (single view)
 
 Deployment_Node(local, "Local / Dev", "Developer workstation") {
     Deployment_Node(node, "Node 20 + pnpm", "Vite / Expo") {
-        Container(admin_dev, "Admin", "Vite", "apps/admin")
-        Container(portal_dev, "Portal", "Vite", "apps/portal")
-        Container(mobile_dev, "Mobile", "Expo", "apps/mobile")
+        Container(admin_dev, "Admin", "Vite", "admin")
+        Container(portal_dev, "Portal", "Vite", "portal")
+        Container(mobile_dev, "Mobile", "Expo", "mobile")
     }
     Deployment_Node(jvm, "JDK 21 + Bazel", "Spring Boot") {
         Container(java_dev, "Java API", "Spring Boot", ":8801 entry")

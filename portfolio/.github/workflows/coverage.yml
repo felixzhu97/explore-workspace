@@ -84,11 +84,11 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: apps/admin coverage (Vitest)
+      - name: admin coverage (Vitest)
         run: |
-          if [ -f "apps/admin/coverage/coverage-summary.json" ]; then
-            echo "### 🖥️ apps/admin (Vitest)" >> $GITHUB_STEP_SUMMARY
-            cat apps/admin/coverage/coverage-summary.json | jq -r '
+          if [ -f "admin/coverage/coverage-summary.json" ]; then
+            echo "### 🖥️ admin (Vitest)" >> $GITHUB_STEP_SUMMARY
+            cat admin/coverage/coverage-summary.json | jq -r '
               "```\n" +
               "Statements : " + (.total.statements.pct // 0 | . * 100 | tostring | .[0:5]) + "%\n" +
               "Branches   : " + (.total.branches.pct // 0 | . * 100 | tostring | .[0:5]) + "%\n" +
@@ -99,11 +99,11 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: apps/portal coverage (Vitest)
+      - name: portal coverage (Vitest)
         run: |
-          if [ -f "apps/portal/coverage/coverage-summary.json" ]; then
-            echo "### 🌐 apps/portal (Vitest)" >> $GITHUB_STEP_SUMMARY
-            cat apps/portal/coverage/coverage-summary.json | jq -r '
+          if [ -f "portal/coverage/coverage-summary.json" ]; then
+            echo "### 🌐 portal (Vitest)" >> $GITHUB_STEP_SUMMARY
+            cat portal/coverage/coverage-summary.json | jq -r '
               "```\n" +
               "Statements : " + (.total.statements.pct // 0 | . * 100 | tostring | .[0:5]) + "%\n" +
               "Branches   : " + (.total.branches.pct // 0 | . * 100 | tostring | .[0:5]) + "%\n" +
@@ -114,18 +114,18 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: apps/mobile coverage (Jest)
+      - name: mobile coverage (Jest)
         run: |
-          if [ -f "apps/mobile/coverage/lcov.info" ]; then
-            echo "### 📱 apps/mobile (Jest)" >> $GITHUB_STEP_SUMMARY
+          if [ -f "mobile/coverage/lcov.info" ]; then
+            echo "### 📱 mobile (Jest)" >> $GITHUB_STEP_SUMMARY
             
-            LINE_COVERAGE=$(awk '/^SF:/{f=1} f{print} /^end_of_record/{f=0}' apps/mobile/coverage/lcov.info | \
+            LINE_COVERAGE=$(awk '/^SF:/{f=1} f{print} /^end_of_record/{f=0}' mobile/coverage/lcov.info | \
               awk -F':' '/^LH:/{h+=$2} /^LF:/{l+=$2} END{if(l>0) printf "%.1f", (h/l)*100; else print "N/A"}')
             
-            FN_COVERAGE=$(awk '/^SF:/{f=1} f{print} /^end_of_record/{f=0}' apps/mobile/coverage/lcov.info | \
+            FN_COVERAGE=$(awk '/^SF:/{f=1} f{print} /^end_of_record/{f=0}' mobile/coverage/lcov.info | \
               awk -F':' '/^FN:/{fn++} /^FNF:/{fnf=$2} END{if(fnf>0) printf "%.1f", (fn/fnf)*100; else print "N/A"}')
             
-            BR_COVERAGE=$(awk '/^SF:/{f=1} f{print} /^end_of_record/{f=0}' apps/mobile/coverage/lcov.info | \
+            BR_COVERAGE=$(awk '/^SF:/{f=1} f{print} /^end_of_record/{f=0}' mobile/coverage/lcov.info | \
               awk -F':' '/^BRH:/{bh+=$2} /^BRF:/{bf+=$2} END{if(bf>0) printf "%.1f", (bh/bf)*100; else print "N/A"}')
             
             echo '```' >> $GITHUB_STEP_SUMMARY

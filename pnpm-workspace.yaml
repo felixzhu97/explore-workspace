@@ -7,6 +7,10 @@ packages:
   - "commerce/apps/*"
   - "commerce/scripts"
   - "commerce/server"
+  - "portfolio/packages/*"
+  - "portfolio/admin"
+  - "portfolio/portal"
+  - "portfolio/mobile"
 
 catalog:
   "@eslint/js": 10.0.1
