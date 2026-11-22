@@ -1,0 +1,27 @@
+import { themeQuartz } from 'ag-grid-community'
+
+export const finpulseAgGridTheme = themeQuartz.withParams({
+  accentColor: '#00C805',
+  backgroundColor: '#141418',
+  borderColor: '#2a2a2e',
+  borderRadius: 12,
+  browserColorScheme: 'dark',
+  cellHorizontalPaddingScale: 1,
+  chromeBackgroundColor: { ref: 'backgroundColor' },
+  columnBorder: false,
+  fontFamily: { googleFont: 'Inter' },
+  fontSize: 14,
+  foregroundColor: '#8b8d96',
+  headerBackgroundColor: '#1a1a1e',
+  headerFontSize: 13,
+  headerFontWeight: 600,
+  headerTextColor: '#f5f5f6',
+  headerVerticalPaddingScale: 1,
+  iconSize: 18,
+  rowBorder: false,
+  rowVerticalPaddingScale: 1.1,
+  sidePanelBorder: false,
+  spacing: 6,
+  wrapperBorder: false,
+  wrapperBorderRadius: 0,
+})

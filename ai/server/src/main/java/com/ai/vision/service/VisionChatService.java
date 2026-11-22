@@ -46,12 +46,12 @@ public class VisionChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> streamChatWithImages(
-      String question, List<String> documentIds, List<String> images, int topK, String ownerKey) {
+      String question, List<String> documentIds, List<String> images, int topK, String ownerId) {
 
     List<Media> mediaList = parseImages(images);
     List<DocumentId> documentIdList = toDocumentIds(documentIds);
     var retrievalResult =
-        ragApplicationService.retrieveContext(question, documentIdList, topK, ownerKey);
+        ragApplicationService.retrieveContext(question, documentIdList, topK, ownerId);
     String prompt = buildPrompt(question, retrievalResult.context());
     List<SourceCitation> sources = retrievalResult.sources();
 

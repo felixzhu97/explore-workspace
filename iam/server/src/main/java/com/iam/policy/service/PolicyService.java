@@ -6,13 +6,13 @@ import com.iam.common.domain.model.PrincipalId;
 import com.iam.common.domain.model.Resource;
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.event.AccessEvaluatedEvent;
-import com.iam.policy.domain.event.AllowPolicyCreatedEvent;
+import com.iam.policy.domain.event.PolicyCreatedEvent;
 import com.iam.policy.domain.event.PolicyAttachedEvent;
 import com.iam.policy.domain.model.AccessDecision;
 import com.iam.policy.domain.model.AccessTuple;
-import com.iam.policy.domain.model.AllowPolicy;
-import com.iam.policy.domain.model.PolicyBinding;
-import com.iam.policy.domain.model.PolicyStatement;
+import com.iam.policy.domain.model.Policy;
+import com.iam.policy.domain.model.PolicyAssignment;
+import com.iam.policy.domain.model.Rule;
 import com.iam.policy.domain.repository.PolicyRepository;
 import com.iam.policy.domain.service.PolicyEngine;
 import java.util.List;
@@ -52,7 +52,7 @@ public class PolicyService {
    *
    * @return policy list
    */
-  public List<AllowPolicy> findAll() {
+  public List<Policy> findAll() {
     return policyRepository.findAll();
   }
 
@@ -63,20 +63,19 @@ public class PolicyService {
    * @return saved policy
    */
   @Transactional
-  public AllowPolicy createAllowPolicy(CreatePolicyCommand command) {
+  public Policy createPolicy(CreatePolicyCommand command) {
     Objects.requireNonNull(command, "command");
-    List<PolicyStatement> statements =
-        command.statements().stream()
+    List<Rule> rules =
+        command.rules().stream()
             .map(
                 s ->
-                    PolicyStatement.createPolicyStatement(
-                        Effect.valueOf(s.effect()),
+                    Rule.createRule(
+                        Effect.parseEffect(s.effect()),
                         s.actions().stream().map(Permission::new).collect(Collectors.toSet()),
                         s.resources().stream().map(Resource::new).collect(Collectors.toSet())))
             .toList();
-    AllowPolicy policy =
-        policyRepository.save(AllowPolicy.createAllowPolicy(command.name(), statements));
-    eventPublisher.publishEvent(new AllowPolicyCreatedEvent(policy.getId().getValue()));
+    Policy policy = policyRepository.save(Policy.createPolicy(command.name(), rules));
+    eventPublisher.publishEvent(new PolicyCreatedEvent(policy.getId().getValue()));
     return policy;
   }
 
@@ -88,12 +87,12 @@ public class PolicyService {
    * @return attachment
    */
   @Transactional
-  public PolicyBinding createPolicyBinding(String policyId, ResourceName principalArn) {
+  public PolicyAssignment createPolicyAssignment(String policyId, ResourceName principalArn) {
     policyRepository
         .findById(policyId)
         .orElseThrow(() -> new IllegalArgumentException("Policy not found: " + policyId));
-    PolicyBinding attachment =
-        policyRepository.saveAttachment(PolicyBinding.createPolicyBinding(policyId, principalArn));
+    PolicyAssignment attachment =
+        policyRepository.saveAttachment(PolicyAssignment.createPolicyAssignment(policyId, principalArn));
     eventPublisher.publishEvent(new PolicyAttachedEvent(attachment.getId().getValue()));
     return attachment;
   }
@@ -126,10 +125,10 @@ public class PolicyService {
   }
 
   /** Input for creating a policy document. */
-  public record CreatePolicyCommand(String name, List<StatementInput> statements) {}
+  public record CreatePolicyCommand(String name, List<RuleInput> rules) {}
 
-  /** Single policy statement input. */
-  public record StatementInput(String effect, List<String> actions, List<String> resources) {}
+  /** Single policy rule input. */
+  public record RuleInput(String effect, List<String> actions, List<String> resources) {}
 
   /** Input for policy evaluation. */
   public record EvaluateCommand(

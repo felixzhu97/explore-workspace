@@ -1,6 +1,6 @@
 package com.ai.rag.domain.repository;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.RagDocument;
@@ -12,15 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 public interface DocumentRepository extends OwnerPartitionedRepository<RagDocument, DocumentId> {
 
   /** Finds the owner's document by id. */
-  Optional<RagDocument> findByIdAndOwnerKey(DocumentId id, OwnerKey ownerKey);
+  Optional<RagDocument> findByIdAndOwnerId(DocumentId id, OwnerId ownerId);
 
   /** Lists the owner's documents, newest first. */
-  List<RagDocument> findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey ownerKey);
+  List<RagDocument> findAllByOwnerIdOrderByCreatedAtDesc(OwnerId ownerId);
 
   /** Saves the document and returns the stored copy. */
   RagDocument save(RagDocument document);
 
   /** Deletes the owner's document by id. */
   @Transactional
-  void deleteByIdAndOwnerKey(DocumentId id, OwnerKey ownerKey);
+  void deleteByIdAndOwnerId(DocumentId id, OwnerId ownerId);
 }

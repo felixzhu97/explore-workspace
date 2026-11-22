@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.Latency;
@@ -175,7 +175,7 @@ class MetricsControllerTest {
                 AiCapability.TOOLS,
                 "tools.weather",
                 Latency.createFromMillis(25),
-                OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111"))
+                OwnerId.createClientKey("11111111-1111-4111-8111-111111111111"))
             .id(id)
             .occurredAt(occurredAt)
             .provider("openai")
@@ -223,7 +223,7 @@ class MetricsControllerTest {
                 .param("range", "7d"))
         .hasStatusOk()
         .bodyJson()
-        .doesNotHavePath("$.items[0].ownerKey");
+        .doesNotHavePath("$.items[0].ownerId");
   }
 
   @Test
@@ -231,7 +231,7 @@ class MetricsControllerTest {
   void shouldSerializeOccurredAtAsAnIso8601UtcString() {
     AiInvocationEvent event =
         AiInvocationEvent.createSucceededEvent(
-                AiCapability.TOOLS, "tools.weather", Latency.createFromMillis(25), OwnerKey.UNOWNED)
+                AiCapability.TOOLS, "tools.weather", Latency.createFromMillis(25), OwnerId.UNOWNED)
             .id(UUID.randomUUID())
             .occurredAt(Instant.parse("2026-07-26T08:00:00.123Z"))
             .build();

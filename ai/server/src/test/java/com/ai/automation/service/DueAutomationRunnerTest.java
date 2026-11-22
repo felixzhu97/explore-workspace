@@ -17,7 +17,7 @@ import com.ai.automation.domain.repository.EmailGateway;
 import com.ai.automation.domain.repository.PipelineGateway;
 import com.ai.automation.infra.config.AutomationProperties;
 import com.ai.billing.service.DailyUsageQuotaService;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +73,7 @@ class DueAutomationRunnerTest {
             "Do the work",
             CREATED_AT);
     givenClaimed(schedule);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parseKey(OWNER))).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume(OwnerId.parseKey(OWNER))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(OWNER, TEMPLATE_ID, "Do the work", "en"))
         .thenReturn("workflow result");
 
@@ -101,7 +101,7 @@ class DueAutomationRunnerTest {
             "Do the work",
             CREATED_AT);
     givenClaimed(schedule);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parseKey(OWNER))).thenReturn(false);
+    when(dailyUsageQuotaService.tryConsume(OwnerId.parseKey(OWNER))).thenReturn(false);
 
     runner.executeDue();
 
@@ -123,7 +123,7 @@ class DueAutomationRunnerTest {
             CREATED_AT.plusSeconds(120),
             CREATED_AT);
     givenClaimed(schedule);
-    when(dailyUsageQuotaService.tryConsume(OwnerKey.parseKey(OWNER))).thenReturn(true);
+    when(dailyUsageQuotaService.tryConsume(OwnerId.parseKey(OWNER))).thenReturn(true);
     when(pipelineGateway.runSavedTemplate(OWNER, TEMPLATE_ID, "Do once", "en"))
         .thenReturn("once result");
 

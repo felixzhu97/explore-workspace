@@ -1,5 +1,6 @@
 package com.ai.metrics.controller.filter;
 
+import com.ai.common.controller.BearerAuthorization;
 import com.ai.metrics.infra.config.MetricsAdminProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,8 +30,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class MetricsAdminAuthFilter extends OncePerRequestFilter {
 
-  public static final String ADMIN_KEY_HEADER = "X-Admin-Key";
-
   private final MetricsAdminProperties properties;
 
   @Override
@@ -46,7 +45,7 @@ public class MetricsAdminAuthFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    String provided = request.getHeader(ADMIN_KEY_HEADER);
+    String provided = BearerAuthorization.extractToken(request);
     if (!constantTimeEquals(provided, properties.getAdminApiKey())) {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.setContentType(MediaType.APPLICATION_JSON_VALUE);

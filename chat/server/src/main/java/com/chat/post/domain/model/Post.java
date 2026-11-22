@@ -1,0 +1,204 @@
+package com.chat.post.domain.model;
+
+import com.chat.base.domain.AbstractEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import java.time.Instant;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+/** Feed Post with caption, media, and engagement counters (maps to {@code social_post}). */
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class Post extends AbstractEntity {
+
+  @NotBlank
+  private String authorId;
+
+  @Size(max = 2048)
+  private String caption;
+
+  @Size(max = 4096)
+  private String mediaUrls;
+
+  @Enumerated(EnumType.STRING)
+  private MediaType postType;
+
+  @Size(max = 1024)
+  private String coverUrl;
+
+  @Size(max = 256)
+  private String location;
+
+  private boolean hidden;
+  private long likeCount;
+  private long commentCount;
+
+  private Post(
+      String id,
+      Instant createdAt,
+      Instant updatedAt,
+      String authorId,
+      String caption,
+      String mediaUrls,
+      MediaType postType,
+      String coverUrl,
+      String location) {
+    super(id, createdAt, updatedAt);
+    this.authorId = authorId;
+    this.caption = caption;
+    this.mediaUrls = mediaUrls == null ? "[]" : mediaUrls;
+    this.postType = postType == null ? MediaType.TEXT : postType;
+    this.coverUrl = coverUrl;
+    this.location = location;
+    this.hidden = false;
+    this.likeCount = 0;
+    this.commentCount = 0;
+  }
+
+  /**
+   * Creates a text post for the given author.
+   *
+   * @param authorId author user id
+   * @param caption post caption
+   * @param mediaUrlsJson JSON array of media URLs
+   * @return a new {@code Post}
+   */
+  public static Post create(String authorId, String caption, String mediaUrlsJson) {
+    return create(authorId, caption, mediaUrlsJson, "TEXT", null, null);
+  }
+
+  /**
+   * Creates a post with an explicit type and optional cover.
+   *
+   * @param authorId author user id
+   * @param caption post caption
+   * @param mediaUrlsJson JSON array of media URLs
+   * @param postType post type such as {@code TEXT} or {@code VIDEO}
+   * @param coverUrl optional cover image URL
+   * @return a new {@code Post}
+   */
+  public static Post create(
+      String authorId, String caption, String mediaUrlsJson, String postType, String coverUrl) {
+    return create(authorId, caption, mediaUrlsJson, postType, coverUrl, null);
+  }
+
+  /**
+   * Creates a fully specified post including optional location.
+   *
+   * @param authorId author user id
+   * @param caption post caption
+   * @param mediaUrlsJson JSON array of media URLs
+   * @param postType post type such as {@code TEXT} or {@code VIDEO}
+   * @param coverUrl optional cover image URL
+   * @param location optional location label
+   * @return a new {@code Post}
+   */
+  public static Post create(
+      String authorId,
+      String caption,
+      String mediaUrlsJson,
+      String postType,
+      String coverUrl,
+      String location) {
+    Instant now = Instant.now();
+    return new Post(
+        UUID.randomUUID().toString(),
+        now,
+        now,
+        authorId,
+        caption,
+        mediaUrlsJson,
+        parseMediaType(postType),
+        coverUrl,
+        location);
+  }
+
+  /** Increments the like counter. */
+  public void addLike() {
+    likeCount++;
+    touch();
+  }
+
+  /** Decrements the like counter when greater than zero. */
+  public void removeLike() {
+    if (likeCount > 0) {
+      likeCount--;
+    }
+    touch();
+  }
+
+  /** Hides this post from public feeds. */
+  public void hide() {
+    this.hidden = true;
+    touch();
+  }
+
+  /** Makes this post visible again. */
+  public void unhide() {
+    this.hidden = false;
+    touch();
+  }
+
+  /** Increments the comment counter. */
+  public void incrementComments() {
+    commentCount++;
+    touch();
+  }
+
+  /** Decrements the comment counter when greater than zero. */
+  public void decrementComments() {
+    if (commentCount > 0) {
+      commentCount--;
+    }
+    touch();
+  }
+
+  /**
+   * Returns whether this post is treated as a reel-style video.
+   *
+   * @return {@code true} when {@code postType} is {@code VIDEO} or {@code REEL}
+   */
+  public boolean isReel() {
+    return postType == MediaType.VIDEO || postType == MediaType.REEL;
+  }
+
+  /**
+   * Replaces the caption used by demo enrichment.
+   *
+   * @param caption new caption text
+   */
+  public void rewriteCaption(String caption) {
+    this.caption = caption;
+    touch();
+  }
+
+  /**
+   * Replaces media payload used by demo enrichment and admin repair.
+   *
+   * @param mediaUrlsJson JSON array of media URLs
+   * @param postType post type such as {@code IMAGE} or {@code VIDEO}
+   * @param coverUrl optional cover image URL
+   */
+  public void replaceMedia(String mediaUrlsJson, String postType, String coverUrl) {
+    this.mediaUrls = mediaUrlsJson == null || mediaUrlsJson.isBlank() ? "[]" : mediaUrlsJson;
+    if (postType != null && !postType.isBlank()) {
+      this.postType = parseMediaType(postType);
+    }
+    this.coverUrl = coverUrl;
+    touch();
+  }
+
+  private static MediaType parseMediaType(String postType) {
+    if (postType == null || postType.isBlank()) {
+      return MediaType.TEXT;
+    }
+    return MediaType.valueOf(postType.trim().toUpperCase());
+  }
+}

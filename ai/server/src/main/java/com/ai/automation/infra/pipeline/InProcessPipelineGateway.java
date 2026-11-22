@@ -1,7 +1,7 @@
 package com.ai.automation.infra.pipeline;
 
 import com.ai.automation.domain.repository.PipelineGateway;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
@@ -23,11 +23,11 @@ public class InProcessPipelineGateway implements PipelineGateway {
 
   @Override
   public String runSavedTemplate(
-      String ownerKey, String pipelineTemplateId, String brief, String language) {
+      String ownerId, String pipelineTemplateId, String brief, String language) {
     PipelineTemplate template =
         pipelineTemplateRepository
-            .findByIdAndOwnerKey(
-                PipelineTemplateId.parseId(pipelineTemplateId), OwnerKey.parseKey(ownerKey))
+            .findByIdAndOwnerId(
+                PipelineTemplateId.parseId(pipelineTemplateId), OwnerId.parseKey(ownerId))
             .filter(PipelineTemplate::isRunnable)
             .orElseThrow(
                 () ->
@@ -35,6 +35,6 @@ public class InProcessPipelineGateway implements PipelineGateway {
                         "PIPELINE_TEMPLATE_NOT_FOUND",
                         "Pipeline template not found: " + pipelineTemplateId));
     return pipelineService.invokePipelineSync(
-        template.composeFirstMessage(brief), template.buildLinearPipeline(), ownerKey, language);
+        template.composeFirstMessage(brief), template.buildLinearPipeline(), ownerId, language);
   }
 }

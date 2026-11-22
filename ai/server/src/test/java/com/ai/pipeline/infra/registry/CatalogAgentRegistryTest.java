@@ -3,7 +3,7 @@ package com.ai.pipeline.infra.registry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("CatalogAgentRegistry")
 class CatalogAgentRegistryTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:client-a");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:client-a");
 
   @Mock private CustomAgentRepository customAgents;
   private CatalogAgentRegistry registry;
@@ -109,7 +109,7 @@ class CatalogAgentRegistryTest {
   }
 
   private void library(CustomAgent... agents) {
-    when(customAgents.findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(OWNER))
+    when(customAgents.findAllByOwnerIdAndEnabledTrueOrderByNameAsc(OWNER))
         .thenReturn(List.of(agents));
   }
 }

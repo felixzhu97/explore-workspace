@@ -19,7 +19,7 @@ import com.ai.chat.domain.model.WebSource;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.explore.errors.DomainException;
@@ -43,9 +43,9 @@ import org.springframework.retry.support.RetryTemplate;
 class ChatServiceTest {
 
   private static final String CLIENT_A = "c:11111111-1111-1111-1111-111111111111";
-  private static final OwnerKey OWNER_A = OwnerKey.parseKey(CLIENT_A);
+  private static final OwnerId OWNER_A = OwnerId.parseKey(CLIENT_A);
   private static final String CLIENT_B = "c:22222222-2222-2222-2222-222222222222";
-  private static final OwnerKey OWNER_B = OwnerKey.parseKey(CLIENT_B);
+  private static final OwnerId OWNER_B = OwnerId.parseKey(CLIENT_B);
 
   @Mock private ChatClientProvider chatClientProvider;
 
@@ -93,14 +93,14 @@ class ChatServiceTest {
     ChatSession result = useCase.createSession("My Chat", CLIENT_A);
 
     assertThat(result.getTitle()).isEqualTo("My Chat");
-    assertThat(result.getOwnerKeyValue()).isEqualTo(CLIENT_A);
+    assertThat(result.getOwnerIdValue()).isEqualTo(CLIENT_A);
     verify(repository).save(any(ChatSession.class));
   }
 
   @Test
   @DisplayName("should create the default session with the default title when owner has none")
   void shouldCreateTheDefaultSessionWithTheDefaultTitleWhenOwnerHasNone() {
-    when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
+    when(repository.findAllByOwnerIdOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of());
     ArgumentCaptor<ChatSession> saved = ArgumentCaptor.forClass(ChatSession.class);
 
     catchThrowable(() -> useCase.sendMessage("Hello", CLIENT_A));
@@ -119,7 +119,7 @@ class ChatServiceTest {
             "Test",
             Instant.now(),
             CLIENT_A);
-    when(repository.findByIdAndOwnerKey(
+    when(repository.findByIdAndOwnerId(
             ChatSessionId.parseId("22222222-2222-2222-2222-222222222222"), OWNER_A))
         .thenReturn(Optional.of(session));
 
@@ -139,7 +139,7 @@ class ChatServiceTest {
             "Test",
             Instant.now(),
             CLIENT_A);
-    when(repository.findByIdAndOwnerKey(
+    when(repository.findByIdAndOwnerId(
             ChatSessionId.parseId("22222222-2222-2222-2222-222222222222"), OWNER_A))
         .thenReturn(Optional.of(session));
     ChatMessage reply = ChatMessage.createAssistantMessage("Hi!");
@@ -160,7 +160,7 @@ class ChatServiceTest {
   @Test
   @DisplayName("should throw when session not owned")
   void shouldThrowWhenSessionNotOwned() {
-    when(repository.findByIdAndOwnerKey(
+    when(repository.findByIdAndOwnerId(
             ChatSessionId.parseId("44444444-4444-4444-4444-444444444444"), OWNER_A))
         .thenReturn(Optional.empty());
 
@@ -182,7 +182,7 @@ class ChatServiceTest {
             "Test",
             Instant.now(),
             CLIENT_A);
-    when(repository.findByIdAndOwnerKey(
+    when(repository.findByIdAndOwnerId(
             ChatSessionId.parseId("22222222-2222-2222-2222-222222222222"), OWNER_A))
         .thenReturn(Optional.of(session));
 
@@ -204,7 +204,7 @@ class ChatServiceTest {
             "Test",
             Instant.now(),
             CLIENT_A);
-    when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of(owned));
+    when(repository.findAllByOwnerIdOrderByLastActivityAtDesc(OWNER_A)).thenReturn(List.of(owned));
 
     useCase.deleteAllSessions(CLIENT_A);
 
@@ -222,7 +222,7 @@ class ChatServiceTest {
         List.of(
             ChatSession.createSession("Session 1", CLIENT_A),
             ChatSession.createSession("Session 2", CLIENT_A));
-    when(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER_A)).thenReturn(sessions);
+    when(repository.findAllByOwnerIdOrderByLastActivityAtDesc(OWNER_A)).thenReturn(sessions);
 
     List<ChatSession> result = useCase.listSessions(CLIENT_A);
 

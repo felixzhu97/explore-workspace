@@ -13,7 +13,7 @@ export type LoginProvider = 'google' | 'github' | 'explore-iam';
 export type AccountMode = 'anonymous' | 'authenticated';
 export type AccountPlan = 'free' | 'pro';
 
-export interface AccountMeResponse {
+export interface CurrentAccountResponse {
   mode: AccountMode;
   clientId: string | null;
   userId: string | null;
@@ -37,7 +37,7 @@ export class AccountService {
   readonly #i18n = inject(I18nService);
   readonly #chat = inject(ChatService);
 
-  readonly #accountState = signal<AccountMeResponse | null>(null);
+  readonly #accountState = signal<CurrentAccountResponse | null>(null);
   readonly #isLoadingState = signal(false);
   readonly #isLoadedState = signal(false);
 
@@ -61,7 +61,7 @@ export class AccountService {
     }
     this.#isLoadingState.set(true);
     this.#http
-      .get<AccountMeResponse>(`${API_BASE_URL}/account/me`)
+      .get<CurrentAccountResponse>(`${API_BASE_URL}/account/me`)
       .pipe(finalize(() => this.#isLoadingState.set(false)))
       .subscribe({
         next: (me) => {

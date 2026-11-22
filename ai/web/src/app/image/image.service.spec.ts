@@ -61,14 +61,14 @@ describe('ImageService', () => {
   it('should not generate with empty prompt', () => {
     service.setPrompt('   ');
     service.generateImage();
-    httpMock.expectNone('/api/images/generate');
+    httpMock.expectNone('/api/images:generate');
   });
 
   it('should generate image from url response', async () => {
     service.setPrompt('A sunset');
     service.generateImage();
 
-    const request = httpMock.expectOne('/api/images/generate');
+    const request = httpMock.expectOne('/api/images:generate');
     expect(request.request.body).toEqual(expect.objectContaining({
       prompt: 'A sunset',
       width: expect.any(Number),
@@ -85,7 +85,7 @@ describe('ImageService', () => {
   it('should generate image from base64 response', async () => {
     service.setPrompt('A mountain');
     service.generateImage();
-    httpMock.expectOne('/api/images/generate').flush({ imageBase64: 'abc123', status: 'ok' });
+    httpMock.expectOne('/api/images:generate').flush({ imageBase64: 'abc123', status: 'ok' });
 
     await vi.waitFor(() => {
       expect(service.generatedImage()).toBe('data:image/png;base64,abc123');
@@ -95,9 +95,9 @@ describe('ImageService', () => {
   it('should set error on generation failure', async () => {
     service.setPrompt('Fail case');
     service.generateImage();
-    httpMock.expectOne('/api/images/generate').flush(
+    httpMock.expectOne('/api/images:generate').flush(
       {
-        type: '/problems/image-provider-not-configured',
+        type: 'https://www.felixzhu.chat/problems/image-provider-not-configured',
         status: 503,
         detail: 'Image provider not configured',
       },
@@ -113,7 +113,7 @@ describe('ImageService', () => {
   it('should open zoom dialog when image is generated', async () => {
     service.setPrompt('Zoom test');
     service.generateImage();
-    httpMock.expectOne('/api/images/generate').flush({
+    httpMock.expectOne('/api/images:generate').flush({
       imageUrl: 'https://example.com/z.png',
       status: 'ok',
     });

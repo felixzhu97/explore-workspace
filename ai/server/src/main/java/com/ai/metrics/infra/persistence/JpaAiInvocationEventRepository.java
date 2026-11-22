@@ -1,6 +1,6 @@
 package com.ai.metrics.infra.persistence;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
@@ -33,7 +33,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
         AiCapability capability = AiCapability.parseCapability(rs.getString("capability"));
         String operation = rs.getString("operation");
         Latency latency = Latency.createFromMillis(rs.getLong("latency_ms"));
-        OwnerKey owner = OwnerKey.parseKey(rs.getString("owner_key"));
+        OwnerId owner = OwnerId.parseKey(rs.getString("owner_id"));
         AiInvocationEvent.Builder event =
             InvocationOutcome.parseOutcome(rs.getString("outcome")) == InvocationOutcome.SUCCESS
                 ? AiInvocationEvent.createSucceededEvent(capability, operation, latency, owner)
@@ -147,7 +147,7 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
             """
                 SELECT id, occurred_at, capability, operation, outcome, latency_ms,
                        provider, model, session_id, document_id, agent_type, tool_name,
-                       prompt_tokens, completion_tokens, error_code, error_message, owner_key
+                       prompt_tokens, completion_tokens, error_code, error_message, owner_id
                 FROM ai_invocation_event
                 """
                 + where
@@ -190,16 +190,16 @@ public class JpaAiInvocationEventRepository implements AiInvocationEventReposito
 
   @Override
   @Transactional
-  public int deleteByOwnerKey(OwnerKey ownerKey) {
+  public int deleteByOwnerId(OwnerId ownerId) {
     return jdbcTemplate.update(
-        "DELETE FROM ai_invocation_event WHERE owner_key = ?", ownerKey.getValue());
+        "DELETE FROM ai_invocation_event WHERE owner_id = ?", ownerId.getValue());
   }
 
   @Override
   @Transactional
-  public int reassignOwnerKey(OwnerKey from, OwnerKey to) {
+  public int reassignOwnerId(OwnerId from, OwnerId to) {
     return jdbcTemplate.update(
-        "UPDATE ai_invocation_event SET owner_key = ? WHERE owner_key = ?",
+        "UPDATE ai_invocation_event SET owner_id = ? WHERE owner_id = ?",
         to.getValue(),
         from.getValue());
   }

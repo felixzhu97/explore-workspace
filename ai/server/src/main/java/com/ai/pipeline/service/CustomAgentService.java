@@ -2,7 +2,7 @@ package com.ai.pipeline.service;
 
 import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.event.OwnerErasureRequestedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.pipeline.domain.model.CustomAgent;
 import com.ai.pipeline.domain.model.CustomAgentId;
 import com.ai.pipeline.domain.repository.CustomAgentRepository;
@@ -22,62 +22,62 @@ public class CustomAgentService {
   private final CustomAgentRepository repository;
 
   /** Lists the owner's custom agents. */
-  public List<CustomAgent> listLibrary(String ownerKey) {
-    return repository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parseKey(ownerKey));
+  public List<CustomAgent> listLibrary(String ownerId) {
+    return repository.findAllByOwnerIdOrderByNameAsc(OwnerId.parseKey(ownerId));
   }
 
   /** Saves a new agent definition in the owner's library. */
   public CustomAgent createAgent(
-      String ownerKey,
+      String ownerId,
       String agentType,
       String name,
       String description,
       String systemPrompt,
       List<String> tools) {
     CustomAgent agent =
-        CustomAgent.createAgent(ownerKey, agentType, name, description, systemPrompt, tools);
-    assertTypeAvailable(ownerKey, agent.getAgentType(), null);
+        CustomAgent.createAgent(ownerId, agentType, name, description, systemPrompt, tools);
+    assertTypeAvailable(ownerId, agent.getAgentType(), null);
     return repository.save(agent);
   }
 
   /** Updates the owner's custom agent. */
   public CustomAgent updateAgent(
-      String ownerKey,
+      String ownerId,
       String id,
       String name,
       String description,
       String systemPrompt,
       List<String> tools) {
-    CustomAgent agent = findOwned(ownerKey, id);
+    CustomAgent agent = findOwned(ownerId, id);
     agent.update(name, description, systemPrompt, tools);
     return repository.save(agent);
   }
 
   /** Enables or disables the owner's custom agent. */
-  public CustomAgent setEnabled(String ownerKey, String id, boolean enabled) {
-    CustomAgent agent = findOwned(ownerKey, id);
+  public CustomAgent setEnabled(String ownerId, String id, boolean enabled) {
+    CustomAgent agent = findOwned(ownerId, id);
     agent.updateEnabledState(enabled);
     return repository.save(agent);
   }
 
   /** Deletes the owner's custom agent. */
-  public void deleteAgent(String ownerKey, String id) {
-    findOwned(ownerKey, id);
-    repository.deleteByIdAndOwnerKey(CustomAgentId.parseId(id), OwnerKey.parseKey(ownerKey));
+  public void deleteAgent(String ownerId, String id) {
+    findOwned(ownerId, id);
+    repository.deleteByIdAndOwnerId(CustomAgentId.parseId(id), OwnerId.parseKey(ownerId));
   }
 
-  private CustomAgent findOwned(String ownerKey, String id) {
+  private CustomAgent findOwned(String ownerId, String id) {
     return repository
-        .findByIdAndOwnerKey(CustomAgentId.parseId(id), OwnerKey.parseKey(ownerKey))
+        .findByIdAndOwnerId(CustomAgentId.parseId(id), OwnerId.parseKey(ownerId))
         .orElseThrow(
             () ->
                 DomainException.createNotFoundError(
                     "SAVED_AGENT_NOT_FOUND", "Custom agent not found: " + id));
   }
 
-  private void assertTypeAvailable(String ownerKey, String agentType, CustomAgentId excludeId) {
-    if (repository.existsByOwnerKeyAndAgentTypeIgnoringId(
-        OwnerKey.parseKey(ownerKey), agentType, excludeId)) {
+  private void assertTypeAvailable(String ownerId, String agentType, CustomAgentId excludeId) {
+    if (repository.existsByOwnerIdAndAgentTypeIgnoringId(
+        OwnerId.parseKey(ownerId), agentType, excludeId)) {
       throw DomainException.createConflictError(
           "SAVED_AGENT_TYPE_CONFLICT", "Agent type key already exists: " + agentType);
     }
@@ -85,11 +85,11 @@ public class CustomAgentService {
 
   @EventListener
   void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
-    repository.deleteAllByOwnerKey(event.ownerKey());
+    repository.deleteAllByOwnerId(event.ownerId());
   }
 
   @EventListener
   void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
-    repository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    repository.reassignOwnerId(event.fromOwnerId(), event.toOwnerId());
   }
 }

@@ -19,7 +19,7 @@ import com.ai.rag.service.DocumentUploadService;
 import com.ai.rag.service.RagApplicationService;
 import com.ai.rag.service.RagChatService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.vision.service.VisionChatService;
 import java.time.Instant;
@@ -64,30 +64,30 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @DisplayName("should return list of documents")
     void shouldReturnListOfDocuments() {
       RagDocument doc = createTestDocument("Test Doc", DocumentStatus.READY);
-      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
+      when(ragApplicationService.listDocuments(ownerId())).thenReturn(List.of(doc));
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
           .convertTo(Integer.class)
           .isEqualTo(1);
-      verify(ragApplicationService).listDocuments(ownerKey());
+      verify(ragApplicationService).listDocuments(ownerId());
     }
 
     @Test
     @DisplayName("should return stored chunk count for each document")
     void shouldReturnStoredChunkCountForEachDocument() {
       RagDocument doc = createTestDocument("Chunked Doc", DocumentStatus.READY, 17);
-      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of(doc));
+      when(ragApplicationService.listDocuments(ownerId())).thenReturn(List.of(doc));
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents[0].chunkCount")
@@ -98,12 +98,12 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should return empty list when no documents")
     void shouldReturnEmptyListWhenNoDocuments() {
-      when(ragApplicationService.listDocuments(ownerKey())).thenReturn(List.of());
+      when(ragApplicationService.listDocuments(ownerId())).thenReturn(List.of());
 
       assertThat(
               mvc.get()
                   .uri("/api/rag/documents")
-                  .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                  .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
           .hasStatusOk()
           .bodyJson()
           .extractingPath("$.documents.length()")
@@ -121,7 +121,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     DocumentUploadService.UploadResult uploadResult =
         new DocumentUploadService.UploadResult(
             doc.getId(), "test.txt", DocumentStatus.READY, 0, Instant.EPOCH);
-    when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerKey())))
+    when(ragApplicationService.uploadDocument(any(), isNull(), eq(ownerId())))
         .thenReturn(uploadResult);
 
     assertThat(
@@ -129,9 +129,9 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                 .multipart()
                 .uri("/api/rag/documents/upload")
                 .file(file)
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatus(HttpStatus.CREATED);
-    verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerKey()));
+    verify(ragApplicationService).uploadDocument(any(), isNull(), eq(ownerId()));
   }
 
   @Test
@@ -143,7 +143,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     DocumentUploadService.UploadResult uploadResult =
         new DocumentUploadService.UploadResult(
             doc.getId(), "Custom Title", DocumentStatus.READY, 0, Instant.EPOCH);
-    when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerKey())))
+    when(ragApplicationService.uploadDocument(any(), eq("Custom Title"), eq(ownerId())))
         .thenReturn(uploadResult);
 
     assertThat(
@@ -152,23 +152,23 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                 .uri("/api/rag/documents/upload")
                 .file(file)
                 .param("title", "Custom Title")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatus(HttpStatus.CREATED);
-    verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerKey()));
+    verify(ragApplicationService).uploadDocument(any(), eq("Custom Title"), eq(ownerId()));
   }
 
   @Test
   @DisplayName("should delete document and return 204")
   void shouldDeleteDocumentAndReturn204() {
     UUID docId = UUID.randomUUID();
-    doNothing().when(ragApplicationService).deleteDocument(docId, ownerKey());
+    doNothing().when(ragApplicationService).deleteDocument(docId, ownerId());
 
     assertThat(
             mvc.delete()
                 .uri("/api/rag/documents/" + docId)
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatus(HttpStatus.NO_CONTENT);
-    verify(ragApplicationService).deleteDocument(docId, ownerKey());
+    verify(ragApplicationService).deleteDocument(docId, ownerId());
   }
 
   @Nested
@@ -178,7 +178,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     @Test
     @DisplayName("should handle RAG chat request")
     void shouldHandleRagChatRequest() {
-      when(ragChatService.streamChat(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerKey())))
+      when(ragChatService.streamChat(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerId())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("AI response ").build()));
 
       assertThat(
@@ -192,7 +192,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
           .asString()
           .contains("AI response");
       verify(ragChatService)
-          .streamChat(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerKey()));
+          .streamChat(eq("What is AI?"), isNull(), eq(5), isNull(), eq(ownerId()));
       verifyNoInteractions(visionChatService);
     }
 
@@ -201,7 +201,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldUseDocIdsWhenProvided() {
       List<String> documentIds = List.of(UUID.randomUUID().toString());
       when(ragChatService.streamChat(
-              eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerKey())))
+              eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerId())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -219,13 +219,13 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
       verify(ragChatService)
-          .streamChat(eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerKey()));
+          .streamChat(eq("Question"), eq(documentIds), eq(5), isNull(), eq(ownerId()));
     }
 
     @Test
     @DisplayName("should use custom topK when provided")
     void shouldUseCustomTopKWhenProvided() {
-      when(ragChatService.streamChat(eq("Question"), isNull(), eq(10), isNull(), eq(ownerKey())))
+      when(ragChatService.streamChat(eq("Question"), isNull(), eq(10), isNull(), eq(ownerId())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("Response ").build()));
 
       assertThat(
@@ -235,7 +235,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"question\":\"Question\",\"topK\":10}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
-      verify(ragChatService).streamChat(eq("Question"), isNull(), eq(10), isNull(), eq(ownerKey()));
+      verify(ragChatService).streamChat(eq("Question"), isNull(), eq(10), isNull(), eq(ownerId()));
     }
 
     @Test
@@ -243,7 +243,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
     void shouldStreamVisionRagWhenImagesProvided() {
       List<String> images = List.of("iVBORw0KGgo=");
       when(visionChatService.streamChatWithImages(
-              eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerKey())))
+              eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerId())))
           .thenReturn(Flux.just(ServerSentEvent.<String>builder().data("token").build()));
 
       assertThat(
@@ -260,7 +260,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .exchange(STREAM_TIMEOUT))
           .hasStatusOk();
       verify(visionChatService)
-          .streamChatWithImages(eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerKey()));
+          .streamChatWithImages(eq("Describe image"), isNull(), eq(images), eq(5), eq(ownerId()));
       verify(ragChatService, never()).streamChat(any(), any(), anyInt(), any(), any());
     }
 
@@ -277,7 +277,7 @@ class RagControllerTest extends AbstractOwnerScopedControllerTest {
                   .content("{\"question\":\"Question\"}")
                   .exchange(STREAM_TIMEOUT))
           .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-      verify(ragChatService).streamChat(eq("Question"), isNull(), eq(5), isNull(), eq(ownerKey()));
+      verify(ragChatService).streamChat(eq("Question"), isNull(), eq(5), isNull(), eq(ownerId()));
     }
   }
 

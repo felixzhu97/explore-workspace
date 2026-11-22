@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ai.chat.domain.model.ChatSession;
 import com.ai.chat.domain.model.ChatSessionId;
 import com.ai.chat.domain.model.SessionTitle;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.testsupport.AbstractDataJpaTest;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class ChatSessionRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:11111111-1111-1111-1111-111111111111");
-  private static final OwnerKey OTHER = OwnerKey.parseKey("c:22222222-2222-2222-2222-222222222222");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:11111111-1111-1111-1111-111111111111");
+  private static final OwnerId OTHER = OwnerId.parseKey("c:22222222-2222-2222-2222-222222222222");
 
   @Autowired private ChatSessionRepository repository;
 
@@ -25,11 +25,11 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
     ChatSession session = repository.save(ChatSession.createSession("Planning", OWNER.getValue()));
     flushAndClear();
 
-    ChatSession reloaded = repository.findByIdAndOwnerKey(session.getId(), OWNER).orElseThrow();
+    ChatSession reloaded = repository.findByIdAndOwnerId(session.getId(), OWNER).orElseThrow();
 
     assertThat(reloaded.getTitle()).isEqualTo("Planning");
-    assertThat(reloaded.getOwnerKey()).isEqualTo(OWNER);
-    assertThat(repository.findByIdAndOwnerKey(session.getId(), OTHER)).isEmpty();
+    assertThat(reloaded.getOwnerId()).isEqualTo(OWNER);
+    assertThat(repository.findByIdAndOwnerId(session.getId(), OTHER)).isEmpty();
   }
 
   @Test
@@ -40,7 +40,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
     save("Foreign", "2026-07-01T00:00:00Z", OTHER);
     flushAndClear();
 
-    assertThat(repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OWNER))
+    assertThat(repository.findAllByOwnerIdOrderByLastActivityAtDesc(OWNER))
         .extracting(ChatSession::getTitle)
         .containsExactly("Newer", "Older");
   }
@@ -91,7 +91,7 @@ class ChatSessionRepositoryTest extends AbstractDataJpaTest {
     assertThat(repository.existsById(session.getId())).isFalse();
   }
 
-  private void save(String title, String lastActivityAt, OwnerKey owner) {
+  private void save(String title, String lastActivityAt, OwnerId owner) {
     repository.save(
         ChatSession.restoreSession(
             ChatSessionId.generateId(), title, Instant.parse(lastActivityAt), owner.getValue()));

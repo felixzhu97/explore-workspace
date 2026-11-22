@@ -1,6 +1,6 @@
 plugins {
     id("explore.java-conventions")
-    id("explore.java-format")
+    id("explore.java-format-conventions")
     `java-library`
     `java-test-fixtures`
 }

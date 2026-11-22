@@ -2,7 +2,7 @@ package com.ai.metrics.infra.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.ErrorSummary;
@@ -23,7 +23,7 @@ import org.springframework.context.annotation.Import;
 class AiInvocationEventJpaTest extends AbstractDataJpaTest {
 
   private static final String OWNER_KEY = "c:77777777-7777-7777-7777-777777777777";
-  private static final OwnerKey OWNER = OwnerKey.parseKey(OWNER_KEY);
+  private static final OwnerId OWNER = OwnerId.parseKey(OWNER_KEY);
 
   @Autowired private JpaAiInvocationEventRepository repository;
 
@@ -45,8 +45,8 @@ class AiInvocationEventJpaTest extends AbstractDataJpaTest {
     assertThat(reloaded).isNotNull();
     assertThat(reloaded.getOperation()).isEqualTo("completion");
     assertThat(reloaded.getLatencyMs()).isEqualTo(250);
-    assertThat(reloaded.getOwnerKey().getValue()).isEqualTo(OWNER_KEY);
-    assertThat(rawColumn(event, "owner_key")).isEqualTo(OWNER_KEY);
+    assertThat(reloaded.getOwnerId().getValue()).isEqualTo(OWNER_KEY);
+    assertThat(rawColumn(event, "owner_id")).isEqualTo(OWNER_KEY);
   }
 
   @Test

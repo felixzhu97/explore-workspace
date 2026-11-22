@@ -453,7 +453,7 @@ src/main/java/com.ai/
 ## Domain Rules
 
 - Domain uses JPA mapping + Lombok + Bean Validation on kernel and types
-- `@Id` / `@Version` only on `@MappedSuperclass` bases (`AbstractImmutable` / `AbstractEntity`); subclasses do not repeat them
+- `@Id` / `@Version` only on `@MappedSuperclass` bases (`AbstractImmutableEntity` / `AbstractEntity`); subclasses do not repeat them
 - No `@Service` / `@Component` on domain types (those stay in `service/`)
 - Aggregates / entities: `@Entity` + `@Getter` + `@NoArgsConstructor(PROTECTED, force = true)`; rich behavior
 - Value objects: `@Embeddable` (not record-only)
@@ -790,9 +790,9 @@ public class EmailAlreadyExistsException extends RuntimeException {
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ClientIdentityRequiredException.class)
-    public ProblemDetail handleClientIdentityRequired(ClientIdentityRequiredException ex) {
-        return Problems.of(HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Client identity required");
+    @ExceptionHandler(AnonymousIdRequiredException.class)
+    public ProblemDetail handleAnonymousIdRequired(AnonymousIdRequiredException ex) {
+        return Problems.of(HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Anonymous id required");
     }
 
     @ExceptionHandler(Exception.class)

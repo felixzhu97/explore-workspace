@@ -18,7 +18,7 @@ interface SpringDataRoleRepository extends JpaRepository<Role, RoleId> {
   @Query(
       """
       select r from Role r
-      join RoleBinding ur on ur.id.roleId = r.id.value
+      join RoleAssignment ur on ur.id.roleId = r.id.value
       where ur.id.userId.value = :userId
       """)
   List<Role> findRolesByUserId(@Param("userId") String userId);

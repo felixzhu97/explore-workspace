@@ -29,7 +29,7 @@ else Replace / PATCH
   ctrl --> iam: 7b. 200 + ETag
 else Delete
   ctrl -> svc: 4c. DELETE /Users/{id}
-  svc -> erase: 5c. eraseAllForOwner(OwnerKey)
+  svc -> erase: 5c. eraseAllForOwner(OwnerId)
   erase -> handlers: 6c. publish OwnerErasureRequestedEvent\n(sync, same transaction)
   handlers -> db: 7c. Each module deletes its own rows\n(ChatSessionsErasedEvent → metrics)
   svc -> db: 8c. Delete Account

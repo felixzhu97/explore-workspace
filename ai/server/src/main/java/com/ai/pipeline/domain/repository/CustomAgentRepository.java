@@ -1,6 +1,6 @@
 package com.ai.pipeline.domain.repository;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import com.ai.pipeline.domain.model.CustomAgent;
 import com.ai.pipeline.domain.model.CustomAgentId;
@@ -13,27 +13,27 @@ public interface CustomAgentRepository
     extends OwnerPartitionedRepository<CustomAgent, CustomAgentId> {
 
   /** Finds the owner's custom agent by id. */
-  Optional<CustomAgent> findByIdAndOwnerKey(CustomAgentId id, OwnerKey ownerKey);
+  Optional<CustomAgent> findByIdAndOwnerId(CustomAgentId id, OwnerId ownerId);
 
   /** Lists the owner's custom agents by name. */
-  List<CustomAgent> findAllByOwnerKeyOrderByNameAsc(OwnerKey ownerKey);
+  List<CustomAgent> findAllByOwnerIdOrderByNameAsc(OwnerId ownerId);
 
   /** Lists the owner's custom agents that are on, by name. */
-  List<CustomAgent> findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(OwnerKey ownerKey);
+  List<CustomAgent> findAllByOwnerIdAndEnabledTrueOrderByNameAsc(OwnerId ownerId);
 
   /** Tells whether the owner already has a custom agent with the type key. */
-  boolean existsByOwnerKeyAndAgentType(OwnerKey ownerKey, String agentType);
+  boolean existsByOwnerIdAndAgentType(OwnerId ownerId, String agentType);
 
   /** Tells whether another of the owner's custom agents already has the type key. */
-  boolean existsByOwnerKeyAndAgentTypeAndIdNot(
-      OwnerKey ownerKey, String agentType, CustomAgentId id);
+  boolean existsByOwnerIdAndAgentTypeAndIdNot(
+      OwnerId ownerId, String agentType, CustomAgentId id);
 
   /** Tells whether the owner has a custom agent with the type key other than {@code excludeId}. */
-  default boolean existsByOwnerKeyAndAgentTypeIgnoringId(
-      OwnerKey ownerKey, String agentType, CustomAgentId excludeId) {
+  default boolean existsByOwnerIdAndAgentTypeIgnoringId(
+      OwnerId ownerId, String agentType, CustomAgentId excludeId) {
     return excludeId == null
-        ? existsByOwnerKeyAndAgentType(ownerKey, agentType)
-        : existsByOwnerKeyAndAgentTypeAndIdNot(ownerKey, agentType, excludeId);
+        ? existsByOwnerIdAndAgentType(ownerId, agentType)
+        : existsByOwnerIdAndAgentTypeAndIdNot(ownerId, agentType, excludeId);
   }
 
   /** Saves the agent and returns the stored copy. */
@@ -41,5 +41,5 @@ public interface CustomAgentRepository
 
   /** Deletes the owner's custom agent by id. */
   @Transactional
-  void deleteByIdAndOwnerKey(CustomAgentId id, OwnerKey ownerKey);
+  void deleteByIdAndOwnerId(CustomAgentId id, OwnerId ownerId);
 }

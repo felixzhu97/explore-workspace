@@ -40,7 +40,7 @@ export const PRIVACY_PAGE_COPY: Record<Language, PrivacyPageCopy> = {
     subtitle: 'How ExploreAI handles anonymous browser data',
     noticeHeading: 'Notice',
     noticeIdentity:
-      'A functional HttpOnly cookie (Client Identity) scopes chat sessions to this browser. It is required for session isolation and is not used for advertising. Your IP address is kept in memory for at most 2 days, only to enforce rate limits and daily quotas; it is never stored or logged.',
+      'A functional HttpOnly cookie (Anonymous id) scopes chat sessions to this browser. It is required for session isolation and is not used for advertising. Your IP address is kept in memory for at most 2 days, only to enforce rate limits and daily quotas; it is never stored or logged.',
     noticeChat:
       'Chat messages are sent to language-model and optional search providers to generate replies. Do not submit sensitive personal data you do not want processed.',
     noticeRetention:

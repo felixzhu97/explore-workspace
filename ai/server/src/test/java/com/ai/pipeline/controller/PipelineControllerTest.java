@@ -10,7 +10,7 @@ import com.ai.pipeline.domain.model.AgentDefinition;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.service.PipelineService;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.ClientIdentityRequestPostProcessor;
+import com.ai.testsupport.AnonymousIdRequestPostProcessor;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.explore.errors.DomainException;
 import java.util.List;
@@ -31,7 +31,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   @Test
   @DisplayName("should list agents")
   void shouldListAgents() {
-    when(pipelineService.listAgents(eq(ownerKey()), anyString()))
+    when(pipelineService.listAgents(eq(ownerId()), anyString()))
         .thenReturn(
             List.of(
                 AgentDefinition.createDefinition(
@@ -42,7 +42,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/agent-types")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$")
@@ -53,7 +53,7 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   @Test
   @DisplayName("should return 404 when health unknown")
   void shouldReturn404WhenHealthUnknown() {
-    when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
+    when(pipelineService.getHealth(eq("missing"), eq(ownerId()), anyString()))
         .thenThrow(
             DomainException.createNotFoundError(
                 "AGENT_NOT_FOUND",
@@ -62,28 +62,28 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/missing/health")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatus(HttpStatus.NOT_FOUND);
   }
 
   @Test
   @DisplayName("should return ok for known agent health")
   void shouldReturnOkForKnownAgentHealth() {
-    when(pipelineService.getHealth(eq("k8s"), eq(ownerKey()), anyString()))
+    when(pipelineService.getHealth(eq("k8s"), eq(ownerId()), anyString()))
         .thenReturn(
             AgentDefinition.createDefinition(AgentType.createType("k8s"), "K8s", "cluster", "sys"));
 
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/k8s/health")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatusOk();
   }
 
   @Test
   @DisplayName("should return 404 when agent unknown")
   void shouldReturn404WhenGetAgentUnknown() {
-    when(pipelineService.getHealth(eq("missing"), eq(ownerKey()), anyString()))
+    when(pipelineService.getHealth(eq("missing"), eq(ownerId()), anyString()))
         .thenThrow(
             DomainException.createNotFoundError(
                 "AGENT_NOT_FOUND",
@@ -92,28 +92,28 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/missing")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatus(HttpStatus.NOT_FOUND);
   }
 
   @Test
   @DisplayName("should return ok when agent known")
   void shouldReturnOkWhenGetAgentKnown() {
-    when(pipelineService.getHealth(eq("k8s"), eq(ownerKey()), anyString()))
+    when(pipelineService.getHealth(eq("k8s"), eq(ownerId()), anyString()))
         .thenReturn(
             AgentDefinition.createDefinition(AgentType.createType("k8s"), "K8s", "cluster", "sys"));
 
     assertThat(
             mvc.get()
                 .uri("/api/pipelines/k8s")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatusOk();
   }
 
   @Test
   @DisplayName("should stream supervisor SSE")
   void shouldStreamSupervisorSse() {
-    when(pipelineService.invokeSupervisor(eq("hello"), eq(ownerKey()), anyString()))
+    when(pipelineService.invokeSupervisor(eq("hello"), eq(ownerId()), anyString()))
         .thenReturn(
             Flux.just(
                 ServerSentEvent.<String>builder().event("message").data("hi").build(),
@@ -122,10 +122,10 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
     assertThat(
             exchangeStream(
                 mvc.post()
-                    .uri("/api/pipelines/supervisor/invoke/sse")
+                    .uri("/api/pipelines/supervisor:streamInvoke")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{\"message\":\"hello\"}")
-                    .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey()))))
+                    .with(AnonymousIdRequestPostProcessor.withClientId(ownerId()))))
         .hasStatusOk()
         .bodyText()
         .asString()
@@ -138,10 +138,10 @@ class PipelineControllerTest extends AbstractOwnerScopedControllerTest {
   void shouldRejectBlankMessage() {
     assertThat(
             mvc.post()
-                .uri("/api/pipelines/k8s/invoke/sse")
+                .uri("/api/pipelines/k8s:streamInvoke")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"message\":\" \"}")
-                .with(ClientIdentityRequestPostProcessor.withClientId(ownerKey())))
+                .with(AnonymousIdRequestPostProcessor.withClientId(ownerId())))
         .hasStatus(400);
   }
 

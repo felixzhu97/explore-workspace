@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  /** Returns 401 when the request has no Client Identity. */
-  @ExceptionHandler(ClientIdentityRequiredException.class)
-  public ProblemDetail handleClientIdentityRequired(ClientIdentityRequiredException e) {
+  /** Returns 401 when the request has no Anonymous id. */
+  @ExceptionHandler(AnonymousIdRequiredException.class)
+  public ProblemDetail handleAnonymousIdRequired(AnonymousIdRequiredException e) {
     return Problems.of(
-        HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Client identity required");
+        HttpStatus.UNAUTHORIZED, "CLIENT_IDENTITY_REQUIRED", "Anonymous id required");
   }
 
   /** Returns 400 for an invalid argument. */

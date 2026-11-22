@@ -1,6 +1,6 @@
 // Environment configuration for production (cloud-minimal)
 // Browser calls same-origin /api (Vercel rewrite → Render) so HttpOnly
-// client identity cookies stay first-party (SameSite=Lax works).
+// anonymous id cookies stay first-party (SameSite=Lax works).
 export const environment = {
   production: true,
   apiBaseUrl: '/api',

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.ai.billing.infra.config.BillingProperties;
 import com.ai.billing.service.BillingPlanService;
 import com.ai.billing.service.DailyUsageQuotaService;
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,9 +44,9 @@ class UsageQuotaFilterTest {
 
     filter.doFilter(request, response, filterChain);
 
-    assertThat(response.getHeader("X-Quota-Limit")).isEqualTo("2");
-    assertThat(response.getHeader("X-Quota-Remaining")).isEqualTo("1");
-    assertThat(response.getHeader("X-Quota-Plan")).isEqualTo("free");
+    assertThat(response.getHeader("RateLimit-Limit")).isEqualTo("2");
+    assertThat(response.getHeader("RateLimit-Remaining")).isEqualTo("1");
+    assertThat(response.getHeader("RateLimit-Policy")).isEqualTo("free");
     verify(filterChain).doFilter(request, response);
   }
 
@@ -61,8 +61,8 @@ class UsageQuotaFilterTest {
     filter.doFilter(postChat("client-2"), third, filterChain);
 
     assertThat(third.getStatus()).isEqualTo(429);
-    assertThat(third.getContentAsString()).contains("/problems/quota-exceeded");
-    assertThat(third.getHeader("X-Quota-Remaining")).isEqualTo("0");
+    assertThat(third.getContentAsString()).contains("https://www.felixzhu.chat/problems/quota-exceeded");
+    assertThat(third.getHeader("RateLimit-Remaining")).isEqualTo("0");
     verify(filterChain, times(2)).doFilter(any(), any());
   }
 
@@ -75,13 +75,13 @@ class UsageQuotaFilterTest {
     filter.doFilter(request, response, filterChain);
 
     verify(filterChain).doFilter(request, response);
-    assertThat(response.getHeader("X-Quota-Limit")).isNull();
+    assertThat(response.getHeader("RateLimit-Limit")).isNull();
   }
 
   private static MockHttpServletRequest postChat(String clientId) {
     MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/chat");
     request.setServletPath("/api/chat");
-    request.setAttribute(ClientIdentity.REQUEST_ATTRIBUTE, clientId);
+    request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, clientId);
     return request;
   }
 }

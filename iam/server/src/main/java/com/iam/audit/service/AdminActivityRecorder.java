@@ -26,7 +26,7 @@ import com.iam.identity.domain.event.UserReactivatedEvent;
 import com.iam.identity.domain.event.UserRoleAssignedEvent;
 import com.iam.identity.domain.event.UserRoleUnassignedEvent;
 import com.iam.policy.domain.event.AccessEvaluatedEvent;
-import com.iam.policy.domain.event.AllowPolicyCreatedEvent;
+import com.iam.policy.domain.event.PolicyCreatedEvent;
 import com.iam.policy.domain.event.PermissionCreatedEvent;
 import com.iam.policy.domain.event.PolicyAttachedEvent;
 import com.iam.sts.domain.event.RoleAssumedEvent;
@@ -135,13 +135,13 @@ public class AdminActivityRecorder {
   }
 
   @EventListener
-  void handleAllowPolicyCreatedEvent(AllowPolicyCreatedEvent event) {
-    recordSuccess("policy:CreatePolicy", "AllowPolicy", event.policyId());
+  void handlePolicyCreatedEvent(PolicyCreatedEvent event) {
+    recordSuccess("policy:CreatePolicy", "Policy", event.policyId());
   }
 
   @EventListener
   void handlePolicyAttachedEvent(PolicyAttachedEvent event) {
-    recordSuccess("policy:AttachPolicy", "PolicyBinding", event.policyBindingId());
+    recordSuccess("policy:AttachPolicy", "PolicyAssignment", event.policyAssignmentId());
   }
 
   @EventListener

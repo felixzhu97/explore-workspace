@@ -1,0 +1,84 @@
+import { useRef } from 'react'
+import { AgGridReact } from 'ag-grid-react'
+import { ColDef, GridReadyEvent } from 'ag-grid-community'
+import { Card, CardHeader, CardTitle, CardContent, AgGridWrap } from '@/styled'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-quartz.css'
+
+interface Client {
+  id: string
+  name: string
+  email: string
+  phone: string
+  portfolioValue: number
+  totalAssets: number
+  activeInvestments: number
+  joinDate: string
+  status: 'Active' | 'Inactive' | 'Pending'
+  riskProfile: 'Conservative' | 'Moderate' | 'Aggressive'
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const clientRowData: Client[] = [
+  { id: '1', name: 'John Smith', email: 'john.smith@email.com', phone: '+1 234-567-8900', portfolioValue: 1250000, totalAssets: 8, activeInvestments: 5, joinDate: '2024-01-15', status: 'Active', riskProfile: 'Moderate' },
+  { id: '2', name: 'Sarah Johnson', email: 'sarah.j@email.com', phone: '+1 234-567-8901', portfolioValue: 850000, totalAssets: 6, activeInvestments: 4, joinDate: '2024-03-20', status: 'Active', riskProfile: 'Conservative' },
+  { id: '3', name: 'Michael Chen', email: 'm.chen@email.com', phone: '+1 234-567-8902', portfolioValue: 2100000, totalAssets: 12, activeInvestments: 8, joinDate: '2023-11-10', status: 'Active', riskProfile: 'Aggressive' },
+  { id: '4', name: 'Emily Davis', email: 'emily.d@email.com', phone: '+1 234-567-8903', portfolioValue: 450000, totalAssets: 4, activeInvestments: 3, joinDate: '2025-01-05', status: 'Pending', riskProfile: 'Moderate' },
+  { id: '5', name: 'David Wilson', email: 'd.wilson@email.com', phone: '+1 234-567-8904', portfolioValue: 3200000, totalAssets: 15, activeInvestments: 10, joinDate: '2023-08-22', status: 'Active', riskProfile: 'Aggressive' },
+  { id: '6', name: 'Lisa Anderson', email: 'lisa.a@email.com', phone: '+1 234-567-8905', portfolioValue: 680000, totalAssets: 5, activeInvestments: 3, joinDate: '2024-06-12', status: 'Inactive', riskProfile: 'Conservative' },
+  { id: '7', name: 'Robert Brown', email: 'robert.b@email.com', phone: '+1 234-567-8906', portfolioValue: 950000, totalAssets: 7, activeInvestments: 5, joinDate: '2024-09-30', status: 'Active', riskProfile: 'Moderate' },
+  { id: '8', name: 'Jennifer Taylor', email: 'j.taylor@email.com', phone: '+1 234-567-8907', portfolioValue: 1750000, totalAssets: 10, activeInvestments: 7, joinDate: '2023-12-05', status: 'Active', riskProfile: 'Aggressive' },
+]
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const statusClass = (v: string) => ({ Active: 'bg-accent-10', Inactive: 'bg-muted-10', Pending: 'bg-chart-3-10' }[v] ?? '')
+// eslint-disable-next-line react-refresh/only-export-components
+export const riskClass = (v: string) => ({ Conservative: 'bg-chart-3-10', Moderate: 'bg-chart-2-10', Aggressive: 'bg-destructive-10' }[v] ?? '')
+// eslint-disable-next-line react-refresh/only-export-components
+export const formatPortfolioValue = (value: number | null | undefined) => value != null ? `¥${(value / 1e6).toFixed(2)}M` : ''
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const clientColumnDefs: ColDef<Client>[] = [
+  { field: 'name', headerName: 'Name', sortable: true, filter: true, flex: 1, pinned: 'left' },
+  { field: 'email', headerName: 'Email', sortable: true, filter: true, flex: 1 },
+  { field: 'phone', headerName: 'Phone', sortable: true, filter: true, width: 150 },
+  { field: 'portfolioValue', headerName: 'Portfolio Value', sortable: true, filter: 'agNumberColumnFilter', width: 150, valueFormatter: (p) => formatPortfolioValue(p.value), cellClass: 'cell-font-semibold' },
+  { field: 'totalAssets', headerName: 'Total Assets', sortable: true, filter: 'agNumberColumnFilter', width: 120 },
+  { field: 'activeInvestments', headerName: 'Active Investments', sortable: true, filter: 'agNumberColumnFilter', width: 150 },
+  { field: 'joinDate', headerName: 'Join Date', sortable: true, filter: 'agDateColumnFilter', width: 120 },
+  { field: 'status', headerName: 'Status', sortable: true, filter: true, width: 120, cellClass: (p) => statusClass(p.value ?? '') },
+  { field: 'riskProfile', headerName: 'Risk Profile', sortable: true, filter: true, width: 140, cellClass: (p) => riskClass(p.value ?? '') },
+]
+
+export function Clients() {
+  const gridRef = useRef<AgGridReact<Client>>(null)
+
+  const onGridReady = (params: GridReadyEvent<Client>) => {
+    params.api.sizeColumnsToFit()
+  }
+
+  return (
+    <Card className="glass">
+      <CardHeader style={{ paddingBottom: '1rem' }}>
+        <CardTitle style={{ fontSize: '1.5rem' }}>Clients</CardTitle>
+        <p style={{ margin: 0, marginTop: 4, fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>Manage your client portfolio and relationships</p>
+      </CardHeader>
+      <CardContent>
+        <AgGridWrap className="ag-theme-quartz-dark ag-robinhood">
+          <AgGridReact<Client>
+            ref={gridRef}
+            rowData={clientRowData}
+            columnDefs={clientColumnDefs}
+            defaultColDef={{ resizable: true, sortable: true, filter: true }}
+            pagination
+            paginationPageSize={20}
+            rowSelection="multiple"
+            animateRows
+            theme="legacy"
+            onGridReady={onGridReady}
+          />
+        </AgGridWrap>
+      </CardContent>
+    </Card>
+  )
+}

@@ -34,7 +34,7 @@ class ApiExceptionHandlerTest {
         .perform(get("/clients"))
         .andExpect(status().isBadRequest())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-        .andExpect(jsonPath("$.type").value("/problems/invalid-request"))
+        .andExpect(jsonPath("$.type").value("https://www.felixzhu.chat/problems/invalid-request"))
         .andExpect(jsonPath("$.title").value("Bad Request"))
         .andExpect(jsonPath("$.status").value(400))
         .andExpect(jsonPath("$.detail").value("Redirect URI must use https"))

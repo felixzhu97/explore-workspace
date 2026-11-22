@@ -23,7 +23,7 @@ import reactor.core.publisher.Flux;
 
 /** Published Language for sibling products: list and invoke catalog Agents. */
 @RestController
-@RequestMapping("/api/agents")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AgentController {
 
@@ -31,53 +31,53 @@ public class AgentController {
   private final OwnerContext ownerContext;
 
   /** Lists runnable Agent types. */
-  @GetMapping
+  @GetMapping("/agents")
   public ResponseEntity<List<AgentSummaryResponse>> listAgents(
       @RequestParam(value = "lang", required = false) String lang, HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     List<AgentSummaryResponse> agents =
-        agentService.listAgents(ownerKey, language).stream()
+        agentService.listAgents(ownerId, language).stream()
             .map(AgentSummaryResponse::createResponse)
             .toList();
     return ResponseEntity.ok(agents);
   }
 
   /** Returns one Agent summary. */
-  @GetMapping("/{agentType}")
+  @GetMapping("/agents/{agentType}")
   public ResponseEntity<AgentSummaryResponse> getAgent(
       @PathVariable String agentType,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     return ResponseEntity.ok(
-        AgentSummaryResponse.createResponse(agentService.getAgent(agentType, ownerKey, language)));
+        AgentSummaryResponse.createResponse(agentService.getAgent(agentType, ownerId, language)));
   }
 
   /** Runs one Agent and returns the reply. */
-  @PostMapping("/{agentType}/invoke")
+  @PostMapping("/agents/{agentType}/invoke")
   public ResponseEntity<AgentInvokeResponse> invoke(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeBody body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     return ResponseEntity.ok(
         AgentInvokeResponse.createResponse(
-            agentService.invoke(agentType, body.message(), ownerKey, language)));
+            agentService.invoke(agentType, body.message(), ownerId, language)));
   }
 
   /** Streams one Agent run as SSE. */
-  @PostMapping(value = "/{agentType}/invoke/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  @PostMapping(value = "agents/{agentType}:streamInvoke", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent<String>> invokeStream(
       @PathVariable String agentType,
       @Valid @RequestBody AgentInvokeBody body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
-    return agentService.invokeStream(agentType, body.message(), ownerKey, language);
+    return agentService.invokeStream(agentType, body.message(), ownerId, language);
   }
 }

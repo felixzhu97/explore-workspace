@@ -24,25 +24,25 @@ public class AgentService {
   private final PipelineService pipelineService;
 
   /** Lists runnable Agent types for the owner. */
-  public List<AgentDefinition> listAgents(String ownerKey, String language) {
-    return pipelineService.listAgents(ownerKey, language);
+  public List<AgentDefinition> listAgents(String ownerId, String language) {
+    return pipelineService.listAgents(ownerId, language);
   }
 
   /** Returns one Agent Definition by type. */
-  public AgentDefinition getAgent(String agentType, String ownerKey, String language) {
-    return pipelineService.getHealth(agentType, ownerKey, language);
+  public AgentDefinition getAgent(String agentType, String ownerId, String language) {
+    return pipelineService.getHealth(agentType, ownerId, language);
   }
 
   /** Runs one Agent and returns a completed Agent Run. */
-  public AgentRun invoke(String agentType, String message, String ownerKey, String language) {
-    String reply = pipelineService.invokeAgentSync(agentType, message, ownerKey, language);
+  public AgentRun invoke(String agentType, String message, String ownerId, String language) {
+    String reply = pipelineService.invokeAgentSync(agentType, message, ownerId, language);
     return AgentRun.createCompleted(agentType, message, reply);
   }
 
   /** Streams one Agent run as SSE (same event shape as Pipeline direct invoke). */
   public Flux<ServerSentEvent<String>> invokeStream(
-      String agentType, String message, String ownerKey, String language) {
-    return pipelineService.invokeAgent(agentType, message, ownerKey, language);
+      String agentType, String message, String ownerId, String language) {
+    return pipelineService.invokeAgent(agentType, message, ownerId, language);
   }
 
   /** Resolves Accept-Language / ?lang= the same way Pipeline does. */

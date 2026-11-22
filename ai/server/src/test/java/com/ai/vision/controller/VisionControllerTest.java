@@ -70,7 +70,7 @@ class VisionControllerTest extends AbstractOwnerScopedControllerTest {
         .bodyJson()
         .extractingPath("$.type")
         .asString()
-        .isEqualTo("/problems/invalid-file");
+        .isEqualTo("https://www.felixzhu.chat/problems/invalid-file");
   }
 
   @Test
@@ -84,14 +84,14 @@ class VisionControllerTest extends AbstractOwnerScopedControllerTest {
         .when(visionAnalysisService)
         .detectObjects(any(), any());
 
-    assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
+    assertThat(mvc.post().multipart().uri("/api/vision:detect").file(file))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.detections")
         .asArray()
         .hasSize(1);
 
-    assertThat(mvc.post().multipart().uri("/api/vision/detect").file(file))
+    assertThat(mvc.post().multipart().uri("/api/vision:detect").file(file))
         .hasStatusOk()
         .bodyJson()
         .extractingPath("$.processingTimeMs")

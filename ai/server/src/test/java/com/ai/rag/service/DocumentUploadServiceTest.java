@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
 import com.ai.rag.domain.model.DocumentStatus;
@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 @DisplayName("DocumentUploadService")
 class DocumentUploadServiceTest {
 
-  private static final OwnerKey TEST_OWNER = OwnerKey.parseKey("c:test-owner");
+  private static final OwnerId TEST_OWNER = OwnerId.parseKey("c:test-owner");
 
   @Mock private DocumentReader reader;
 
@@ -337,7 +337,7 @@ class DocumentUploadServiceTest {
       ArgumentCaptor<List<DocumentChunk>> written = ArgumentCaptor.forClass(List.class);
       verify(writer).writeChunks(written.capture());
       DocumentChunk chunk = written.getValue().getFirst();
-      assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parseKey("c:test-owner"));
+      assertThat(chunk.getOwnerId()).isEqualTo(OwnerId.parseKey("c:test-owner"));
       assertThat(chunk.getMetadata())
           .containsEntry("page", 1)
           .containsEntry("title", "Title")
@@ -356,20 +356,20 @@ class DocumentUploadServiceTest {
       DocumentId docId = document.getId();
       UUID documentId = docId.getValue();
 
-      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
+      when(documentRepository.findByIdAndOwnerId(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.of(document));
 
       service.deleteDocument(documentId, "c:test-owner");
 
       verify(chunkRepository).deleteChunksByDocumentId(docId);
-      verify(documentRepository).deleteByIdAndOwnerKey(docId, TEST_OWNER);
+      verify(documentRepository).deleteByIdAndOwnerId(docId, TEST_OWNER);
     }
 
     @Test
     @DisplayName("should throw exception when document not found")
     void shouldThrowExceptionWhenDocumentNotFound() {
       UUID documentId = UUID.randomUUID();
-      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
+      when(documentRepository.findByIdAndOwnerId(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.empty());
 
       assertThatThrownBy(() -> service.deleteDocument(documentId, "c:test-owner"))
@@ -384,13 +384,13 @@ class DocumentUploadServiceTest {
       DocumentId docId = document.getId();
       UUID documentId = docId.getValue();
 
-      when(documentRepository.findByIdAndOwnerKey(DocumentId.createId(documentId), TEST_OWNER))
+      when(documentRepository.findByIdAndOwnerId(DocumentId.createId(documentId), TEST_OWNER))
           .thenReturn(Optional.of(document));
 
       service.deleteDocument(documentId, "c:test-owner");
 
       verify(chunkRepository).deleteChunksByDocumentId(docId);
-      verify(documentRepository).deleteByIdAndOwnerKey(docId, TEST_OWNER);
+      verify(documentRepository).deleteByIdAndOwnerId(docId, TEST_OWNER);
     }
 
     private RagDocument stored(DocumentStatus status, int chunkCount) {

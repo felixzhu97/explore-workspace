@@ -55,7 +55,7 @@ public class ChatStreamController {
   public Flux<String> streamChat(
       @Valid @RequestBody ChatStreamRequest request, HttpServletRequest httpRequest) {
     TextChatOptions options = buildChatOptions(request, httpRequest);
-    String ownerKey = ownerContext.requireValue(httpRequest);
+    String ownerId = ownerContext.requireValue(httpRequest);
 
     if (request.sessionId() != null && !request.sessionId().isBlank()) {
       String userMessage = extractLastUserMessage(request.messages());
@@ -63,7 +63,7 @@ public class ChatStreamController {
         return Flux.error(
             new IllegalArgumentException("User message is required when sessionId is provided"));
       }
-      return chatService.streamChatWithSession(request.sessionId(), userMessage, options, ownerKey);
+      return chatService.streamChatWithSession(request.sessionId(), userMessage, options, ownerId);
     }
 
     List<ChatMessage> messages =
@@ -73,7 +73,7 @@ public class ChatStreamController {
                     ChatMessage.restoreMessage(
                         MessageId.generateId(), dto.content(), dto.role(), Instant.now()))
             .toList();
-    return chatService.streamChat(messages, options, ownerKey);
+    return chatService.streamChat(messages, options, ownerId);
   }
 
   private TextChatOptions buildChatOptions(

@@ -1,0 +1,126 @@
+package com.ai.common.controller.filter;
+
+import com.ai.common.controller.AnonymousId;
+import com.ai.common.controller.AnonymousIdCookieFactory;
+import com.ai.common.controller.BearerAuthorization;
+import com.ai.common.infra.config.AnonymousIdProperties;
+import com.ai.common.infra.config.ServiceAuthProperties;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.regex.Pattern;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+/**
+ * Issues and resolves an anonymous browser client id via HttpOnly cookie, or accepts a trusted BFF
+ * identity via {@code Authorization: Bearer} + {@code Anonymous-Id}.
+ *
+ * @see <a
+ *     href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">OWASP
+ *     Session Management</a>
+ */
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE + 20)
+@EnableConfigurationProperties({AnonymousIdProperties.class, ServiceAuthProperties.class})
+@RequiredArgsConstructor
+public class AnonymousIdFilter extends OncePerRequestFilter {
+
+  public static final String ANONYMOUS_ID_HEADER = "Anonymous-Id";
+
+  private static final Pattern UUID_PATTERN =
+      Pattern.compile(
+          "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+
+  private final AnonymousIdCookieFactory cookieFactory;
+  private final ServiceAuthProperties serviceAuthProperties;
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getRequestURI();
+    if (path == null) {
+      return true;
+    }
+    // Include OAuth callback paths so login can link the browser Anonymous id cookie.
+    // A2A message APIs also need Owner Key from Anonymous id (or trusted BFF headers).
+    return !path.startsWith("/api/")
+        && !path.startsWith("/a2a/")
+        && !path.startsWith("/login/oauth2/")
+        && !path.startsWith("/oauth2/");
+  }
+
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    String serviceClientId = resolveServiceClientId(request);
+    if (serviceClientId != null) {
+      request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, serviceClientId);
+      request.setAttribute(AnonymousId.TRUSTED_SERVICE_ATTRIBUTE, Boolean.TRUE);
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    String existing = readCookie(request);
+    String clientId;
+    if (existing != null) {
+      clientId = existing;
+    } else {
+      clientId = cookieFactory.generateAnonymousId();
+      response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issueCookie(clientId).toString());
+    }
+    request.setAttribute(AnonymousId.REQUEST_ATTRIBUTE, clientId);
+    filterChain.doFilter(request, response);
+  }
+
+  private String resolveServiceClientId(HttpServletRequest request) {
+    if (!serviceAuthProperties.isEnabled()) {
+      return null;
+    }
+    String bearer = BearerAuthorization.extractToken(request);
+    if (!constantTimeEquals(bearer, serviceAuthProperties.getApiKey())) {
+      return null;
+    }
+    String clientId = request.getHeader(ANONYMOUS_ID_HEADER);
+    if (clientId == null || !UUID_PATTERN.matcher(clientId).matches()) {
+      return null;
+    }
+    return clientId;
+  }
+
+  private String readCookie(HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return null;
+    }
+    String cookieName = cookieFactory.getCookieName();
+    for (Cookie cookie : cookies) {
+      if (cookieName.equals(cookie.getName())) {
+        String value = cookie.getValue();
+        if (value != null && UUID_PATTERN.matcher(value).matches()) {
+          return value;
+        }
+        return null;
+      }
+    }
+    return null;
+  }
+
+  private static boolean constantTimeEquals(String a, String b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    return MessageDigest.isEqual(
+        a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
+  }
+}

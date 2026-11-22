@@ -1,7 +1,7 @@
 package com.ai.chat.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareEntity;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -34,37 +34,37 @@ public class ChatSession extends AbstractOwnerAwareEntity<ChatSessionId> {
   @Column(nullable = false)
   private Instant lastActivityAt;
 
-  private ChatSession(ChatSessionId id, SessionTitle title, Instant createdAt, OwnerKey ownerKey) {
-    super(id, ownerKey);
+  private ChatSession(ChatSessionId id, SessionTitle title, Instant createdAt, OwnerId ownerId) {
+    super(id, ownerId);
     this.title = title;
     this.createdAt = createdAt;
     this.lastActivityAt = createdAt;
   }
 
   /** Creates a new chat session for the owner with the title the user typed. */
-  public static ChatSession createSession(String title, String ownerKey) {
+  public static ChatSession createSession(String title, String ownerId) {
     return new ChatSession(
         ChatSessionId.generateId(),
         SessionTitle.createTitle(title),
         Instant.now(),
-        OwnerKey.parseKey(ownerKey));
+        OwnerId.parseKey(ownerId));
   }
 
   /** Starts the owner's default session; it gets a generated title after the first exchange. */
-  public static ChatSession createDefaultSession(String ownerKey) {
-    return createSessionWithId(ChatSessionId.generateId(), ownerKey);
+  public static ChatSession createDefaultSession(String ownerId) {
+    return createSessionWithId(ChatSessionId.generateId(), ownerId);
   }
 
   /** Starts an untitled session under an id the client chose. */
-  public static ChatSession createSessionWithId(ChatSessionId id, String ownerKey) {
-    return new ChatSession(id, SessionTitle.DEFAULT, Instant.now(), OwnerKey.parseKey(ownerKey));
+  public static ChatSession createSessionWithId(ChatSessionId id, String ownerId) {
+    return new ChatSession(id, SessionTitle.DEFAULT, Instant.now(), OwnerId.parseKey(ownerId));
   }
 
   /** Rebuilds a stored chat session. */
   public static ChatSession restoreSession(
-      ChatSessionId id, String title, Instant createdAt, String ownerKey) {
+      ChatSessionId id, String title, Instant createdAt, String ownerId) {
     return new ChatSession(
-        id, SessionTitle.createTitle(title), createdAt, OwnerKey.parseKey(ownerKey));
+        id, SessionTitle.createTitle(title), createdAt, OwnerId.parseKey(ownerId));
   }
 
   /** Returns the title text. */

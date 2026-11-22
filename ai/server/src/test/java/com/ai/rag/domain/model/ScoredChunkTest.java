@@ -2,7 +2,7 @@ package com.ai.rag.domain.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +15,7 @@ class ScoredChunkTest {
     return DocumentChunk.createChunk(
             ChunkId.generateId(),
             DocumentId.generateId(),
-            OwnerKey.parseKey("c:owner"),
+            OwnerId.parseKey("c:owner"),
             "text",
             0,
             Map.of())

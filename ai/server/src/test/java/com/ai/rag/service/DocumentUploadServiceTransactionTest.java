@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.DocumentStatus;
 import com.ai.rag.domain.model.ExtractedDocument;
 import com.ai.rag.domain.model.RagDocument;
@@ -46,7 +46,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should keep the document as FAILED when its text cannot be extracted")
   void shouldKeepTheDocumentAsFailedWhenItsTextCannotBeExtracted() {
-    OwnerKey owner = newOwner();
+    OwnerId owner = newOwner();
     when(reader.readDocument(any(byte[].class), eq("broken.pdf")))
         .thenThrow(
             DomainException.createUnprocessableError(
@@ -58,7 +58,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
         .isInstanceOf(DomainException.class)
         .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE");
 
-    assertThat(documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(owner))
+    assertThat(documentRepository.findAllByOwnerIdOrderByCreatedAtDesc(owner))
         .singleElement()
         .extracting(RagDocument::getStatus)
         .isEqualTo(DocumentStatus.FAILED);
@@ -67,7 +67,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should keep the document as FAILED when the file has no text")
   void shouldKeepTheDocumentAsFailedWhenTheFileHasNoText() {
-    OwnerKey owner = newOwner();
+    OwnerId owner = newOwner();
     when(reader.readDocument(any(byte[].class), eq("blank.txt")))
         .thenReturn(new ExtractedDocument("  \n ", Map.of(), "blank.txt"));
     when(transformer.splitDocument(any(ExtractedDocument.class))).thenReturn(List.of());
@@ -78,7 +78,7 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
         .hasFieldOrPropertyWithValue("code", "DOCUMENT_UNREADABLE")
         .hasMessage("No text found in blank.txt");
 
-    assertThat(documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(owner))
+    assertThat(documentRepository.findAllByOwnerIdOrderByCreatedAtDesc(owner))
         .singleElement()
         .extracting(RagDocument::getStatus)
         .isEqualTo(DocumentStatus.FAILED);
@@ -87,18 +87,18 @@ class DocumentUploadServiceTransactionTest extends AbstractDataJpaTest {
   @Test
   @DisplayName("should reject an empty file without storing a document")
   void shouldRejectAnEmptyFileWithoutStoringADocument() {
-    OwnerKey owner = newOwner();
+    OwnerId owner = newOwner();
 
     assertThatThrownBy(
             () -> service.uploadDocument("Empty", "empty.txt", new byte[0], owner.getValue()))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Uploaded file is empty");
 
-    assertThat(documentRepository.findAllByOwnerKeyOrderByCreatedAtDesc(owner)).isEmpty();
+    assertThat(documentRepository.findAllByOwnerIdOrderByCreatedAtDesc(owner)).isEmpty();
     verifyNoInteractions(reader);
   }
 
-  private static OwnerKey newOwner() {
-    return OwnerKey.createClientKey(UUID.randomUUID().toString());
+  private static OwnerId newOwner() {
+    return OwnerId.createClientKey(UUID.randomUUID().toString());
   }
 }

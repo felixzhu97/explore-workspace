@@ -1,6 +1,6 @@
 package com.ai.pipeline.infra.registry;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.infra.prompt.ClasspathPromptLoader;
 import com.ai.common.infra.prompt.PromptTemplates;
 import com.ai.pipeline.domain.model.AgentDefinition;
@@ -44,14 +44,14 @@ public class CatalogAgentRegistry implements AgentRegistry {
       }
 
       @Override
-      public List<AgentDefinition> listAll(String ownerKey, String language) {
+      public List<AgentDefinition> listAll(String ownerId, String language) {
         return listBuiltins(language);
       }
 
       @Override
-      public List<AgentDefinition> listWorkers(String ownerKey, String language) {
+      public List<AgentDefinition> listWorkers(String ownerId, String language) {
         List<AgentDefinition> workers = new ArrayList<>();
-        for (AgentDefinition agent : listAll(ownerKey, language)) {
+        for (AgentDefinition agent : listAll(ownerId, language)) {
           if (agent.isWorker()) {
             workers.add(agent);
           }
@@ -61,13 +61,13 @@ public class CatalogAgentRegistry implements AgentRegistry {
 
       @Override
       public Optional<AgentDefinition> findByType(
-          AgentType type, String ownerKey, String language) {
+          AgentType type, String ownerId, String language) {
         return Optional.ofNullable(fixed.get(type.getValue()));
       }
 
       @Override
-      public AgentDefinition requireAgent(AgentType type, String ownerKey, String language) {
-        return findByType(type, ownerKey, language)
+      public AgentDefinition requireAgent(AgentType type, String ownerId, String language) {
+        return findByType(type, ownerId, language)
             .orElseThrow(
                 () ->
                     DomainException.createNotFoundError(
@@ -82,21 +82,21 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public List<AgentDefinition> listAll(String ownerKey, String language) {
+  public List<AgentDefinition> listAll(String ownerId, String language) {
     Map<String, AgentDefinition> byType = new LinkedHashMap<>();
     for (AgentDefinition builtin : listBuiltins(language)) {
       byType.put(builtin.getType().getValue(), builtin);
     }
-    for (CustomAgent saved : listLibraryAgents(ownerKey)) {
+    for (CustomAgent saved : listLibraryAgents(ownerId)) {
       byType.put(saved.getAgentType(), saved.buildAgentDefinition());
     }
     return List.copyOf(byType.values());
   }
 
   @Override
-  public List<AgentDefinition> listWorkers(String ownerKey, String language) {
+  public List<AgentDefinition> listWorkers(String ownerId, String language) {
     List<AgentDefinition> workers = new ArrayList<>();
-    for (AgentDefinition agent : listAll(ownerKey, language)) {
+    for (AgentDefinition agent : listAll(ownerId, language)) {
       if (agent.isWorker()) {
         workers.add(agent);
       }
@@ -105,8 +105,8 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language) {
-    return listLibraryAgents(ownerKey).stream()
+  public Optional<AgentDefinition> findByType(AgentType type, String ownerId, String language) {
+    return listLibraryAgents(ownerId).stream()
         .filter(saved -> saved.hasAgentType(type))
         .findFirst()
         .map(CustomAgent::buildAgentDefinition)
@@ -117,20 +117,20 @@ public class CatalogAgentRegistry implements AgentRegistry {
   }
 
   @Override
-  public AgentDefinition requireAgent(AgentType type, String ownerKey, String language) {
-    return findByType(type, ownerKey, language)
+  public AgentDefinition requireAgent(AgentType type, String ownerId, String language) {
+    return findByType(type, ownerId, language)
         .orElseThrow(
             () ->
                 DomainException.createNotFoundError(
                     "AGENT_NOT_FOUND", "Unknown agent type: " + type.getValue()));
   }
 
-  private List<CustomAgent> listLibraryAgents(String ownerKey) {
-    if (ownerKey == null || ownerKey.isBlank()) {
+  private List<CustomAgent> listLibraryAgents(String ownerId) {
+    if (ownerId == null || ownerId.isBlank()) {
       return List.of();
     }
-    return customAgentRepository.findAllByOwnerKeyAndEnabledTrueOrderByNameAsc(
-        OwnerKey.parseKey(ownerKey));
+    return customAgentRepository.findAllByOwnerIdAndEnabledTrueOrderByNameAsc(
+        OwnerId.parseKey(ownerId));
   }
 
   private AgentDefinition toDefinition(AgentTemplate template) {

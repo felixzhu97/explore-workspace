@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.domain.model.OfficialGateResult;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import com.ai.eval.service.ChatQualityEvaluator.LlmEvaluationResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +24,7 @@ import org.springframework.ai.chat.client.ChatClient;
 @DisplayName("ChatQualityEvaluator")
 class ChatQualityEvaluatorTest {
 
-  @Mock private OfficialSpringAiEvaluators officialEvaluators;
+  @Mock private BuiltInSpringAiEvaluators officialEvaluators;
 
   @Mock private ChatClient evaluationChatClient;
 
@@ -45,7 +45,7 @@ class ChatQualityEvaluatorTest {
   void shouldSkipFactualityWhenNoReferenceDocuments() {
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
-            new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
+            new BuiltInGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
     stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
     ChatEvaluationResult result =
@@ -63,7 +63,7 @@ class ChatQualityEvaluatorTest {
   void shouldEvaluateFactualityWhenReferenceDocumentsProvided() {
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
-            new OfficialGateResult(
+            new BuiltInGateResult(
                 true, true, true, 1.0, 1.0, List.of("relevancy: PASS", "factuality: PASS"), true));
     stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 
@@ -84,7 +84,7 @@ class ChatQualityEvaluatorTest {
   void shouldUseFallbackWhenLlmJudgeReturnsNull() {
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
-            new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
+            new BuiltInGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
     stubLlmJudge(null);
 
     ChatEvaluationResult result = evaluator.evaluateChat("Hello", "Hi there", List.of());
@@ -99,7 +99,7 @@ class ChatQualityEvaluatorTest {
   void shouldUseDefaultSafetyConcernWhenBlank() {
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
-            new OfficialGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
+            new BuiltInGateResult(true, null, false, 1.0, null, List.of("relevancy: PASS"), true));
     stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, true, "", ""));
 
     ChatEvaluationResult result = evaluator.evaluateChat("Hello", "Harmful reply", List.of());
@@ -112,7 +112,7 @@ class ChatQualityEvaluatorTest {
   @DisplayName("should include factuality in overall score when available")
   void shouldIncludeFactualityInOverallScoreWhenAvailable() {
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
-        .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
+        .thenReturn(new BuiltInGateResult(true, true, true, 1.0, 1.0, List.of(), true));
     stubLlmJudge(new LlmEvaluationResponse(0.8, 0.8, false, "", ""));
 
     ChatEvaluationResult result =
@@ -126,7 +126,7 @@ class ChatQualityEvaluatorTest {
   void shouldSuggestRelevanceFixWhenRelevancyFails() {
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
-            new OfficialGateResult(
+            new BuiltInGateResult(
                 false, null, false, 0.0, null, List.of("relevancy: FAIL"), false));
     stubLlmJudge(new LlmEvaluationResponse(0.9, 0.9, false, "", ""));
 

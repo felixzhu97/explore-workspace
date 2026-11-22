@@ -108,7 +108,7 @@ class RagChatServiceTest {
     FilterExpressionBuilder b = new FilterExpressionBuilder();
     assertThat(capturedFilter())
         .isEqualTo(
-            b.and(b.eq("ownerKey", OWNER), b.in("document_id", List.<Object>of(docId))).build());
+            b.and(b.eq("ownerId", OWNER), b.in("document_id", List.<Object>of(docId))).build());
   }
 
   @Test
@@ -119,7 +119,7 @@ class RagChatServiceTest {
     ragChatService.chatWithDocuments("q", Collections.emptyList(), 10, null, OWNER);
 
     assertThat(capturedFilter())
-        .isEqualTo(new FilterExpressionBuilder().eq("ownerKey", OWNER).build());
+        .isEqualTo(new FilterExpressionBuilder().eq("ownerId", OWNER).build());
   }
 
   @Test

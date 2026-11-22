@@ -59,13 +59,14 @@ public class PermissionController {
   /**
    * Gets one permission by code.
    *
-   * @param permission code (resource id)
-   * @return permission
+   * @param scope OAuth scope (catalog code); name matches the path variable
+   * @return permission catalog entry for the scope
+   * @see <a href="https://www.rfc-editor.org/rfc/rfc6749#section-3.3">RFC 6749 §3.3</a>
    */
-  @GetMapping("/{permissionPoint:.+}")
+  @GetMapping("/{scope:.+}")
   @PreAuthorize("hasAnyRole('IAM_ADMIN', 'IAM_AUDITOR')")
-  public PermissionResponse get(@PathVariable String permission) {
-    return PermissionResponse.from(permissionService.get(permission));
+  public PermissionResponse get(@PathVariable("scope") String scope) {
+    return PermissionResponse.from(permissionService.get(scope));
   }
 
   /**
@@ -102,10 +103,10 @@ public class PermissionController {
 
   /** AIP-158 list response. */
   public record ListPermissionsResponse(
-      @JsonProperty("permission_points") List<PermissionResponse> permissions,
+      @JsonProperty("scopes") List<PermissionResponse> permissions,
       @JsonProperty("next_page_token") String nextPageToken) {}
 
-  /** Permission point resource. */
+  /** Permission catalog entry keyed by OAuth scope. */
   public record PermissionResponse(
       String name,
       String code,
@@ -117,7 +118,7 @@ public class PermissionController {
 
     static PermissionResponse from(Permission point) {
       return new PermissionResponse(
-          "permissionPoints/" + point.getCode(),
+          "scopes/" + point.getOauthScope().value(),
           point.getCode(),
           point.getOauthScope().value(),
           point.getModule(),

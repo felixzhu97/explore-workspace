@@ -6,7 +6,7 @@ import com.ai.automation.domain.model.AutomationRun;
 import com.ai.automation.domain.model.EmailDeliveryStatus;
 import com.ai.automation.domain.model.RunStatus;
 import com.ai.automation.domain.model.ScheduleId;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.testsupport.AbstractDataJpaTest;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +16,8 @@ import org.springframework.data.domain.Limit;
 
 class AutomationRunRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:44444444-4444-4444-4444-444444444444");
-  private static final OwnerKey OTHER = OwnerKey.parseKey("c:55555555-5555-5555-5555-555555555555");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:44444444-4444-4444-4444-444444444444");
+  private static final OwnerId OTHER = OwnerId.parseKey("c:55555555-5555-5555-5555-555555555555");
 
   @Autowired private AutomationRunRepository repository;
 
@@ -45,7 +45,7 @@ class AutomationRunRepositoryTest extends AbstractDataJpaTest {
     flushAndClear();
 
     assertThat(
-            repository.findAllByScheduleIdAndOwnerKeyOrderByStartedAtDesc(
+            repository.findAllByScheduleIdAndOwnerIdOrderByStartedAtDesc(
                 scheduleId, OWNER, Limit.of(2)))
         .extracting(AutomationRun::getResultExcerpt)
         .containsExactly("newest", "middle");
@@ -60,7 +60,7 @@ class AutomationRunRepositoryTest extends AbstractDataJpaTest {
 
     AutomationRun reloaded =
         repository
-            .findAllByScheduleIdAndOwnerKeyOrderByStartedAtDesc(scheduleId, OWNER, Limit.of(1))
+            .findAllByScheduleIdAndOwnerIdOrderByStartedAtDesc(scheduleId, OWNER, Limit.of(1))
             .getFirst();
 
     assertThat(reloaded.getScheduleId()).isEqualTo(scheduleId);
@@ -68,7 +68,7 @@ class AutomationRunRepositoryTest extends AbstractDataJpaTest {
     assertThat(reloaded.getEmailStatus()).isEqualTo(EmailDeliveryStatus.SENT);
   }
 
-  private void save(ScheduleId scheduleId, OwnerKey owner, String startedAt, String result) {
+  private void save(ScheduleId scheduleId, OwnerId owner, String startedAt, String result) {
     AutomationRun run =
         AutomationRun.startRun(scheduleId, owner.getValue(), Instant.parse(startedAt));
     run.markSucceeded(result, EmailDeliveryStatus.SENT);

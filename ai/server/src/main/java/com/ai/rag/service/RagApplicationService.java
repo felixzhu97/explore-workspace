@@ -23,41 +23,41 @@ public class RagApplicationService {
 
   /** Uploads a text document. */
   public DocumentUploadService.UploadResult uploadDocument(
-      String title, String fileName, String content, String ownerKey) {
-    return uploadService.uploadDocument(title, fileName, content, ownerKey);
+      String title, String fileName, String content, String ownerId) {
+    return uploadService.uploadDocument(title, fileName, content, ownerId);
   }
 
   /** Uploads a multipart file. */
   public DocumentUploadService.UploadResult uploadDocument(
-      org.springframework.web.multipart.MultipartFile file, String title, String ownerKey) {
-    return uploadService.uploadDocument(file, title, ownerKey);
+      org.springframework.web.multipart.MultipartFile file, String title, String ownerId) {
+    return uploadService.uploadDocument(file, title, ownerId);
   }
 
   /** Uploads a document from bytes. */
   public DocumentUploadService.UploadResult uploadDocument(
-      String title, String fileName, byte[] fileContent, String ownerKey) {
-    return uploadService.uploadDocument(title, fileName, fileContent, ownerKey);
+      String title, String fileName, byte[] fileContent, String ownerId) {
+    return uploadService.uploadDocument(title, fileName, fileContent, ownerId);
   }
 
   /** Lists the owner's documents. */
-  public List<RagDocument> listDocuments(String ownerKey) {
-    return uploadService.listAll(ownerKey);
+  public List<RagDocument> listDocuments(String ownerId) {
+    return uploadService.listAll(ownerId);
   }
 
   /** Lists the owner's documents that are ready to search. */
-  public List<RagDocument> listSearchableDocuments(String ownerKey) {
-    return uploadService.listAll(ownerKey).stream().filter(RagDocument::isSearchable).toList();
+  public List<RagDocument> listSearchableDocuments(String ownerId) {
+    return uploadService.listAll(ownerId).stream().filter(RagDocument::isSearchable).toList();
   }
 
   /** Deletes the owner's document. */
-  public void deleteDocument(UUID documentId, String ownerKey) {
-    uploadService.deleteDocument(documentId, ownerKey);
+  public void deleteDocument(UUID documentId, String ownerId) {
+    uploadService.deleteDocument(documentId, ownerId);
   }
 
   /** Retrieves the chunks that match the query. */
   public RetrievalResult retrieveContext(
-      String query, List<DocumentId> documentIds, int topK, String ownerKey) {
-    var retrieval = searchService.retrieveDocuments(query, documentIds, topK, ownerKey);
+      String query, List<DocumentId> documentIds, int topK, String ownerId) {
+    var retrieval = searchService.retrieveDocuments(query, documentIds, topK, ownerId);
     return new RetrievalResult(retrieval.context(), retrieval.sources(), query);
   }
 }

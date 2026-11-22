@@ -3,7 +3,7 @@ package com.ai.rag.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -163,13 +163,13 @@ class RagDocumentTest {
     DocumentChunk chunk = doc.createChunk(2, "text", Map.of("page", 4));
 
     assertThat(chunk.getDocumentId()).isEqualTo(doc.getId());
-    assertThat(chunk.getOwnerKey()).isEqualTo(OwnerKey.parseKey(TEST_OWNER_KEY));
+    assertThat(chunk.getOwnerId()).isEqualTo(OwnerId.parseKey(TEST_OWNER_KEY));
     assertThat(chunk.getChunkIndex()).isEqualTo(2);
     assertThat(chunk.getMetadata())
         .containsEntry("page", 4)
         .containsEntry("title", TEST_TITLE)
         .containsEntry("fileName", TEST_FILE_NAME)
-        .doesNotContainKey("ownerKey");
+        .doesNotContainKey("ownerId");
   }
 
   @Test

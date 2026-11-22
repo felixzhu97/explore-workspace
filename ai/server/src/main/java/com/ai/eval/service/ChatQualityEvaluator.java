@@ -2,7 +2,7 @@ package com.ai.eval.service;
 
 import com.ai.common.infra.prompt.ClasspathPromptTemplate;
 import com.ai.eval.domain.model.ChatEvaluationResult;
-import com.ai.eval.domain.model.OfficialGateResult;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.ai.chat.client.AdvisorParams;
@@ -55,11 +55,11 @@ public class ChatQualityEvaluator {
         - suggestion: string with improvement (or empty string)
         """;
 
-  private final OfficialSpringAiEvaluators officialEvaluators;
+  private final BuiltInSpringAiEvaluators officialEvaluators;
   private final ChatClient evaluationChatClient;
 
   public ChatQualityEvaluator(
-      OfficialSpringAiEvaluators officialEvaluators,
+      BuiltInSpringAiEvaluators officialEvaluators,
       @Qualifier("evaluationChatClient") ChatClient evaluationChatClient) {
     this.officialEvaluators = officialEvaluators;
     this.evaluationChatClient = evaluationChatClient;
@@ -69,7 +69,7 @@ public class ChatQualityEvaluator {
   public ChatEvaluationResult evaluateChat(
       String userMessage, String assistantResponse, List<String> referenceDocuments) {
 
-    OfficialGateResult gate =
+    BuiltInGateResult gate =
         officialEvaluators.evaluateChat(userMessage, assistantResponse, referenceDocuments);
 
     LlmEvaluationResponse safetyResult = evaluateSafetyAndQuality(userMessage, assistantResponse);
@@ -118,7 +118,7 @@ public class ChatQualityEvaluator {
   }
 
   private List<String> buildSafetyFlags(
-      LlmEvaluationResponse safetyResult, OfficialGateResult gate) {
+      LlmEvaluationResponse safetyResult, BuiltInGateResult gate) {
     List<String> safetyFlags = new ArrayList<>();
     if (safetyResult.hasSafetyIssues()) {
       String concern = safetyResult.safetyConcern();
@@ -133,7 +133,7 @@ public class ChatQualityEvaluator {
   }
 
   private List<String> buildSuggestions(
-      LlmEvaluationResponse safetyResult, OfficialGateResult gate) {
+      LlmEvaluationResponse safetyResult, BuiltInGateResult gate) {
     List<String> suggestions = new ArrayList<>();
     if (safetyResult.suggestion() != null && !safetyResult.suggestion().isBlank()) {
       suggestions.add(safetyResult.suggestion());

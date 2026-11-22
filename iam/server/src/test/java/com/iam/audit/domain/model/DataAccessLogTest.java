@@ -21,7 +21,7 @@ class DataAccessLogTest {
   void shouldReportAllowedWhenEffectIsAllow() {
     DataAccessLog log =
         DataAccessLog.recordDataAccessLog(
-            PRINCIPAL, ACTION, RESOURCE, Effect.ALLOW, ReasonCode.EXPLICIT_ALLOW);
+            PRINCIPAL, ACTION, RESOURCE, Effect.PERMIT, ReasonCode.EXPLICIT_PERMIT);
 
     assertThat(log.isAllowed()).isTrue();
     assertThat(log.isDenied()).isFalse();

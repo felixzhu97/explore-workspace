@@ -1,6 +1,6 @@
 package com.ai.pipeline.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableDescribedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.StringListJsonAttributeConverter;
 import jakarta.persistence.Column;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<PipelineTemplateId> {
+public class PipelineTemplate extends AbstractToggleableDescribedOwnerEntity<PipelineTemplateId> {
 
   /** Brief used when the user has not written one; the pipelines canvas uses the same text. */
   public static final String GENERIC_BRIEF =
@@ -44,14 +44,14 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
 
   private PipelineTemplate(
       PipelineTemplateId id,
-      String ownerKey,
+      String ownerId,
       String name,
       String description,
       List<String> agentTypes,
       String topic,
       String brief,
       String builtinTemplateId) {
-    super(id, ownerKey, name, description);
+    super(id, ownerId, name, description);
     this.agentTypes = copyAgentTypes(agentTypes);
     this.topic = normalizeTopic(topic);
     this.brief = DomainStrings.requireNonBlank(brief, "brief");
@@ -60,7 +60,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
 
   /** Creates an enabled template with a new id, optionally linked to its catalog source. */
   public static PipelineTemplate createTemplate(
-      String ownerKey,
+      String ownerId,
       String name,
       String description,
       List<String> agentTypes,
@@ -69,7 +69,7 @@ public class PipelineTemplate extends AbstractEnableableDescribedOwnerEntity<Pip
       String builtinTemplateId) {
     return new PipelineTemplate(
         PipelineTemplateId.generateId(),
-        ownerKey,
+        ownerId,
         name,
         description,
         agentTypes,

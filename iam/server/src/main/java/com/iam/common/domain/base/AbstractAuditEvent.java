@@ -1,7 +1,7 @@
 package com.iam.common.domain.base;
 
 import com.explore.kernel.AbstractEmbeddable;
-import com.explore.kernel.AbstractImmutable;
+import com.explore.kernel.AbstractImmutableEntity;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractAuditEvent<IdT extends AbstractEmbeddable>
-    extends AbstractImmutable<IdT> {
+    extends AbstractImmutableEntity<IdT> {
 
   /**
    * Subclass constructor supplying identity and occurrence timestamp.

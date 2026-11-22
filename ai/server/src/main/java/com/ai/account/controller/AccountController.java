@@ -1,8 +1,8 @@
 package com.ai.account.controller;
 
-import com.ai.account.controller.dto.AccountMeResponse;
+import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.service.AccountService;
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Account API: guest Client Identity, optional OAuth Login, or IAM Bearer JWT (native).
+ * Account API: guest Anonymous id, optional OAuth Login, or IAM Bearer JWT (native).
  *
  * @see <a
  *     href="https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html">JWT
@@ -29,12 +29,12 @@ public class AccountController {
 
   /** Returns the signed-in or guest account for the current request. */
   @GetMapping("/me")
-  public ResponseEntity<AccountMeResponse> getCurrentAccount(HttpServletRequest request) {
+  public ResponseEntity<CurrentAccountResponse> getCurrentAccount(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken) {
       return ResponseEntity.ok(accountService.getCurrentAccount(null));
     }
-    String clientId = ClientIdentity.requireClientId(request);
+    String clientId = AnonymousId.requireAnonymousId(request);
     return ResponseEntity.ok(accountService.getCurrentAccount(clientId));
   }
 }

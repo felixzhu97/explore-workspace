@@ -158,7 +158,7 @@ export class VisionService {
 
   #detectObjects(file: File): Observable<VisionResult> {
     return this.#http
-      .post<DetectResponse>(`${API_BASE_URL}/vision/detect`, buildImageForm(file))
+      .post<DetectResponse>(`${API_BASE_URL}/vision:detect`, buildImageForm(file))
       .pipe(map(response => ({ task: 'detect', ...response })));
   }
 
@@ -169,7 +169,7 @@ export class VisionService {
   }
 
   #resolveErrorMessage(error: AppError): string {
-    if (error.type === '/problems/vision-provider-unavailable') {
+    if (error.type === 'https://www.felixzhu.chat/problems/vision-provider-unavailable') {
       return this.#i18n.t().vision.errors.providerUnavailable;
     }
     if (error.status === 0) {

@@ -1,0 +1,125 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+.pnpm-store
+
+# Local env files
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test
+.env.test.local
+.env.production.local
+!.env.example
+
+# Testing
+coverage
+*.lcov
+htmlcov
+.pytest_cache
+.mypy_cache
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build outputs
+.next/
+out/
+build
+dist
+*.tsbuildinfo
+.nest
+
+# Expo / React Native
+.expo
+.expo-shared
+.metro-health-check*
+*.jsbundle
+*.hprof
+
+# iOS
+ios/Pods
+ios/build
+ios/.xcode.env.local
+*.xcuserstate
+
+# Android
+android/build
+android/app/build
+android/.gradle
+*.apk
+*.aab
+*.ap_
+local.properties
+*.iml
+
+# Debug
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+Thumbs.db
+*.pem
+.cache
+
+# IDEs
+.vscode
+.idea
+
+# Kiro
+.kiro
+
+# Logs
+*.log
+**/logs
+
+# Services
+services/server/uploads/
+services/server/*.db
+services/server/prisma/*.db
+services/server/prisma/*.db-journal
+
+celerybeat-schedule
+celerybeat-schedule.db
+celerybeat.pid
+*.celery
+
+# Python
+.venv
+venv
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+*.egg
+*.egg-info/
+*.whl
+.ruff_cache
+
+TODO.md
+# Java / Gradle
+build/
+out/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local runtime artifacts
+uploads/
+data/
+*.mv.db
+*.trace.db
+.gradle/
+
+.next/
+.expo/
+coverage/

@@ -1,11 +1,11 @@
 package com.ai.account.domain.event;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 
 /**
  * Guest linked to account event.
  *
- * @param fromOwnerKey guest owner partition of the browser
- * @param toOwnerKey account owner partition that now owns the guest rows
+ * @param fromOwnerId guest owner partition of the browser
+ * @param toOwnerId account owner partition that now owns the guest rows
  */
-public record GuestLinkedToAccountEvent(OwnerKey fromOwnerKey, OwnerKey toOwnerKey) {}
+public record GuestLinkedToAccountEvent(OwnerId fromOwnerId, OwnerId toOwnerId) {}

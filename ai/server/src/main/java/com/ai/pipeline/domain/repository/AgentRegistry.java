@@ -12,14 +12,14 @@ public interface AgentRegistry {
   List<AgentDefinition> listBuiltins(String language);
 
   /** Builtin workers + enabled library agents for a client. */
-  List<AgentDefinition> listAll(String ownerKey, String language);
+  List<AgentDefinition> listAll(String ownerId, String language);
 
   /** Workers eligible for supervisor routing (excludes supervisor and deep). */
-  List<AgentDefinition> listWorkers(String ownerKey, String language);
+  List<AgentDefinition> listWorkers(String ownerId, String language);
 
   /** Finds an agent by type. */
-  Optional<AgentDefinition> findByType(AgentType type, String ownerKey, String language);
+  Optional<AgentDefinition> findByType(AgentType type, String ownerId, String language);
 
   /** Returns an agent by type, failing when it is missing. */
-  AgentDefinition requireAgent(AgentType type, String ownerKey, String language);
+  AgentDefinition requireAgent(AgentType type, String ownerId, String language);
 }

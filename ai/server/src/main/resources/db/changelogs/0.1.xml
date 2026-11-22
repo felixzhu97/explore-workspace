@@ -12,7 +12,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)" defaultValue="c:legacy-orphan">
+      <column name="owner_id" type="${string.type}(80)" defaultValue="c:legacy-orphan">
         <constraints nullable="false"/>
       </column>
       <column name="title" type="${string.type}(500)">
@@ -39,8 +39,8 @@
     <createIndex indexName="idx_rag_document_status" tableName="rag_document">
       <column name="status"/>
     </createIndex>
-    <createIndex indexName="idx_rag_document_owner_key" tableName="rag_document">
-      <column name="owner_key"/>
+    <createIndex indexName="idx_rag_document_owner_id" tableName="rag_document">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -52,7 +52,7 @@
       <column name="document_id" type="${uuid.type}">
         <constraints nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)" defaultValue="c:legacy-orphan">
+      <column name="owner_id" type="${string.type}(80)" defaultValue="c:legacy-orphan">
         <constraints nullable="false"/>
       </column>
       <column name="content" type="${clob.type}">
@@ -77,8 +77,8 @@
     <createIndex indexName="idx_document_chunk_document_id" tableName="document_chunk">
       <column name="document_id"/>
     </createIndex>
-    <createIndex indexName="idx_document_chunk_owner_key" tableName="document_chunk">
-      <column name="owner_key"/>
+    <createIndex indexName="idx_document_chunk_owner_id" tableName="document_chunk">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -87,7 +87,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)">
+      <column name="owner_id" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
       <column name="title" type="${string.type}(100)">
@@ -109,8 +109,8 @@
     <createIndex indexName="idx_chat_session_last_activity" tableName="chat_session">
       <column name="last_activity_at"/>
     </createIndex>
-    <createIndex indexName="idx_chat_session_owner_key" tableName="chat_session">
-      <column name="owner_key"/>
+    <createIndex indexName="idx_chat_session_owner_id" tableName="chat_session">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -176,7 +176,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)" defaultValue="c:legacy-orphan">
+      <column name="owner_id" type="${string.type}(80)" defaultValue="c:legacy-orphan">
         <constraints nullable="false"/>
       </column>
       <column name="occurred_at" type="${date.time.type}">
@@ -222,8 +222,8 @@
       <column name="model"/>
       <column name="occurred_at"/>
     </createIndex>
-    <createIndex indexName="idx_ai_invocation_event_owner_key" tableName="ai_invocation_event">
-      <column name="owner_key"/>
+    <createIndex indexName="idx_ai_invocation_event_owner_id" tableName="ai_invocation_event">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -232,7 +232,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)">
+      <column name="owner_id" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="${string.type}(120)">
@@ -258,10 +258,10 @@
     </createTable>
     <addUniqueConstraint
       tableName="skill"
-      columnNames="owner_key, name"
-      constraintName="uk_skill_owner_key_name"/>
-    <createIndex indexName="idx_skill_owner_key" tableName="skill">
-      <column name="owner_key"/>
+      columnNames="owner_id, name"
+      constraintName="uk_skill_owner_id_name"/>
+    <createIndex indexName="idx_skill_owner_id" tableName="skill">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -270,7 +270,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)">
+      <column name="owner_id" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="${string.type}(120)">
@@ -300,10 +300,10 @@
     </createTable>
     <addUniqueConstraint
       tableName="pipeline_template"
-      columnNames="owner_key, name"
-      constraintName="uk_pipeline_template_owner_key_name"/>
-    <createIndex indexName="idx_pipeline_template_owner_key" tableName="pipeline_template">
-      <column name="owner_key"/>
+      columnNames="owner_id, name"
+      constraintName="uk_pipeline_template_owner_id_name"/>
+    <createIndex indexName="idx_pipeline_template_owner_id" tableName="pipeline_template">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -312,7 +312,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)">
+      <column name="owner_id" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
       <column name="agent_type" type="${string.type}(64)">
@@ -343,10 +343,10 @@
     </createTable>
     <addUniqueConstraint
       tableName="custom_agent"
-      columnNames="owner_key, agent_type"
-      constraintName="uk_custom_agent_owner_key_agent_type"/>
-    <createIndex indexName="idx_custom_agent_owner_key" tableName="custom_agent">
-      <column name="owner_key"/>
+      columnNames="owner_id, agent_type"
+      constraintName="uk_custom_agent_owner_id_agent_type"/>
+    <createIndex indexName="idx_custom_agent_owner_id" tableName="custom_agent">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 
@@ -355,7 +355,7 @@
       <column name="id" type="${uuid.type}">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)">
+      <column name="owner_id" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
       <column name="name" type="${string.type}(120)">
@@ -397,8 +397,8 @@
         <constraints nullable="false"/>
       </column>
     </createTable>
-    <createIndex indexName="idx_automation_schedule_owner_key" tableName="automation_schedule">
-      <column name="owner_key"/>
+    <createIndex indexName="idx_automation_schedule_owner_id" tableName="automation_schedule">
+      <column name="owner_id"/>
     </createIndex>
     <createIndex indexName="idx_automation_schedule_due" tableName="automation_schedule">
       <column name="enabled"/>
@@ -412,7 +412,7 @@
       <column name="schedule_id" type="${uuid.type}">
         <constraints nullable="false"/>
       </column>
-      <column name="owner_key" type="${string.type}(80)">
+      <column name="owner_id" type="${string.type}(80)">
         <constraints nullable="false"/>
       </column>
       <column name="started_at" type="${date.time.type}">
@@ -434,8 +434,8 @@
     <createIndex indexName="idx_automation_run_schedule_id" tableName="automation_run">
       <column name="schedule_id"/>
     </createIndex>
-    <createIndex indexName="idx_automation_run_owner_key" tableName="automation_run">
-      <column name="owner_key"/>
+    <createIndex indexName="idx_automation_run_owner_id" tableName="automation_run">
+      <column name="owner_id"/>
     </createIndex>
   </changeSet>
 

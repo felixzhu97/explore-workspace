@@ -3,6 +3,6 @@ package com.iam.policy.domain.event;
 /**
  * Policy attached event.
  *
- * @param policyBindingId policy binding id
+ * @param policyAssignmentId policy binding id
  */
-public record PolicyAttachedEvent(String policyBindingId) {}
+public record PolicyAttachedEvent(String policyAssignmentId) {}

@@ -30,12 +30,12 @@ public final class ToolEventChannel {
   }
 
   /** Records whose data tools may read while the channel is open; cleared by {@link #close}. */
-  public static void bindOwnerKey(String channelId, String ownerKey) {
-    OWNER_BY_ID.put(channelId, ownerKey);
+  public static void bindOwnerId(String channelId, String ownerId) {
+    OWNER_BY_ID.put(channelId, ownerId);
   }
 
   /** Owner key bound to the current thread's channel, if any. */
-  public static Optional<String> getCurrentOwnerKey() {
+  public static Optional<String> getCurrentOwnerId() {
     String id = CURRENT_ID.get();
     return id == null ? Optional.empty() : Optional.ofNullable(OWNER_BY_ID.get(id));
   }

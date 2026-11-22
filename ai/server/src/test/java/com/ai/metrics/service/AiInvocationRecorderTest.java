@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.event.AiInvocationFailedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 @DisplayName("AiInvocationRecorder")
 class AiInvocationRecorderTest {
 
-  private static final OwnerKey OWNER =
-      OwnerKey.createClientKey("11111111-1111-4111-8111-111111111111");
+  private static final OwnerId OWNER =
+      OwnerId.createClientKey("11111111-1111-4111-8111-111111111111");
 
   @Test
   @DisplayName("should persist event when invocation completed event is handled")
@@ -44,7 +44,7 @@ class AiInvocationRecorderTest {
     assertThat(saved.getFirst().getCapability()).isEqualTo(AiCapability.CHAT);
     assertThat(saved.getFirst().getLatencyMs()).isEqualTo(15);
     assertThat(saved.getFirst().getOutcome()).isEqualTo(InvocationOutcome.SUCCESS);
-    assertThat(saved.getFirst().getOwnerKey()).isEqualTo(OWNER);
+    assertThat(saved.getFirst().getOwnerId()).isEqualTo(OWNER);
   }
 
   @Test

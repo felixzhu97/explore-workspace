@@ -1,0 +1,180 @@
+package com.chat.users.domain.model;
+
+import com.chat.base.domain.AbstractEntity;
+import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Function;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+/** Long-lived User identity used for login and social graph (maps to {@code chat_user}). */
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+public class User extends AbstractEntity {
+
+  @NotBlank
+  @Size(max = 128)
+  private String username;
+
+  @NotBlank
+  @Email
+  @Size(max = 320)
+  private String email;
+
+  @Size(max = 64)
+  private String phone;
+
+  @NotNull
+  @Size(max = 255)
+  private String passwordHash;
+
+  @Size(max = 1024)
+  private String avatar;
+
+  @Size(max = 512)
+  private String status;
+
+  private boolean online;
+  private Instant lastSeen;
+  private boolean disabled;
+  private boolean deleted;
+
+  private User(
+      String id,
+      Instant createdAt,
+      Instant updatedAt,
+      String username,
+      String email,
+      String passwordHash) {
+    super(id, createdAt, updatedAt);
+    this.username = Objects.requireNonNull(username);
+    this.email = Objects.requireNonNull(email);
+    this.passwordHash = Objects.requireNonNull(passwordHash);
+    this.online = false;
+    this.lastSeen = createdAt;
+    this.disabled = false;
+    this.deleted = false;
+  }
+
+  /**
+   * Creates a new user with credentials.
+   *
+   * @param username unique username
+   * @param email unique email
+   * @param passwordHash encoded password
+   * @return a new {@code User}
+   */
+  public static User createUser(String username, String email, String passwordHash) {
+    Instant now = Instant.now();
+    return new User(UUID.randomUUID().toString(), now, now, username, email, passwordHash);
+  }
+
+  /**
+   * Creates a user provisioned from Explore IAM (no password login until they set one).
+   *
+   * @param username unique username (often derived from IAM subject)
+   * @param email unique email from the IAM ID token / userinfo
+   * @param unusablePasswordHash random encoded hash so password login cannot succeed by guess
+   * @return a new {@code User}
+   */
+  public static User createUserFromIam(
+      String username, String email, String unusablePasswordHash) {
+    return createUser(username, email, unusablePasswordHash);
+  }
+
+  /**
+   * Updates mutable profile fields when non-null values are provided.
+   *
+   * @param username new username, or blank to keep current
+   * @param phone new phone, or {@code null} to keep current
+   * @param status new status text, or {@code null} to keep current
+   * @param avatar new avatar URL, or {@code null} to keep current
+   */
+  public void updateProfile(String username, String phone, String status, String avatar) {
+    if (username != null && !username.isBlank()) {
+      this.username = username;
+    }
+    if (phone != null) {
+      this.phone = phone;
+    }
+    if (status != null) {
+      this.status = status;
+    }
+    if (avatar != null) {
+      this.avatar = avatar;
+    }
+    touch();
+  }
+
+  /**
+   * Verifies a raw password against the stored hash.
+   *
+   * @param raw plaintext password
+   * @param hasher password matching strategy
+   * @return {@code true} when the password matches
+   */
+  public boolean matchesPassword(String raw, PasswordHasher hasher) {
+    return hasher.matches(raw, passwordHash);
+  }
+
+  /**
+   * Replaces the stored password hash using the given encoder.
+   *
+   * @param raw plaintext password
+   * @param encoder maps plaintext to a stored hash
+   */
+  public void changePassword(String raw, Function<String, String> encoder) {
+    this.passwordHash = encoder.apply(raw);
+    touch();
+  }
+
+  /** Marks the user as soft-deleted. */
+  public void markDeleted() {
+    this.deleted = true;
+    touch();
+  }
+
+  /** Disables login for this user. */
+  public void disable() {
+    this.disabled = true;
+    touch();
+  }
+
+  /** Re-enables login for this user. */
+  public void enable() {
+    this.disabled = false;
+    touch();
+  }
+
+  /**
+   * Updates online presence and last-seen timestamp.
+   *
+   * @param online {@code true} when the user is online
+   */
+  public void markOnline(boolean online) {
+    this.online = online;
+    this.lastSeen = Instant.now();
+    touch();
+  }
+
+  /** Strategy for comparing a raw password to a stored hash. */
+  @FunctionalInterface
+  public interface PasswordHasher {
+    /**
+     * Returns whether {@code raw} matches {@code hash}.
+     *
+     * @param raw plaintext password
+     * @param hash stored password hash
+     * @return {@code true} when credentials match
+     */
+    boolean matches(String raw, String hash);
+  }
+}

@@ -2,7 +2,7 @@ package com.ai.skill.domain.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.model.SkillId;
 import com.ai.testsupport.AbstractDataJpaTest;
@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 class SkillRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:aaaaaaaa-0000-0000-0000-000000000001");
-  private static final OwnerKey OTHER = OwnerKey.parseKey("c:bbbbbbbb-0000-0000-0000-000000000002");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:aaaaaaaa-0000-0000-0000-000000000001");
+  private static final OwnerId OTHER = OwnerId.parseKey("c:bbbbbbbb-0000-0000-0000-000000000002");
 
   @Autowired private SkillRepository repository;
 
@@ -24,7 +24,7 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
     Skill skill = save(OWNER, "Tools", List.of("web_search", "calculator"));
     flushAndClear();
 
-    Skill reloaded = repository.findByIdAndOwnerKey(skill.getId(), OWNER).orElseThrow();
+    Skill reloaded = repository.findByIdAndOwnerId(skill.getId(), OWNER).orElseThrow();
 
     assertThat(reloaded.getName()).isEqualTo("Tools");
     assertThat(reloaded.getDescription()).isEmpty();
@@ -39,7 +39,7 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
     Skill skill = save(OWNER, "Private", List.of());
     flushAndClear();
 
-    assertThat(repository.findByIdAndOwnerKey(skill.getId(), OTHER)).isEmpty();
+    assertThat(repository.findByIdAndOwnerId(skill.getId(), OTHER)).isEmpty();
   }
 
   @Test
@@ -50,7 +50,7 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
     save(OTHER, "Other", List.of());
     flushAndClear();
 
-    assertThat(repository.findAllByOwnerKeyOrderByNameAsc(OWNER))
+    assertThat(repository.findAllByOwnerIdOrderByNameAsc(OWNER))
         .extracting(Skill::getName)
         .containsExactly("Alpha", "Beta");
   }
@@ -61,9 +61,9 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
     final Skill skill = save(OWNER, "Shared", List.of());
     flushAndClear();
 
-    assertThat(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "Shared", null)).isTrue();
-    assertThat(repository.existsByOwnerKeyAndNameIgnoringId(OTHER, "Shared", null)).isFalse();
-    assertThat(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "Shared", skill.getId()))
+    assertThat(repository.existsByOwnerIdAndNameIgnoringId(OWNER, "Shared", null)).isTrue();
+    assertThat(repository.existsByOwnerIdAndNameIgnoringId(OTHER, "Shared", null)).isFalse();
+    assertThat(repository.existsByOwnerIdAndNameIgnoringId(OWNER, "Shared", skill.getId()))
         .isFalse();
   }
 
@@ -73,13 +73,13 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
     Skill skill = save(OWNER, "Kept", List.of());
     flushAndClear();
 
-    repository.deleteByIdAndOwnerKey(skill.getId(), OTHER);
+    repository.deleteByIdAndOwnerId(skill.getId(), OTHER);
     flushAndClear();
-    assertThat(repository.findByIdAndOwnerKey(skill.getId(), OWNER)).isPresent();
+    assertThat(repository.findByIdAndOwnerId(skill.getId(), OWNER)).isPresent();
 
-    repository.deleteByIdAndOwnerKey(skill.getId(), OWNER);
+    repository.deleteByIdAndOwnerId(skill.getId(), OWNER);
     flushAndClear();
-    assertThat(repository.findByIdAndOwnerKey(skill.getId(), OWNER)).isEmpty();
+    assertThat(repository.findByIdAndOwnerId(skill.getId(), OWNER)).isEmpty();
   }
 
   @Test
@@ -93,13 +93,13 @@ class SkillRepositoryTest extends AbstractDataJpaTest {
 
     List<SkillId> ids = List.of(enabled.getId(), disabled.getId(), foreign.getId());
 
-    assertThat(repository.findEnabledByOwnerKeyAndIds(OWNER, ids))
+    assertThat(repository.findEnabledByOwnerIdAndIds(OWNER, ids))
         .extracting(Skill::getName)
         .containsExactly("Enabled");
-    assertThat(repository.findEnabledByOwnerKeyAndIds(OWNER, List.of())).isEmpty();
+    assertThat(repository.findEnabledByOwnerIdAndIds(OWNER, List.of())).isEmpty();
   }
 
-  private Skill save(OwnerKey owner, String name, List<String> allowedTools) {
+  private Skill save(OwnerId owner, String name, List<String> allowedTools) {
     return repository.save(
         Skill.createSkill(owner.getValue(), name, null, "Instructions", allowedTools));
   }

@@ -146,7 +146,7 @@ export class PrivacyPageComponent {
     });
   }
 
-  /** Resets the Client Identity after confirmation. */
+  /** Resets the Anonymous id after confirmation. */
   resetIdentity(): void {
     if (!confirm(this.copy().resetConfirm)) {
       return;
