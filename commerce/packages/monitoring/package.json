@@ -31,6 +31,7 @@
     "@datadog/browser-rum": "^6.0.0"
   },
   "devDependencies": {
-    "eslint": "^8.48.0"
+    "eslint": "^8.48.0",
+    "@types/node": "^22.10.0"
   }
 }
