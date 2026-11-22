@@ -6,7 +6,7 @@ import { GlobeHostComponent } from './globe-host.component';
 @Component({
   selector: 'app-globe-dark-page',
   imports: [GlobeHostComponent],
-  template: `<app-globe-host themeId="tech" [lightPos]="lightPos" />`,
+  template: `<app-globe-host themeId="dark" [lightPos]="lightPos" />`,
   host: {
     class: 'block h-full w-full',
     style:
