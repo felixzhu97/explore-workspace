@@ -22,12 +22,32 @@ Package / repo: `explore-three`.
 
 ## Getting Started
 
-Requires Node.js ≥ 22.22.3 (see `.nvmrc`).
+Requires Node.js ≥ 22.22.3 (see `web/.nvmrc`).
+
+**Monorepo (explore-workspace root):**
 
 ```bash
-pnpm install
-pnpm start
+pnpm dev three
 ```
+
+Opens the globe at [http://localhost:4230](http://localhost:4230).
+
+**Product-only:**
+
+```bash
+cd web
+pnpm install
+pnpm exec ng serve --host 0.0.0.0 --port 4230
+```
+
+## Deployment (docs only)
+
+| Setting | Value |
+|---------|-------|
+| Vercel Root Directory | `three/web` |
+| Config | [`web/vercel.json`](web/vercel.json) |
+
+Do not change live Vercel project settings from this repo until cutover.
 
 ## Docs
 

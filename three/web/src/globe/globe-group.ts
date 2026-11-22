@@ -116,7 +116,7 @@ export class GlobeGroup extends Group {
   }
 
   #createBaseMaterial(type: ThemeId) {
-    if (type === 'bright') {
+    if (type === 'light') {
       return new MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 });
     }
 
