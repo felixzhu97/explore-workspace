@@ -4,6 +4,14 @@ server:
 spring:
   application:
     name: explore-chat
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Explore IAM access tokens (native Sign in with IAM). Blank CHAT_IAM_ISSUER_URI turns off validation.
+          issuer-uri: ${CHAT_IAM_ISSUER_URI:}
+          authorities-claim-name: scope
+          authority-prefix: SCOPE_
   datasource:
     url: jdbc:h2:file:./data/explore-chat;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
@@ -38,10 +46,6 @@ chat:
     refresh-secret: "dev-refresh-secret-change-me-32byte"
     access-ttl-seconds: 3600
     refresh-ttl-seconds: 604800
-  iam:
-    # Accept Explore IAM access tokens alongside Chat HS JWTs (native Sign in with IAM).
-    enabled: ${CHAT_IAM_ENABLED:true}
-    issuer-uri: ${CHAT_IAM_ISSUER_URI:http://localhost:9100}
   kafka:
     # Empty KAFKA_BOOTSTRAP_SERVERS disables Kafka (no-op publisher). Unset defaults to localhost:9092.
     brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

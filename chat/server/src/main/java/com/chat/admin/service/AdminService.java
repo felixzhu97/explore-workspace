@@ -33,8 +33,7 @@ public class AdminService {
   @Transactional(readOnly = true)
   public Map<String, Object> listUsers() {
     return Map.of(
-        "users",
-        userRepository.listAll(200).stream().map(UserMapper::toResponse).toList());
+        "users", userRepository.listAll(200).stream().map(UserMapper::toResponse).toList());
   }
 
   @Transactional(readOnly = true)

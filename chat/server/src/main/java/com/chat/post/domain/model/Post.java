@@ -18,8 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class Post extends AbstractEntity {
 
-  @NotBlank
-  private String authorId;
+  @NotBlank private String authorId;
 
   @Size(max = 2048)
   private String caption;

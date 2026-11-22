@@ -12,8 +12,7 @@ public final class PageTokens {
   public static final int DEFAULT_PAGE_SIZE = 20;
   public static final int MAX_PAGE_SIZE = 100;
 
-  private static final Pattern OFFSET =
-      Pattern.compile("\"offset\"\\s*:\\s*(\\d+)");
+  private static final Pattern OFFSET = Pattern.compile("\"offset\"\\s*:\\s*(\\d+)");
 
   private PageTokens() {}
 
@@ -29,8 +28,7 @@ public final class PageTokens {
       return 0;
     }
     try {
-      String json =
-          new String(Base64.getUrlDecoder().decode(pageToken), StandardCharsets.UTF_8);
+      String json = new String(Base64.getUrlDecoder().decode(pageToken), StandardCharsets.UTF_8);
       Matcher matcher = OFFSET.matcher(json);
       if (matcher.find()) {
         return Math.max(0, Integer.parseInt(matcher.group(1)));

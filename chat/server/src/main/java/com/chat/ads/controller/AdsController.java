@@ -66,9 +66,6 @@ public class AdsController {
   public Map<String, Object> createCreative(
       @PathVariable String campaign, @RequestBody Map<String, String> body) {
     return adsService.createCreative(
-        campaign,
-        body.getOrDefault("headline", ""),
-        body.get("body"),
-        body.get("mediaUrl"));
+        campaign, body.getOrDefault("headline", ""), body.get("body"), body.get("mediaUrl"));
   }
 }

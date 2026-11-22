@@ -1,0 +1,19 @@
+{
+  "name": "chat-admin",
+  "tags": ["scope:chat", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["chat-server"],
+          "target": "serve",
+          "waitFor": "ready"
+        }
+      ],
+      "readyWhen": { "url": "http://localhost:4001" },
+      "command": "pnpm exec next dev --port 4001",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}
