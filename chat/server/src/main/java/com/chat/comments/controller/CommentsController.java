@@ -34,8 +34,7 @@ public class CommentsController {
       Authentication authentication,
       @PathVariable String post,
       @RequestBody Map<String, String> body) {
-    return commentsService.create(
-        post, authentication.getName(), body.getOrDefault("content", ""));
+    return commentsService.create(post, authentication.getName(), body.getOrDefault("content", ""));
   }
 
   @DeleteMapping("{comment}")

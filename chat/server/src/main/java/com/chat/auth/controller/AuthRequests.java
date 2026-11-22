@@ -8,10 +8,7 @@ public final class AuthRequests {
   private AuthRequests() {}
 
   public record RegisterRequest(
-      @NotBlank @Email String email,
-      @NotBlank String password,
-      String username,
-      String phone) {}
+      @NotBlank @Email String email, @NotBlank String password, String username, String phone) {}
 
   public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {}
 

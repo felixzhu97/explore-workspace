@@ -15,11 +15,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractEntity extends AbstractImmutable {
 
-  @UpdateTimestamp
-  private Instant updatedAt;
+  @UpdateTimestamp private Instant updatedAt;
 
-  @Version
-  private long version;
+  @Version private long version;
 
   /**
    * Creates a mutable entity with identity, creation time, and last-modified time.

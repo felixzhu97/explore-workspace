@@ -59,8 +59,7 @@ public class ChatsService {
   public Map<String, Object> createGroupChat(
       String creatorId, String name, List<String> memberIds) {
     Chat chat = chatRepository.save(Chat.createGroup(name));
-    participantRepository.save(
-        ChatParticipant.createParticipant(chat.getId(), creatorId, "OWNER"));
+    participantRepository.save(ChatParticipant.createParticipant(chat.getId(), creatorId, "OWNER"));
     Group group = groupRepository.save(Group.create(name, creatorId, null));
     groupParticipantRepository.save(
         GroupParticipant.createParticipant(group.getId(), creatorId, "owner"));

@@ -130,15 +130,18 @@ describe("ChatListItem", () => {
     });
 
     it("shows time when no message content is available", () => {
+      const lastMessageTime = new Date("2024-06-15T03:30:00Z");
       const chat = createMockChat({
         lastMessageContent: undefined,
-        lastMessageTime: new Date("2024-06-15T03:30:00Z"),
+        lastMessageTime,
       });
       const onPress = jest.fn();
       const { getByText } = renderWithProviders(
         <ChatListItem chat={chat} onPress={onPress} />,
       );
-      expect(getByText("11:30")).toBeTruthy();
+      const hour = lastMessageTime.getHours().toString().padStart(2, "0");
+      const minute = lastMessageTime.getMinutes().toString().padStart(2, "0");
+      expect(getByText(`${hour}:${minute}`)).toBeTruthy();
     });
 
     it("shows Yesterday when message is from previous day", () => {
@@ -215,15 +218,18 @@ describe("ChatListItem", () => {
     });
 
     it("handles empty lastMessageContent string", () => {
+      const lastMessageTime = new Date("2024-06-15T03:30:00Z");
       const chat = createMockChat({
         lastMessageContent: "   ",
-        lastMessageTime: new Date("2024-06-15T03:30:00Z"),
+        lastMessageTime,
       });
       const onPress = jest.fn();
       const { getByText } = renderWithProviders(
         <ChatListItem chat={chat} onPress={onPress} />,
       );
-      expect(getByText("11:30")).toBeTruthy();
+      const hour = lastMessageTime.getHours().toString().padStart(2, "0");
+      const minute = lastMessageTime.getMinutes().toString().padStart(2, "0");
+      expect(getByText(`${hour}:${minute}`)).toBeTruthy();
     });
 
     it("handles future timestamps gracefully", () => {

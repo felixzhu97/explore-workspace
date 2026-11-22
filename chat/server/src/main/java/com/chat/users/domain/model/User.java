@@ -85,8 +85,7 @@ public class User extends AbstractEntity {
    * @param unusablePasswordHash random encoded hash so password login cannot succeed by guess
    * @return a new {@code User}
    */
-  public static User createUserFromIam(
-      String username, String email, String unusablePasswordHash) {
+  public static User createUserFromIam(String username, String email, String unusablePasswordHash) {
     return createUser(username, email, unusablePasswordHash);
   }
 

@@ -20,12 +20,7 @@ public class Notification extends AbstractEntity {
   private boolean read;
 
   private Notification(
-      String id,
-      Instant createdAt,
-      Instant updatedAt,
-      String userId,
-      String type,
-      String payload) {
+      String id, Instant createdAt, Instant updatedAt, String userId, String type, String payload) {
     super(id, createdAt, updatedAt);
     this.userId = userId;
     this.type = type;
