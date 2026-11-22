@@ -229,8 +229,7 @@ public class PostService {
         authorId == null
             ? socialPostRepository.countAll()
             : socialPostRepository.countByAuthor(authorId);
-    List<Map<String, Object>> items =
-        posts.stream().map(p -> toClientPost(p, viewerId)).toList();
+    List<Map<String, Object>> items = posts.stream().map(p -> toClientPost(p, viewerId)).toList();
     Map<String, Object> body = new HashMap<>();
     body.put("posts", items);
     PageTokens.nextOffsetToken(offset, size, offset + size < total)

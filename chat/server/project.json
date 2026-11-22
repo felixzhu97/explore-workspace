@@ -4,8 +4,22 @@
   "targets": {
     "serve": {
       "continuous": true,
-      "command": "./gradlew bootRun",
-      "options": { "cwd": "{projectRoot}" }
+      "dependsOn": [
+        {
+          "projects": ["kafka"],
+          "target": "serve",
+          "waitFor": "ready"
+        },
+        {
+          "projects": ["ollama"],
+          "target": "serve"
+        }
+      ],
+      "readyWhen": { "url": "http://localhost:9001/actuator/health" },
+      "command": "./gradlew :chat-server:bootRun",
+      "options": {
+        "cwd": "{workspaceRoot}"
+      }
     }
   }
 }

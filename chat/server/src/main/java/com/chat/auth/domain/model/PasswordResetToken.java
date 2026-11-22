@@ -43,8 +43,7 @@ public class PasswordResetToken extends AbstractEntity {
    */
   public static PasswordResetToken issue(String userId, String token, Instant expiresAt) {
     Instant now = Instant.now();
-    return new PasswordResetToken(
-        UUID.randomUUID().toString(), now, now, userId, token, expiresAt);
+    return new PasswordResetToken(UUID.randomUUID().toString(), now, now, userId, token, expiresAt);
   }
 
   /** Marks the token as consumed. */

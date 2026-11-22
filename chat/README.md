@@ -2,7 +2,7 @@
 
 `Chat` is a social messaging app you can use to share posts, browse Feed and Reels, message friends, and place calls. It is a pnpm + Turbo monorepo with a **Spring Boot API at the repo root**, Next.js web/admin under `src/main/web` and `src/main/admin`, Expo mobile under `src/main/mobile`, and optional Python side services in sibling [explore-ml](https://github.com/felixzhu97/explore-ml).
 
-Cross-language IM wire shapes are documented in [`src/main/im-contract/openapi.yaml`](src/main/im-contract/openapi.yaml) (protocol only). Web and mobile each keep their own chat/RTC client code aligned with that contract.
+Cross-language IM wire shapes are documented in [`im-contract/openapi.yaml`](im-contract/openapi.yaml) (protocol only). Web and mobile each keep their own chat/RTC client code aligned with that contract.
 
 Clients talk only to the Spring API over HTTPS and Socket.IO (plus WebRTC signaling). Optional AI, vision, recommendation, and RAG side services stay behind the API. Local Java defaults use H2 + Liquibase.
 
@@ -22,29 +22,30 @@ Optional: [Ollama](https://ollama.com/) and Python services in [explore-ml](http
 ### Initial setup
 
 ```bash
-git clone https://github.com/felixzhu97/explore-chat.git
-cd explore-chat
+git clone https://github.com/felixzhu97/explore-workspace.git
+cd explore-workspace
 pnpm install
 ```
 
 ### Run
 
+From the workspace root. Nested `chat/server/gradlew` is not used by Nx; the workspace root Gradle project is `:chat-server`.
+
 ```bash
-# API only
-./gradlew bootRun
+pnpm dev chat
 
-# Web + API (scripts/app/start.sh)
-pnpm dev
+# Mobile (Expo), in a second terminal
+pnpm --dir chat/mobile start
 
-# Mobile (Expo)
-pnpm start:mobile
+# With Explore IAM Bearer validation
+CHAT_IAM_ISSUER_URI=http://localhost:9100 pnpm dev chat iam
 ```
 
 | Surface   | Default URL                           |
 | --------- | ------------------------------------- |
 | Web       | http://localhost:4000                 |
 | Admin     | http://localhost:4001                 |
-| Mobile    | Expo (`pnpm start:mobile`)                |
+| Mobile    | Expo (`pnpm --dir chat/mobile start`) |
 | HTTP API  | http://localhost:9001                 |
 | Health    | http://localhost:9001/api/v1/health   |
 | Socket.IO | http://localhost:9002 (`/socket.io`)  |
@@ -52,22 +53,19 @@ pnpm start:mobile
 Demo user (seeded on API boot): `alice@example.com` / `123456`.
 
 ```bash
-./gradlew checkstyleMain checkstyleTest test
-pnpm check-types
-pnpm lint
-pnpm test
+./gradlew :chat-server:checkstyleMain :chat-server:checkstyleTest :chat-server:test
 ```
 
 ### Configuration
 
 | App / service | Example |
 | ------------- | ------- |
-| Java API | [`src/main/resources/application.yml`](src/main/resources/application.yml) |
-| Explore IAM (optional) | `CHAT_IAM_ENABLED=true` · `CHAT_IAM_ISSUER_URI=http://localhost:9100` (native Sign in with IAM) |
+| Java API | [`server/src/main/resources/application.yml`](server/src/main/resources/application.yml) |
+| Explore IAM (optional) | `CHAT_IAM_ISSUER_URI=http://localhost:9100` (blank by default; disables IAM Bearer validation) |
 | Web | `NEXT_PUBLIC_API_URL=http://localhost:9001/api/v1` · `NEXT_PUBLIC_SOCKET_IO_URL=http://localhost:9002` |
 | Admin | `NEXT_PUBLIC_API_URL=http://localhost:9001/api/v1` |
 | Mobile (Expo) | `EXPO_PUBLIC_API_URL=http://localhost:9001` · `EXPO_PUBLIC_SOCKET_IO_URL=http://localhost:9002` |
-| iOS (native) | IAM client `explore-chat-ios` · redirect `com.explore.chat://oauth/callback` · in-app `ASWebAuthenticationSession` ([iOS README](src/main/ios/README.md)) |
+| iOS (native) | IAM client `explore-chat-ios` · redirect `com.explore.chat://oauth/callback` · in-app `ASWebAuthenticationSession` ([iOS README](ios/README.md)) |
 
 ## Screenshots
 

@@ -16,8 +16,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractImmutable {
 
-  @Id
-  private String id;
+  @Id private String id;
 
   @CreationTimestamp
   @Column(nullable = false, updatable = false)

@@ -1,99 +1,63 @@
 package com.chat.common.security;
 
-import com.chat.auth.service.IamUserProvisioner;
 import com.chat.auth.service.JwtTokenService;
-import com.chat.users.domain.model.User;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Dual-track Bearer auth: Chat HS access tokens ({@code ROLE_USER} only), or Explore IAM JWTs with
- * GitHub-style {@code SCOPE_*} authorities plus {@code ROLE_USER}.
+ * Chat HS access tokens ({@code ROLE_USER}). Explore IAM Bearer tokens are validated by the
+ * OAuth2 resource server ({@code JwtDecoder}) and mapped to Chat users via
+ * {@link IamUserProvisioningFilter}.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenService jwtTokenService;
-  private final ObjectProvider<JwtDecoder> iamJwtDecoder;
-  private final ObjectProvider<IamUserProvisioner> iamUserProvisioner;
 
-  public JwtAuthenticationFilter(
-      JwtTokenService jwtTokenService,
-      ObjectProvider<JwtDecoder> iamJwtDecoder,
-      ObjectProvider<IamUserProvisioner> iamUserProvisioner) {
+  public JwtAuthenticationFilter(JwtTokenService jwtTokenService) {
     this.jwtTokenService = jwtTokenService;
-    this.iamJwtDecoder = iamJwtDecoder;
-    this.iamUserProvisioner = iamUserProvisioner;
   }
 
   @Override
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
+    Authentication existing = SecurityContextHolder.getContext().getAuthentication();
+    if (existing != null && existing.isAuthenticated()) {
+      filterChain.doFilter(request, response);
+      return;
+    }
     String header = request.getHeader(HttpHeaders.AUTHORIZATION);
     if (header != null && header.startsWith("Bearer ")) {
       String token = header.substring(7);
-      if (!authenticateChatHs(token)) {
-        authenticateIam(token);
-      }
+      authenticateChatHs(token);
     }
     filterChain.doFilter(request, response);
   }
 
-  private boolean authenticateChatHs(String token) {
+  private void authenticateChatHs(String token) {
     try {
       Claims claims = jwtTokenService.parseAccess(token);
       var auth =
           new UsernamePasswordAuthenticationToken(
               claims.getSubject(), null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
       SecurityContextHolder.getContext().setAuthentication(auth);
-      return true;
     } catch (RuntimeException ignored) {
-      SecurityContextHolder.clearContext();
-      return false;
-    }
-  }
-
-  private void authenticateIam(String token) {
-    JwtDecoder decoder = iamJwtDecoder.getIfAvailable();
-    IamUserProvisioner provisioner = iamUserProvisioner.getIfAvailable();
-    if (decoder == null || provisioner == null) {
-      return;
-    }
-    try {
-      Jwt jwt = decoder.decode(token);
-      User user = provisioner.resolve(jwt);
-      if (user.isDeleted() || user.isDisabled()) {
-        SecurityContextHolder.clearContext();
-        return;
-      }
-      List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-      for (String scope : scopesFrom(jwt)) {
-        authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
-      }
-      if (authorities.isEmpty()) {
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-      }
-      var auth = new UsernamePasswordAuthenticationToken(user.getId(), null, authorities);
-      SecurityContextHolder.getContext().setAuthentication(auth);
-    } catch (RuntimeException ignored) {
-      SecurityContextHolder.clearContext();
+      // Not a Chat HS token; BearerTokenAuthenticationFilter may validate IAM JWT next.
     }
   }
 

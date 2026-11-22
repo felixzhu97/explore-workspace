@@ -21,12 +21,7 @@ public class ChatParticipant extends AbstractEntity {
   private boolean muted;
 
   private ChatParticipant(
-      String id,
-      Instant createdAt,
-      Instant updatedAt,
-      String chatId,
-      String userId,
-      String role) {
+      String id, Instant createdAt, Instant updatedAt, String chatId, String userId, String role) {
     super(id, createdAt, updatedAt);
     this.chatId = chatId;
     this.userId = userId;
@@ -45,8 +40,7 @@ public class ChatParticipant extends AbstractEntity {
    */
   public static ChatParticipant createParticipant(String chatId, String userId, String role) {
     Instant now = Instant.now();
-    return new ChatParticipant(
-        UUID.randomUUID().toString(), now, now, chatId, userId, role);
+    return new ChatParticipant(UUID.randomUUID().toString(), now, now, chatId, userId, role);
   }
 
   /**

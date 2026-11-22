@@ -51,8 +51,11 @@ public class AipExceptionHandler {
 
   private Map<String, Object> fieldDetail(FieldError error) {
     return Map.of(
-        "@type", "BadRequest",
-        "field", error.getField(),
-        "description", error.getDefaultMessage() == null ? "" : error.getDefaultMessage());
+        "@type",
+        "BadRequest",
+        "field",
+        error.getField(),
+        "description",
+        error.getDefaultMessage() == null ? "" : error.getDefaultMessage());
   }
 }

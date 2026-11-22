@@ -83,8 +83,7 @@ class PostServiceTest {
     when(postHashtagRepository.existsByPostIdAndHashtagId(any(), any())).thenReturn(false);
     when(postHashtagRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    Map<String, Object> result =
-        postService.create("author-1", "hello #tag", "[]", "TEXT", null);
+    Map<String, Object> result = postService.create("author-1", "hello #tag", "[]", "TEXT", null);
 
     assertThat(result.get("caption")).isEqualTo("hello #tag");
     verify(chatEventPublisher).sendPostCreated(anyMap());

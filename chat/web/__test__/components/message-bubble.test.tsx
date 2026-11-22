@@ -163,7 +163,11 @@ describe("MessageBubble", () => {
 
     it("should render timestamp", () => {
       render(<MessageBubble {...mockProps} />);
-      expect(screen.getByText("18:00")).toBeInTheDocument();
+      const expected = new Date("2024-01-01T10:00:00Z").toLocaleTimeString(
+        "zh-CN",
+        { hour: "2-digit", minute: "2-digit" },
+      );
+      expect(screen.getByText(expected)).toBeInTheDocument();
     });
   });
 
