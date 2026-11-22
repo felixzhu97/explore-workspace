@@ -47,6 +47,15 @@
     "targets": {
       "serve": {
         "continuous": true,
+        "dependsOn": [
+          {
+            "projects": [
+              "iam-server"
+            ],
+            "target": "serve",
+            "waitFor": "ready"
+          }
+        ],
         "command": "ng serve --port 4201",
         "options": {
           "cwd": "{projectRoot}"
