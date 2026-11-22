@@ -58,7 +58,7 @@ pnpm run seed:default-users  # 仅默认账户
 node scripts/data/generate_products_import_xlsx.cjs [输出路径]
 ```
 
-默认输出到 `services/api/src/__tests__/fixtures/products-import-1000.xlsx`。需在 scripts 目录安装 xlsx 依赖或从根目录运行。
+默认输出到 `server/src/__tests__/fixtures/products-import-1000.xlsx`。需在 scripts 目录安装 xlsx 依赖或从根目录运行。
 
 ## Jira 批量更新
 

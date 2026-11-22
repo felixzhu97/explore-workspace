@@ -8,7 +8,7 @@
 
 ### 1.1 项目愿景
 
-我们的目标是创建一个高性能、可扩展的购物系统，为用户提供便捷的购物体验，为商家提供高效的销售和管理工具。详情请参阅[产品愿景文档](./product-vision.md)。
+我们的目标是创建一个高性能、可扩展的购物系统，为用户提供便捷的购物体验，为商家提供高效的销售和管理工具。产品概述见仓库根目录 [`commerce/README.md`](../../README.md)。
 
 ### 1.2 核心功能
 
@@ -103,7 +103,7 @@ apps/web/
 ### 3.2 后端API结构
 
 ```
-services/api/
+server/
 ├── src/
 │   ├── controllers/       # 控制器
 │   ├── db/                # 数据库配置和仓库
@@ -191,7 +191,7 @@ pnpm --filter web test
 
 ## 5. MCP架构理解
 
-我们的后端采用MCP(Model-Controller-Provider)架构，详细说明请参考[MongoDB MCP架构文档](./mongodb-mcp.md)。
+我们的后端采用 MCP（Model-Controller-Provider）分层：Model 定义结构与校验，Controller 处理 HTTP，Provider/Repository 负责数据访问。
 
 ### 5.1 核心组件
 
@@ -210,10 +210,10 @@ pnpm --filter web test
 
 ### 6.1 核心文档
 
-- [系统架构文档](./system-architecture.md)
-- [API文档](./api-documentation.md)
-- [数据库设计](./database-design.md)
-- [用户故事地图](./user-story-map.md)
+- [环境变量配置](./ENVIRONMENT.md)
+- [测试指南](./testing-guide.md)
+- [提交规范](./COMMIT_CONVENTION.md)
+- [产品 README](../../README.md)
 
 ### 6.2 学习资源
 

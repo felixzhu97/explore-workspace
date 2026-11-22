@@ -32,7 +32,7 @@ package "Mobile App (apps/mobile)" {
     component [Mobile State Store\nZustand] as mobile_state_store
 }
 
-package "API Service (services/api)" {
+package "API Service (server)" {
     component [Express App\nExpress.js] as api_app
     component [Lambda Handler\nserverless-http] as api_lambda
     component [JWT Middleware\nexpress-jwt] as api_jwt

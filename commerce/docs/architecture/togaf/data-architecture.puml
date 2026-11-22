@@ -30,7 +30,7 @@ package "MongoDB Collections" {
     component [carts] as carts_collection
 }
 
-package "Data Access (services/api)" {
+package "Data Access (server)" {
     component [Mongoose Models] as mongoose_models
     component [Schema Validation] as schema_validation
     component [Password Hashing (bcryptjs)] as password_hashing
