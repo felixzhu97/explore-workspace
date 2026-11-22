@@ -20,16 +20,5 @@
     "nx": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "@parcel/watcher",
-      "lmdb",
-      "msgpackr-extract",
-      "nx",
-      "protobufjs",
-      "sharp"
-    ]
   }
 }

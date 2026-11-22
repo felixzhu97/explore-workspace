@@ -22,6 +22,14 @@ exports.createNodes = [
       }
       const [[service, definition]] = services;
       const port = hostPort(definition);
+      const serve = {
+        continuous: true,
+        command: `node tools/plugin/compose-serve.js ${service} ${port ?? ''}`.trim(),
+        options: { cwd: '{workspaceRoot}' },
+      };
+      if (port !== undefined) {
+        serve.readyWhen = { port: Number(port) };
+      }
       return [
         file,
         {
@@ -29,13 +37,7 @@ exports.createNodes = [
             [dirname(file)]: {
               name: service,
               tags: ['type:infrastructure'],
-              targets: {
-                serve: {
-                  continuous: true,
-                  command: `node tools/plugin/compose-serve.js ${service} ${port ?? ''}`.trim(),
-                  options: { cwd: '{workspaceRoot}' },
-                },
-              },
+              targets: { serve },
             },
           },
         },
