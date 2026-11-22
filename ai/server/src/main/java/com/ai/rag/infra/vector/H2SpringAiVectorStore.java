@@ -63,11 +63,11 @@ public class H2SpringAiVectorStore implements VectorStore {
     }
 
     Filter.Expression filter = request.getFilterExpression();
-    Optional<String> ownerKey =
+    Optional<String> ownerId =
         Optional.ofNullable(filter)
             .flatMap(f -> findValue(f, Filter.ExpressionType.EQ, OWNER_KEY_METADATA_KEY))
             .map(Object::toString);
-    if (ownerKey.isEmpty()) {
+    if (ownerId.isEmpty()) {
       return List.of();
     }
 
@@ -75,7 +75,7 @@ public class H2SpringAiVectorStore implements VectorStore {
     int topK = Math.max(request.getTopK(), 1);
     List<UUID> documentIds = extractDocumentIds(filter);
     List<ScoredChunk> chunks =
-        chunkSearchRepository.searchChunks(queryEmbedding, topK, ownerKey.get(), documentIds);
+        chunkSearchRepository.searchChunks(queryEmbedding, topK, ownerId.get(), documentIds);
     double threshold = request.getSimilarityThreshold();
 
     List<Document> results =
@@ -84,7 +84,7 @@ public class H2SpringAiVectorStore implements VectorStore {
             .map(H2SpringAiVectorStore::toDocument)
             .toList();
     if (results.isEmpty() && !documentIds.isEmpty()) {
-      return selectLeadingChunks(queryEmbedding, ownerKey.get(), documentIds, topK);
+      return selectLeadingChunks(queryEmbedding, ownerId.get(), documentIds, topK);
     }
     return results;
   }
@@ -94,9 +94,9 @@ public class H2SpringAiVectorStore implements VectorStore {
    * their opening chunks instead.
    */
   private List<Document> selectLeadingChunks(
-      float[] queryEmbedding, String ownerKey, List<UUID> documentIds, int topK) {
+      float[] queryEmbedding, String ownerId, List<UUID> documentIds, int topK) {
     List<Document> results =
-        chunkSearchRepository.findLeadingChunks(ownerKey, documentIds, topK).stream()
+        chunkSearchRepository.findLeadingChunks(ownerId, documentIds, topK).stream()
             .map(chunk -> toDocument(ScoredChunk.createScoredChunk(chunk, queryEmbedding)))
             .toList();
     return results;

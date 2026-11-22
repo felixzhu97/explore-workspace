@@ -1,0 +1,101 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore"
+
+  - package-ecosystem: "pip"
+    directory: "/server/image_playground"
+    schedule:
+      interval: "weekly"
+    groups:
+      pip-image-playground:
+        patterns:
+          - "*"
+    # qwen-tts / qwen-asr pin transformers 4.57.x and accelerate 1.12.0, and
+    # every module shares one environment.
+    ignore:
+      - dependency-name: "transformers"
+        versions: [">=4.58"]
+      - dependency-name: "accelerate"
+        versions: [">=1.13"]
+      - dependency-name: "diffusers"
+        versions: [">=0.40"]
+
+  - package-ecosystem: "pip"
+    directory: "/server/rag"
+    schedule:
+      interval: "weekly"
+    groups:
+      pip-rag:
+        patterns:
+          - "*"
+    # celery[redis] caps redis below 6.5, and every module shares one environment.
+    ignore:
+      - dependency-name: "redis"
+        versions: [">=6.5"]
+
+  - package-ecosystem: "pip"
+    directory: "/server/recommendation"
+    schedule:
+      interval: "weekly"
+    groups:
+      pip-recommendation:
+        patterns:
+          - "*"
+    # celery[redis] caps redis below 6.5, and every module shares one environment.
+    ignore:
+      - dependency-name: "redis"
+        versions: [">=6.5"]
+
+  - package-ecosystem: "pip"
+    directory: "/server/speech"
+    schedule:
+      interval: "weekly"
+    groups:
+      pip-speech:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/server/video"
+    schedule:
+      interval: "weekly"
+    groups:
+      pip-video:
+        patterns:
+          - "*"
+    # qwen-tts / qwen-asr pin transformers 4.57.x and accelerate 1.12.0, and
+    # every module shares one environment.
+    ignore:
+      - dependency-name: "transformers"
+        versions: [">=4.58"]
+      - dependency-name: "accelerate"
+        versions: [">=1.13"]
+      - dependency-name: "diffusers"
+        versions: [">=0.40"]
+
+  - package-ecosystem: "pip"
+    directory: "/server/vision"
+    schedule:
+      interval: "weekly"
+    groups:
+      pip-vision:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/server"
+    schedule:
+      interval: "weekly"
+    groups:
+      docker-python-ml:
+        patterns:
+          - "*"

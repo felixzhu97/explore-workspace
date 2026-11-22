@@ -1,6 +1,6 @@
 package com.ai.common.domain.event;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 
 /**
  * AI invocation completed event.
@@ -19,7 +19,7 @@ public record AiInvocationCompletedEvent(
     String capability,
     String operation,
     long latencyMs,
-    OwnerKey owner,
+    OwnerId owner,
     String provider,
     String model,
     String sessionId,

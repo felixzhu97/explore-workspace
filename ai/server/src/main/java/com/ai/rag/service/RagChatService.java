@@ -3,7 +3,7 @@ package com.ai.rag.service;
 import com.ai.chat.domain.model.DetectedLanguage;
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.event.AiInvocationFailedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.service.llm.ChatClientProfile;
 import com.ai.common.service.llm.ChatClientProvider;
 import com.ai.common.service.llm.StreamTokenEvent;
@@ -49,7 +49,7 @@ public class RagChatService {
 
   /** True token streaming via ChatClient; emits {@code sources} SSE after content completes. */
   public Flux<ServerSentEvent<String>> streamChat(
-      String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
+      String question, List<String> documentIds, int topK, String sessionId, String ownerId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
@@ -58,9 +58,9 @@ public class RagChatService {
 
     ChatClient.ChatClientRequestSpec promptSpec;
     try {
-      promptSpec = buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
+      promptSpec = buildPrompt(question, documentIds, topK, sessionId, ownerId, options);
     } catch (RuntimeException ex) {
-      recordError(sessionId, ownerKey, startedAt, ex);
+      recordError(sessionId, ownerId, startedAt, ex);
       return Flux.error(ex);
     }
 
@@ -79,8 +79,8 @@ public class RagChatService {
               return ServerSentEvent.<String>builder().data(StreamTokenEvent.toJson(piece)).build();
             })
         .concatWith(Flux.defer(() -> buildSourceEvents(sourcesRef.get())))
-        .doOnComplete(() -> recordSuccess(options, sessionId, ownerKey, documentId, startedAt))
-        .doOnError(ex -> recordError(sessionId, ownerKey, startedAt, ex));
+        .doOnComplete(() -> recordSuccess(options, sessionId, ownerId, documentId, startedAt))
+        .doOnError(ex -> recordError(sessionId, ownerId, startedAt, ex));
   }
 
   /**
@@ -88,21 +88,21 @@ public class RagChatService {
    * invocation.
    */
   public RagChatResult chatWithDocuments(
-      String question, List<String> documentIds, int topK, String sessionId, String ownerKey) {
+      String question, List<String> documentIds, int topK, String sessionId, String ownerId) {
     long startedAt = System.nanoTime();
     TextChatOptions options = TextChatOptions.withoutTools();
     String documentId =
         documentIds != null && !documentIds.isEmpty() ? documentIds.getFirst() : null;
     try {
       ChatClient.ChatClientRequestSpec promptSpec =
-          buildPrompt(question, documentIds, topK, sessionId, ownerKey, options);
+          buildPrompt(question, documentIds, topK, sessionId, ownerId, options);
       ChatClientResponse clientResponse = promptSpec.call().chatClientResponse();
       String aiResponse = extractContent(clientResponse);
       List<SourceCitation> sources = extractSources(clientResponse);
-      recordSuccess(options, sessionId, ownerKey, documentId, startedAt);
+      recordSuccess(options, sessionId, ownerId, documentId, startedAt);
       return new RagChatResult(aiResponse, sources);
     } catch (RuntimeException ex) {
-      recordError(sessionId, ownerKey, startedAt, ex);
+      recordError(sessionId, ownerId, startedAt, ex);
       throw ex;
     }
   }
@@ -112,9 +112,9 @@ public class RagChatService {
       List<String> documentIds,
       int topK,
       String sessionId,
-      String ownerKey,
+      String ownerId,
       TextChatOptions options) {
-    Filter.Expression filter = buildRetrievalFilter(ownerKey, documentIds);
+    Filter.Expression filter = buildRetrievalFilter(ownerId, documentIds);
 
     String languageCode = DetectedLanguage.createLanguage(question).getCode();
     String languageHint =
@@ -158,9 +158,9 @@ public class RagChatService {
     return promptSpec;
   }
 
-  private static Filter.Expression buildRetrievalFilter(String ownerKey, List<String> documentIds) {
+  private static Filter.Expression buildRetrievalFilter(String ownerId, List<String> documentIds) {
     FilterExpressionBuilder builder = new FilterExpressionBuilder();
-    FilterExpressionBuilder.Op ownedByCaller = builder.eq(ChunkMetadataKeys.OWNER_KEY, ownerKey);
+    FilterExpressionBuilder.Op ownedByCaller = builder.eq(ChunkMetadataKeys.OWNER_KEY, ownerId);
     if (documentIds == null || documentIds.isEmpty()) {
       return ownedByCaller.build();
     }
@@ -171,7 +171,7 @@ public class RagChatService {
   private void recordSuccess(
       TextChatOptions options,
       String sessionId,
-      String ownerKey,
+      String ownerId,
       String documentId,
       long startedAt) {
     eventPublisher.publishEvent(
@@ -179,7 +179,7 @@ public class RagChatService {
             "rag",
             "rag.chat",
             elapsedMillis(startedAt),
-            OwnerKey.parseKey(ownerKey),
+            OwnerId.parseKey(ownerId),
             options.provider(),
             options.model(),
             sessionId,
@@ -187,13 +187,13 @@ public class RagChatService {
             null));
   }
 
-  private void recordError(String sessionId, String ownerKey, long startedAt, Throwable ex) {
+  private void recordError(String sessionId, String ownerId, long startedAt, Throwable ex) {
     eventPublisher.publishEvent(
         new AiInvocationFailedEvent(
             "rag",
             "rag.chat",
             elapsedMillis(startedAt),
-            OwnerKey.parseKey(ownerKey),
+            OwnerId.parseKey(ownerId),
             "openai",
             null,
             sessionId,

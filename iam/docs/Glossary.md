@@ -33,9 +33,9 @@ objects live in `domain.model` (no `domain.vo`).
 
 | Preferred Term | 中文   | Java Package | Frontend Route | API Prefix | Status | Notes |
 | -------------- | ------ | ------------ | -------------- | ---------- | ------ | ----- |
-| Identity       | 身份   | `com.iam.identity` | `/identity` | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` | partial | AIP-121; `User` / Group / Role / RoleBinding |
+| Identity       | 身份   | `com.iam.identity` | `/identity` | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` | partial | AIP-121; `User` / Group / Role / RoleAssignment |
 | Policy         | 策略   | `com.iam.policy` | `/allow-policies` | `/api/v1/allowPolicies`, `/api/v1/permissions` | partial | Policy Engine + Permission catalog |
-| Short-lived credentials | 临时凭证 | `com.iam.sts` | — | `/api/v1/shortLivedCredentials` | partial | ShortLivedCredential JWT |
+| Short-lived credentials | 临时凭证 | `com.iam.sts` | — | `/api/v1/tokenExchanges` | partial | TokenExchange JWT |
 | Federation     | 联邦   | `com.iam.federation` | `/oauth-clients` | OIDC + `/api/v1/oauthClients` | partial | SAS Provider + `OAuthClient` |
 | Console        | 控制台 | — | `/` | — | partial | Login + OAuth client registration |
 | Audit          | 审计   | `com.iam.audit` | `/audit` | `/api/v1/adminActivities`, `/api/v1/dataAccessLogs` | partial | AdminActivity + DataAccessLog |
@@ -197,15 +197,15 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 
 | Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
 | ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Abstract Immutable | 不可变聚合基类 | Shared domain/JPA base: typed `id` + `createdAt` | `com.explore.kernel.AbstractImmutable` (`shared/kernel`) | implemented |
+| Abstract Immutable | 不可变聚合基类 | Shared domain/JPA base: typed `id` + `createdAt` | `com.explore.kernel.AbstractImmutableEntity` (`shared/kernel`) | implemented |
 | Abstract Entity | 可变聚合基类 | Extends immutable; adds `updatedAt` + `@Version` | `com.explore.kernel.AbstractEntity` (`shared/kernel`) | implemented |
 | Typed Id | 类型化标识 | Embeddable id per aggregate wrapping the UUID string; column stays `id` | e.g. `UserId`, `GroupId`, `RoleId` | implemented |
 | Abstract Named Entity | 具名聚合基类 | Mutable aggregate with unique `name` | `AbstractNamedEntity` | implemented |
 | Abstract Audit Event | 不可变审计聚合基类 | Immutable audit aggregate base; `occurred_at` column | `AbstractAuditEvent` | implemented |
 | Abstract Embeddable | 可嵌入值对象基类 | Embeddable VO and typed id base | `com.explore.kernel.AbstractEmbeddable` (`shared/kernel`) | implemented |
 | Domain Strings | 域字符串校验 | Shared non-blank string validation | `DomainStrings.requireNonBlank` | implemented |
-| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | Pattern | e.g. `User.isLoginEnabled`, `AllowPolicy.getStatements` | implemented |
-| Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `PolicyStatementsJsonConverter` | implemented |
+| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | Pattern | e.g. `User.isLoginEnabled`, `Policy.getStatements` | implemented |
+| Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `RulesJsonConverter` | implemented |
 | Optimistic Locking | 乐观锁 | Concurrent update detection via `@Version` | `AbstractEntity.version` | implemented |
 | Liquibase Changelog | Liquibase 变更日志 | Versioned SQL schema migrations | `db/changelog/0.1.xml` | implemented |
 | Schema Validation | 模式校验 | Hibernate validates entities against DB schema | `spring.jpa.hibernate.ddl-auto: validate` | implemented |
@@ -235,7 +235,7 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 | Password Hashing | 密码哈希 | Stored credentials never plaintext | `PasswordEncoder` (BCrypt) | implemented |
 | Disabled User | 停用用户 | Principal cannot authenticate when disabled | `UserDetails.isEnabled()` | implemented |
 | Consent | 授权同意 | User approves OAuth client scopes | `OAuth2AuthorizationConsentService` | planned |
-| Persistent Signing Key | 持久化签名密钥 | JWKS stable across restarts | `SigningKeyEntity`, `PersistentJwkSourceConfig` | implemented |
+| Persistent Signing Key | 持久化签名密钥 | JWKS stable across restarts | `SigningKey`, `PersistentJwkSourceConfig` | implemented |
 | Implicit Deny | 隐式拒绝 | No matching Allow → Deny | `PolicyEngine` default | implemented |
 | Reason Code | 理由码 | Machine-readable authz/audit outcome | `ReasonCode` VO | implemented |
 | Least Privilege Session | 最小权限会话 | Short TTL temporary credentials | STS + `TokenSettings` | implemented |
@@ -260,7 +260,7 @@ Cross-bounded-context value objects in `com.iam.common.domain.model`
 | Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | implemented |
 | Reason Code | 理由码 | Machine-readable authorization outcome | Value Object | `ReasonCode` | implemented |
 | Explicit Deny Reason | 显式拒绝理由 | Matched Deny statement | Constant | `ReasonCode.EXPLICIT_DENY` | implemented |
-| Explicit Allow Reason | 显式允许理由 | Matched Allow statement | Constant | `ReasonCode.EXPLICIT_ALLOW` | implemented |
+| Explicit Allow Reason | 显式允许理由 | Matched Allow statement | Constant | `ReasonCode.EXPLICIT_PERMIT` | implemented |
 | Implicit Deny Reason | 隐式拒绝理由 | No Allow matched | Constant | `ReasonCode.IMPLICIT_DENY` | implemented |
 
 ---
@@ -318,7 +318,7 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 | Group Deleted Event | 组已删除事件 | Group removed | Domain Event | `GroupDeletedEvent` | implemented |
 | Role Created Event | 角色已创建事件 | Role created | Domain Event | `RoleCreatedEvent` | implemented |
 | Role | 角色 | Named collection of permissions (Google IAM role) | Aggregate | `Role` | implemented |
-| Role Binding | 角色绑定 | Links a principal to a Role | Entity | `RoleBinding` | implemented |
+| Role Assignment | 角色绑定 | Links a principal to a Role | Entity | `RoleAssignment` | implemented |
 | Assign Role | 分配角色 | Bind a role to a user | Behavior | `User.assignRole` | implemented |
 | Impersonation Policy | 模拟策略 | Who may obtain short-lived credentials for a Role | Value Object | `ImpersonationPolicy` | implemented |
 | Federated Identity | 联邦身份 | Maps external provider + subject to local user | Aggregate | `FederatedIdentity` | implemented |
@@ -331,16 +331,16 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Allow Policy | 允许策略 | Document of statements (Effect, Permission, Resource) | Aggregate | `AllowPolicy` | implemented |
-| Policy Statement | 策略语句 | Single Allow or Deny rule block | Value Object | `PolicyStatement` | implemented |
+| Allow Policy | 允许策略 | Document of statements (Effect, Permission, Resource) | Aggregate | `Policy` | implemented |
+| Policy Statement | 策略语句 | Single Allow or Deny rule block | Value Object | `Rule` | implemented |
 | Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | see §5.5 |
-| Policy Binding | 策略绑定 | Links an Allow Policy to a principal resource name | Aggregate | `PolicyBinding` | implemented |
+| Policy Assignment | 策略绑定 | Links an Allow Policy to a principal resource name | Aggregate | `PolicyAssignment` | implemented |
 | Permission | 权限 | Catalog entry: code, Resource, and GitHub-style `oauthScope` | Aggregate | `com.iam.policy.domain.model.Permission` | implemented |
 | Access Tuple | 访问元组 | Principal + Permission + Resource (Policy Troubleshooter shape) | Value Object | `AccessTuple` | implemented |
 | Access Decision | 访问决策 | Allow or Deny with reason | Value Object | `AccessDecision` | implemented |
 | Policy Engine | 策略引擎 | Evaluates policies: Deny > Allow > Implicit Deny | Domain Service | `PolicyEngine` | implemented |
-| Allow Policy Created Event | 允许策略已创建事件 | Allow Policy created | Domain Event | `AllowPolicyCreatedEvent` | implemented |
-| Policy Attached Event | 策略已绑定事件 | Policy Binding created | Domain Event | `PolicyAttachedEvent` | implemented |
+| Allow Policy Created Event | 允许策略已创建事件 | Allow Policy created | Domain Event | `PolicyCreatedEvent` | implemented |
+| Policy Attached Event | 策略已绑定事件 | Policy Assignment created | Domain Event | `PolicyAttachedEvent` | implemented |
 | Permission Created Event | 权限已创建事件 | Permission catalog entry created | Domain Event | `PermissionCreatedEvent` | implemented |
 | Access Evaluated Event | 访问已评估事件 | Access Tuple evaluated to an Access Decision | Domain Event | `AccessEvaluatedEvent` | implemented |
 
@@ -350,10 +350,10 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Short-Lived Credential | 短期凭证 | Temporary JWT after role impersonation | Aggregate | `ShortLivedCredential` | implemented |
+| Token Exchange | 短期凭证 | Temporary JWT after role impersonation | Aggregate | `TokenExchange` | implemented |
 | Impersonation Policy | 模拟策略 | Who may create short-lived credentials for a Role | Concept | `ImpersonationPolicy` on `Role` | implemented |
-| Create Short-Lived Credential | 创建短期凭证 | Exchange caller identity for role session credentials | Use Case | `ShortLivedCredentialService` | implemented |
-| Session Expired | 会话已过期 | Whether credentials are no longer valid | Behavior | `ShortLivedCredential.isExpired` | implemented |
+| Create Token Exchange | 创建短期凭证 | Exchange caller identity for role session credentials | Use Case | `TokenExchangeService` | implemented |
+| Session Expired | 会话已过期 | Whether credentials are no longer valid | Behavior | `TokenExchange.isExpired` | implemented |
 | Role Assumed Event | 角色已扮演事件 | Caller obtained short-lived credentials for a Role | Domain Event | `RoleAssumedEvent` | implemented |
 
 ---
@@ -383,7 +383,7 @@ Immutable **aggregate roots** for append-only audit rows (Google Cloud Audit Log
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
 | Admin Activity | 管理活动 | Management-plane action with actor, target, outcome | Aggregate | `AdminActivity` | implemented |
-| Data Access Log | 数据访问日志 | Persisted Allow/Deny with reason code | Aggregate | `DataAccessLog` | implemented |
+| Data Access Log | 数据访问日志 | Persisted Permit/Deny with reason code | Aggregate | `DataAccessLog` | implemented |
 | Audit Actor | 审计主体 | Principal that performed a management action | Value Object | `AuditActor` | implemented |
 | Audit Target | 审计目标 | Resource type and id affected | Value Object | `AuditTarget` | implemented |
 | Audit Outcome | 审计结果 | Success or failure | Enum | `AuditOutcome` | implemented |

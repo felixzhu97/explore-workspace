@@ -1,14 +1,36 @@
 {
   "name": "ai-server",
-  "tags": ["scope:ai"],
+  "tags": [
+    "scope:ai"
+  ],
   "targets": {
     "serve": {
       "continuous": true,
       "dependsOn": [
-        { "projects": ["ollama"], "target": "serve" },
-        { "projects": ["iam-server"], "target": "serve", "waitFor": "ready" }
+        {
+          "projects": [
+            "ollama"
+          ],
+          "target": "serve"
+        },
+        {
+          "projects": [
+            "iam-server"
+          ],
+          "target": "serve",
+          "waitFor": "ready"
+        },
+        {
+          "projects": [
+            "ml-server"
+          ],
+          "target": "serve",
+          "waitFor": "ready"
+        }
       ],
-      "readyWhen": { "url": "http://localhost:9000/actuator/health" },
+      "readyWhen": {
+        "url": "http://localhost:9000/actuator/health"
+      },
       "command": "./gradlew :ai-server:bootRun",
       "options": {
         "cwd": "{workspaceRoot}"

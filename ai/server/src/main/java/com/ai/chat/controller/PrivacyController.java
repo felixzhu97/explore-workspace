@@ -2,8 +2,8 @@ package com.ai.chat.controller;
 
 import com.ai.account.controller.OwnerContext;
 import com.ai.account.service.OwnerErasureService;
-import com.ai.common.controller.ClientIdentityCookieFactory;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.controller.AnonymousIdCookieFactory;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +27,15 @@ public class PrivacyController {
 
   private final OwnerContext ownerContext;
   private final OwnerErasureService ownerErasureService;
-  private final ClientIdentityCookieFactory cookieFactory;
+  private final AnonymousIdCookieFactory cookieFactory;
 
   /**
-   * Clears the client identity cookie and issues a new anonymous id (session fixation / privacy
+   * Clears the anonymous id cookie and issues a new anonymous id (session fixation / privacy
    * reset).
    */
   @PostMapping("/reset-identity")
   public ResponseEntity<Void> resetIdentity(HttpServletResponse response) {
-    String nextId = cookieFactory.generateClientId();
+    String nextId = cookieFactory.generateAnonymousId();
     response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.clearCookie().toString());
     response.addHeader(HttpHeaders.SET_COOKIE, cookieFactory.issueCookie(nextId).toString());
     return ResponseEntity.noContent().build();
@@ -44,7 +44,7 @@ public class PrivacyController {
   /** Deletes all durable data owned by the current owner key. */
   @DeleteMapping("/sessions")
   public ResponseEntity<Void> eraseAllSessions(HttpServletRequest request) {
-    OwnerKey owner = ownerContext.requireOwner(request);
+    OwnerId owner = ownerContext.requireOwner(request);
     ownerErasureService.eraseAllForOwner(owner);
     return ResponseEntity.noContent().build();
   }

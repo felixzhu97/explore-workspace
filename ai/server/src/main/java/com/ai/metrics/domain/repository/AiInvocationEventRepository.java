@@ -1,6 +1,6 @@
 package com.ai.metrics.domain.repository;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiCapability;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.model.InvocationOutcome;
@@ -25,10 +25,10 @@ public interface AiInvocationEventRepository {
   int deleteOlderThan(Instant cutoff);
 
   /** Deletes every event of the owner and returns the count. */
-  int deleteByOwnerKey(OwnerKey ownerKey);
+  int deleteByOwnerId(OwnerId ownerId);
 
   /** Moves every event of one owner to another and returns the count. */
-  int reassignOwnerKey(OwnerKey from, OwnerKey to);
+  int reassignOwnerId(OwnerId from, OwnerId to);
 
   /** Filters and page of a drill-down over invocation events. */
   @Value

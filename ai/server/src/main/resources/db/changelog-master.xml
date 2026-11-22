@@ -13,4 +13,5 @@
   <property name="date.time.type" value="TIMESTAMP(6)" dbms="h2" />
 
   <include file="changelogs/0.1.xml" relativeToChangelogFile="true"/>
+  <include file="changelogs/n3-owner-id.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

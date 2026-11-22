@@ -1,6 +1,6 @@
 package com.ai.common.domain.repository;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.explore.kernel.AbstractEmbeddable;
 import java.util.List;
 import java.util.Optional;
@@ -16,22 +16,22 @@ public interface OwnerScopedRepository<E, I extends AbstractEmbeddable>
     extends OwnerPartitionedRepository<E, I> {
 
   /** Finds the owner's entity by id. */
-  Optional<E> findByIdAndOwnerKey(I id, OwnerKey ownerKey);
+  Optional<E> findByIdAndOwnerId(I id, OwnerId ownerId);
 
   /** Lists the owner's entities by name. */
-  List<E> findAllByOwnerKeyOrderByNameAsc(OwnerKey ownerKey);
+  List<E> findAllByOwnerIdOrderByNameAsc(OwnerId ownerId);
 
   /** Tells whether the owner already has an entity with the name. */
-  boolean existsByOwnerKeyAndName(OwnerKey ownerKey, String name);
+  boolean existsByOwnerIdAndName(OwnerId ownerId, String name);
 
   /** Tells whether another of the owner's entities already has the name. */
-  boolean existsByOwnerKeyAndNameAndIdNot(OwnerKey ownerKey, String name, I id);
+  boolean existsByOwnerIdAndNameAndIdNot(OwnerId ownerId, String name, I id);
 
   /** Tells whether the owner has an entity with the name other than {@code excludeId}. */
-  default boolean existsByOwnerKeyAndNameIgnoringId(OwnerKey ownerKey, String name, I excludeId) {
+  default boolean existsByOwnerIdAndNameIgnoringId(OwnerId ownerId, String name, I excludeId) {
     return excludeId == null
-        ? existsByOwnerKeyAndName(ownerKey, name)
-        : existsByOwnerKeyAndNameAndIdNot(ownerKey, name, excludeId);
+        ? existsByOwnerIdAndName(ownerId, name)
+        : existsByOwnerIdAndNameAndIdNot(ownerId, name, excludeId);
   }
 
   /** Saves the entity and returns the stored copy. */
@@ -39,5 +39,5 @@ public interface OwnerScopedRepository<E, I extends AbstractEmbeddable>
 
   /** Deletes the owner's entity by id. */
   @Transactional
-  void deleteByIdAndOwnerKey(I id, OwnerKey ownerKey);
+  void deleteByIdAndOwnerId(I id, OwnerId ownerId);
 }

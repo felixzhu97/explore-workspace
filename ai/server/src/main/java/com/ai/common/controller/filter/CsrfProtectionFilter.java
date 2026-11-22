@@ -1,5 +1,7 @@
 package com.ai.common.controller.filter;
 
+import com.ai.common.controller.BearerAuthorization;
+import com.explore.errors.Problems;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -47,7 +49,7 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
       return true;
     }
     if (hasServiceAuthHeaders(request)) {
-      // Sibling BFFs use X-Service-Key + X-Client-Id (no browser cookie session).
+      // Sibling BFFs use Authorization Bearer + Anonymous-Id (no browser cookie session).
       return true;
     }
     String path = request.getRequestURI();
@@ -67,9 +69,10 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
     response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
     byte[] body =
         """
-                {"type":"/problems/csrf-rejected","title":"Forbidden",
+                {"type":"%s","title":"Forbidden",
                 "status":403,"detail":"Missing CSRF protection header"}
                 """
+            .formatted(Problems.typeOf("CSRF_REJECTED"))
             .strip()
             .getBytes(StandardCharsets.UTF_8);
     response.getOutputStream().write(body);
@@ -81,8 +84,8 @@ public class CsrfProtectionFilter extends OncePerRequestFilter {
   }
 
   private static boolean hasServiceAuthHeaders(HttpServletRequest request) {
-    String serviceKey = request.getHeader(ClientIdentityFilter.SERVICE_KEY_HEADER);
-    String clientId = request.getHeader(ClientIdentityFilter.CLIENT_ID_HEADER);
-    return serviceKey != null && !serviceKey.isBlank() && clientId != null && !clientId.isBlank();
+    String bearer = BearerAuthorization.extractToken(request);
+    String clientId = request.getHeader(AnonymousIdFilter.ANONYMOUS_ID_HEADER);
+    return bearer != null && !bearer.isBlank() && clientId != null && !clientId.isBlank();
   }
 }

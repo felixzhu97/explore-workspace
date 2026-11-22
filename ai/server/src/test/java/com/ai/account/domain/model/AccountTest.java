@@ -3,7 +3,7 @@ package com.ai.account.domain.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.explore.errors.DomainException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class AccountTest {
     assertThat(account.getIdentity()).isEqualTo(ExternalIdentity.createIdentity("google", "sub-1"));
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("User@Example.com"));
     assertThat(account.getLinkedClientId()).isNull();
-    assertThat(account.findGuestOwnerKey()).isEmpty();
+    assertThat(account.findGuestOwnerId()).isEmpty();
   }
 
   @Test
@@ -41,7 +41,7 @@ class AccountTest {
     assertThat(account.getLinkedClientId()).isEqualTo(CLIENT);
     assertThat(account.getEmail()).isEqualTo(new ContactEmail("c@d.com"));
     assertThat(account.getDisplayName()).isEqualTo("octocat");
-    assertThat(account.findGuestOwnerKey()).contains(OwnerKey.createClientKey(CLIENT.getValue()));
+    assertThat(account.findGuestOwnerId()).contains(OwnerId.createClientKey(CLIENT.getValue()));
   }
 
   @Test
@@ -75,7 +75,7 @@ class AccountTest {
     account.unlinkBrowser();
 
     assertThat(account.getLinkedClientId()).isNull();
-    assertThat(account.findGuestOwnerKey()).isEmpty();
+    assertThat(account.findGuestOwnerId()).isEmpty();
   }
 
   @Test
@@ -83,8 +83,8 @@ class AccountTest {
   void shouldOwnDataUnderItsAccountId() {
     Account account = account(null, null);
 
-    assertThat(account.createOwnerKey())
-        .isEqualTo(OwnerKey.createAccountKey(account.getId().toString()));
+    assertThat(account.createOwnerId())
+        .isEqualTo(OwnerId.createAccountKey(account.getId().toString()));
   }
 
   @Test

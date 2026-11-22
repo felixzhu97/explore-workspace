@@ -279,16 +279,16 @@ describe('httpErrorInterceptor', () => {
 
     it('should keep the detail and problem type of a 503 problem detail', async () => {
       const error = await interceptError(503, {
-        type: '/problems/image-provider-not-configured',
+        type: 'https://www.felixzhu.chat/problems/image-provider-not-configured',
         title: 'Service Unavailable',
         status: 503,
         detail: 'Image provider not configured',
-        instance: '/api/images/generate',
+        instance: '/api/images:generate',
       });
 
       expect(error.code).toBe('SERVICE_UNAVAILABLE');
       expect(error.message).toBe('Image provider not configured');
-      expect(error.type).toBe('/problems/image-provider-not-configured');
+      expect(error.type).toBe('https://www.felixzhu.chat/problems/image-provider-not-configured');
     });
 
     it('should map a legacy error code to its problem type', async () => {
@@ -299,7 +299,7 @@ describe('httpErrorInterceptor', () => {
       });
 
       expect(error.message).toBe('Image provider not configured');
-      expect(error.type).toBe('/problems/image-provider-not-configured');
+      expect(error.type).toBe('https://www.felixzhu.chat/problems/image-provider-not-configured');
     });
 
     it('should leave the problem type empty when a problem detail uses about:blank', async () => {
@@ -564,9 +564,9 @@ describe('httpErrorInterceptor', () => {
 
 async function interceptError(status: number, body: unknown): Promise<AppError> {
   const mockNext = vi.fn().mockReturnValue(
-    throwError(() => new HttpErrorResponse({ status, url: '/api/images/generate', error: body })),
+    throwError(() => new HttpErrorResponse({ status, url: '/api/images:generate', error: body })),
   );
-  const request = new HttpRequest('POST', '/api/images/generate', {});
+  const request = new HttpRequest('POST', '/api/images:generate', {});
   const interceptor = TestBed.runInInjectionContext(
     () => httpErrorInterceptor(request, mockNext),
   );

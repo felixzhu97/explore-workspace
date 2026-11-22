@@ -1,0 +1,154 @@
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { useFonts } from "expo-font";
+import { Stack, usePathname } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useMemo } from "react";
+import "react-native-reanimated";
+import { Provider } from "react-redux";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, useColorScheme } from "react-native";
+import styled from "@emotion/native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { createConsoleTransport, createHttpTransport } from "@fintech/analytics";
+import { AnalyticsProvider, useAnalytics } from "@fintech/analytics/react";
+import { SCREEN_VIEW } from "@fintech/analytics";
+import { QuoteSocketSubscriber } from "@/src/store/QuoteSocketSubscriber";
+import { store } from "@/src/store";
+import { getBaseUrl } from "@/src/lib/network/config";
+import { DarkColors, LightColors } from "@/src/theme/colors";
+import { StyledThemeProvider } from "@/src/theme/StyledThemeProvider";
+import "@/src/lib/i18n/config";
+import { i18n } from "@/src/lib/i18n";
+import {useAuth, useAuthFetchCustomer, useAuthRestore, useAuthTokenSync, usePreferences} from "@/src/hooks";
+
+const base = getBaseUrl().replace(/\/$/, "");
+const apiBase = base ? `${base}${base.indexOf("/api/v1") !== -1 ? "" : "/api/v1"}` : "";
+const analyticsTransport = apiBase ? createHttpTransport(apiBase, "mobile") : createConsoleTransport();
+
+const LoadingRoot = styled.View<{ bg: string }>`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  background-color: ${(p) => p.bg};
+`;
+
+SplashScreen.preventAutoHideAsync();
+
+function ScreenViewTracker() {
+  const pathname = usePathname();
+  const analytics = useAnalytics();
+  useEffect(() => {
+    analytics.track(SCREEN_VIEW, { screen: pathname });
+  }, [pathname, analytics]);
+  return null;
+}
+
+function AppContent() {
+  const { loading, theme: themePreference, language } = usePreferences();
+  const systemColorScheme = useColorScheme();
+  const { customer } = useAuth();
+  const analytics = useAnalytics();
+  useAuthTokenSync();
+  useAuthRestore();
+  useAuthFetchCustomer();
+
+  useEffect(() => {
+    if (customer) {
+      analytics.identify(customer.customer_id, {
+        email: customer.email ?? undefined,
+        name: customer.name,
+      });
+    }
+  }, [customer, analytics]);
+
+  useEffect(() => {
+    if (language) {
+      i18n.changeLanguage(language);
+    }
+  }, [language]);
+
+  const theme = useMemo(() => {
+    if (themePreference === "light") {
+      return DefaultTheme;
+    } else if (themePreference === "dark") {
+      return DarkTheme;
+    } else {
+      return systemColorScheme === "dark" ? DarkTheme : DefaultTheme;
+    }
+  }, [themePreference, systemColorScheme]);
+
+  const statusBarStyle = useMemo(() => {
+    if (themePreference === "light") {
+      return "dark";
+    } else if (themePreference === "dark") {
+      return "light";
+    } else {
+      return systemColorScheme === "dark" ? "light" : "dark";
+    }
+  }, [themePreference, systemColorScheme]);
+
+  const colors =
+    systemColorScheme === "dark" ? DarkColors : LightColors;
+
+  if (loading) {
+    return (
+      <LoadingRoot bg={colors.background}>
+        <ActivityIndicator size="large" color={colors.textSecondary} />
+      </LoadingRoot>
+    );
+  }
+
+  return (
+    <ThemeProvider value={theme}>
+      <StyledThemeProvider>
+        <StatusBar style={statusBarStyle} translucent />
+        <GestureHandlerRootView
+          style={{ flex: 1, backgroundColor: theme.colors.background }}
+        >
+          <SafeAreaView
+            style={{ flex: 1, backgroundColor: theme.colors.background }}
+          >
+            <ScreenViewTracker />
+            <QuoteSocketSubscriber />
+            <Stack initialRouteName="index">
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="storybook" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </SafeAreaView>
+        </GestureHandlerRootView>
+      </StyledThemeProvider>
+    </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  const [loaded] = useFonts({
+    SpaceMono: require("@/src/assets/fonts/SpaceMono-Regular.ttf"),
+  });
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  if (!loaded) {
+    return null;
+  }
+
+  return (
+    <Provider store={store}>
+      <AnalyticsProvider transport={analyticsTransport}>
+        <AppContent />
+      </AnalyticsProvider>
+    </Provider>
+  );
+}

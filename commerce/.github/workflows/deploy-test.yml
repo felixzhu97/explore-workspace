@@ -1,0 +1,76 @@
+name: Deploy to Test
+
+on:
+  push:
+    branches: [test]
+    paths:
+      - 'services/api/**'
+      - 'packages/types/**'
+      - 'packages/monitoring/**'
+      - '.github/workflows/deploy-test.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build dependencies
+        run: pnpm build --filter=types --filter=monitoring
+
+      - name: Run tests
+        run: pnpm test --filter=api
+        env:
+          NODE_ENV: test
+
+  deploy:
+    name: Deploy to Test Environment
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build --filter=types --filter=monitoring --filter=api
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-east-1
+
+      - name: Deploy to AWS Lambda
+        run: cd services/api && pnpm run deploy:lambda:test
+        env:
+          MONGODB_URI_test: ${{ secrets.MONGODB_URI_TEST }}
+          JWT_SECRET_test: ${{ secrets.JWT_SECRET_TEST }}
+          CORS_ORIGINS_test: ${{ secrets.CORS_ORIGINS_TEST }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_SITE: ${{ secrets.DD_SITE || 'datadoghq.com' }}

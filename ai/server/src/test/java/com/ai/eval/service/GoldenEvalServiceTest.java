@@ -12,10 +12,10 @@ import static org.mockito.Mockito.when;
 
 import com.ai.chat.service.ChatService;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import com.ai.eval.domain.model.GoldenEvalCase;
 import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.ai.eval.domain.model.GoldenSuiteReport;
-import com.ai.eval.domain.model.OfficialGateResult;
 import com.ai.eval.domain.repository.GoldenSuiteRepository;
 import com.ai.eval.infra.golden.GoldenRagFixtureSeeder;
 import com.ai.rag.domain.model.SourceCitation;
@@ -35,7 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class GoldenEvalServiceTest {
 
   @Mock private GoldenSuiteRepository suiteRepository;
-  @Mock private OfficialSpringAiEvaluators officialEvaluators;
+  @Mock private BuiltInSpringAiEvaluators officialEvaluators;
   @Mock private ChatService chatService;
   @Mock private RagChatService ragChatService;
   @Mock private GoldenRagFixtureSeeder fixtureSeeder;
@@ -61,7 +61,7 @@ class GoldenEvalServiceTest {
         .thenReturn("Explore AI is a demo platform.");
     when(officialEvaluators.evaluateChat(anyString(), anyString(), anyList()))
         .thenReturn(
-            new OfficialGateResult(true, true, true, 1.0, 1.0, List.of("relevancy: PASS"), true));
+            new BuiltInGateResult(true, true, true, 1.0, 1.0, List.of("relevancy: PASS"), true));
 
     GoldenSuiteReport report = useCase.runSuite(List.of(GoldenEvalCategory.CHAT), List.of());
 
@@ -99,7 +99,7 @@ class GoldenEvalServiceTest {
                 "Chat and RAG",
                 List.of(new SourceCitation("Core modules include Chat and RAG.", 0.9, Map.of()))));
     when(officialEvaluators.evaluateChat(eq("What modules?"), eq("Chat and RAG"), anyList()))
-        .thenReturn(new OfficialGateResult(true, true, true, 1.0, 1.0, List.of(), true));
+        .thenReturn(new BuiltInGateResult(true, true, true, 1.0, 1.0, List.of(), true));
 
     GoldenSuiteReport report = useCase.runSuite(List.of(GoldenEvalCategory.RAG), null);
 

@@ -1,6 +1,6 @@
 package com.ai.metrics.test.fixture;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.domain.model.AiInvocationEvent;
 import com.ai.metrics.domain.repository.AiInvocationEventRepository;
 import java.time.Instant;
@@ -37,12 +37,12 @@ public class FakeAiInvocationEventRepository implements AiInvocationEventReposit
   }
 
   @Override
-  public int deleteByOwnerKey(OwnerKey ownerKey) {
-    return removeAll(event -> event.getOwnerKey().equals(ownerKey));
+  public int deleteByOwnerId(OwnerId ownerId) {
+    return removeAll(event -> event.getOwnerId().equals(ownerId));
   }
 
   @Override
-  public int reassignOwnerKey(OwnerKey from, OwnerKey to) {
+  public int reassignOwnerId(OwnerId from, OwnerId to) {
     throw new UnsupportedOperationException("events are immutable in memory");
   }
 

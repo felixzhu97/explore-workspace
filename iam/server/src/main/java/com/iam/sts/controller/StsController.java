@@ -1,49 +1,69 @@
 package com.iam.sts.controller;
 
-import com.iam.sts.service.ShortLivedCredentialService;
-import com.iam.sts.service.ShortLivedCredentialService.AssumeRoleCommand;
-import com.iam.sts.service.ShortLivedCredentialService.AssumeRoleResult;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.iam.sts.service.TokenExchangeService;
+import com.iam.sts.service.TokenExchangeService.TokenExchangeCommand;
+import com.iam.sts.service.TokenExchangeService.TokenExchangeResult;
+import java.time.Duration;
+import java.time.Instant;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/** STS AssumeRole API. */
+/**
+ * RFC 8693-style token exchange for assumed IAM roles.
+ *
+ * @see <a href="https://www.rfc-editor.org/rfc/rfc8693#section-2">RFC 8693 §2</a>
+ */
 @RestController
-@RequestMapping("/api/v1/shortLivedCredentials")
+@RequestMapping("/api/v1/tokenExchanges")
 public class StsController {
 
-  private final ShortLivedCredentialService shortLivedCredentialService;
+  private static final String ISSUED_TOKEN_TYPE =
+      "urn:ietf:params:oauth:token-type:access_token";
+
+  private final TokenExchangeService tokenExchangeService;
 
   /**
-   * Creates the STS API controller.
+   * Creates the token exchange API controller.
    *
-   * @param shortLivedCredentialService assume-role service
+   * @param tokenExchangeService token exchange service
    */
-  public StsController(ShortLivedCredentialService shortLivedCredentialService) {
-    this.shortLivedCredentialService = shortLivedCredentialService;
+  public StsController(TokenExchangeService tokenExchangeService) {
+    this.tokenExchangeService = tokenExchangeService;
   }
 
   /**
-   * Issues temporary credentials for an assumed IAM role.
+   * Exchanges the caller identity for role-scoped access token credentials.
    *
-   * @param request assume-role payload
-   * @return access token and session metadata
+   * @param request token exchange payload
+   * @return RFC 8693 token response fields
    */
   @PostMapping
   @PreAuthorize("isAuthenticated()")
-  public AssumeRoleResponse createShortLivedCredential(@RequestBody AssumeRoleRequest request) {
-    AssumeRoleResult result =
-        shortLivedCredentialService.createShortLivedCredential(
-            new AssumeRoleCommand(request.roleArn(), request.sessionName()));
-    return new AssumeRoleResponse(
-        result.accessToken(), result.expiration().toString(), result.sessionId());
+  public TokenExchangeResponse createTokenExchange(@RequestBody TokenExchangeRequest request) {
+    TokenExchangeResult result =
+        tokenExchangeService.createTokenExchange(
+            new TokenExchangeCommand(request.roleArn(), request.sessionName()));
+    long expiresIn = Math.max(0, Duration.between(Instant.now(), result.expiration()).toSeconds());
+    return new TokenExchangeResponse(
+        result.accessToken(), "Bearer", expiresIn, ISSUED_TOKEN_TYPE, result.sessionId());
   }
 
-  /** Request body for AssumeRole. */
-  public record AssumeRoleRequest(String roleArn, String sessionName) {}
+  /** Request body for role token exchange. */
+  public record TokenExchangeRequest(String roleArn, String sessionName) {}
 
-  /** Temporary credentials returned by AssumeRole. */
-  public record AssumeRoleResponse(String accessToken, String expiration, String sessionId) {}
+  /**
+   * Token exchange response aligned with RFC 8693 §2.2.1 field names.
+   *
+   * @param sessionId internal session id (extension)
+   */
+  public record TokenExchangeResponse(
+      @JsonProperty("access_token") String accessToken,
+      @JsonProperty("token_type") String tokenType,
+      @JsonProperty("expires_in") long expiresIn,
+      @JsonProperty("issued_token_type") String issuedTokenType,
+      String sessionId) {}
 }

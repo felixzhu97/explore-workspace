@@ -3,7 +3,7 @@ package com.ai.account.domain.model;
 import java.util.regex.Pattern;
 import lombok.Value;
 
-/** UUID carried by the Client Identity cookie; only server-issued ids are accepted. */
+/** UUID carried by the Anonymous id cookie; only server-issued ids are accepted. */
 @Value
 public class ClientId {
   String value;
@@ -20,7 +20,7 @@ public class ClientId {
     this.value = value;
   }
 
-  /** Parses a Client Identity value, rejecting anything that is not a UUID. */
+  /** Parses a Anonymous id value, rejecting anything that is not a UUID. */
   public static ClientId parseId(String text) {
     return new ClientId(text);
   }

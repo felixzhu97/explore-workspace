@@ -3,7 +3,7 @@ package com.ai.account.service;
 import com.ai.account.domain.model.Account;
 import com.ai.account.domain.model.ClientId;
 import com.ai.account.domain.repository.AccountRepository;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Resolves data {@link OwnerKey} from guest Client Identity and/or OAuth / IAM JWT. */
+/** Resolves data {@link OwnerId} from guest Anonymous id and/or OAuth / IAM JWT. */
 @Service
 @RequiredArgsConstructor
 public class CurrentOwnerResolver {
@@ -20,20 +20,20 @@ public class CurrentOwnerResolver {
   private final AccountRepository accountRepository;
   private final IamAccountService iamAccountService;
 
-  /** Resolves owner from guest Client Identity and/or OAuth / IAM JWT authentication. */
+  /** Resolves owner from guest Anonymous id and/or OAuth / IAM JWT authentication. */
   @Transactional
-  public OwnerKey resolveOwner(String clientId, Authentication authentication) {
+  public OwnerId resolveOwner(String clientId, Authentication authentication) {
     Optional<Account> fromAuth = resolveSignedInUser(authentication);
     if (fromAuth.isPresent()) {
-      return fromAuth.get().createOwnerKey();
+      return fromAuth.get().createOwnerId();
     }
     if (ClientId.isValid(clientId)) {
       Optional<Account> linked = accountRepository.findByLinkedClientId(ClientId.parseId(clientId));
       if (linked.isPresent()) {
-        return linked.get().createOwnerKey();
+        return linked.get().createOwnerId();
       }
     }
-    return OwnerKey.createClientKey(clientId);
+    return OwnerId.createClientKey(clientId);
   }
 
   /**
@@ -43,8 +43,8 @@ public class CurrentOwnerResolver {
    * @return account owner key
    */
   @Transactional
-  public OwnerKey resolveFromJwt(Jwt jwt) {
-    return iamAccountService.signIn(jwt).createOwnerKey();
+  public OwnerId resolveFromJwt(Jwt jwt) {
+    return iamAccountService.signIn(jwt).createOwnerId();
   }
 
   private Optional<Account> resolveSignedInUser(Authentication authentication) {

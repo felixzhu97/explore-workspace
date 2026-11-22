@@ -4,7 +4,7 @@ import com.ai.account.domain.model.ClientId;
 import com.ai.account.infra.config.OAuthSpaProperties;
 import com.ai.account.service.AccountService;
 import com.ai.account.service.OAuthSignIn;
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import com.explore.errors.DomainException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +45,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
   public void onAuthenticationSuccess(
       HttpServletRequest request, HttpServletResponse response, Authentication authentication)
       throws IOException, ServletException {
-    Object attribute = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
+    Object attribute = request.getAttribute(AnonymousId.REQUEST_ATTRIBUTE);
     Optional<OAuthSignIn> signIn = OAuthSignIn.createSignIn(authentication);
     if (attribute instanceof String raw && ClientId.isValid(raw) && signIn.isPresent()) {
       try {

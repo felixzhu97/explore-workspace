@@ -19,8 +19,8 @@ public class PipelineService {
   private final PipelineOrchestrationService orchestrator;
 
   /** Lists the agents. */
-  public List<AgentDefinition> listAgents(String ownerKey, String language) {
-    return orchestrator.listAgents(ownerKey, language);
+  public List<AgentDefinition> listAgents(String ownerId, String language) {
+    return orchestrator.listAgents(ownerId, language);
   }
 
   /** Counts the built-in agents. */
@@ -29,38 +29,37 @@ public class PipelineService {
   }
 
   /** Returns an agent with its health. */
-  public AgentDefinition getHealth(String agentType, String ownerKey, String language) {
-    return orchestrator.getHealth(AgentType.createType(agentType), ownerKey, language);
+  public AgentDefinition getHealth(String agentType, String ownerId, String language) {
+    return orchestrator.getHealth(AgentType.createType(agentType), ownerId, language);
   }
 
   /** Streams a supervisor run. */
   public Flux<ServerSentEvent<String>> invokeSupervisor(
-      String message, String ownerKey, String language) {
-    return orchestrator.invokeSupervisor(message, ownerKey, language);
+      String message, String ownerId, String language) {
+    return orchestrator.invokeSupervisor(message, ownerId, language);
   }
 
   /** Streams a pipeline run. */
   public Flux<ServerSentEvent<String>> invokePipeline(
-      String message, AgentPipeline pipeline, String ownerKey, String language) {
-    return orchestrator.invokePipeline(message, pipeline, ownerKey, language);
+      String message, AgentPipeline pipeline, String ownerId, String language) {
+    return orchestrator.invokePipeline(message, pipeline, ownerId, language);
   }
 
   /** Streams a single agent run. */
   public Flux<ServerSentEvent<String>> invokeAgent(
-      String agentType, String message, String ownerKey, String language) {
-    return orchestrator.invokeAgent(AgentType.createType(agentType), message, ownerKey, language);
+      String agentType, String message, String ownerId, String language) {
+    return orchestrator.invokeAgent(AgentType.createType(agentType), message, ownerId, language);
   }
 
   /** Runs a single agent and returns the final answer. */
-  public String invokeAgentSync(
-      String agentType, String message, String ownerKey, String language) {
+  public String invokeAgentSync(String agentType, String message, String ownerId, String language) {
     return orchestrator.invokeAgentSync(
-        AgentType.createType(agentType), message, ownerKey, language);
+        AgentType.createType(agentType), message, ownerId, language);
   }
 
   /** Runs a pipeline and returns the final answer. */
   public String invokePipelineSync(
-      String message, AgentPipeline pipeline, String ownerKey, String language) {
-    return orchestrator.invokePipelineSync(message, pipeline, ownerKey, language);
+      String message, AgentPipeline pipeline, String ownerId, String language) {
+    return orchestrator.invokePipelineSync(message, pipeline, ownerId, language);
   }
 }

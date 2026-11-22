@@ -16,7 +16,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public abstract class AbstractEntity<IdT extends AbstractEmbeddable>
-    extends AbstractImmutable<IdT> {
+    extends AbstractImmutableEntity<IdT> {
 
   @UpdateTimestamp
   @Column(nullable = false)

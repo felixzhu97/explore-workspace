@@ -19,12 +19,12 @@ public final class BearerTokenScopeAuthorization {
   private BearerTokenScopeAuthorization() {}
 
   /**
-   * Requires the scope when the request carries a bearer token, and allows other requests.
+   * Requires the scope for bearer-token requests and allows every other request.
    *
    * @param scope the OAuth 2.0 scope, such as {@code write:ai_chat}
    * @return the authorization manager for a request matcher
    */
-  public static AuthorizationManager<RequestAuthorizationContext> requireScopeWhenPresent(
+  public static AuthorizationManager<RequestAuthorizationContext> requireScopeForBearerTokens(
       String scope) {
     String authority = AUTHORITY_PREFIX + scope;
     return (authentication, context) -> {

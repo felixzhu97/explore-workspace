@@ -1,4 +1,4 @@
 {
   "name": "shared-errors",
-  "tags": ["type:shared"]
+  "tags": ["scope:shared", "type:lib"]
 }

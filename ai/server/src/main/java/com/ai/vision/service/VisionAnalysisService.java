@@ -3,7 +3,7 @@ package com.ai.vision.service;
 import com.ai.common.controller.dto.HealthStatus;
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.event.AiInvocationFailedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.vision.controller.dto.CaptionResponse;
 import com.ai.vision.controller.dto.DetectResponse;
 import com.ai.vision.controller.dto.DetectionResponse;
@@ -74,7 +74,7 @@ public class VisionAnalysisService {
   }
 
   /** Captions the uploaded image, recording latency and the invocation outcome. */
-  public CaptionResponse captionImage(MultipartFile file, OwnerKey owner) throws IOException {
+  public CaptionResponse captionImage(MultipartFile file, OwnerId owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
@@ -90,7 +90,7 @@ public class VisionAnalysisService {
   }
 
   /** Detects objects in the uploaded image, recording latency and the invocation outcome. */
-  public DetectResponse detectObjects(MultipartFile file, OwnerKey owner) throws IOException {
+  public DetectResponse detectObjects(MultipartFile file, OwnerId owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
@@ -107,7 +107,7 @@ public class VisionAnalysisService {
   }
 
   /** Extracts text from the uploaded image, recording latency and the invocation outcome. */
-  public OcrResponse recognizeText(MultipartFile file, OwnerKey owner) throws IOException {
+  public OcrResponse recognizeText(MultipartFile file, OwnerId owner) throws IOException {
     BufferedImage image = toImage(file);
     long startedAt = System.nanoTime();
     try {
@@ -122,13 +122,13 @@ public class VisionAnalysisService {
     }
   }
 
-  private void publishCompleted(String operation, long latencyMs, OwnerKey owner) {
+  private void publishCompleted(String operation, long latencyMs, OwnerId owner) {
     eventPublisher.publishEvent(
         new AiInvocationCompletedEvent(
             VISION, operation, latencyMs, owner, null, null, null, null, null));
   }
 
-  private void publishFailed(String operation, long latencyMs, OwnerKey owner, Throwable error) {
+  private void publishFailed(String operation, long latencyMs, OwnerId owner, Throwable error) {
     eventPublisher.publishEvent(
         new AiInvocationFailedEvent(
             VISION,

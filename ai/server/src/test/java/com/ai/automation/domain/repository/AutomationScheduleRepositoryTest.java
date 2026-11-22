@@ -3,7 +3,7 @@ package com.ai.automation.domain.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ai.automation.domain.model.AutomationSchedule;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.testsupport.AbstractDataJpaTest;
 import java.time.Instant;
 import org.junit.jupiter.api.DisplayName;
@@ -13,8 +13,8 @@ import org.springframework.data.domain.Limit;
 
 class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:44444444-4444-4444-4444-444444444444");
-  private static final OwnerKey OTHER = OwnerKey.parseKey("c:55555555-5555-5555-5555-555555555555");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:44444444-4444-4444-4444-444444444444");
+  private static final OwnerId OTHER = OwnerId.parseKey("c:55555555-5555-5555-5555-555555555555");
   private static final String WORKFLOW_ID = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
   private static final Instant JAN_1 = Instant.parse("2026-01-01T00:00:00Z");
 
@@ -32,7 +32,7 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
     boolean second = repository.claimSchedule(schedule.getId(), nextRun, claimedNextRunAt);
     flushAndClear();
 
-    AutomationSchedule reloaded = repository.findByIdAndOwnerKey(schedule.getId(), OWNER).get();
+    AutomationSchedule reloaded = repository.findByIdAndOwnerId(schedule.getId(), OWNER).get();
     assertThat(first).isTrue();
     assertThat(second).isFalse();
     assertThat(reloaded.getNextRunAt()).isEqualTo(claimedNextRunAt);
@@ -54,7 +54,7 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
     repository.save(due);
     flushAndClear();
 
-    assertThat(repository.findByIdAndOwnerKey(due.getId(), OWNER).get().getLastRunAt())
+    assertThat(repository.findByIdAndOwnerId(due.getId(), OWNER).get().getLastRunAt())
         .isEqualTo(now);
   }
 
@@ -82,13 +82,13 @@ class AutomationScheduleRepositoryTest extends AbstractDataJpaTest {
     save(OTHER, "Other", "0 0 9 * * *", JAN_1);
     flushAndClear();
 
-    assertThat(repository.findAllByOwnerKeyOrderByCreatedAtDesc(OWNER))
+    assertThat(repository.findAllByOwnerIdOrderByCreatedAtDesc(OWNER))
         .extracting(AutomationSchedule::getName)
         .containsExactly("Second", "First");
-    assertThat(repository.countByOwnerKey(OWNER)).isEqualTo(2);
+    assertThat(repository.countByOwnerId(OWNER)).isEqualTo(2);
   }
 
-  private AutomationSchedule save(OwnerKey owner, String name, String cron, Instant now) {
+  private AutomationSchedule save(OwnerId owner, String name, String cron, Instant now) {
     return repository.save(
         AutomationSchedule.createSchedule(
             owner.getValue(), name, cron, "UTC", WORKFLOW_ID, "user@example.com", "Brief", now));

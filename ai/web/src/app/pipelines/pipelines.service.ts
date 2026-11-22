@@ -205,8 +205,8 @@ export class PipelinesService {
   ): { abort: () => void } {
     const path =
       agentType === 'supervisor'
-        ? `${API_BASE_URL}/pipelines/supervisor/invoke/sse`
-        : `${API_BASE_URL}/pipelines/${agentType}/invoke/sse`;
+        ? `${API_BASE_URL}/pipelines/supervisor:streamInvoke`
+        : `${API_BASE_URL}/pipelines/${agentType}:streamInvoke`;
 
     return this.#openSse(path, request, onChunk, onHandoff, onDone, onError);
   }
@@ -220,7 +220,7 @@ export class PipelinesService {
     onError: (error: Error) => void,
   ): { abort: () => void } {
     return this.#openSse(
-      `${API_BASE_URL}/pipelines/invoke/sse`,
+      `${API_BASE_URL}/pipelines:streamInvoke`,
       request,
       onChunk,
       onHandoff,

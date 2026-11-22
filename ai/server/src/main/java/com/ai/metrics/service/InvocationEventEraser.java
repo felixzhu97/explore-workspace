@@ -25,12 +25,12 @@ public class InvocationEventEraser {
   @EventListener
   @Transactional
   void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
-    invocationEventRepository.deleteByOwnerKey(event.ownerKey());
+    invocationEventRepository.deleteByOwnerId(event.ownerId());
   }
 
   @EventListener
   @Transactional
   void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
-    invocationEventRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    invocationEventRepository.reassignOwnerId(event.fromOwnerId(), event.toOwnerId());
   }
 }

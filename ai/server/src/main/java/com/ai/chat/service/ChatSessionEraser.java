@@ -52,12 +52,12 @@ public class ChatSessionEraser {
   @EventListener
   @Transactional
   void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
-    eraseAll(sessionRepository.findAllByOwnerKeyOrderByLastActivityAtDesc(event.ownerKey()));
+    eraseAll(sessionRepository.findAllByOwnerIdOrderByLastActivityAtDesc(event.ownerId()));
   }
 
   @EventListener
   @Transactional
   void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
-    sessionRepository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    sessionRepository.reassignOwnerId(event.fromOwnerId(), event.toOwnerId());
   }
 }

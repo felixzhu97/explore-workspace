@@ -1,6 +1,6 @@
 plugins {
     id("explore.java-conventions")
-    id("explore.java-format")
+    id("explore.java-format-conventions")
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependency.management)
 }

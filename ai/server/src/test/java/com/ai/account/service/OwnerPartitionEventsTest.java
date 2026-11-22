@@ -8,7 +8,7 @@ import com.ai.automation.service.AutomationService;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.chat.infra.persistence.JdbcChatWebSourcesRepository;
 import com.ai.chat.service.ChatSessionEraser;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.metrics.infra.persistence.JpaAiInvocationEventRepository;
 import com.ai.metrics.service.InvocationEventEraser;
 import com.ai.pipeline.service.CustomAgentService;
@@ -59,9 +59,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 })
 class OwnerPartitionEventsTest extends AbstractDataJpaTest {
 
-  private static final OwnerKey GUEST = OwnerKey.parseKey("c:guest-a");
-  private static final OwnerKey ACCOUNT = OwnerKey.parseKey("u:account-a");
-  private static final OwnerKey OTHER = OwnerKey.parseKey("c:guest-b");
+  private static final OwnerId GUEST = OwnerId.parseKey("c:guest-a");
+  private static final OwnerId ACCOUNT = OwnerId.parseKey("u:account-a");
+  private static final OwnerId OTHER = OwnerId.parseKey("c:guest-b");
   @MockitoBean private ConversationMemoryRepository conversationMemoryRepository;
   @MockitoBean private DocumentReader documentReader;
   @MockitoBean private DocumentTransformer documentTransformer;
@@ -87,7 +87,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
     ownerTables =
         jdbcTemplate.queryForList(
             "SELECT LOWER(TABLE_NAME) FROM INFORMATION_SCHEMA.COLUMNS"
-                + " WHERE TABLE_SCHEMA = 'PUBLIC' AND COLUMN_NAME = 'OWNER_KEY'",
+                + " WHERE TABLE_SCHEMA = 'PUBLIC' AND COLUMN_NAME = 'OWNER_ID'",
             String.class);
     assertThat(ownerTables).as("seed every owner table below").hasSize(9);
     guestSessionId = seedOwner(GUEST);
@@ -122,7 +122,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
     assertThat(countWebSources(guestSessionId)).isEqualTo(1);
   }
 
-  private String seedOwner(OwnerKey owner) {
+  private String seedOwner(OwnerId owner) {
     String key = owner.getValue();
     Instant now = Instant.now();
     UUID sessionId = UUID.randomUUID();
@@ -130,7 +130,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
     UUID scheduleId = UUID.randomUUID();
     UUID documentId = UUID.randomUUID();
     jdbcTemplate.update(
-        "INSERT INTO chat_session (id, owner_key, title, version, created_at, updated_at,"
+        "INSERT INTO chat_session (id, owner_id, title, version, created_at, updated_at,"
             + " last_activity_at) VALUES (?, ?, 'Chat', 0, ?, ?, ?)",
         sessionId,
         key,
@@ -143,14 +143,14 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
         sessionId.toString(),
         now);
     jdbcTemplate.update(
-        "INSERT INTO skill (id, owner_key, name, instructions, enabled, version, created_at,"
+        "INSERT INTO skill (id, owner_id, name, instructions, enabled, version, created_at,"
             + " updated_at) VALUES (?, ?, 'Skill', 'Be brief', TRUE, 0, ?, ?)",
         UUID.randomUUID(),
         key,
         now,
         now);
     jdbcTemplate.update(
-        "INSERT INTO custom_agent (id, owner_key, agent_type, name, system_prompt, tools,"
+        "INSERT INTO custom_agent (id, owner_id, agent_type, name, system_prompt, tools,"
             + " enabled, version, created_at, updated_at)"
             + " VALUES (?, ?, 'custom-writer', 'Writer', 'Write', '[]', TRUE, 0, ?, ?)",
         UUID.randomUUID(),
@@ -158,7 +158,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
         now,
         now);
     jdbcTemplate.update(
-        "INSERT INTO pipeline_template (id, owner_key, name, agent_types, brief, enabled,"
+        "INSERT INTO pipeline_template (id, owner_id, name, agent_types, brief, enabled,"
             + " version, created_at, updated_at)"
             + " VALUES (?, ?, 'Pipeline', '[]', 'Brief', TRUE, 0, ?, ?)",
         templateId,
@@ -166,7 +166,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
         now,
         now);
     jdbcTemplate.update(
-        "INSERT INTO automation_schedule (id, owner_key, name, schedule_kind, timezone, enabled,"
+        "INSERT INTO automation_schedule (id, owner_id, name, schedule_kind, timezone, enabled,"
             + " action_type, pipeline_template_id, recipient_email, brief, next_run_at, version,"
             + " created_at, updated_at) VALUES (?, ?, 'Daily', 'CRON', 'UTC', TRUE,"
             + " 'RUN_PIPELINE', ?, 'owner@example.com', 'Brief', ?, 0, ?, ?)",
@@ -177,7 +177,7 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
         now,
         now);
     jdbcTemplate.update(
-        "INSERT INTO automation_run (id, schedule_id, owner_key, started_at, created_at, status,"
+        "INSERT INTO automation_run (id, schedule_id, owner_id, started_at, created_at, status,"
             + " email_status) VALUES (?, ?, ?, ?, ?, 'SUCCEEDED', 'SENT')",
         UUID.randomUUID(),
         scheduleId,
@@ -185,21 +185,21 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
         now,
         now);
     jdbcTemplate.update(
-        "INSERT INTO rag_document (id, owner_key, title, status, chunk_count, version,"
+        "INSERT INTO rag_document (id, owner_id, title, status, chunk_count, version,"
             + " created_at, updated_at) VALUES (?, ?, 'Guide', 'READY', 1, 0, ?, ?)",
         documentId,
         key,
         now,
         now);
     jdbcTemplate.update(
-        "INSERT INTO document_chunk (id, document_id, owner_key, content, chunk_index,"
+        "INSERT INTO document_chunk (id, document_id, owner_id, content, chunk_index,"
             + " created_at) VALUES (?, ?, ?, 'Text', 0, ?)",
         UUID.randomUUID(),
         documentId,
         key,
         now);
     jdbcTemplate.update(
-        "INSERT INTO ai_invocation_event (id, owner_key, occurred_at, created_at, capability,"
+        "INSERT INTO ai_invocation_event (id, owner_id, occurred_at, created_at, capability,"
             + " operation, outcome, latency_ms, session_id)"
             + " VALUES (?, ?, ?, ?, 'CHAT', 'chat', 'SUCCESS', 10, ?)",
         UUID.randomUUID(),
@@ -210,9 +210,9 @@ class OwnerPartitionEventsTest extends AbstractDataJpaTest {
     return sessionId.toString();
   }
 
-  private int countRows(String table, OwnerKey owner) {
+  private int countRows(String table, OwnerId owner) {
     return jdbcTemplate.queryForObject(
-        "SELECT COUNT(*) FROM " + table + " WHERE owner_key = ?", Integer.class, owner.getValue());
+        "SELECT COUNT(*) FROM " + table + " WHERE owner_id = ?", Integer.class, owner.getValue());
   }
 
   private int countWebSources(String sessionId) {

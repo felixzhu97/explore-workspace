@@ -2,7 +2,7 @@ package com.ai.automation.domain.repository;
 
 import com.ai.automation.domain.model.AutomationSchedule;
 import com.ai.automation.domain.model.ScheduleId;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.domain.repository.OwnerPartitionedRepository;
 import java.time.Instant;
 import java.util.List;
@@ -17,13 +17,13 @@ public interface AutomationScheduleRepository
     extends OwnerPartitionedRepository<AutomationSchedule, ScheduleId> {
 
   /** Finds the owner's schedule by id. */
-  Optional<AutomationSchedule> findByIdAndOwnerKey(ScheduleId id, OwnerKey ownerKey);
+  Optional<AutomationSchedule> findByIdAndOwnerId(ScheduleId id, OwnerId ownerId);
 
   /** Lists the owner's schedules, newest first. */
-  List<AutomationSchedule> findAllByOwnerKeyOrderByCreatedAtDesc(OwnerKey ownerKey);
+  List<AutomationSchedule> findAllByOwnerIdOrderByCreatedAtDesc(OwnerId ownerId);
 
   /** Counts the owner's schedules. */
-  long countByOwnerKey(OwnerKey ownerKey);
+  long countByOwnerId(OwnerId ownerId);
 
   /** Lists every owner's enabled schedules due at or before the time, soonest first. */
   @Query(
@@ -39,7 +39,7 @@ public interface AutomationScheduleRepository
 
   /** Deletes the owner's schedule by id. */
   @Transactional
-  void deleteByIdAndOwnerKey(ScheduleId id, OwnerKey ownerKey);
+  void deleteByIdAndOwnerId(ScheduleId id, OwnerId ownerId);
 
   /**
    * Moves the next run time only if it still matches, so one worker claims the run. The version

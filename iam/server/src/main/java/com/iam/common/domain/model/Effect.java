@@ -1,8 +1,8 @@
 package com.iam.common.domain.model;
 
-/** Policy evaluation effect (Allow or Deny). */
+/** Policy evaluation effect (Permit or Deny). */
 public enum Effect {
-  ALLOW,
+  PERMIT,
   DENY;
 
   /**
@@ -15,6 +15,10 @@ public enum Effect {
     if (raw == null || raw.isBlank()) {
       throw new IllegalArgumentException("effect must not be blank");
     }
-    return Effect.valueOf(raw.trim().toUpperCase());
+    String normalized = raw.trim().toUpperCase();
+    if ("ALLOW".equals(normalized)) {
+      return PERMIT;
+    }
+    return Effect.valueOf(normalized);
   }
 }

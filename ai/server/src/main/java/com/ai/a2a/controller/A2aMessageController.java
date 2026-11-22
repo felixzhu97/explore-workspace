@@ -38,9 +38,9 @@ public class A2aMessageController {
       @Valid @RequestBody A2aSendMessageRequest body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
-    A2aTask task = a2aService.sendMessage(toMessage(body), ownerKey, language);
+    A2aTask task = a2aService.sendMessage(toMessage(body), ownerId, language);
     return ResponseEntity.ok(A2aTaskResponse.from(task));
   }
 
@@ -50,10 +50,10 @@ public class A2aMessageController {
       @Valid @RequestBody A2aSendMessageRequest body,
       @RequestParam(value = "lang", required = false) String lang,
       HttpServletRequest request) {
-    String ownerKey = ownerContext.requireValue(request);
+    String ownerId = ownerContext.requireValue(request);
     String language = AgentService.resolveLanguage(lang, request.getHeader("Accept-Language"));
     return a2aService
-        .streamMessage(toMessage(body), ownerKey, language)
+        .streamMessage(toMessage(body), ownerId, language)
         .map(
             event ->
                 ServerSentEvent.<A2aTaskResponse>builder()

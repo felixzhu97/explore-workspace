@@ -2,3 +2,9 @@ name: explore
 
 include:
   - infrastructure/ollama/compose.yaml
+  - infrastructure/kafka/compose.yaml
+  - infrastructure/postgres/compose.yaml
+  - infrastructure/redis/compose.yaml
+  - infrastructure/minio/compose.yaml
+  - infrastructure/mongodb/compose.yaml
+  - portfolio/compose.yaml

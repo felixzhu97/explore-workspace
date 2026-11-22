@@ -15,14 +15,14 @@ class DetectedLanguageTest {
   @NullAndEmptySource
   @DisplayName("should return default for null or blank text")
   void shouldReturnDefaultForNullOrBlank(String text) {
-    assertThat(DetectedLanguage.createLanguage(text).getCode()).isEqualTo("default");
+    assertThat(DetectedLanguage.createLanguage(text).getCode()).isEqualTo("und");
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"   ", "\t", "\n"})
   @DisplayName("should return default for whitespace-only text")
   void shouldReturnDefaultForWhitespaceOnly(String text) {
-    assertThat(DetectedLanguage.createLanguage(text).getCode()).isEqualTo("default");
+    assertThat(DetectedLanguage.createLanguage(text).getCode()).isEqualTo("und");
   }
 
   @Test
@@ -70,7 +70,7 @@ class DetectedLanguageTest {
   @DisplayName("should return en or default for short text")
   void shouldReturnEnOrDefaultForShortText() {
     String shortText = "Hi";
-    assertThat(DetectedLanguage.createLanguage(shortText).getCode()).isIn("en", "default");
+    assertThat(DetectedLanguage.createLanguage(shortText).getCode()).isIn("en", "und");
   }
 
   @Test

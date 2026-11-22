@@ -57,7 +57,7 @@ Explore AI 提供 Gallery（目录）、Studio（Pipeline）与 Runtime API（`/
 1. **Scenario** 经 BFF 列表与调用  
    **GIVEN** Chat 已配置 `EXPLORE_AI_BASE_URL` 与 `EXPLORE_AI_SERVICE_KEY`  
    **WHEN** 客户端调用 `GET /api/v1/ai/explore/agents` 与 `POST .../agents/{type}/invoke`  
-   **THEN** Chat 以 `X-Service-Key` + `X-Client-Id` 转发 Explore AI，返回摘要或 reply
+   **THEN** Chat 以 `Authorization: Bearer` + `Anonymous-Id` 转发 Explore AI，返回摘要或 reply
 
 ### 状态
 

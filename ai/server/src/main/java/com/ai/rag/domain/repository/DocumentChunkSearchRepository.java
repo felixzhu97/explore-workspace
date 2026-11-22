@@ -12,11 +12,11 @@ public interface DocumentChunkSearchRepository {
    * documentIds} when it is not empty.
    */
   List<ScoredChunk> searchChunks(
-      float[] queryEmbedding, int topK, String ownerKey, List<UUID> documentIds);
+      float[] queryEmbedding, int topK, String ownerId, List<UUID> documentIds);
 
   /**
    * Returns up to {@code limit} of the owner's chunks from {@code documentIds}, lowest chunk index
    * first, so each document contributes its opening before any later section.
    */
-  List<DocumentChunk> findLeadingChunks(String ownerKey, List<UUID> documentIds, int limit);
+  List<DocumentChunk> findLeadingChunks(String ownerId, List<UUID> documentIds, int limit);
 }

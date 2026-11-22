@@ -1,0 +1,66 @@
+@startuml
+!ROUNDED_STYLE=1
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+UpdateElementStyle("person", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("external_person", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("system", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("external_system", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("container", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("external_container", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("component", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("external_component", "#FFFFFF", "#000000", "#000000")
+UpdateElementStyle("node", "#FFFFFF", "#000000", "#000000")
+UpdateBoundaryStyle("", $bgColor="#FFFFFF", $fontColor="#000000", $borderColor="#000000")
+UpdateRelStyle("#000000", "#000000")
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+
+LAYOUT_WITH_LEGEND()
+title [C4 Level 2] Chat - 容器图
+
+Person(user_web, "Web 用户", "浏览器")
+Person(user_mobile, "移动端用户", "手机 / 模拟器")
+Person(admin_user, "管理员", "运营后台")
+
+System_Boundary(chat, "Chat") {
+  Container(web_app, "Web 应用", "Next.js / React", "Feed、Reels、探索、聊天；:4000")
+  Container(admin_app, "管理端", "Next.js", "用户与内容运营；:4001")
+  Container(mobile_app, "移动端 Expo", "Expo / React Native", "Feed、聊天、探索、通话；src/main/mobile")
+  Container(ios_app, "Chat iOS", "SwiftUI", "src/main/ios · PKCE · explore-chat-ios · Bearer :9001")
+  Container(api_server, "API 服务", "Spring Boot / Java", "REST /api/v1；Socket.IO :9002；HTTP :9001\nJwtAuthenticationFilter 双轨 + IamUserProvisioner")
+  ContainerDb(h2db, "H2 / Postgres", "JPA + Liquibase", "用户、聊天、帖子、评论、通知")
+}
+
+Container_Ext(explore_iam, "Explore IAM", "OIDC Provider", "authorize / token / JWKS :9100")
+Container_Ext(file_storage, "文件存储", "本地 / 对象存储", "上传媒体")
+Container_Ext(ollama, "Ollama", "本地 LLM", "可选")
+Container_Ext(explore_ai, "Explore AI", "外部 AI 平台", "可选 BFF")
+Container_Ext(explore_ml, "Explore ML", "explore-ml python_ml", "可选旁路 :8000；recommendation / vision / rag / image_playground / speech / video 同一进程")
+
+Rel(user_web, web_app, "使用", "HTTP :4000")
+Rel(user_mobile, mobile_app, "使用", "Expo")
+Rel(user_mobile, ios_app, "使用", "SwiftUI")
+Rel(admin_user, admin_app, "使用", "HTTP :4001")
+Rel(web_app, api_server, "REST / Socket.IO", "HTTP :9001 / WS :9002")
+Rel(mobile_app, api_server, "REST / Socket.IO", "HTTP :9001 / WS :9002")
+Rel(ios_app, explore_iam, "OIDC + PKCE", "HTTPS :9100")
+Rel(ios_app, api_server, "Bearer access_token", "HTTP :9001")
+Rel(api_server, explore_iam, "JWKS validate IAM JWT", "HTTPS")
+Rel(admin_app, api_server, "REST", "HTTP :9001")
+Rel(api_server, h2db, "读写", "JPA")
+Rel(api_server, file_storage, "上传 / 下载", "本地 FS")
+Rel(api_server, explore_ml, "排序 / 标签 / 图片 / 语音 / 视频", "HTTP :8000 /api/v1")
+Rel(api_server, ollama, "本地聊天", "HTTP")
+Rel(api_server, explore_ai, "AI BFF", "HTTPS")
+Rel(explore_ml, file_storage, "RAG 向量目录", "本地 path")
+
+note right of api_server
+  根目录 Gradle + Spring Boot。
+  Socket.IO = netty-socketio :9002。
+  IM wire SSoT: src/main/im-contract/openapi.yaml
+  （协议制品；非运行时容器；无共享 npm）。
+  Auth: password HS JWT 或 IAM Bearer。
+end note
+
+SHOW_LEGEND()
+@enduml

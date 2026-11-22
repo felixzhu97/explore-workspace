@@ -11,7 +11,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PipelineTemplateServiceTest {
 
   private static final String CLIENT_ID = "c:client-1";
-  private static final OwnerKey OWNER = OwnerKey.parseKey(CLIENT_ID);
+  private static final OwnerId OWNER = OwnerId.parseKey(CLIENT_ID);
 
   @Mock private PipelineTemplateRepository repository;
   @InjectMocks private PipelineTemplateService useCase;
@@ -52,7 +52,7 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should throw when name conflict on create")
   void shouldThrowWhenNameConflictOnCreate() {
-    when(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "My flow", null)).thenReturn(true);
+    when(repository.existsByOwnerIdAndNameIgnoringId(OWNER, "My flow", null)).thenReturn(true);
 
     assertThatThrownBy(
             () ->
@@ -91,7 +91,7 @@ class PipelineTemplateServiceTest {
   @Test
   @DisplayName("should suffix name when create from template conflicts")
   void shouldSuffixNameWhenCreateFromTemplateConflicts() {
-    when(repository.existsByOwnerKeyAndNameIgnoringId(eq(OWNER), anyString(), isNull()))
+    when(repository.existsByOwnerIdAndNameIgnoringId(eq(OWNER), anyString(), isNull()))
         .thenAnswer(call -> "Competitive intelligence".equals(call.getArgument(1)));
     when(repository.save(any(PipelineTemplate.class))).then(returnsFirstArg());
 
@@ -106,7 +106,7 @@ class PipelineTemplateServiceTest {
     PipelineTemplate template =
         PipelineTemplate.createTemplate(
             CLIENT_ID, "My flow", "", List.of("analyst"), "", "brief", null);
-    when(repository.findByIdAndOwnerKey(template.getId(), OWNER)).thenReturn(Optional.of(template));
+    when(repository.findByIdAndOwnerId(template.getId(), OWNER)).thenReturn(Optional.of(template));
     when(repository.save(template)).thenReturn(template);
 
     PipelineTemplate updated = useCase.setEnabled(CLIENT_ID, template.getId().toString(), false);

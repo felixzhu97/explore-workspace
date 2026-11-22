@@ -1,0 +1,54 @@
+# Chat Mobile — Expo (`src/main/mobile`)
+
+**Status:** Android / legacy iOS client. The **primary iOS app** is native SwiftUI at [`src/main/ios`](../ios/README.md).
+
+React Native + Expo（SDK 55+）客户端，与 Spring Boot API (`:9001`) 对接；UI 对齐 Instagram（信息流、Reels、私信、探索/搜索、个人主页与「Settings and activity」设置栈）。
+
+## 技术栈
+
+- **路由**：expo-router（`(tabs)` + 独立 Stack 屏）
+- **状态**：Redux Toolkit、`feedApi`（RTK Query）、本地 `chat` / `core/rtc`（对齐 `im-contract`）
+- **样式**：Emotion（`@emotion/native`）、主题（浅/深/系统，AsyncStorage）
+- **国际化**：i18next（`src/shared/i18n/locales/en.ts`、`zh.ts`）
+- **数据访问**：业务域文件夹（与 web 对齐）— `auth/`、`feed/`、`chat/` 等下的 `*.api.ts` / `*.model.ts`；`core/composition-root.ts` 工厂；GraphQL feed/reels 与 REST explore/search；与 RTK Query（`feed/feedApi.ts`）并存
+
+## Tab 与主要路由
+
+| Tab / 路由                                 | 说明                                                  |
+| ------------------------------------------ | ----------------------------------------------------- |
+| `(tabs)/status`                            | 首页：Stories + 纵向 Feed（多媒体轮播）               |
+| `(tabs)/reels`                             | Reels 竖屏流                                          |
+| `(tabs)/chats`                             | 私信列表（Ins 风格行）                                |
+| `(tabs)/explore`                           | 搜索 / Explore：探索网格 + Elasticsearch 搜索         |
+| `(tabs)/profile`                           | **Profile**：个人主页网格与 Discover                  |
+| `settings-menu`                            | **Settings and activity**：分组设置、主题、语言、登出 |
+| `create-post`                              | 发帖（先上传媒体再提交）                              |
+| `media-viewer`                             | 全屏媒体；可按 `postId` 单独拉帖                      |
+| `notifications`、`inbox`、`chat-detail` 等 | 通知、收件箱、会话详情                                |
+
+## 运行
+
+在仓库根目录（推荐）：
+
+```bash
+pnpm install
+pnpm start:mobile:ios
+```
+
+或在本目录：
+
+```bash
+pnpm exec expo start
+```
+
+环境：与 Web 相同 API 基址（见根目录 `README.md` 与 `src/main/resources/application.yml`）。
+
+## 文档
+
+- 仓库根 [README.md](../../README.md)
+- C4 容器 / 前端组件：[docs/developer/c4-model/](../../docs/developer/c4-model/)（Mobile 见 C2；Web 主 C3）
+- User Story Map：[docs/product-owner/User-Story-Map.md](../../docs/product-owner/User-Story-Map.md)
+
+## 许可证
+
+与主仓库一致（MIT）。

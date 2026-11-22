@@ -1,0 +1,32 @@
+from pathlib import Path
+
+from speech import config
+
+
+def test_should_default_voice_backend_to_qwen():
+    assert config.VOICE_BACKEND == "qwen"
+
+
+def test_should_resolve_tts_model_under_local_models_root():
+    root = Path(config.LOCAL_MODELS_ROOT)
+    assert Path(config.TTS_MODEL) == (
+        root / "tts" / "models" / "Qwen3-TTS-12Hz-1.7B-CustomVoice"
+    )
+
+
+def test_should_use_wav_for_qwen_voice():
+    assert config.VOICE_EXTENSION == "wav"
+    assert config.VOICE_MEDIA_TYPE == "audio/wav"
+
+
+def test_should_default_asr_backend_to_qwen():
+    assert config.ASR_BACKEND == "qwen"
+
+
+def test_should_resolve_asr_model_under_local_models_root():
+    root = Path(config.LOCAL_MODELS_ROOT)
+    assert Path(config.ASR_MODEL) == root / "asr" / "models" / "Qwen3-ASR-1.7B"
+
+
+def test_should_build_asset_urls_on_the_shared_port():
+    assert config.BASE_URL == "http://localhost:8000"

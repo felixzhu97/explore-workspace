@@ -6,7 +6,7 @@ import lombok.Value;
 
 /**
  * Primary language of user input, read from its character distribution: {@code zh}, {@code ja},
- * {@code en}, or {@code default} when no language dominates.
+ * {@code en}, or {@code und} when no language dominates.
  */
 @Value
 public class DetectedLanguage {
@@ -22,7 +22,7 @@ public class DetectedLanguage {
   private static final double CHINESE_CJK_THRESHOLD = 0.3;
   private static final double ENGLISH_LATIN_THRESHOLD = 0.5;
 
-  private static final DetectedLanguage DEFAULT = new DetectedLanguage("default");
+  private static final DetectedLanguage DEFAULT = new DetectedLanguage("und");
 
   /** Detects the primary language of {@code text}. */
   public static DetectedLanguage createLanguage(String text) {

@@ -1,0 +1,14 @@
+package com.ai.account.controller.dto;
+
+import java.util.List;
+
+/** Current viewer identity: anonymous guest (Anonymous id) or authenticated OAuth user. */
+public record CurrentAccountResponse(
+    AccountMode mode,
+    String clientId,
+    String userId,
+    String email,
+    String displayName,
+    AccountPlan plan,
+    boolean loginAvailable,
+    List<LoginProvider> loginProviders) {}

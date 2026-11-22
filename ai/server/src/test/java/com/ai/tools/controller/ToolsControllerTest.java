@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.testsupport.AbstractOwnerScopedControllerTest;
-import com.ai.testsupport.OwnerKeyFixtures;
+import com.ai.testsupport.OwnerIdFixtures;
 import com.ai.testsupport.SliceWebMvcTest;
 import com.ai.tools.service.ToolService;
 import java.util.List;
@@ -21,7 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @DisplayName("ToolsController")
 class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
 
-  private static final OwnerKey OWNER = OwnerKey.parseKey(OwnerKeyFixtures.CLIENT_FULL_KEY);
+  private static final OwnerId OWNER = OwnerId.parseKey(OwnerIdFixtures.CLIENT_FULL_KEY);
 
   @MockitoBean private ToolService toolService;
 
@@ -45,7 +45,7 @@ class ToolsControllerTest extends AbstractOwnerScopedControllerTest {
         .hasStatus(HttpStatus.BAD_REQUEST)
         .bodyText()
         .asString()
-        .contains("/problems/validation-error");
+        .contains("https://www.felixzhu.chat/problems/validation-error");
   }
 
   @Nested

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="n2-policy-rule-rename-table" author="felix.zhu">
+        <comment>XACML 3.0: AllowPolicy → Policy; rename allow_policy table.</comment>
+        <dropForeignKeyConstraint
+            baseTableName="policy_binding"
+            constraintName="fk_policy_binding_policy"/>
+        <renameTable oldTableName="allow_policy" newTableName="policy"/>
+        <renameColumn tableName="policy" oldColumnName="statements" newColumnName="rules"
+            columnDataType="clob"/>
+        <sql>
+            UPDATE policy SET rules = REPLACE(rules, '"effect":"ALLOW"', '"effect":"PERMIT"')
+        </sql>
+        <addForeignKeyConstraint baseTableName="policy_binding"
+            baseColumnNames="policy_id"
+            referencedTableName="policy"
+            referencedColumnNames="id"
+            constraintName="fk_policy_binding_policy"/>
+    </changeSet>
+</databaseChangeLog>

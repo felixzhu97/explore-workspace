@@ -17,7 +17,7 @@ import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
 import com.ai.billing.infra.config.BillingProperties;
 import com.ai.billing.service.BillingPlanService;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -206,8 +206,8 @@ class AccountServiceTest {
     verify(eventPublisher)
         .publishEvent(
             new GuestLinkedToAccountEvent(
-                OwnerKey.createClientKey(CID_1),
-                OwnerKey.createAccountKey(account.getId().toString())));
+                OwnerId.createClientKey(CID_1),
+                OwnerId.createAccountKey(account.getId().toString())));
   }
 
   @Test

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo "Running pre-commit checks..."
+
+echo "Running TypeScript check..."
+pnpm typecheck
+
+echo "Running tests..."
+pnpm test
+
+echo "Pre-commit checks passed!"
