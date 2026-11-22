@@ -14,7 +14,7 @@ description: Feature development for Shopping System — XP, DDD, BDD, TDD, Glos
 1. Layers: [architecture](../../rules/architecture.mdc) — `presentation → application → domain ← infrastructure`
 2. No new `domain/port`, hexagonal `adapter/in|out` packages, or `*Port` suffixes (legacy adapters OK)
 3. Tests: `should_expectedResult_when_condition`
-4. Names: Glossary [Preferred Term](../../../docs/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
+4. Names: Glossary [Preferred Term](../../../../docs/commerce/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + Tailwind / `components/ui` + [apple-minimal-ux](references/apple-minimal-ux.md)
 6. Prefer existing Zustand stores and shared packages (`types`, `utils`, `components`) where they clarify client code
 7. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
@@ -71,9 +71,9 @@ When a change matches the trigger matrix, update the matching living docs in the
 
 | Document       | Path                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------- |
-| Glossary       | [docs/Glossary.md](../../../docs/Glossary.md)                                         |
-| C4             | [docs/developer/c4-model/](../../../docs/developer/c4-model/)                         |
-| User Story Map | [docs/product-owner/User-Story-Map.md](../../../docs/product-owner/User-Story-Map.md) |
+| Glossary       | [docs/Glossary.md](../../../../docs/commerce/Glossary.md)                                         |
+| C4             | [docs/developer/c4-model/](../../../../docs/commerce/developer/c4-model/)                         |
+| User Story Map | [docs/product-owner/User-Story-Map.md](../../../../docs/commerce/product-owner/User-Story-Map.md) |
 
 | Change                                                                                                     | Must update                                           |
 | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -249,9 +249,9 @@ PR **References** must match the commit References (same links). No Test plan. N
 | Extreme Programming      | [extreme-programming](references/extreme-programming.md)        |
 | Living docs sync         | [living-docs](references/living-docs.md)                        |
 | Architecture             | [architecture rule](../../rules/architecture.mdc)               |
-| Glossary                 | [Glossary](../../../docs/Glossary.md)                           |
-| C4 model                 | [c4-model](../../../docs/developer/c4-model/README.md)          |
-| User Story Map           | [User-Story-Map](../../../docs/product-owner/User-Story-Map.md) |
+| Glossary                 | [Glossary](../../../../docs/commerce/Glossary.md)                           |
+| C4 model                 | [c4-model](../../../../docs/commerce/developer/c4-model/README.md)          |
+| User Story Map           | [User-Story-Map](../../../../docs/commerce/product-owner/User-Story-Map.md) |
 | Testing core             | [testing](references/testing.md)                                |
 | Business / tech strategy | [business-tech-analysis](../business-tech-analysis/SKILL.md)    |
 | Research / OSS watchlist | [sources.md](../business-tech-analysis/references/sources.md)   |

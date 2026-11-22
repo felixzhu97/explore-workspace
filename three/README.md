@@ -51,9 +51,10 @@ Do not change live Vercel project settings from this repo until cutover.
 
 ## Docs
 
-- [Glossary](docs/Glossary.md) — ubiquitous language
-- [C4 model](docs/developer/c4-model/) — context / container / component / domain / deployment
-- [User Story Map](docs/product-owner/User-Story-Map.md) — journeys and epics
+- [Glossary](../docs/three/Glossary.md) — ubiquitous language
+- [C4 model](../docs/three/developer/c4-model/) — context / container / component / domain / deployment
+- [Architecture Definition (TOGAF)](../docs/three/developer/togaf/Architecture-Definition-Document.md)
+- [User Story Map](../docs/three/product-owner/User-Story-Map.md) — journeys and epics
 - [Contributing](../CONTRIBUTING.md) — how to develop and open PRs
 - [Code of Conduct](../CODE_OF_CONDUCT.md) — community standards
 - [Security](../SECURITY.md) — how to report vulnerabilities

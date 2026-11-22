@@ -11,7 +11,7 @@ Domain collaboration and business analysis. Minimal, single-purpose.
 
 **Required skill:** read and follow [`~/.cursor/skills/scrum-team/developers/business-analysis/SKILL.md`](~/.cursor/skills/scrum-team/developers/business-analysis/SKILL.md).
 
-Preferred terms: [docs/Glossary.md](../../docs/Glossary.md). Jira project: **EXP**.
+Preferred terms: [docs/Glossary.md](../../../docs/portfolio/Glossary.md). Jira project: **EXP**.
 
 ## Responsibilities
 

@@ -63,7 +63,7 @@ python -m recommendation.training.eval_feed_ranker --model <model.pt> --holdout 
   [--baseline <base.pt>] [--k 10]
 ```
 
-See the [fine-tuning guide](../../docs/user-guide/fine-tuning.md) for warm-start
+See the [fine-tuning guide](../../../docs/ml/user-guide/fine-tuning.md) for warm-start
 and evaluation.
 
 Vector towers for recall (user/post embeddings → `RedisVectorStore`

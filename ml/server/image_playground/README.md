@@ -58,7 +58,7 @@ python -m image_playground.training.compare_prompts --lora <dir> --prompts promp
   [--out compare] [--seed 0] [--steps 20]
 ```
 
-See the [fine-tuning guide](../../docs/user-guide/fine-tuning.md).
+See the [fine-tuning guide](../../../docs/ml/user-guide/fine-tuning.md).
 
 ## Tests
 

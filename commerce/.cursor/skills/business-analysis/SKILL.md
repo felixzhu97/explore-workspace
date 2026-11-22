@@ -19,7 +19,7 @@ This skill is **Business Analysis**: building a shared understanding of how the 
 1. **Analysis model = communication medium** between software experts and business experts — useful for building software, not a thick handoff document.
 2. **Bridge, not ferry**: surface open questions; enable direct alignment between business and engineering. Do **not** sit as a permanent intermediary that blocks contact.
 3. Align with [architecture](../../rules/architecture.mdc): domain has no outward dependencies; Prefer rich domain models ([ddd-rich-model](../developer/references/ddd-rich-model.md)).
-4. Prefer Glossary [Preferred Terms](../../../docs/Glossary.md); new concepts update Glossary in the same change (see developer living-docs).
+4. Prefer Glossary [Preferred Terms](../../../../docs/commerce/Glossary.md); new concepts update Glossary in the same change (see developer living-docs).
 5. Keep output minimal: language, rules, boundaries, open questions — no slide-deck fluff.
 
 ## When to use
@@ -71,4 +71,4 @@ Scope → Ubiquitous Language → Domain understanding → Model → Open questi
 
 - [Conversational Stories](https://martinfowler.com/bliki/ConversationalStories.html)
 - [Architecture rule](../../rules/architecture.mdc)
-- [Glossary](../../../docs/Glossary.md)
+- [Glossary](../../../../docs/commerce/Glossary.md)

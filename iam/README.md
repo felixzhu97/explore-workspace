@@ -9,11 +9,11 @@
 
 The module issues and validates OpenID Connect tokens for relying parties, models lasting principals as IAM User, Group, and Role, evaluates identity-based policy, issues short-lived STS sessions after AssumeRole, and keeps management and authorization outcomes auditable. An Angular login SPA covers form sign-in and the OAuth authorize path.
 
-`explore-iam` is built with Java 25, Spring Boot, Spring Authorization Server, Spring Security, Spring Data JPA, and Liquibase. A native SwiftUI hello-world app (**IAM**) lives under `ios/`. Trust boundaries and integration rules live in the [Guideline](docs/Guideline.md).
+`explore-iam` is built with Java 25, Spring Boot, Spring Authorization Server, Spring Security, Spring Data JPA, and Liquibase. A native SwiftUI hello-world app (**IAM**) lives under `ios/`. Trust boundaries and integration rules live in the [Guideline](../docs/iam/Guideline.md).
 
 ## Get started
 
-Follow the [User guide](docs/user-guide/README.md) for target operator and relying-party steps (best-practice integration; align this repo over time).
+Follow the [User guide](../docs/iam/user-guide/README.md) for target operator and relying-party steps (best-practice integration; align this repo over time).
 
 ### Requirements
 
@@ -69,7 +69,7 @@ Optional seed clients can be declared under `app.oidc.seed-clients` / matching e
 
 Enterprise IdPs such as Okta and Microsoft Entra ID provision users and groups at `/scim/v2` (SCIM 2.0, `application/scim+json`). They authenticate with the `scim-provisioner` client (`client_credentials`, scope `write:iam_scim`); set `IAM_CLIENT_SCIM_PROVISIONER_SECRET` to enable it.
 
-IAM then pushes users to Explore AI's `/scim/v2/Users` with its own `iam-scim-outbound` client (`write:ai_scim`). Push stays off until `EXPLORE_AI_SCIM_URL` is set; `EXPLORE_AI_SCIM_ASSIGNMENT_GROUP` limits it to one group's members. Pushes run after commit through Spring Modulith event publications and are retried until they succeed. See [E8 SCIM provisioning](docs/product-owner/user-stories/E8-scim-provisioning.md) for behavior and manual validator checks.
+IAM then pushes users to Explore AI's `/scim/v2/Users` with its own `iam-scim-outbound` client (`write:ai_scim`). Push stays off until `EXPLORE_AI_SCIM_URL` is set; `EXPLORE_AI_SCIM_ASSIGNMENT_GROUP` limits it to one group's members. Pushes run after commit through Spring Modulith event publications and are retried until they succeed. See [E8 SCIM provisioning](../docs/iam/product-owner/user-stories/E8-scim-provisioning.md) for behavior and manual validator checks.
 
 ### Configuration
 
@@ -106,11 +106,12 @@ Plan is Render Starter (Oregon). Disk for H2 under `/app/data` is ephemeral on S
 
 ## Next steps
 
-- Follow the [User guide](docs/user-guide/README.md), [Operator setup](docs/user-guide/operator-setup.md), and [Relying party integration](docs/user-guide/relying-party.md).
-- Read the [Guideline](docs/Guideline.md) for IAM trust boundaries and Spring Security–related resources.
-- Align terms with the [Glossary](docs/Glossary.md).
-- Browse the [C4 model](docs/developer/c4-model/) for context, containers, and the domain model.
-- See the [User Story Map](docs/product-owner/User-Story-Map.md) for product journeys.
+- Follow the [User guide](../docs/iam/user-guide/README.md), [Operator setup](../docs/iam/user-guide/operator-setup.md), and [Relying party integration](../docs/iam/user-guide/relying-party.md).
+- Read the [Guideline](../docs/iam/Guideline.md) for IAM trust boundaries and Spring Security–related resources.
+- Align terms with the [Glossary](../docs/iam/Glossary.md).
+- Browse the [C4 model](../docs/iam/developer/c4-model/) for context, containers, and the domain model.
+- [Architecture Definition (TOGAF)](../docs/iam/developer/togaf/Architecture-Definition-Document.md)
+- See the [User Story Map](../docs/iam/product-owner/User-Story-Map.md) for product journeys.
 - Open the native iOS skeleton: [`ios/`](ios) (scheme **IAM**).
 - Build and run diagrams from `docs/developer/c4-model/*.puml` when PlantUML is available.
 - Review [Spring Authorization Server](https://docs.spring.io/spring-authorization-server/reference/index.html) and [Spring Security OAuth2](https://docs.spring.io/spring-security/reference/servlet/oauth2/index.html).

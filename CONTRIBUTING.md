@@ -97,8 +97,9 @@ that apply to the products you touched before opening a pull request.
 
 #### Branching
 
-Branch from `main` using a single English kebab-case slug. Keep Glossary and C4
-docs in sync when domain or API names change inside a product.
+Branch from `main` using a single English kebab-case slug. Keep Glossary, C4,
+and TOGAF Architecture Definition Documents under `docs/<product>/` in sync
+when domain or API names change inside a product.
 
 ## Filing effective bug reports
 

@@ -67,14 +67,14 @@ pnpm --dir commerce/apps/mobile start
 ## Next steps
 
 - Read a product README for deep setup:
-  - [ai](ai/README.md)
-  - [iam](iam/README.md)
-  - [chat](chat/README.md)
-  - [ml](ml/README.md)
-  - [portfolio](portfolio/README.md)
-  - [commerce](commerce/README.md)
-  - [lowcode](lowcode/README.md)
-  - [three](three/README.md)
+  - [ai](ai/README.md) · [docs](docs/ai/)
+  - [iam](iam/README.md) · [docs](docs/iam/)
+  - [chat](chat/README.md) · [docs](docs/chat/)
+  - [ml](ml/README.md) · [docs](docs/ml/)
+  - [portfolio](portfolio/README.md) · [docs](docs/portfolio/)
+  - [commerce](commerce/README.md) · [docs](docs/commerce/)
+  - [lowcode](lowcode/README.md) · [docs](docs/lowcode/)
+  - [three](three/README.md) · [docs](docs/three/)
 - Open an issue or discussion when you want to propose a change;
   see [Contributing](#contributing)
 - For historical monorepo context, see the meta-repo
@@ -97,8 +97,10 @@ security problems.
 
 Explore Workspace is under active development. Product APIs, module
 flags, and local ports may change before stable 1.0 lines. Prefer
-each product's Glossary and C4 docs as the source of truth for naming
-and boundaries while the surface evolves.
+each product's living docs under [`docs/<product>/`](docs/) —
+Glossary, C4, TOGAF Architecture Definition Document, and User Story
+Map — as the source of truth for naming and boundaries while the
+surface evolves.
 
 ## CI and remote cache
 

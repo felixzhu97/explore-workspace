@@ -47,7 +47,7 @@ Explore Lowcode brings visual page building into everyday product work. Our miss
 | Forms | React Hook Form + Zod |
 | Tests | Vitest + Testing Library |
 
-Source is organized by **business domain** under `src/{domain}/` (UI, stores, and helpers colocated). Shared UI lives in `src/components/`, shared hooks in `src/hooks/`, and shared utilities in `src/lib/`. See [Glossary](docs/Glossary.md) and the local skill
+Source is organized by **business domain** under `src/{domain}/` (UI, stores, and helpers colocated). Shared UI lives in `src/components/`, shared hooks in `src/hooks/`, and shared utilities in `src/lib/`. See [Glossary](../../docs/lowcode/Glossary.md) and the local skill
 [`lowcode-architecture`](~/.cursor/skills/software-engineer/reference/explore-workspace/lowcode-architecture.md).
 
 ## Prerequisites
@@ -71,7 +71,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-More detail: [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
+More detail: [docs/developer/QUICKSTART.md](../../docs/lowcode/developer/QUICKSTART.md).
 
 ## Usage
 
@@ -99,7 +99,6 @@ explore-lowcode/
 │   ├── components/          # Shared UI kit + chrome
 │   ├── hooks/               # Shared hooks
 │   └── lib/                 # utils, persistence, history, store facade
-├── docs/                    # Glossary, C4, user stories
 └── public/
 ```
 
@@ -114,14 +113,15 @@ explore-lowcode/
 
 | Doc | Link |
 |-----|------|
-| Quick start | [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md) |
-| C4 model | [docs/developer/c4-model/](docs/developer/c4-model/) |
-| Glossary | [docs/Glossary.md](docs/Glossary.md) |
-| User story map | [docs/product-owner/User-Story-Map.md](docs/product-owner/User-Story-Map.md) |
+| Quick start | [docs/developer/QUICKSTART.md](../../docs/lowcode/developer/QUICKSTART.md) |
+| C4 model | [docs/developer/c4-model/](../../docs/lowcode/developer/c4-model/) |
+| Glossary | [docs/Glossary.md](../../docs/lowcode/Glossary.md) |
+| User story map | [docs/product-owner/User-Story-Map.md](../../docs/lowcode/product-owner/User-Story-Map.md) |
+| Architecture Definition (TOGAF) | [docs/developer/togaf/Architecture-Definition-Document.md](../../docs/lowcode/developer/togaf/Architecture-Definition-Document.md) |
 
-![C1 Context](docs/developer/c4-model/png/C1-Context.png)
+[C1 Context](../../docs/lowcode/developer/c4-model/png/C1-Context.png)
 
-![C2 Container](docs/developer/c4-model/png/C2-Container.png)
+[C2 Container](../../docs/lowcode/developer/c4-model/png/C2-Container.png)
 
 ## Contributing
 

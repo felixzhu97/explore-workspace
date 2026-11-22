@@ -14,7 +14,7 @@ and the UI call it over loopback.
 
 Every operation lives under `/api/v1/<collection>:<method>` with no module
 prefix ([AIP-136](https://google.aip.dev/136) custom methods). Layout and
-module contract: [`docs/developer/python-services.md`](../docs/developer/python-services.md).
+module contract: [`docs/developer/python-services.md`](../../docs/ml/developer/python-services.md).
 
 ## Run
 

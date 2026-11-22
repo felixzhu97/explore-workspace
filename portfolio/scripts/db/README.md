@@ -1,6 +1,6 @@
 # Database Scripts
 
-PostgreSQL schema and seed data for the fintech data model (see [C4 docs](../../docs/developer/c4-model/)).
+PostgreSQL schema and seed data for the fintech data model (see [C4 docs](../../../docs/portfolio/developer/c4-model/)).
 
 ## Prerequisites
 
