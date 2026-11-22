@@ -4,7 +4,7 @@ import com.ai.billing.domain.model.DailyUsage;
 import com.ai.billing.domain.model.QuotaDecision;
 import com.ai.billing.domain.model.QuotaPolicy;
 import com.ai.billing.domain.model.QuotaSubject;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;
@@ -35,7 +35,7 @@ public class DailyUsageQuotaService {
   }
 
   /** Consumes one unit of the owner and global quota for background work that has no client IP. */
-  public boolean tryConsume(OwnerKey owner) {
+  public boolean tryConsume(OwnerId owner) {
     return tryConsume(QuotaSubject.createOwnerSubject(owner), null).isAllowed();
   }
 
@@ -43,7 +43,7 @@ public class DailyUsageQuotaService {
    * Atomically consumes one unit of the owner, IP and global daily quota. Nothing is consumed when
    * any of them is exhausted.
    *
-   * @param owner owner counter, or {@code null} when the request has no Client Identity
+   * @param owner owner counter, or {@code null} when the request has no Anonymous id
    * @param address client IP, or {@code null} to skip the per-IP limit
    */
   public QuotaDecision tryConsume(QuotaSubject owner, String address) {

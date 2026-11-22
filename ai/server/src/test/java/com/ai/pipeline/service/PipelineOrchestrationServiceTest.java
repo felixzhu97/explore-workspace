@@ -6,7 +6,7 @@ import com.ai.pipeline.domain.model.AgentPipeline;
 import com.ai.pipeline.domain.model.AgentType;
 import com.ai.pipeline.domain.model.RoutingPlan;
 import com.ai.pipeline.infra.registry.CatalogAgentRegistry;
-import com.ai.testsupport.OwnerKeyFixtures;
+import com.ai.testsupport.OwnerIdFixtures;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,7 @@ import reactor.test.StepVerifier;
 @DisplayName("PipelineOrchestrationService")
 class PipelineOrchestrationServiceTest {
 
-  private static final String OWNER = OwnerKeyFixtures.CLIENT_FULL_KEY;
+  private static final String OWNER = OwnerIdFixtures.CLIENT_FULL_KEY;
 
   private PipelineOrchestrationService useCase;
   private RecordingInvoker invoker;

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
@@ -186,7 +186,7 @@ class H2SpringAiVectorStoreTest {
     return DocumentChunk.restoreChunk(
         ChunkId.generateId(),
         DocumentId.createId(documentId),
-        OwnerKey.parseKey(OWNER),
+        OwnerId.parseKey(OWNER),
         content,
         0,
         Map.of("title", "t"),

@@ -1,6 +1,6 @@
 package com.ai.automation.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableNamedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableNamedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import jakarta.persistence.AttributeOverride;
@@ -28,7 +28,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<ScheduleId> {
+public class AutomationSchedule extends AbstractToggleableNamedOwnerEntity<ScheduleId> {
 
   /** next_run_at for a one-off schedule that has been claimed or has finished. */
   private static final Instant ONCE_TERMINAL_NEXT = Instant.parse("9999-12-31T23:59:59Z");
@@ -69,14 +69,14 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
   @Column private Instant lastRunAt;
 
   private AutomationSchedule(
-      String ownerKey,
+      String ownerId,
       String name,
       ScheduleTiming timing,
       String pipelineTemplateId,
       String recipientEmail,
       String brief,
       Instant nextRunAt) {
-    super(ScheduleId.generateId(), ownerKey, name);
+    super(ScheduleId.generateId(), ownerId, name);
     this.timing = Objects.requireNonNull(timing, "timing");
     this.actionType = AutomationActionType.RUN_PIPELINE_TEMPLATE;
     this.pipelineTemplateId = requireTemplateId(pipelineTemplateId);
@@ -87,7 +87,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
 
   /** Creates an enabled cron schedule whose first run is the next fire time after {@code now}. */
   public static AutomationSchedule createSchedule(
-      String ownerKey,
+      String ownerId,
       String name,
       String cronExpression,
       String timezone,
@@ -97,7 +97,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       Instant now) {
     ScheduleTiming timing = ScheduleTiming.createCronTiming(cronExpression, timezone);
     return new AutomationSchedule(
-        ownerKey,
+        ownerId,
         name,
         timing,
         pipelineTemplateId,
@@ -108,7 +108,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
 
   /** Creates an enabled one-off schedule that runs at {@code runAt}, which must be later. */
   public static AutomationSchedule createOneOffSchedule(
-      String ownerKey,
+      String ownerId,
       String name,
       String timezone,
       String pipelineTemplateId,
@@ -117,7 +117,7 @@ public class AutomationSchedule extends AbstractEnableableNamedOwnerEntity<Sched
       Instant runAt,
       Instant now) {
     return new AutomationSchedule(
-        ownerKey,
+        ownerId,
         name,
         ScheduleTiming.createOneOffTiming(timezone),
         pipelineTemplateId,

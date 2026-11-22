@@ -1,0 +1,26 @@
+# Local Python envs (torch / site-packages dwarf the graph scan)
+**/.venv/**
+
+# Nested product Gradle wrappers — workspace root Gradle owns Java projects
+chat/server/gradlew
+chat/server/gradlew.bat
+portfolio/**/gradlew
+portfolio/**/gradlew.bat
+
+# Defer product app graphs until their solo-startup layer lands.
+# Gradle modules (:ai-server, :iam-server, …) still come from settings.gradle.kts.
+ai/web/**
+ai/admin/**
+ai/docs/**
+ai/ios/**
+ai/.cursor/**
+iam/console/**
+iam/docs/**
+iam/ios/**
+iam/.cursor/**
+chat/**
+ml/**
+commerce/**
+portfolio/**
+lowcode/**
+three/**

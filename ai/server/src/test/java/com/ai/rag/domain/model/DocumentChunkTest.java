@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ class DocumentChunkTest {
   private static final ChunkId TEST_ID = ChunkId.parseId("123e4567-e89b-12d3-a456-426614174000");
   private static final DocumentId TEST_DOCUMENT_ID =
       DocumentId.createId(UUID.fromString("223e4567-e89b-12d3-a456-426614174001"));
-  private static final OwnerKey OWNER = OwnerKey.parseKey("c:owner");
+  private static final OwnerId OWNER = OwnerId.parseKey("c:owner");
   private static final String TEST_CONTENT = "This is a test chunk content.";
   private static final int TEST_CHUNK_INDEX = 0;
 
@@ -46,7 +46,7 @@ class DocumentChunkTest {
 
       assertThat(chunk.getId()).isEqualTo(TEST_ID);
       assertThat(chunk.getDocumentId()).isEqualTo(TEST_DOCUMENT_ID);
-      assertThat(chunk.getOwnerKey()).isEqualTo(OWNER);
+      assertThat(chunk.getOwnerId()).isEqualTo(OWNER);
       assertThat(chunk.getContent()).isEqualTo(TEST_CONTENT);
       assertThat(chunk.getChunkIndex()).isEqualTo(TEST_CHUNK_INDEX);
       assertThat(chunk.getMetadata()).isEqualTo(metadata);
@@ -57,7 +57,7 @@ class DocumentChunkTest {
     @Test
     @DisplayName("should drop the owner from metadata when stored rows still carry it")
     void shouldDropTheOwnerFromMetadataWhenStoredRowsStillCarryIt() {
-      DocumentChunk chunk = chunk(TEST_CONTENT, Map.of("ownerKey", "c:owner", "page", 1));
+      DocumentChunk chunk = chunk(TEST_CONTENT, Map.of("ownerId", "c:owner", "page", 1));
 
       assertThat(chunk.getMetadata()).containsOnlyKeys("page");
     }
@@ -104,7 +104,7 @@ class DocumentChunkTest {
 
     assertThat(embedded.getEmbedding()).containsExactly(0.1f, 0.2f, 0.3f);
     assertThat(embedded.getId()).isEqualTo(original.getId());
-    assertThat(embedded.getOwnerKey()).isEqualTo(OWNER);
+    assertThat(embedded.getOwnerId()).isEqualTo(OWNER);
     assertThat(embedded.getMetadata()).isEqualTo(original.getMetadata());
     assertThat(embedded.getCreatedAt()).isEqualTo(original.getCreatedAt());
     assertThat(original.getEmbedding()).isNull();

@@ -11,7 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MetricsAdminProperties {
 
   /**
-   * When non-blank, {@code /api/metrics/**} requires matching {@code X-Admin-Key}. Leave empty in
+   * When non-blank, {@code /api/metrics/**} requires matching {@code Authorization: Bearer}. Leave
+   * empty in
    * local/dev so the Metrics UI works without a secret.
    */
   private String adminApiKey = "";

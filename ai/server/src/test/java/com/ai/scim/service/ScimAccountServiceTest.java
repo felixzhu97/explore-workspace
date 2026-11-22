@@ -9,7 +9,7 @@ import com.ai.account.domain.model.AccountId;
 import com.ai.account.domain.model.ExternalIdentity;
 import com.ai.account.domain.repository.AccountRepository;
 import com.ai.account.service.OwnerErasureService;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.scim.mapper.ScimAccountMapper;
 import com.ai.testsupport.AbstractDataJpaTest;
 import com.explore.provisioning.ScimFilterTranslator;
@@ -179,7 +179,7 @@ class ScimAccountServiceTest extends AbstractDataJpaTest {
     service.deleteUser(created.getId(), null);
     flushAndClear();
 
-    verify(ownerErasureService).eraseAllForOwner(OwnerKey.createAccountKey(created.getId()));
+    verify(ownerErasureService).eraseAllForOwner(OwnerId.createAccountKey(created.getId()));
     assertThat(accountRepository.findById(AccountId.parseId(created.getId()))).isEmpty();
   }
 

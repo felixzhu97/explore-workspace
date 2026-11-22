@@ -8,7 +8,7 @@ import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
 import com.ai.common.domain.event.AiInvocationCompletedEvent;
 import com.ai.common.domain.event.AiInvocationFailedEvent;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.common.infra.llm.ToolCallMarkupFilter;
 import com.ai.common.infra.llm.ToolEventChannel;
 import com.ai.common.infra.prompt.PromptTemplates;
@@ -65,10 +65,8 @@ public class ChatService {
   private final ChatSessionEraser sessionEraser;
 
   /** Returns the client's sessions, most recently active first. */
-  public List<ChatSession> listSessions(String ownerKey) {
-    return repository
-        .findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey))
-        .stream()
+  public List<ChatSession> listSessions(String ownerId) {
+    return repository.findAllByOwnerIdOrderByLastActivityAtDesc(OwnerId.parseKey(ownerId)).stream()
         .map(this::withStoredMessages)
         .toList();
   }
@@ -77,10 +75,10 @@ public class ChatService {
    * Returns the client's session messages in chronological order with their web sources. The owner
    * is checked before any sources are read.
    */
-  public SessionHistory findSessionHistoryWithSources(String sessionId, String ownerKey) {
+  public SessionHistory findSessionHistoryWithSources(String sessionId, String ownerId) {
     ChatSession session =
         repository
-            .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
+            .findByIdAndOwnerId(ChatSessionId.parseId(sessionId), OwnerId.parseKey(ownerId))
             .map(this::withStoredMessages)
             .orElseThrow(
                 () ->
@@ -90,14 +88,14 @@ public class ChatService {
   }
 
   /** Sends a message in the session and returns the reply. */
-  public String sendMessage(String sessionId, String userMessage, String ownerKey) {
-    ChatSession session = loadOrCreateSession(sessionId, ownerKey);
+  public String sendMessage(String sessionId, String userMessage, String ownerId) {
+    ChatSession session = loadOrCreateSession(sessionId, ownerId);
     return sendMessage(session, sessionId, userMessage, TextChatOptions.createDefaultOptions());
   }
 
   /** Sends a message in the owner's default session and returns the reply. */
-  public String sendMessage(String userMessage, String ownerKey) {
-    ChatSession session = getOrCreateDefaultSession(ownerKey);
+  public String sendMessage(String userMessage, String ownerId) {
+    ChatSession session = getOrCreateDefaultSession(ownerId);
     return sendMessage(
         session, session.getId().toString(), userMessage, TextChatOptions.createDefaultOptions());
   }
@@ -120,10 +118,10 @@ public class ChatService {
                 }
                 return content;
               });
-      publishCompleted("chat.call", startedAt, OwnerKey.UNOWNED, options, null);
+      publishCompleted("chat.call", startedAt, OwnerId.UNOWNED, options, null);
       return response;
     } catch (RuntimeException ex) {
-      publishFailed("chat.call", startedAt, OwnerKey.UNOWNED, options, null, ex);
+      publishFailed("chat.call", startedAt, OwnerId.UNOWNED, options, null, ex);
       throw ex;
     }
   }
@@ -163,17 +161,17 @@ public class ChatService {
   }
 
   /** Creates an empty chat session owned by the client. */
-  public ChatSession createSession(String title, String ownerKey) {
-    ChatSession session = ChatSession.createSession(title, ownerKey);
+  public ChatSession createSession(String title, String ownerId) {
+    ChatSession session = ChatSession.createSession(title, ownerId);
     repository.save(session);
     return session;
   }
 
   /** Deletes the client's session and its chat memory. */
-  public void deleteSession(String sessionId, String ownerKey) {
+  public void deleteSession(String sessionId, String ownerId) {
     ChatSession session =
         repository
-            .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
+            .findByIdAndOwnerId(ChatSessionId.parseId(sessionId), OwnerId.parseKey(ownerId))
             .orElseThrow(
                 () ->
                     DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found"));
@@ -182,11 +180,11 @@ public class ChatService {
 
   /** Streams a reply within a session, persisting both turns after completion. */
   public Flux<String> streamChatWithSession(
-      String sessionId, String userMessage, TextChatOptions options, String ownerKey) {
+      String sessionId, String userMessage, TextChatOptions options, String ownerId) {
     return Flux.defer(
             () -> {
               long startedAt = System.nanoTime();
-              ChatSession session = loadOrCreateSession(sessionId, ownerKey);
+              ChatSession session = loadOrCreateSession(sessionId, ownerId);
               boolean isFirstTurn = session.isEmpty();
               conversationMemoryRepository.loadMessagesIfEmpty(sessionId, session.getMessages());
 
@@ -205,7 +203,7 @@ public class ChatService {
                             .content()
                             .doOnNext(token -> rawAssistant.updateAndGet(prev -> prev + token)),
                         sessionId,
-                        ownerKey,
+                        ownerId,
                         options.toolsEnabled());
                 Flux<String> repaired =
                     Flux.defer(
@@ -216,7 +214,7 @@ public class ChatService {
                           publishCompleted(
                               "chat.stream",
                               startedAt,
-                              OwnerKey.parseKey(ownerKey),
+                              OwnerId.parseKey(ownerId),
                               options,
                               sessionId);
                           Mono.fromRunnable(
@@ -231,7 +229,7 @@ public class ChatService {
                           publishFailed(
                               "chat.stream",
                               startedAt,
-                              OwnerKey.parseKey(ownerKey),
+                              OwnerId.parseKey(ownerId),
                               options,
                               sessionId,
                               error);
@@ -245,7 +243,7 @@ public class ChatService {
 
   /** Streams a reply for an ad-hoc message list without a session. */
   public Flux<String> streamChat(
-      List<ChatMessage> messages, TextChatOptions options, String ownerKey) {
+      List<ChatMessage> messages, TextChatOptions options, String ownerId) {
     String requestId = java.util.UUID.randomUUID().toString();
     ToolEventChannel.setCurrentSessionId(requestId);
     try {
@@ -257,7 +255,7 @@ public class ChatService {
               .stream()
               .content(),
           requestId,
-          ownerKey,
+          ownerId,
           options.toolsEnabled());
     } finally {
       ToolEventChannel.clearCurrentSessionId();
@@ -265,16 +263,16 @@ public class ChatService {
   }
 
   /** Returns the session when it belongs to the client. */
-  public Optional<ChatSession> getSession(String sessionId, String ownerKey) {
+  public Optional<ChatSession> getSession(String sessionId, String ownerId) {
     return repository
-        .findByIdAndOwnerKey(ChatSessionId.parseId(sessionId), OwnerKey.parseKey(ownerKey))
+        .findByIdAndOwnerId(ChatSessionId.parseId(sessionId), OwnerId.parseKey(ownerId))
         .map(this::withStoredMessages);
   }
 
   /** Deletes every session owned by the client. */
-  public void deleteAllSessions(String ownerKey) {
+  public void deleteAllSessions(String ownerId) {
     List<ChatSession> sessions =
-        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey));
+        repository.findAllByOwnerIdOrderByLastActivityAtDesc(OwnerId.parseKey(ownerId));
     sessionEraser.eraseAll(sessions);
   }
 
@@ -346,13 +344,13 @@ public class ChatService {
   }
 
   private Flux<String> mergeToolEvents(
-      Flux<String> content, String channelId, String ownerKey, boolean toolsEnabled) {
+      Flux<String> content, String channelId, String ownerId, boolean toolsEnabled) {
     Flux<String> textTokens = content.map(this::sanitizeStreamToken);
     if (!toolsEnabled) {
       return textTokens.filter(token -> !token.isEmpty()).map(StreamTokenEvent::toJson);
     }
     Sinks.Many<String> sink = ToolEventChannel.openChannel(channelId);
-    ToolEventChannel.bindOwnerKey(channelId, ownerKey);
+    ToolEventChannel.bindOwnerId(channelId, ownerId);
     Flux<String> toolEvents =
         ToolEventChannel.asFlux(sink).doOnNext(json -> captureSourcesEvent(channelId, json));
     Flux<String> textEvents =
@@ -438,27 +436,27 @@ public class ChatService {
     return session;
   }
 
-  private ChatSession getOrCreateDefaultSession(String ownerKey) {
+  private ChatSession getOrCreateDefaultSession(String ownerId) {
     List<ChatSession> sessions =
-        repository.findAllByOwnerKeyOrderByLastActivityAtDesc(OwnerKey.parseKey(ownerKey));
+        repository.findAllByOwnerIdOrderByLastActivityAtDesc(OwnerId.parseKey(ownerId));
     if (sessions.isEmpty()) {
-      ChatSession newSession = ChatSession.createDefaultSession(ownerKey);
+      ChatSession newSession = ChatSession.createDefaultSession(ownerId);
       repository.save(newSession);
       return newSession;
     }
     return sessions.getFirst();
   }
 
-  private ChatSession loadOrCreateSession(String sessionId, String ownerKey) {
+  private ChatSession loadOrCreateSession(String sessionId, String ownerId) {
     ChatSessionId id = ChatSessionId.parseId(sessionId);
-    Optional<ChatSession> owned = repository.findByIdAndOwnerKey(id, OwnerKey.parseKey(ownerKey));
+    Optional<ChatSession> owned = repository.findByIdAndOwnerId(id, OwnerId.parseKey(ownerId));
     if (owned.isPresent()) {
       return owned.get();
     }
     if (repository.existsById(id)) {
       throw DomainException.createNotFoundError("SESSION_NOT_FOUND", "Session not found");
     }
-    ChatSession session = ChatSession.createSessionWithId(id, ownerKey);
+    ChatSession session = ChatSession.createSessionWithId(id, ownerId);
     repository.save(session);
     return session;
   }
@@ -468,7 +466,7 @@ public class ChatService {
   }
 
   private void publishCompleted(
-      String operation, long startedAt, OwnerKey owner, TextChatOptions options, String sessionId) {
+      String operation, long startedAt, OwnerId owner, TextChatOptions options, String sessionId) {
     eventPublisher.publishEvent(
         new AiInvocationCompletedEvent(
             "chat",
@@ -485,7 +483,7 @@ public class ChatService {
   private void publishFailed(
       String operation,
       long startedAt,
-      OwnerKey owner,
+      OwnerId owner,
       TextChatOptions options,
       String sessionId,
       Throwable error) {

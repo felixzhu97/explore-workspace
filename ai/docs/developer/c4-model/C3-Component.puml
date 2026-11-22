@@ -28,7 +28,7 @@ Container_Boundary(backend, "AI Platform Backend (Spring Boot)") {
     Component(media_web, "Image + Vision + Audio", "controller", "/api/images /api/vision /ws/audio")
     Component(mcp_web, "MCP", "controller", "/api/mcp /api/mcp/client")
     Component(metrics_web, "Metrics + Account + Privacy", "controller", "/api/metrics /api/account /api/privacy")
-    Component(security, "Filters + OwnerContext", "web", "CSRF · Bearer CSRF skip · quota · module flags · OwnerKey")
+    Component(security, "Filters + OwnerContext", "web", "CSRF · Bearer CSRF skip · quota · module flags · OwnerId")
     Component(iam_rs, "Resource server (Spring Boot)", "security", "spring.security.oauth2.resourceserver.jwt · BearerTokenScopeAuthorization · JWT→AccountUser")
     Component(scim_web, "SCIM Users + discovery", "controller", "/scim/v2/Users · ServiceProviderConfig · ResourceTypes · Schemas")
     Component(scim_sec, "ScimSecurityConfig", "security", "@Order(0) · Bearer SCOPE_write:ai_scim · SCIM error bodies")

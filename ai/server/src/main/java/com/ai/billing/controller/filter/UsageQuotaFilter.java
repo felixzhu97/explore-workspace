@@ -3,8 +3,9 @@ package com.ai.billing.controller.filter;
 import com.ai.billing.domain.model.QuotaDecision;
 import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.service.DailyUsageQuotaService;
-import com.ai.common.controller.ClientIdentity;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.controller.AnonymousId;
+import com.ai.common.domain.model.OwnerId;
+import com.explore.errors.Problems;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Free/Pro daily hard quota per Client Identity (commercial cost guardrail).
+ * Free/Pro daily hard quota per Anonymous id (commercial cost guardrail).
  *
  * @see <a href="https://docs.stripe.com/billing/subscriptions/usage-based">Stripe usage-based
  *     billing</a>
@@ -68,16 +69,16 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    Object attr = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
+    Object attr = request.getAttribute(AnonymousId.REQUEST_ATTRIBUTE);
     QuotaSubject owner =
         attr instanceof String id && !id.isBlank()
-            ? QuotaSubject.createOwnerSubject(OwnerKey.createClientKey(id))
+            ? QuotaSubject.createOwnerSubject(OwnerId.createClientKey(id))
             : null;
     QuotaDecision decision =
-        dailyUsageQuotaService.tryConsume(owner, ClientIdentity.resolveLimitAddress(request));
-    response.setHeader("X-Quota-Limit", String.valueOf(decision.getLimit()));
-    response.setHeader("X-Quota-Remaining", String.valueOf(decision.getRemaining()));
-    response.setHeader("X-Quota-Plan", decision.getPlan().getValue());
+        dailyUsageQuotaService.tryConsume(owner, AnonymousId.resolveLimitAddress(request));
+    response.setHeader("RateLimit-Limit", String.valueOf(decision.getLimit()));
+    response.setHeader("RateLimit-Remaining", String.valueOf(decision.getRemaining()));
+    response.setHeader("RateLimit-Policy", decision.getPlan().getValue());
     if (!decision.isAllowed()) {
       response.setStatus(429);
       response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
@@ -85,9 +86,10 @@ public class UsageQuotaFilter extends OncePerRequestFilter {
           .getOutputStream()
           .write(
               """
-                    {"type":"/problems/quota-exceeded","title":"Too Many Requests",
+                    {"type":"%s","title":"Too Many Requests",
                     "status":429,"detail":"Daily plan quota exceeded"}
                     """
+                  .formatted(Problems.typeOf("QUOTA_EXCEEDED"))
                   .strip()
                   .getBytes(StandardCharsets.UTF_8));
       return;

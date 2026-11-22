@@ -3,7 +3,7 @@ package com.ai.pipeline.service;
 import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.event.OwnerErasureRequestedEvent;
 import com.ai.common.domain.model.DomainStrings;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.pipeline.domain.model.PipelineTemplate;
 import com.ai.pipeline.domain.model.PipelineTemplateId;
 import com.ai.pipeline.domain.repository.PipelineTemplateRepository;
@@ -28,19 +28,19 @@ public class PipelineTemplateService {
   }
 
   /** Lists the owner's saved pipelines. */
-  public List<PipelineTemplate> listLibrary(String ownerKey) {
-    return repository.findAllByOwnerKeyOrderByNameAsc(OwnerKey.parseKey(ownerKey));
+  public List<PipelineTemplate> listLibrary(String ownerId) {
+    return repository.findAllByOwnerIdOrderByNameAsc(OwnerId.parseKey(ownerId));
   }
 
   /** Copies a built-in template into the owner's library. */
-  public PipelineTemplate createFromTemplate(String ownerKey, String templateId, String language) {
+  public PipelineTemplate createFromTemplate(String ownerId, String templateId, String language) {
     BuiltinPipelineTemplate template =
         PipelineTemplateCatalog.findById(templateId, language)
             .orElseThrow(
                 () -> new IllegalArgumentException("Unknown pipeline template: " + templateId));
     return createTemplate(
-        ownerKey,
-        findNextAvailableName(ownerKey, template.name()),
+        ownerId,
+        findNextAvailableName(ownerId, template.name()),
         template.description(),
         template.agentTypes(),
         template.topic(),
@@ -50,76 +50,76 @@ public class PipelineTemplateService {
 
   /** Saves a new Pipeline Template for the owner. */
   public PipelineTemplate createTemplate(
-      String ownerKey,
+      String ownerId,
       String name,
       String description,
       List<String> agentTypes,
       String topic,
       String brief,
       String builtinTemplateId) {
-    assertNameAvailable(ownerKey, name, null);
+    assertNameAvailable(ownerId, name, null);
     PipelineTemplate template =
         PipelineTemplate.createTemplate(
-            ownerKey, name, description, agentTypes, topic, brief, builtinTemplateId);
+            ownerId, name, description, agentTypes, topic, brief, builtinTemplateId);
     return repository.save(template);
   }
 
   /** Replaces the owner's Pipeline Template content. */
   public PipelineTemplate updateTemplate(
-      String ownerKey,
+      String ownerId,
       String id,
       String name,
       String description,
       List<String> agentTypes,
       String topic,
       String brief) {
-    PipelineTemplate template = findOwned(ownerKey, id);
-    assertNameAvailable(ownerKey, name, template.getId());
+    PipelineTemplate template = findOwned(ownerId, id);
+    assertNameAvailable(ownerId, name, template.getId());
     template.update(name, description, agentTypes, topic, brief);
     return repository.save(template);
   }
 
   /** Enables or disables the owner's Pipeline Template. */
-  public PipelineTemplate setEnabled(String ownerKey, String id, boolean enabled) {
-    PipelineTemplate template = findOwned(ownerKey, id);
+  public PipelineTemplate setEnabled(String ownerId, String id, boolean enabled) {
+    PipelineTemplate template = findOwned(ownerId, id);
     template.updateEnabledState(enabled);
     return repository.save(template);
   }
 
   /** Deletes the owner's saved pipeline. */
-  public void deleteTemplate(String ownerKey, String id) {
-    findOwned(ownerKey, id);
-    repository.deleteByIdAndOwnerKey(PipelineTemplateId.parseId(id), OwnerKey.parseKey(ownerKey));
+  public void deleteTemplate(String ownerId, String id) {
+    findOwned(ownerId, id);
+    repository.deleteByIdAndOwnerId(PipelineTemplateId.parseId(id), OwnerId.parseKey(ownerId));
   }
 
   /** Returns the owner's saved pipeline. */
-  public PipelineTemplate getTemplate(String ownerKey, String id) {
-    return findOwned(ownerKey, id);
+  public PipelineTemplate getTemplate(String ownerId, String id) {
+    return findOwned(ownerId, id);
   }
 
-  private PipelineTemplate findOwned(String ownerKey, String id) {
+  private PipelineTemplate findOwned(String ownerId, String id) {
     return repository
-        .findByIdAndOwnerKey(PipelineTemplateId.parseId(id), OwnerKey.parseKey(ownerKey))
+        .findByIdAndOwnerId(PipelineTemplateId.parseId(id), OwnerId.parseKey(ownerId))
         .orElseThrow(
             () ->
                 DomainException.createNotFoundError(
                     "PIPELINE_TEMPLATE_NOT_FOUND", "Pipeline template not found: " + id));
   }
 
-  private void assertNameAvailable(String ownerKey, String name, PipelineTemplateId excludeId) {
+  private void assertNameAvailable(String ownerId, String name, PipelineTemplateId excludeId) {
     String normalized = DomainStrings.normalizeName(name);
-    if (repository.existsByOwnerKeyAndNameIgnoringId(
-        OwnerKey.parseKey(ownerKey), normalized, excludeId)) {
+    if (repository.existsByOwnerIdAndNameIgnoringId(
+        OwnerId.parseKey(ownerId), normalized, excludeId)) {
       throw DomainException.createConflictError(
           "PIPELINE_TEMPLATE_NAME_CONFLICT",
           "Pipeline template name already exists: " + normalized);
     }
   }
 
-  private String findNextAvailableName(String ownerKey, String baseName) {
-    OwnerKey owner = OwnerKey.parseKey(ownerKey);
+  private String findNextAvailableName(String ownerId, String baseName) {
+    OwnerId owner = OwnerId.parseKey(ownerId);
     return DomainStrings.copyNameCandidates(baseName, DomainStrings.DEFAULT_NAME_MAX)
-        .filter(name -> !repository.existsByOwnerKeyAndNameIgnoringId(owner, name, null))
+        .filter(name -> !repository.existsByOwnerIdAndNameIgnoringId(owner, name, null))
         .findFirst()
         .orElseGet(
             () ->
@@ -131,11 +131,11 @@ public class PipelineTemplateService {
 
   @EventListener
   void handleOwnerErasureRequestedEvent(OwnerErasureRequestedEvent event) {
-    repository.deleteAllByOwnerKey(event.ownerKey());
+    repository.deleteAllByOwnerId(event.ownerId());
   }
 
   @EventListener
   void handleGuestLinkedToAccountEvent(GuestLinkedToAccountEvent event) {
-    repository.reassignOwnerKey(event.fromOwnerKey(), event.toOwnerKey());
+    repository.reassignOwnerId(event.fromOwnerId(), event.toOwnerId());
   }
 }

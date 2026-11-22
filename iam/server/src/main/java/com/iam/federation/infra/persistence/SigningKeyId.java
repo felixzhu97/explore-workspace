@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-/** Strongly-typed ID for {@link SigningKeyEntity}. */
+/** Strongly-typed ID for {@link SigningKey}. */
 @Embeddable
 @Getter
 @EqualsAndHashCode(callSuper = false)

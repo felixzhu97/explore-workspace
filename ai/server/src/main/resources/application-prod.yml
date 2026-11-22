@@ -56,8 +56,8 @@ app:
       model: text-embedding-3-small
       openai-api-key: ${OPENAI_API_KEY:${IMAGE_API_KEY:}}
       openai-base-url: https://api.openai.com
-  client-identity:
-    cookie-name: __Host-ea_cid
+  anonymous-id:
+    cookie-name: __Host-explore_anonymous_id
     secure: true
     same-site: Lax
     max-age: 90d

@@ -1,5 +1,7 @@
 packages:
   - "*/*"
+  # chat analytics SDK lives one level deeper than */*
+  - "chat/packages/*"
 
 catalog:
   "@eslint/js": 10.0.1
@@ -19,6 +21,8 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
   nx: true
+  protobufjs: true
+  sharp: true
 
 # https://pnpm.io/settings#overrides
 overrides:

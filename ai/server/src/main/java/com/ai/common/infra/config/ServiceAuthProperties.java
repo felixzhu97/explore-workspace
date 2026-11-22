@@ -4,15 +4,15 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Service-to-service auth settings holding the shared {@code X-Service-Key} secret. */
+/** Service-to-service auth settings for the shared BFF bearer secret. */
 @ConfigurationProperties(prefix = "app.service-auth")
 @Getter
 @Setter
 public class ServiceAuthProperties {
 
   /**
-   * Shared secret for trusted BFF / service callers ({@code X-Service-Key}). When blank,
-   * service-key client identity is disabled and cookie flow is used.
+   * Shared secret for trusted BFF / service callers ({@code Authorization: Bearer}). When blank,
+   * service-key anonymous id is disabled and cookie flow is used.
    */
   private String apiKey = "";
 

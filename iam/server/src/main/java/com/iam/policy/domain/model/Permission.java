@@ -1,6 +1,6 @@
 package com.iam.policy.domain.model;
 
-import com.explore.kernel.AbstractImmutable;
+import com.explore.kernel.AbstractImmutableEntity;
 import com.iam.common.domain.model.Resource;
 import com.iam.common.domain.model.Scope;
 import jakarta.persistence.AttributeOverride;
@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Permission extends AbstractImmutable<PermissionId> {
+public class Permission extends AbstractImmutableEntity<PermissionId> {
 
   @NotBlank
   @Size(max = 128)

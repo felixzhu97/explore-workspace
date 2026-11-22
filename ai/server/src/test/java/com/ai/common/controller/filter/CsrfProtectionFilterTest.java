@@ -38,7 +38,8 @@ class CsrfProtectionFilterTest {
 
     assertThat(chain.getRequest()).isNull();
     assertThat(response.getStatus()).isEqualTo(403);
-    assertThat(response.getContentAsString()).contains("/problems/csrf-rejected");
+    assertThat(response.getContentAsString())
+        .contains("https://www.felixzhu.chat/problems/csrf-rejected");
   }
 
   @Test
@@ -57,9 +58,9 @@ class CsrfProtectionFilterTest {
   void shouldPassAPostThroughWhenSiblingBffServiceAuthHeadersArePresent() throws Exception {
     MockHttpServletRequest request =
         new MockHttpServletRequest("POST", "/api/agents/support/invoke");
-    request.addHeader(ClientIdentityFilter.SERVICE_KEY_HEADER, "dev-service-key");
+    request.addHeader("Authorization", "Bearer dev-service-key");
     request.addHeader(
-        ClientIdentityFilter.CLIENT_ID_HEADER, "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+        AnonymousIdFilter.ANONYMOUS_ID_HEADER, "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
 
     filter.doFilter(request, response, chain);
 

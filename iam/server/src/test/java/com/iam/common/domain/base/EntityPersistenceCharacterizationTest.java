@@ -19,12 +19,12 @@ import com.iam.identity.domain.model.Group;
 import com.iam.identity.domain.model.Role;
 import com.iam.identity.domain.model.TotpCredential;
 import com.iam.identity.domain.model.User;
-import com.iam.policy.domain.model.AllowPolicy;
 import com.iam.policy.domain.model.Permission;
-import com.iam.policy.domain.model.PolicyBinding;
-import com.iam.policy.domain.model.PolicyStatement;
+import com.iam.policy.domain.model.Policy;
+import com.iam.policy.domain.model.PolicyAssignment;
+import com.iam.policy.domain.model.Rule;
 import com.iam.scim.domain.model.ProvisioningTarget;
-import com.iam.sts.domain.model.ShortLivedCredential;
+import com.iam.sts.domain.model.TokenExchange;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -64,8 +64,8 @@ class EntityPersistenceCharacterizationTest {
   }
 
   @Test
-  @DisplayName("should round-trip a user with role bindings and no external id")
-  void shouldRoundTripAUserWithRoleBindingsAndNoExternalId() {
+  @DisplayName("should round-trip a user with role assignments and no external id")
+  void shouldRoundTripAUserWithRoleAssignmentsAndNoExternalId() {
     Role role = saveAndReload(Role.createRole("Characterization Role", " "));
     User user = User.createUser("characterized", "characterized@example.test", "{noop}x");
     user.assignRole(idText(role));
@@ -122,20 +122,20 @@ class EntityPersistenceCharacterizationTest {
   }
 
   @Test
-  @DisplayName("should round-trip an allow policy and its binding")
-  void shouldRoundTripAnAllowPolicyAndItsBinding() {
-    AllowPolicy policy =
+  @DisplayName("should round-trip a policy and its assignment")
+  void shouldRoundTripAPolicyAndItsAssignment() {
+    Policy policy =
         saveAndReload(
-            AllowPolicy.createAllowPolicy(
+            Policy.createPolicy(
                 "characterization-policy",
                 List.of(
-                    PolicyStatement.createPolicyStatement(
-                        Effect.ALLOW,
+                    Rule.createRule(
+                        Effect.PERMIT,
                         Set.of(new com.iam.common.domain.model.Permission("iam:ListUsers")),
                         Set.of(new Resource("*"))))));
 
     saveAndReload(
-        PolicyBinding.createPolicyBinding(
+        PolicyAssignment.createPolicyAssignment(
             idText(policy), ResourceName.createUserResourceName("characterized")));
   }
 
@@ -154,9 +154,9 @@ class EntityPersistenceCharacterizationTest {
 
   @Test
   @DisplayName("should round-trip a short-lived credential")
-  void shouldRoundTripAShortLivedCredential() {
+  void shouldRoundTripATokenExchange() {
     saveAndReload(
-        ShortLivedCredential.createShortLivedCredential(
+        TokenExchange.createTokenExchange(
             ResourceName.createRoleResourceName("characterization-role"),
             "session",
             "user:characterized",

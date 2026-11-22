@@ -107,7 +107,7 @@ describe('VisionService', () => {
     service.analyzeImage();
 
     httpMock.expectOne('/api/vision/caption').flush(
-      { type: '/problems/vision-provider-unavailable', status: 503, detail: 'Vision provider unavailable' },
+      { type: 'https://www.felixzhu.chat/problems/vision-provider-unavailable', status: 503, detail: 'Vision provider unavailable' },
       { status: 503, statusText: 'Unavailable' },
     );
 

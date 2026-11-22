@@ -25,7 +25,7 @@ const EN: Record<PolicySlug, PolicyDocCopy> = {
       {
         heading: 'Accounts and identity',
         paragraphs: [
-          'The Service may be used as a guest with a browser-scoped Client Identity, and may also support optional signed-in accounts when enabled.',
+          'The Service may be used as a guest with a browser-scoped Anonymous id, and may also support optional signed-in accounts when enabled.',
           'You are responsible for activity under your identity or account and for keeping access credentials and devices under your control secure.',
         ],
       },
@@ -113,7 +113,7 @@ const EN: Record<PolicySlug, PolicyDocCopy> = {
       {
         heading: 'Data we process',
         paragraphs: [
-          'Depending on how you use the Service, we may process: Client Identity or account identifiers; chat messages, uploads, and related session metadata; optional analytics and feature-flag events if you consent; and technical logs needed for security and reliability.',
+          'Depending on how you use the Service, we may process: Anonymous id or account identifiers; chat messages, uploads, and related session metadata; optional analytics and feature-flag events if you consent; and technical logs needed for security and reliability.',
           'Do not submit sensitive personal data you do not want processed by model or infrastructure providers.',
         ],
       },
@@ -134,13 +134,13 @@ const EN: Record<PolicySlug, PolicyDocCopy> = {
         heading: 'Retention and erasure',
         paragraphs: [
           'Inactive sessions and aged operational data are purged on a retention schedule (on the order of about ninety days unless a longer period is required for security or legal reasons).',
-          'You can erase this browser’s chat sessions and rotate Client Identity from Privacy controls. Signed-in account deletion, when available, will be described on that page.',
+          'You can erase this browser’s chat sessions and rotate Anonymous id from Privacy controls. Signed-in account deletion, when available, will be described on that page.',
         ],
       },
       {
         heading: 'Cookies and similar technologies',
         paragraphs: [
-          'We use a necessary Client Identity cookie to scope sessions to your browser. Optional analytics technologies load only if you accept analytics. Details are in the Cookie Policy.',
+          'We use a necessary Anonymous id cookie to scope sessions to your browser. Optional analytics technologies load only if you accept analytics. Details are in the Cookie Policy.',
         ],
       },
       {
@@ -186,7 +186,7 @@ const EN: Record<PolicySlug, PolicyDocCopy> = {
       {
         heading: 'Necessary cookies',
         paragraphs: [
-          'Client Identity is an HttpOnly cookie that scopes chat sessions and related data to your browser. It is required for session isolation and Owner Key style separation. It is not used for advertising.',
+          'Anonymous id is an HttpOnly cookie that scopes chat sessions and related data to your browser. It is required for session isolation and Owner Key style separation. It is not used for advertising.',
         ],
       },
       {

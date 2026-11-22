@@ -6,7 +6,7 @@ import com.ai.billing.domain.model.Plan;
 import com.ai.billing.domain.model.QuotaDecision;
 import com.ai.billing.domain.model.QuotaSubject;
 import com.ai.billing.infra.config.BillingProperties;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,8 +56,8 @@ class DailyUsageQuotaServiceTest {
   }
 
   @Test
-  @DisplayName("should count against the ip limit when the request has no client identity")
-  void shouldCountAgainstTheIpLimitWhenTheRequestHasNoClientIdentity() {
+  @DisplayName("should count against the ip limit when the request has no anonymous id")
+  void shouldCountAgainstTheIpLimitWhenTheRequestHasNoAnonymousId() {
     assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isEqualTo(2);
     assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isEqualTo(1);
     assertThat(service.tryConsume(null, "203.0.113.7").getRemaining()).isZero();
@@ -68,7 +68,7 @@ class DailyUsageQuotaServiceTest {
   @Test
   @DisplayName("should share the guest counter between requests and automations")
   void shouldShareTheGuestCounterBetweenRequestsAndAutomations() {
-    OwnerKey guest = OwnerKey.createClientKey("client-a");
+    OwnerId guest = OwnerId.createClientKey("client-a");
 
     assertThat(service.tryConsume(guest)).isTrue();
     assertThat(consume("client-a", null).getRemaining()).isZero();
@@ -98,6 +98,6 @@ class DailyUsageQuotaServiceTest {
 
   private QuotaDecision consume(String clientId, String address) {
     return service.tryConsume(
-        QuotaSubject.createOwnerSubject(OwnerKey.createClientKey(clientId)), address);
+        QuotaSubject.createOwnerSubject(OwnerId.createClientKey(clientId)), address);
   }
 }

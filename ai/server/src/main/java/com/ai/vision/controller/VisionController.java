@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/vision")
+@RequestMapping("/api")
 @ConditionalOnProperty(
     prefix = "launchdarkly.bootstrap",
     name = "module-vision",
@@ -32,13 +32,13 @@ public class VisionController {
   private final OwnerContext ownerContext;
 
   /** Returns the vision module health. */
-  @GetMapping("/health")
+  @GetMapping("/vision/health")
   public VisionHealthResponse getHealth() {
     return visionAnalysisService.getHealth();
   }
 
   /** Describes the uploaded image. */
-  @PostMapping("/caption")
+  @PostMapping("/vision/caption")
   public CaptionResponse captionImage(
       @RequestParam(value = "file", required = false) MultipartFile file,
       HttpServletRequest request)
@@ -48,7 +48,7 @@ public class VisionController {
   }
 
   /** Detects objects in the uploaded image. */
-  @PostMapping("/detect")
+  @PostMapping("vision:detect")
   public DetectResponse detectObjects(
       @RequestParam(value = "file", required = false) MultipartFile file,
       HttpServletRequest request)
@@ -58,7 +58,7 @@ public class VisionController {
   }
 
   /** Reads the text in the uploaded image. */
-  @PostMapping("/ocr")
+  @PostMapping("/vision/ocr")
   public OcrResponse recognizeText(
       @RequestParam(value = "file", required = false) MultipartFile file,
       HttpServletRequest request)

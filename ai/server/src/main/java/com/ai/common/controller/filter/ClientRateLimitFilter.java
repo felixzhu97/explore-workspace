@@ -1,7 +1,8 @@
 package com.ai.common.controller.filter;
 
-import com.ai.common.controller.ClientIdentity;
+import com.ai.common.controller.AnonymousId;
 import com.ai.common.infra.config.RateLimitProperties;
+import com.explore.errors.Problems;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import jakarta.servlet.FilterChain;
@@ -69,8 +70,8 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    Object attr = request.getAttribute(ClientIdentity.REQUEST_ATTRIBUTE);
-    String address = ClientIdentity.resolveLimitAddress(request);
+    Object attr = request.getAttribute(AnonymousId.REQUEST_ATTRIBUTE);
+    String address = AnonymousId.resolveLimitAddress(request);
     String clientKey =
         attr instanceof String clientId && !clientId.isBlank()
             ? clientId
@@ -86,9 +87,10 @@ public class ClientRateLimitFilter extends OncePerRequestFilter {
       response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
       byte[] body =
           """
-                    {"type":"/problems/rate-limited","title":"Too Many Requests",
+                    {"type":"%s","title":"Too Many Requests",
                     "status":429,"detail":"Too many requests"}
                     """
+              .formatted(Problems.typeOf("RATE_LIMITED"))
               .strip()
               .getBytes(StandardCharsets.UTF_8);
       response.getOutputStream().write(body);

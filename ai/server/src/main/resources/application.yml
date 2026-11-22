@@ -206,8 +206,8 @@ app:
       - https://explore-ai-three.vercel.app
       - https://www.felixzhu.chat
       - https://felixzhu.chat
-  client-identity:
-    cookie-name: ea_cid
+  anonymous-id:
+    cookie-name: explore_anonymous_id
     secure: false
     same-site: Lax
     max-age: 90d
@@ -280,6 +280,6 @@ app:
       tokenizer-path: ${VISION_CAPTION_TOKENIZER:models/blip_tokenizer}
       max-length: 50
     ocr:
-      tessdata-path: ${TESSDATA_PATH:models/tessdata}
+      tessdata-path: ${TESSDATA_PREFIX:models/tessdata}
       languages: eng+chi_sim
       page-seg-mode: 3

@@ -172,7 +172,7 @@ flowchart LR
 
 **已具备**
 
-- 审计事件在应用层不可变（`AbstractImmutable`，无更新接口）。
+- 审计事件在应用层不可变（`AbstractImmutableEntity`，无更新接口）。
 
 **缺失**
 

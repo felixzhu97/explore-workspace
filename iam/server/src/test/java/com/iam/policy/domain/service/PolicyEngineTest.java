@@ -10,8 +10,8 @@ import com.iam.common.domain.model.Resource;
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.model.AccessDecision;
 import com.iam.policy.domain.model.AccessTuple;
-import com.iam.policy.domain.model.AllowPolicy;
-import com.iam.policy.domain.model.PolicyStatement;
+import com.iam.policy.domain.model.Policy;
+import com.iam.policy.domain.model.Rule;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -38,12 +38,12 @@ class PolicyEngineTest {
   @Test
   @DisplayName("should allow when explicit allow matches")
   void shouldAllowWhenExplicitAllowMatches() {
-    AllowPolicy policy =
-        AllowPolicy.createAllowPolicy(
+    Policy policy =
+        Policy.createPolicy(
             "read-bucket",
             List.of(
-                PolicyStatement.createPolicyStatement(
-                    Effect.ALLOW,
+                Rule.createRule(
+                    Effect.PERMIT,
                     Set.of(new Permission("s3:GetObject")),
                     Set.of(new Resource("*")))));
     AccessTuple context =
@@ -53,25 +53,25 @@ class PolicyEngineTest {
             new Resource("arn:aws:s3:::bucket/key"));
     AccessDecision decision = engine.evaluate(context, List.of(policy));
     assertThat(decision.isAllowed()).isTrue();
-    assertThat(decision.reasonCode()).isEqualTo(ReasonCode.EXPLICIT_ALLOW);
+    assertThat(decision.reasonCode()).isEqualTo(ReasonCode.EXPLICIT_PERMIT);
   }
 
   @Test
   @DisplayName("should deny over allow when explicit deny matches")
   void shouldDenyOverAllowWhenExplicitDenyMatches() {
-    AllowPolicy allowPolicy =
-        AllowPolicy.createAllowPolicy(
+    Policy allowPolicy =
+        Policy.createPolicy(
             "allow-all",
             List.of(
-                PolicyStatement.createPolicyStatement(
-                    Effect.ALLOW,
+                Rule.createRule(
+                    Effect.PERMIT,
                     Set.of(new Permission("*")),
                     Set.of(new Resource("*")))));
-    AllowPolicy denyPolicy =
-        AllowPolicy.createAllowPolicy(
+    Policy denyPolicy =
+        Policy.createPolicy(
             "deny-delete",
             List.of(
-                PolicyStatement.createPolicyStatement(
+                Rule.createRule(
                     Effect.DENY,
                     Set.of(new Permission("s3:DeleteObject")),
                     Set.of(new Resource("*")))));

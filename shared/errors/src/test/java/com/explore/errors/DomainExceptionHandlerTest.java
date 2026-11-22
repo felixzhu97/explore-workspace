@@ -37,7 +37,7 @@ class DomainExceptionHandlerTest {
         .perform(get("/orders/NOT_FOUND"))
         .andExpect(status().isNotFound())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
-        .andExpect(jsonPath("$.type").value("/problems/order-not-found"))
+        .andExpect(jsonPath("$.type").value("https://www.felixzhu.chat/problems/order-not-found"))
         .andExpect(jsonPath("$.title").value("Not Found"))
         .andExpect(jsonPath("$.status").value(404))
         .andExpect(jsonPath("$.detail").value("Order was not found"))

@@ -25,7 +25,7 @@ legend right
 endlegend
 
 package "Domain Kernel (shared/kernel)" as pkg_kernel {
-  class AbstractImmutable<IdT> <<Abstract>> {
+  class AbstractImmutableEntity<IdT> <<Abstract>> {
     +id: IdT @EmbeddedId
     +createdAt: Instant @CreationTimestamp
   }
@@ -49,9 +49,9 @@ package "Domain Kernel (shared/kernel)" as pkg_kernel {
   }
 }
 
-AbstractEntity --|> AbstractImmutable
+AbstractEntity --|> AbstractImmutableEntity
 AbstractNamedEntity --|> AbstractEntity
-AbstractAuditEvent --|> AbstractImmutable
+AbstractAuditEvent --|> AbstractImmutableEntity
 
 package "Common" as pkg_common {
   class ResourceName <<ValueObject>> {
@@ -191,7 +191,7 @@ package "Identity" as pkg_identity {
     --
     +userId()
   }
-  class RoleBinding <<Entity>> {
+  class RoleAssignment <<Entity>> {
     +userId: String
     +roleId: String
     --
@@ -237,7 +237,7 @@ Group --|> AbstractEntity
 Role --|> AbstractNamedEntity
 TotpCredential --|> AbstractEntity
 Group "1" *-- "0..*" GroupMember : members
-User "1" *-- "0..*" RoleBinding : roleBindings
+User "1" *-- "0..*" RoleAssignment : roleBindings
 User "1" o-- "0..1" TotpCredential : optional
 User "1" o-- "0..*" WebAuthnCredential : passkeys
 Role --> ResourceName
@@ -284,25 +284,25 @@ ProvisioningTarget ..> UserProvisionedEvent : reacts via listener
 ProvisioningTarget ..> GroupMembershipChangedEvent : reacts via listener
 
 package "Policy" as pkg_policy {
-  class AllowPolicy <<AggregateRoot>> {
+  class Policy <<AggregateRoot>> {
     +name: String
-    +statements: List<PolicyStatement>
+    +statements: List<Rule>
     --
-    +{static} createAllowPolicy(name, statements)
+    +{static} createPolicy(name, statements)
   }
-  class PolicyStatement <<ValueObject>> {
+  class Rule <<ValueObject>> {
     +effect: Effect
     +actions: Set<Permission>
     +resources: Set<Resource>
     --
-    +{static} createPolicyStatement(effect, actions, resources)
+    +{static} createRule(effect, actions, resources)
     +matchesPermissionAndResource(action, resource)
   }
-  class PolicyBinding <<AggregateRoot>> {
+  class PolicyAssignment <<AggregateRoot>> {
     +policyId: String
     +principalArn: ResourceName
     --
-    +{static} createPolicyBinding(policyId, principalArn)
+    +{static} createPolicyAssignment(policyId, principalArn)
   }
   class "Permission" as PermissionCatalogEntry <<AggregateRoot>> {
     +code: String
@@ -329,7 +329,7 @@ package "Policy" as pkg_policy {
   class PolicyEngine <<DomainService>> {
     +evaluate(context, policies)
   }
-  class AllowPolicyCreatedEvent <<DomainEvent>> {
+  class PolicyCreatedEvent <<DomainEvent>> {
     +policyId: String
   }
   class PolicyAttachedEvent <<DomainEvent>> {
@@ -347,12 +347,12 @@ package "Policy" as pkg_policy {
   }
 }
 
-AllowPolicy --|> AbstractNamedEntity
-PolicyBinding --|> AbstractImmutable
-PermissionCatalogEntry --|> AbstractImmutable
-AllowPolicy "1" *-- "1..*" PolicyStatement : statements
-PolicyBinding --> AllowPolicy : references policyId
-PolicyBinding --> ResourceName
+Policy --|> AbstractNamedEntity
+PolicyAssignment --|> AbstractImmutableEntity
+PermissionCatalogEntry --|> AbstractImmutableEntity
+Policy "1" *-- "1..*" Rule : statements
+PolicyAssignment --> Policy : references policyId
+PolicyAssignment --> ResourceName
 PermissionCatalogEntry --> Permission
 PermissionCatalogEntry --> Resource
 PermissionCatalogEntry --> Scope : oauthScope
@@ -361,18 +361,18 @@ AccessTuple --> Permission
 AccessTuple --> Resource
 AccessDecision --> Effect
 AccessDecision --> ReasonCode
-PolicyEngine ..> AllowPolicy : reads
+PolicyEngine ..> Policy : reads
 PolicyEngine ..> AccessDecision : returns
 PermissionCatalogEntry ..> PolicyEngine : catalog for Permission/Resource
 
 package "Short-lived credentials" as pkg_sts {
-  class ShortLivedCredential <<AggregateRoot>> {
+  class TokenExchange <<AggregateRoot>> {
     +roleArn: ResourceName
     +sessionName: String
     +callerPrincipal: String
     +expiresAt: Instant
     --
-    +{static} createShortLivedCredential(roleArn, sessionName, callerPrincipal, expiresAt)
+    +{static} createTokenExchange(roleArn, sessionName, callerPrincipal, expiresAt)
     +isExpired(now)
   }
   class RoleAssumedEvent <<DomainEvent>> {
@@ -380,8 +380,8 @@ package "Short-lived credentials" as pkg_sts {
   }
 }
 
-ShortLivedCredential --|> AbstractImmutable
-ShortLivedCredential --> ResourceName
+TokenExchange --|> AbstractImmutableEntity
+TokenExchange --> ResourceName
 RoleAssumedEvent ..> Role : roleId
 
 package "Federation" as pkg_federation {
@@ -424,7 +424,7 @@ package "Federation" as pkg_federation {
   end note
 }
 
-FederatedIdentity --|> AbstractImmutable
+FederatedIdentity --|> AbstractImmutableEntity
 OAuthClient --> ClientId
 OAuthClient --> RedirectUri
 FederatedIdentity ..> User : links

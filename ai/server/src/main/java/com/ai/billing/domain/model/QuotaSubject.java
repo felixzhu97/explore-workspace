@@ -1,6 +1,6 @@
 package com.ai.billing.domain.model;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.util.Objects;
 import lombok.Value;
 
@@ -20,8 +20,8 @@ public class QuotaSubject {
   }
 
   /** Counter of a data owner, shared by HTTP requests and scheduled automations. */
-  public static QuotaSubject createOwnerSubject(OwnerKey ownerKey) {
-    return new QuotaSubject(OWNER_PREFIX + ownerKey.getValue());
+  public static QuotaSubject createOwnerSubject(OwnerId ownerId) {
+    return new QuotaSubject(OWNER_PREFIX + ownerId.getValue());
   }
 
   /** Counter of a client IP address. */

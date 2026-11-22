@@ -1,8 +1,8 @@
 package com.ai.account.service;
 
-import com.ai.account.controller.dto.AccountMeResponse;
 import com.ai.account.controller.dto.AccountMode;
 import com.ai.account.controller.dto.AccountPlan;
+import com.ai.account.controller.dto.CurrentAccountResponse;
 import com.ai.account.controller.dto.LoginProvider;
 import com.ai.account.domain.event.GuestLinkedToAccountEvent;
 import com.ai.account.domain.model.Account;
@@ -13,7 +13,7 @@ import com.ai.account.infra.config.OAuthExploreIamProperties;
 import com.ai.account.infra.config.OAuthGithubProperties;
 import com.ai.account.infra.config.OAuthGoogleProperties;
 import com.ai.billing.service.BillingPlanService;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** Resolves the current account from IAM JWT, OAuth session, or linked Client Identity. */
+/** Resolves the current account from IAM JWT, OAuth session, or linked Anonymous id. */
 @Service
 @EnableConfigurationProperties({
   OAuthGoogleProperties.class,
@@ -44,9 +44,9 @@ public class AccountService {
   private final OAuthGithubProperties oauthGithubProperties;
   private final OAuthExploreIamProperties oauthExploreIamProperties;
 
-  /** Returns the viewer's account state for the request's Client Identity. */
+  /** Returns the viewer's account state for the request's Anonymous id. */
   @Transactional
-  public AccountMeResponse getCurrentAccount(String clientId) {
+  public CurrentAccountResponse getCurrentAccount(String clientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication instanceof JwtAuthenticationToken jwtAuth) {
       return createAuthenticatedContext(clientId, iamAccountService.signIn(jwtAuth.getToken()));
@@ -59,7 +59,7 @@ public class AccountService {
           .orElseGet(() -> createAuthenticatedContext(clientId, signIn.get()));
     }
 
-    // Session may be missing after a host mismatch; Client Identity link still proves login.
+    // Session may be missing after a host mismatch; Anonymous id link still proves login.
     if (ClientId.isValid(clientId)) {
       Optional<Account> byClient =
           accountRepository.findByLinkedClientId(ClientId.parseId(clientId));
@@ -68,7 +68,7 @@ public class AccountService {
       }
     }
 
-    return new AccountMeResponse(
+    return new CurrentAccountResponse(
         AccountMode.ANONYMOUS,
         clientId,
         null,
@@ -101,14 +101,14 @@ public class AccountService {
             });
     account.linkBrowser(clientId, signIn.email(), signIn.displayName());
     Account saved = accountRepository.save(account);
-    OwnerKey from = saved.findGuestOwnerKey().orElseThrow();
-    OwnerKey to = saved.createOwnerKey();
+    OwnerId from = saved.findGuestOwnerId().orElseThrow();
+    OwnerId to = saved.createOwnerId();
     from.requireMergeableInto(to);
     eventPublisher.publishEvent(new GuestLinkedToAccountEvent(from, to));
     return saved;
   }
 
-  /** Clears OAuth ↔ Client Identity link so the browser returns to guest mode. */
+  /** Clears OAuth ↔ Anonymous id link so the browser returns to guest mode. */
   @Transactional
   public void unlinkClient(String clientId) {
     if (!ClientId.isValid(clientId)) {
@@ -143,7 +143,7 @@ public class AccountService {
     return List.copyOf(providers);
   }
 
-  private AccountMeResponse createAuthenticatedContext(String clientId, Account account) {
+  private CurrentAccountResponse createAuthenticatedContext(String clientId, Account account) {
     return createAuthenticatedContext(
         clientId,
         account.getId().toString(),
@@ -151,7 +151,7 @@ public class AccountService {
         account.findDisplayLabel().orElse(null));
   }
 
-  private AccountMeResponse createAuthenticatedContext(String clientId, OAuthSignIn signIn) {
+  private CurrentAccountResponse createAuthenticatedContext(String clientId, OAuthSignIn signIn) {
     return createAuthenticatedContext(
         clientId,
         signIn.identity().getSubject(),
@@ -159,9 +159,9 @@ public class AccountService {
         signIn.displayLabel().orElse(null));
   }
 
-  private AccountMeResponse createAuthenticatedContext(
+  private CurrentAccountResponse createAuthenticatedContext(
       String clientId, String userId, ContactEmail email, String displayName) {
-    return new AccountMeResponse(
+    return new CurrentAccountResponse(
         AccountMode.AUTHENTICATED,
         clientId,
         userId,

@@ -46,7 +46,7 @@ class RagSearchToolTest {
   void setUp() {
     ragSearchTool = new RagSearchTool(ragApplicationService, ownerContext);
     ToolEventChannel.openChannel(CHANNEL);
-    ToolEventChannel.bindOwnerKey(CHANNEL, OWNER_KEY);
+    ToolEventChannel.bindOwnerId(CHANNEL, OWNER_KEY);
   }
 
   @AfterEach

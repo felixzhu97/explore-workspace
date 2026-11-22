@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
@@ -31,7 +31,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 @DisplayName("H2DocumentChunkRepository")
 class H2DocumentChunkRepositoryTest {
 
-  private static final OwnerKey OWNER_KEY = OwnerKey.parseKey("c:owner");
+  private static final OwnerId OWNER_KEY = OwnerId.parseKey("c:owner");
 
   private JdbcTemplate jdbcTemplate;
   private ObjectMapper objectMapper;
@@ -64,7 +64,7 @@ class H2DocumentChunkRepositoryTest {
       h2.execute(
           "CREATE TABLE document_chunk (id UUID PRIMARY KEY, document_id UUID,"
               + " content CLOB, chunk_index INT, embedding CLOB, metadata CLOB,"
-              + " created_at VARCHAR(40), owner_key VARCHAR(80) NOT NULL)");
+              + " created_at VARCHAR(40), owner_id VARCHAR(80) NOT NULL)");
       repository = new H2DocumentChunkRepository(h2, objectMapper);
     }
 
@@ -117,8 +117,8 @@ class H2DocumentChunkRepositoryTest {
 
       DocumentChunk stored = repository.findChunksByDocumentId(documentId).getFirst();
 
-      assertThat(stored.getOwnerKey()).isEqualTo(OwnerKey.parseKey(OWNER));
-      assertThat(stored.getMetadata()).doesNotContainKey("ownerKey");
+      assertThat(stored.getOwnerId()).isEqualTo(OwnerId.parseKey(OWNER));
+      assertThat(stored.getMetadata()).doesNotContainKey("ownerId");
     }
 
     @Test
@@ -142,24 +142,19 @@ class H2DocumentChunkRepositoryTest {
           .containsExactlyInAnyOrder("first-0", "second-0", "first-1");
     }
 
-    private void save(DocumentId documentId, String ownerKey, String content, float[] embedding) {
+    private void save(DocumentId documentId, String ownerId, String content, float[] embedding) {
       repository.saveChunk(
           DocumentChunk.createChunk(
-                  ChunkId.generateId(),
-                  documentId,
-                  OwnerKey.parseKey(ownerKey),
-                  content,
-                  0,
-                  Map.of())
+                  ChunkId.generateId(), documentId, OwnerId.parseKey(ownerId), content, 0, Map.of())
               .copyWithEmbedding(embedding));
     }
 
-    private void save(DocumentId documentId, String ownerKey, String content, int chunkIndex) {
+    private void save(DocumentId documentId, String ownerId, String content, int chunkIndex) {
       repository.saveChunk(
           DocumentChunk.createChunk(
                   ChunkId.generateId(),
                   documentId,
-                  OwnerKey.parseKey(ownerKey),
+                  OwnerId.parseKey(ownerId),
                   content,
                   chunkIndex,
                   Map.of())
@@ -220,7 +215,7 @@ class H2DocumentChunkRepositoryTest {
       ResultSet rs = mock(ResultSet.class);
       when(rs.getString("id")).thenReturn(chunkId.toString());
       when(rs.getString("document_id")).thenReturn(docId.toString());
-      when(rs.getString("owner_key")).thenReturn("c:owner");
+      when(rs.getString("owner_id")).thenReturn("c:owner");
       when(rs.getString("content")).thenReturn(content);
       when(rs.getInt("chunk_index")).thenReturn(1);
       when(rs.getString("embedding")).thenReturn(embedding);
@@ -243,7 +238,7 @@ class H2DocumentChunkRepositoryTest {
       ResultSet rs = mock(ResultSet.class);
       when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
       when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
-      when(rs.getString("owner_key")).thenReturn("c:owner");
+      when(rs.getString("owner_id")).thenReturn("c:owner");
       when(rs.getString("content")).thenReturn("Test");
       when(rs.getInt("chunk_index")).thenReturn(0);
       when(rs.getString("embedding")).thenReturn(null);
@@ -260,7 +255,7 @@ class H2DocumentChunkRepositoryTest {
       ResultSet rs = mock(ResultSet.class);
       when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
       when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
-      when(rs.getString("owner_key")).thenReturn("c:owner");
+      when(rs.getString("owner_id")).thenReturn("c:owner");
       when(rs.getString("content")).thenReturn("Test");
       when(rs.getInt("chunk_index")).thenReturn(0);
       when(rs.getString("embedding")).thenReturn("[0.1]");
@@ -277,7 +272,7 @@ class H2DocumentChunkRepositoryTest {
       ResultSet rs = mock(ResultSet.class);
       when(rs.getString("id")).thenReturn(UUID.randomUUID().toString());
       when(rs.getString("document_id")).thenReturn(UUID.randomUUID().toString());
-      when(rs.getString("owner_key")).thenReturn("c:owner");
+      when(rs.getString("owner_id")).thenReturn("c:owner");
       when(rs.getString("content")).thenReturn("Test");
       when(rs.getInt("chunk_index")).thenReturn(0);
       when(rs.getString("embedding")).thenReturn("[0.1]");

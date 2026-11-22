@@ -1,0 +1,51 @@
+{
+  "name": "@fintech/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Behavior analytics SDK for FinPulse",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./react": "./src/react.tsx"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "check-types": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@growthbook/growthbook": "^1.6.5",
+    "@growthbook/growthbook-react": "^1.4.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/lodash": "^4.17.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19",
+    "@vitest/coverage-v8": "^4.1.5",
+    "jsdom": "^29.1.1",
+    "tsup": "^8.0.0",
+    "typescript": "^5",
+    "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

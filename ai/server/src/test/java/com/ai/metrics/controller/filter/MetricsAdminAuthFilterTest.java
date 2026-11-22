@@ -34,7 +34,7 @@ class MetricsAdminAuthFilterTest {
   @Test
   void shouldAllowWhenAdminKeyMatches() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/metrics/overview");
-    request.addHeader(MetricsAdminAuthFilter.ADMIN_KEY_HEADER, "secret-key");
+    request.addHeader("Authorization", "Bearer secret-key");
     MockHttpServletResponse response = new MockHttpServletResponse();
 
     filter.doFilter(request, response, filterChain);

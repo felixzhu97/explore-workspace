@@ -19,7 +19,7 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 class BearerTokenScopeAuthorizationTest {
 
   private final AuthorizationManager<RequestAuthorizationContext> manager =
-      BearerTokenScopeAuthorization.requireScopeWhenPresent("write:ai_chat");
+      BearerTokenScopeAuthorization.requireScopeForBearerTokens("write:ai_chat");
 
   @Test
   @DisplayName("should allow a request when it carries no bearer token")

@@ -1,7 +1,7 @@
 package com.ai.common.infra.llm;
 
-import com.ai.chat.service.TextProviderCatalog;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.common.service.llm.TextProviderGate;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.chat.model.ChatModel;
@@ -21,7 +21,7 @@ public class ChatModelResolver {
   private final ChatModel defaultChatModel;
   private final ObjectProvider<OllamaChatModel> ollamaChatModel;
   private final ObjectProvider<AnthropicChatModel> anthropicChatModel;
-  private final TextProviderCatalog providerCatalog;
+  private final TextProviderGate providerCatalog;
   private final String defaultOpenAiModel;
   private final String defaultOllamaModel;
   private final String defaultAnthropicModel;
@@ -30,7 +30,7 @@ public class ChatModelResolver {
       ChatModel defaultChatModel,
       ObjectProvider<OllamaChatModel> ollamaChatModel,
       ObjectProvider<AnthropicChatModel> anthropicChatModel,
-      TextProviderCatalog providerCatalog,
+      TextProviderGate providerCatalog,
       @Value("${spring.ai.openai.chat.model:deepseek-v4-flash}") String defaultOpenAiModel,
       @Value("${spring.ai.ollama.chat.model:qwen3.5:35b}") String defaultOllamaModel,
       @Value("${spring.ai.anthropic.chat.options.model:claude-sonnet-5}")

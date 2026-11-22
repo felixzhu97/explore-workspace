@@ -15,6 +15,6 @@ public record AccessDecision(Effect effect, ReasonCode reasonCode) {
 
   /** Returns true when access is granted. */
   public boolean isAllowed() {
-    return effect == Effect.ALLOW;
+    return effect == Effect.PERMIT;
   }
 }

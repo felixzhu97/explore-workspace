@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.skill.domain.model.Skill;
 import com.ai.skill.domain.model.SkillId;
 import com.ai.skill.domain.repository.SkillRepository;
@@ -31,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class SkillServiceTest {
 
   private static final String CLIENT_ID = "c:client-1";
-  private static final OwnerKey OWNER = OwnerKey.parseKey(CLIENT_ID);
+  private static final OwnerId OWNER = OwnerId.parseKey(CLIENT_ID);
 
   @Mock private SkillRepository repository;
   @InjectMocks private SkillService useCase;
@@ -52,7 +52,7 @@ class SkillServiceTest {
   @Test
   @DisplayName("should throw when name conflict on create")
   void shouldThrowWhenNameConflictOnCreate() {
-    when(repository.existsByOwnerKeyAndNameIgnoringId(OWNER, "Brief Style", null)).thenReturn(true);
+    when(repository.existsByOwnerIdAndNameIgnoringId(OWNER, "Brief Style", null)).thenReturn(true);
 
     assertThatThrownBy(() -> useCase.createSkill(CLIENT_ID, "Brief Style", "", "Other", List.of()))
         .isInstanceOf(DomainException.class)
@@ -64,7 +64,7 @@ class SkillServiceTest {
   @DisplayName("should build the active skills prompt from the valid skill ids only")
   void shouldBuildTheActiveSkillsPromptFromTheValidSkillIdsOnly() {
     Skill brief = Skill.createSkill(CLIENT_ID, "Brief Style", "", "Be short.", List.of());
-    when(repository.findEnabledByOwnerKeyAndIds(OWNER, List.of(brief.getId())))
+    when(repository.findEnabledByOwnerIdAndIds(OWNER, List.of(brief.getId())))
         .thenReturn(List.of(brief));
 
     String prompt =
@@ -109,7 +109,7 @@ class SkillServiceTest {
   @Test
   @DisplayName("should suffix name when create from template conflicts")
   void shouldSuffixNameWhenCreateFromTemplateConflicts() {
-    when(repository.existsByOwnerKeyAndNameIgnoringId(eq(OWNER), anyString(), isNull()))
+    when(repository.existsByOwnerIdAndNameIgnoringId(eq(OWNER), anyString(), isNull()))
         .thenAnswer(call -> "Brief Style".equals(call.getArgument(1)));
     when(repository.save(any(Skill.class))).then(returnsFirstArg());
 
@@ -122,7 +122,7 @@ class SkillServiceTest {
   @DisplayName("should disable skill when set enabled false")
   void shouldDisableSkillWhenSetEnabledFalse() {
     Skill skill = Skill.createSkill(CLIENT_ID, "Brief Style", "", "Instructions", List.of());
-    when(repository.findByIdAndOwnerKey(skill.getId(), OWNER)).thenReturn(Optional.of(skill));
+    when(repository.findByIdAndOwnerId(skill.getId(), OWNER)).thenReturn(Optional.of(skill));
     when(repository.save(skill)).thenReturn(skill);
 
     Skill updated = useCase.setEnabled(CLIENT_ID, skill.getId().toString(), false);

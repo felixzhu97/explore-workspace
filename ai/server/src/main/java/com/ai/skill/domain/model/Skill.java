@@ -1,6 +1,6 @@
 package com.ai.skill.domain.model;
 
-import com.ai.common.domain.model.AbstractEnableableDescribedOwnerEntity;
+import com.ai.common.domain.model.AbstractToggleableDescribedOwnerEntity;
 import com.ai.common.domain.model.DomainStrings;
 import com.ai.common.domain.model.StringListJsonAttributeConverter;
 import jakarta.persistence.Column;
@@ -14,11 +14,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** User-defined skill aggregate partitioned by owner_key. */
+/** User-defined skill aggregate partitioned by owner_id. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
-public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
+public class Skill extends AbstractToggleableDescribedOwnerEntity<SkillId> {
 
   @NotBlank
   @Column(nullable = false, columnDefinition = "clob")
@@ -30,24 +30,24 @@ public class Skill extends AbstractEnableableDescribedOwnerEntity<SkillId> {
 
   private Skill(
       SkillId id,
-      String ownerKey,
+      String ownerId,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    super(id, ownerKey, name, description);
+    super(id, ownerId, name, description);
     this.instructions = DomainStrings.requireNonBlank(instructions, "instructions");
     this.allowedTools = copyAllowedTools(allowedTools);
   }
 
   /** Creates a new enabled skill for the owner with a generated id. */
   public static Skill createSkill(
-      String ownerKey,
+      String ownerId,
       String name,
       String description,
       String instructions,
       List<String> allowedTools) {
-    return new Skill(SkillId.generateId(), ownerKey, name, description, instructions, allowedTools);
+    return new Skill(SkillId.generateId(), ownerId, name, description, instructions, allowedTools);
   }
 
   /** Replaces name, description, instructions, and allowed tools, then bumps the update time. */

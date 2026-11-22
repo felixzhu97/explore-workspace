@@ -3,9 +3,7 @@ package com.iam.federation.infra.config;
 import com.iam.common.security.IamPrincipals;
 import com.iam.identity.domain.model.User;
 import com.iam.identity.domain.repository.UserRepository;
-import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -56,16 +54,7 @@ public class OidcTokenCustomizerConfig {
       context.getClaims().claim("preferred_username", user.getUsername());
       context.getClaims().claim("name", user.getUsername());
     }
-    if ("access_token".equals(context.getTokenType().getValue())) {
-      Set<String> permissions =
-          scopes.stream()
-              .filter(scope -> !"openid".equals(scope))
-              .filter(scope -> !"profile".equals(scope))
-              .filter(scope -> !"email".equals(scope))
-              .collect(Collectors.toCollection(LinkedHashSet::new));
-      if (!permissions.isEmpty()) {
-        context.getClaims().claim("permissions", permissions);
-      }
-    }
+    // RFC 6749 §3.3 and RFC 9068 §2.2.3: authorization scopes use the standard
+    // `scope` claim only; do not duplicate them as a custom permissions claim.
   }
 }

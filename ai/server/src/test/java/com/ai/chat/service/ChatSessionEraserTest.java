@@ -15,7 +15,7 @@ import com.ai.chat.domain.model.WebSource;
 import com.ai.chat.domain.repository.ChatSessionRepository;
 import com.ai.chat.domain.repository.ChatWebSourcesRepository;
 import com.ai.chat.domain.repository.ConversationMemoryRepository;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,8 +32,8 @@ import org.springframework.context.ApplicationEventPublisher;
 class ChatSessionEraserTest {
 
   private static final String SESSION_ID = "55555555-5555-5555-5555-555555555555";
-  private static final OwnerKey GUEST = OwnerKey.parseKey("c:client-a");
-  private static final OwnerKey ACCOUNT = OwnerKey.parseKey("u:account-a");
+  private static final OwnerId GUEST = OwnerId.parseKey("c:client-a");
+  private static final OwnerId ACCOUNT = OwnerId.parseKey("u:account-a");
 
   @Mock private ChatSessionRepository sessionRepository;
   @Mock private ConversationMemoryRepository conversationMemoryRepository;
@@ -96,7 +96,7 @@ class ChatSessionEraserTest {
   @Test
   @DisplayName("should erase the owner's sessions when owner erasure is requested")
   void shouldEraseTheOwnersSessionsWhenOwnerErasureIsRequested() {
-    when(sessionRepository.findAllByOwnerKeyOrderByLastActivityAtDesc(GUEST))
+    when(sessionRepository.findAllByOwnerIdOrderByLastActivityAtDesc(GUEST))
         .thenReturn(List.of(session()));
 
     eraser.handleOwnerErasureRequestedEvent(new OwnerErasureRequestedEvent(GUEST));
@@ -109,7 +109,7 @@ class ChatSessionEraserTest {
   void shouldMoveTheGuestSessionsToTheAccountWhenAGuestIsLinked() {
     eraser.handleGuestLinkedToAccountEvent(new GuestLinkedToAccountEvent(GUEST, ACCOUNT));
 
-    verify(sessionRepository).reassignOwnerKey(GUEST, ACCOUNT);
+    verify(sessionRepository).reassignOwnerId(GUEST, ACCOUNT);
   }
 
   private static ChatSession session() {

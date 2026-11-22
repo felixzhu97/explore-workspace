@@ -1,0 +1,172 @@
+@startuml
+title TOGAF Technology Architecture - Explore Commerce
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+package "Web (apps/web)" {
+    component [Next.js] as web_next
+    component [React] as web_react
+    component [TypeScript] as web_ts
+    component [Tailwind CSS] as web_tailwind
+    component [Radix UI] as web_radix
+    component [Zustand] as web_zustand
+    component [i18next] as web_i18n
+    component [Zod] as web_zod
+    component [Datadog RUM] as web_rum
+}
+
+package "Admin (apps/admin)" {
+    component [Angular] as admin_angular
+    component [TypeScript] as admin_ts
+    component [RxJS] as admin_rxjs
+    component [Angular HttpClient] as admin_http
+    component [Bootstrap] as admin_bootstrap
+    component [Chart.js] as admin_chartjs
+    component [ECharts] as admin_echarts
+    component [AG Grid] as admin_aggrid
+    component [Three.js] as admin_three
+    component [socket.io-client] as admin_socketio
+    component [WebRTC] as admin_webrtc
+    component [Web Speech API] as admin_speech_api
+    component [MyMemory API\nTranslation] as admin_mymemory
+}
+
+package "Mobile (apps/mobile)" {
+    component [Expo] as mobile_expo
+    component [React Native] as mobile_rn
+    component [TypeScript] as mobile_ts
+    component [Axios] as mobile_axios
+    component [Zustand] as mobile_zustand
+}
+
+package "API (services/api)" {
+    component [Node.js] as api_node
+    component [Express.js] as api_express
+    component [TypeScript] as api_ts
+    component [Mongoose] as api_mongoose
+    component [bcryptjs] as api_bcryptjs
+    component [serverless-http] as api_serverless_http
+    component [datadog-lambda-js] as api_datadog_lambda
+    component [swagger-jsdoc] as api_swagger_jsdoc
+    component [swagger-ui-express] as api_swagger_ui
+    component [express-jwt] as api_express_jwt
+    component [monitoring package] as api_monitoring_pkg
+}
+
+package "Crawler (services/crawler)" {
+    component [Python] as crawler_python
+    component [FastAPI] as crawler_fastapi
+    component [httpx] as crawler_httpx
+    component [BeautifulSoup4] as crawler_bs4
+}
+
+package "Data Mining (services/data-mining)" {
+    component [Python scripts] as dm_python
+    component [Notebooks] as dm_notebooks
+}
+
+package "Meeting Signal (services/meeting-signal)" {
+    component [Node.js] as meeting_node
+    component [Socket.IO] as meeting_socketio
+    component [HTTP Server] as meeting_http
+}
+
+package "Data Platform" {
+    database [MongoDB] as mongodb
+    cloud [MongoDB Atlas] as mongodb_atlas
+}
+
+package "Infrastructure" {
+    cloud [Vercel] as vercel
+    cloud [AWS Lambda] as aws_lambda
+    cloud [Datadog] as datadog
+    component [GitHub Actions] as github_actions
+    component [Node process] as meeting_deploy
+}
+
+package "Tooling" {
+    component [Turborepo] as turborepo
+    component [pnpm] as pnpm
+    component [Vitest] as vitest
+    component [ESLint] as eslint
+    component [Prettier] as prettier
+}
+
+package "Standards" {
+    interface "REST API" as rest_api
+    interface "JWT" as jwt
+    interface "HTTPS" as https
+    interface "OpenAPI" as openapi
+    interface "WebSocket" as websocket
+}
+
+web_next --> web_react
+web_next --> web_ts
+web_next --> web_tailwind
+web_next --> web_radix
+web_next --> web_zustand
+web_next --> web_i18n
+web_next --> web_zod
+web_next --> web_rum
+
+admin_angular --> admin_ts
+admin_angular --> admin_rxjs
+admin_angular --> admin_http
+admin_angular --> admin_bootstrap
+admin_angular --> admin_chartjs
+admin_angular --> admin_echarts
+admin_angular --> admin_aggrid
+admin_angular --> admin_three
+admin_angular --> admin_socketio
+admin_angular --> admin_webrtc
+admin_angular --> admin_speech_api
+admin_angular --> admin_mymemory
+
+mobile_expo --> mobile_rn
+mobile_rn --> mobile_ts
+mobile_rn --> mobile_axios
+mobile_rn --> mobile_zustand
+
+api_express --> api_node
+api_express --> api_ts
+api_express --> api_mongoose
+api_express --> api_express_jwt
+api_express --> api_swagger_jsdoc
+api_express --> api_swagger_ui
+api_express --> api_monitoring_pkg
+api_express --> api_bcryptjs
+api_serverless_http --> aws_lambda
+aws_lambda --> api_datadog_lambda
+api_mongoose --> mongodb
+mongodb_atlas --> mongodb
+
+web_rum --> datadog
+api_monitoring_pkg --> datadog
+api_datadog_lambda --> datadog
+
+crawler_fastapi --> crawler_python
+crawler_fastapi --> crawler_httpx
+crawler_fastapi --> crawler_bs4
+
+dm_python --> mongodb
+dm_notebooks --> mongodb
+
+meeting_socketio --> meeting_node
+meeting_socketio --> meeting_http
+meeting_deploy --> meeting_node
+admin_socketio ..> websocket
+meeting_socketio ..> websocket
+
+web_next ..> rest_api
+api_express ..> rest_api
+api_express ..> jwt
+rest_api ..> https
+api_swagger_jsdoc ..> openapi
+api_swagger_ui ..> openapi
+
+turborepo --> pnpm
+turborepo --> github_actions
+vitest --> github_actions
+
+@enduml

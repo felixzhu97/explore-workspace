@@ -1,0 +1,38 @@
+/* NG-ZORRO (src/theme/antd.less) sits above Tailwind's preflight but below its utilities. */
+@layer theme, base, antd, components, utilities;
+
+@import 'tailwindcss';
+
+/* Apple design tokens; NG-ZORRO reads the same values from src/theme/tokens.less. */
+@theme {
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-ink: #1d1d1f;
+  --color-ink-80: #333333;
+  --color-muted: #7a7a7a;
+  --color-hairline: #e0e0e0;
+  --color-parchment: #f5f5f7;
+
+  --font-sans: 'SF Pro Text', system-ui, -apple-system, sans-serif;
+  --font-display: 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --text-display-lg: 40px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.28px;
+  --text-tagline: 21px;
+  --text-tagline--line-height: 1.19;
+  --text-tagline--letter-spacing: -0.2px;
+  --text-caption: 14px;
+  --text-caption--line-height: 1.43;
+  --text-caption--letter-spacing: -0.224px;
+  --text-fine: 12px;
+  --text-fine--line-height: 1;
+  --text-fine--letter-spacing: -0.12px;
+
+  --radius-sm: 8px;
+  --radius-md: 11px;
+  --radius-lg: 18px;
+
+  --container-page: 980px;
+}

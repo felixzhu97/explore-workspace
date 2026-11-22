@@ -2,7 +2,7 @@ package com.ai.automation.domain.model;
 
 import com.ai.common.domain.model.AbstractOwnerAwareImmutable;
 import com.ai.common.domain.model.DomainStrings;
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -17,7 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
-/** Automation execution run record partitioned by owner_key. */
+/** Automation execution run record partitioned by owner_id. */
 @Entity
 @DynamicUpdate
 @Getter
@@ -53,8 +53,8 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
 
   @Column private Instant finishedAt;
 
-  private AutomationRun(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
-    super(RunId.generateId(), OwnerKey.parseKey(ownerKey));
+  private AutomationRun(ScheduleId scheduleId, String ownerId, Instant startedAt) {
+    super(RunId.generateId(), OwnerId.parseKey(ownerId));
     this.scheduleId = Objects.requireNonNull(scheduleId, "scheduleId");
     this.startedAt = Objects.requireNonNull(startedAt, "startedAt");
     this.status = RunStatus.FAILED;
@@ -62,13 +62,13 @@ public class AutomationRun extends AbstractOwnerAwareImmutable<RunId> {
   }
 
   /** Starts a run for the schedule now, provisionally failed with its email pending. */
-  public static AutomationRun startRun(ScheduleId scheduleId, String ownerKey) {
-    return startRun(scheduleId, ownerKey, Instant.now());
+  public static AutomationRun startRun(ScheduleId scheduleId, String ownerId) {
+    return startRun(scheduleId, ownerId, Instant.now());
   }
 
   /** Starts a run for the schedule at the time, provisionally failed with its email pending. */
-  public static AutomationRun startRun(ScheduleId scheduleId, String ownerKey, Instant startedAt) {
-    return new AutomationRun(scheduleId, ownerKey, startedAt);
+  public static AutomationRun startRun(ScheduleId scheduleId, String ownerId, Instant startedAt) {
+    return new AutomationRun(scheduleId, ownerId, startedAt);
   }
 
   /** Tells whether the run has finished. */

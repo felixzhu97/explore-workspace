@@ -1,0 +1,11 @@
+{
+  "name": "chat-server",
+  "tags": ["scope:chat", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "command": "./gradlew bootRun",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}

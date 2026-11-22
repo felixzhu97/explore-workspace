@@ -106,7 +106,7 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 - **端口**: dev **9000** / prod **8080** (Render `PORT`)
 - **子域**: Chat / Pipeline / Agent façade / A2A / Skill / RAG / Tools / Text Analysis (`textanalysis`) / Eval / Image / Image Analysis (`vision`) / Audio (TTS+ASR) / MCP Server / MCP Client / Metrics
 - **持久化**: H2 嵌入式（会话元数据 `ChatSessionRepository` + 消息 `JdbcChatMemoryRepository` + 向量 + AI 调用事件 `ai_invocation_event`）
-- **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerAwareEntity`（运行记录与调用事件继承 `AbstractOwnerAwareImmutable`）（`owner_key` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；领域仓储继承 Spring Data `Repository<T, ID>`，按归属读写以 `OwnerKey` 作为显式查询参数（如 `findByIdAndOwnerKey`），后台任务使用不带归属的查询；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`Account` 以 `@NaturalId`（provider + subject）查找
+- **JPA / Hibernate**: 归属聚合继承 `AbstractOwnerAwareEntity`（运行记录与调用事件继承 `AbstractOwnerAwareImmutable`）（`owner_id` NOT NULL，Liquibase `0.1-012` 回填遗留会话为 `c:legacy-orphan`）；领域仓储继承 Spring Data `Repository<T, ID>`，按归属读写以 `OwnerId` 作为显式查询参数（如 `findByIdAndOwnerId`），后台任务使用不带归属的查询；类型化 ID 映射原生 UUID 列；`AiInvocationEvent` 为 `@Immutable`；`Account` 以 `@NaturalId`（provider + subject）查找
 - **功能开关**: LaunchDarkly（`ModuleAccessFilter` + `FeatureFlagService`）
 - **可观测性**: Datadog RUM（前端，可选）；APM javaagent 可选（Render Starter 512MB 默认关闭）
 - **外部服务 (cloud)**: DeepSeek API (LLM) / OpenAI API (DALL-E + TTS) / Serper.dev (Web 搜索) / Resend (Automations 邮件)
@@ -119,9 +119,9 @@ Source of truth: `.puml`。官方 C4: [c4model.com](https://c4model.com/)。库:
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
 | Worker 列表 / 健康 | `GET /api/pipelines/agent-types`, `.../health` | `PipelineController`, `PipelineService` |
-| 单 Worker SSE | `POST /api/pipelines/{type}/invoke/sse` | `SpringAiWorkerAgentInvoker` |
-| Supervisor SSE | `POST /api/pipelines/supervisor/invoke/sse` | `SpringAiSupervisorRouter` |
-| 画布图 SSE | `POST /api/pipelines/invoke/sse` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`tools` 快照 |
+| 单 Worker SSE | `POST /api/pipelines/{type}:streamInvoke` | `SpringAiWorkerAgentInvoker` |
+| Supervisor SSE | `POST /api/pipelines/supervisor:streamInvoke` | `SpringAiSupervisorRouter` |
+| 画布图 SSE | `POST /api/pipelines:streamInvoke` | `PipelineOrchestrationService`；节点可带 `systemPrompt`/`tools` 快照 |
 
 Worker 定义来自 Pipeline 内置目录：`AgentTemplateCatalog`（`classpath:agent-templates/{lang}.json`）经 `CatalogAgentRegistry` 提供调色板种子；画布双击编辑的是**图内节点副本**。Classpath Agent Skills：`AgentSkillsRuntime`（`com.ai.common`，`app.agent-skills`）。
 
@@ -132,7 +132,7 @@ Sibling / 外部 Agent 的 Published Language；不暴露 system prompt。默认
 | 能力 | API | 主要组件 |
 | --- | --- | --- |
 | 列表 / 详情 | `GET /api/agents`, `GET /api/agents/{type}` | `AgentController`, `AgentService` |
-| 同步 / SSE 调用 | `POST /api/agents/{type}/invoke`, `.../invoke/sse` | 委托 `PipelineService` |
+| 同步 / SSE 调用 | `POST /api/agents/{type}/invoke`, `...:streamInvoke` | 委托 `PipelineService` |
 | Agent Card | `GET /.well-known/agent-card.json` | `AgentCardController`（公开） |
 | A2A Task | `POST /a2a/v1/message:send`, `.../message:stream` | `A2aMessageController`（IAM `write:ai_agent`） |
 
@@ -159,7 +159,7 @@ Sibling / 外部 Agent 的 Published Language；不暴露 system prompt。默认
 | 能力 | API | 实现 | 依赖 |
 | --- | --- | --- | --- |
 | Caption | `POST /api/vision/caption` | `OnnxBlipCaptioner` | `models/blip_*.onnx` |
-| Detect | `POST /api/vision/detect` | `OnnxYoloDetector` | `models/yolov8n.onnx` |
+| Detect | `POST /api/vision:detect` | `OnnxYoloDetector` | `models/yolov8n.onnx` |
 | OCR | `POST /api/vision/ocr` | `Tess4jOcrEngine` | Tesseract + `models/tessdata/` |
 | Health | `GET /api/vision/health` | — | 各 Provider 就绪状态 |
 

@@ -62,7 +62,7 @@ class VisionFunctionalVerificationIT {
     mockMvc
         .perform(multipart("/api/vision/ocr"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.type").value("/problems/invalid-file"));
+        .andExpect(jsonPath("$.type").value("https://www.felixzhu.chat/problems/invalid-file"));
   }
 
   @Test
@@ -81,7 +81,7 @@ class VisionFunctionalVerificationIT {
   void shouldDetectObjectsInFixtureImage() throws Exception {
     MockMultipartFile file = fixture("vision/fixtures/street-person.jpg", "image/jpeg");
     mockMvc
-        .perform(multipart("/api/vision/detect").file(file))
+        .perform(multipart("/api/vision:detect").file(file))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.detections").isArray())
         .andExpect(jsonPath("$.processingTimeMs").isNumber());

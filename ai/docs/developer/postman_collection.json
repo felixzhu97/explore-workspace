@@ -466,7 +466,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/agents/supervisor/invoke/sse",
+              "raw": "{{host}}/api/pipelines/supervisor:streamInvoke",
               "host": [
                 "{{host}}"
               ],
@@ -506,7 +506,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/agents/:agentType/invoke/sse",
+              "raw": "{{host}}/api/pipelines/:agentType:streamInvoke",
               "host": [
                 "{{host}}"
               ],
@@ -1722,7 +1722,7 @@
               }
             },
             "url": {
-              "raw": "{{host}}/api/vision/detect?confidence=",
+              "raw": "{{host}}/api/vision:detect?confidence=",
               "host": [
                 "{{host}}"
               ],

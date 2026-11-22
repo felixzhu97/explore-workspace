@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Slice test for a single controller without loading application {@link OncePerRequestFilter} beans
- * (billing quota, client identity, CSRF, etc.).
+ * (billing quota, anonymous id, CSRF, etc.).
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

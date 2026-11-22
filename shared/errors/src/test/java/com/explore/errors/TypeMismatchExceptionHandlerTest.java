@@ -27,7 +27,7 @@ class TypeMismatchExceptionHandlerTest {
     mockMvc
         .perform(get("/documents/alice@example.com"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.type").value("/problems/invalid-parameter"))
+        .andExpect(jsonPath("$.type").value("https://www.felixzhu.chat/problems/invalid-parameter"))
         .andExpect(jsonPath("$.detail").value("Parameter 'documentId' has an invalid value"));
   }
 

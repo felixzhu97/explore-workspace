@@ -42,13 +42,13 @@ public class A2aService {
   }
 
   /** Runs message:send → one completed or failed Task. */
-  public A2aTask sendMessage(A2aMessage message, String ownerKey, String language) {
+  public A2aTask sendMessage(A2aMessage message, String ownerId, String language) {
     String taskId = UUID.randomUUID().toString();
     A2aTask task = A2aTask.createSubmitted(taskId);
     task.markWorking();
     try {
       String agentType = message.resolveAgentType(AgentService.DEFAULT_AGENT_TYPE);
-      AgentRun run = agentService.invoke(agentType, message.extractText(), ownerKey, language);
+      AgentRun run = agentService.invoke(agentType, message.extractText(), ownerId, language);
       task.completeWithText(run.getReply());
     } catch (RuntimeException e) {
       task.failWithMessage(safeFailureMessage(e));
@@ -58,7 +58,7 @@ public class A2aService {
 
   /** Streams Task lifecycle events for message:stream. */
   public Flux<ServerSentEvent<Map<String, Object>>> streamMessage(
-      A2aMessage message, String ownerKey, String language) {
+      A2aMessage message, String ownerId, String language) {
     String taskId = UUID.randomUUID().toString();
     A2aTask submitted = A2aTask.createSubmitted(taskId);
     A2aTask working = A2aTask.createSubmitted(taskId);
@@ -67,7 +67,7 @@ public class A2aService {
     return Flux.concat(
         Flux.just(event("task", submitted.toWireMap())),
         Flux.just(event("status-update", working.toWireMap())),
-        Mono.fromCallable(() -> runToTerminalTask(taskId, message, ownerKey, language))
+        Mono.fromCallable(() -> runToTerminalTask(taskId, message, ownerId, language))
             .subscribeOn(Schedulers.boundedElastic())
             .flatMapMany(
                 task -> {
@@ -81,12 +81,12 @@ public class A2aService {
   }
 
   private A2aTask runToTerminalTask(
-      String taskId, A2aMessage message, String ownerKey, String language) {
+      String taskId, A2aMessage message, String ownerId, String language) {
     A2aTask task = A2aTask.createSubmitted(taskId);
     task.markWorking();
     try {
       String agentType = message.resolveAgentType(AgentService.DEFAULT_AGENT_TYPE);
-      AgentRun run = agentService.invoke(agentType, message.extractText(), ownerKey, language);
+      AgentRun run = agentService.invoke(agentType, message.extractText(), ownerId, language);
       task.completeWithText(run.getReply());
     } catch (RuntimeException e) {
       task.failWithMessage(safeFailureMessage(e));

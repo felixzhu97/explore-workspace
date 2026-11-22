@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.ai.common.domain.model.OwnerKey;
+import com.ai.common.domain.model.OwnerId;
 import com.ai.rag.domain.model.ChunkId;
 import com.ai.rag.domain.model.DocumentChunk;
 import com.ai.rag.domain.model.DocumentId;
@@ -75,7 +75,7 @@ class EmbeddingDocumentWriterTest {
     return DocumentChunk.createChunk(
         ChunkId.generateId(),
         DOCUMENT_ID,
-        OwnerKey.parseKey("c:owner"),
+        OwnerId.parseKey("c:owner"),
         content,
         chunkIndex,
         Map.of("source", "guide.txt"));

@@ -12,7 +12,7 @@ export class PrivacyApiService {
     return this.#http.delete<void>(`${API_BASE_URL}/privacy/sessions`);
   }
 
-  /** Replaces the Client Identity with a new one. */
+  /** Replaces the Anonymous id with a new one. */
   resetIdentity(): Observable<void> {
     return this.#http.post<void>(`${API_BASE_URL}/privacy/reset-identity`, null);
   }
