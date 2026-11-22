@@ -100,12 +100,12 @@ Java features use per-feature packages: `controller` → `service` → `domain` 
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Prefer a single English kebab-case branch slug, small PRs with a clear why and References, and keep Glossary terms plus C4 docs in sync when packages or APIs change. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Prefer a single English kebab-case branch slug, small PRs with a clear why and References, and keep Glossary terms plus C4 docs in sync when packages or APIs change. Participation is governed by the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ## Security
 
-Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+Report vulnerabilities as described in [SECURITY.md](../SECURITY.md).
 
 ## License
 
-[MIT](LICENSE) © 2026 Felix
+[Apache-2.0](../LICENSE) © 2026 Felix

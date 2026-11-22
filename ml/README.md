@@ -123,15 +123,15 @@ docs/          Glossary, Guideline, user-guide, C4, product-owner
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Prefer a single English kebab-case
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Prefer a single English kebab-case
 branch slug, small PRs with a clear why and References, and keep Glossary
 plus C4 in sync when module boundaries change. Participation is governed by
-the [Code of Conduct](CODE_OF_CONDUCT.md).
+the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ## Security
 
-Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+Report vulnerabilities as described in [SECURITY.md](../SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE) © 2026 Felix Zhu
+[Apache-2.0](../LICENSE) © 2026 Felix Zhu
