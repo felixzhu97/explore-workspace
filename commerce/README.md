@@ -1,6 +1,6 @@
 # Explore Commerce
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
 [![Architecture](https://img.shields.io/badge/Architecture-C4-blue.svg)](docs/developer/c4-model/)
 [![Next.js](https://img.shields.io/badge/Next.js-web-black.svg)](https://nextjs.org/)
 [![Angular](https://img.shields.io/badge/Angular-admin-red.svg)](https://angular.dev/)
@@ -72,14 +72,14 @@ MongoDB for local dev: root `infrastructure/mongodb/compose.yaml` (profile `comm
 | C4 model | [docs/developer/c4-model/](docs/developer/c4-model/) |
 | Glossary | [docs/Glossary.md](docs/Glossary.md) |
 | User story map | [docs/product-owner/User-Story-Map.md](docs/product-owner/User-Story-Map.md) |
-| Contributing | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| Code of Conduct | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
-| Security | [SECURITY.md](SECURITY.md) |
+| Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
+| Code of Conduct | [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) |
+| Security | [SECURITY.md](../SECURITY.md) |
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Participation is governed by the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ## License
 
-[Apache-2.0](LICENSE) © 2026 Felix Zhu
+[Apache-2.0](../LICENSE) © 2026 Felix Zhu

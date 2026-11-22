@@ -73,11 +73,11 @@ Run unit tests with `./gradlew :ai-server:test` from the workspace root. Run end
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Open an issue or pull request on [GitHub](https://github.com/felixzhu97/explore-workspace). Keep domain and API names aligned with the [Glossary](docs/Glossary.md) when changing behavior or docs. Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Open an issue or pull request on [GitHub](https://github.com/felixzhu97/explore-workspace). Keep domain and API names aligned with the [Glossary](docs/Glossary.md) when changing behavior or docs. Participation is governed by the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ## Security
 
-Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+Report vulnerabilities as described in [SECURITY.md](../SECURITY.md).
 
 ## Project status
 
@@ -85,4 +85,4 @@ Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE) © 2026 Felix Zhu
+[Apache-2.0](../LICENSE) © 2026 Felix Zhu

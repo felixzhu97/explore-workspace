@@ -1,6 +1,6 @@
 # Explore IAM
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-green.svg)](https://spring.io/projects/spring-boot)
 [![Angular](https://img.shields.io/badge/Angular-22-red.svg)](https://angular.dev/)
@@ -117,11 +117,11 @@ Plan is Render Starter (Oregon). Disk for H2 under `/app/data` is ephemeral on S
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Keep changes small and let CI stay green: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs Checkstyle and tests. Weekly GitHub Actions updates come from [Dependabot](.github/dependabot.yml). Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Keep changes small and let CI stay green: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs Checkstyle and tests. Weekly GitHub Actions updates come from [Dependabot](.github/dependabot.yml). Participation is governed by the [Code of Conduct](../CODE_OF_CONDUCT.md).
 
 ## Security
 
-Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+Report vulnerabilities as described in [SECURITY.md](../SECURITY.md).
 
 ## Project Status
 
@@ -129,4 +129,4 @@ Explore IAM is under active development. Behavior may change across minor versio
 
 ## License
 
-[Apache-2.0](LICENSE) © 2026 Felix Zhu
+[Apache-2.0](../LICENSE) © 2026 Felix Zhu

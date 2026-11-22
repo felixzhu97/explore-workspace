@@ -1,6 +1,6 @@
 # FinPulse
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
 [![React](https://img.shields.io/badge/React-19-61DAFB.svg)](https://react.dev/)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-10-F69220.svg)](https://pnpm.io/)
@@ -185,12 +185,12 @@ Legacy single-repo layout (`portfolio/` as root): see [`vercel.json`](vercel.jso
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Issues and pull requests are welcome. Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). Prefer small, focused PRs with a clear why and test notes.
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Issues and pull requests are welcome. Please follow the [Code of Conduct](../CODE_OF_CONDUCT.md). Prefer small, focused PRs with a clear why and test notes.
 
 ## Security
 
-Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+Report vulnerabilities as described in [SECURITY.md](../SECURITY.md).
 
 ## License
 
-[Apache-2.0](LICENSE) © Felix Zhu
+[Apache-2.0](../LICENSE) © Felix Zhu
