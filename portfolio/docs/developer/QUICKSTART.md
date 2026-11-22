@@ -6,7 +6,7 @@
 | -------- | ------- | ----- |
 | Node.js | >= 20 | Frontend workspaces |
 | pnpm | 10.x | Root `packageManager` |
-| Python | >= 3.10 | `apps/server-python` |
+| Python | >= 3.10 | `analytics` |
 | JDK | 21+ | Root Java API (`src/`, Bazel) |
 | Docker | recent | Used by backend start script |
 | Bazelisk | optional | `bazel build //:server` |
@@ -52,12 +52,12 @@ Client env:
 ## 4. Architecture snapshot
 
 ```text
-apps/admin · apps/portal · apps/mobile
+admin · portal · mobile
               │ HTTPS / JSON
               ▼
      Java API :8801  ──►  Postgres / H2
               │
-              └── HTTP ──►  Python :8800 (apps/server-python)
+              └── HTTP ──►  Python :8800 (analytics)
 ```
 
 Java feature modules: `controller → service → domain ← infra` (+ `mapper`). Domain has **no** outward dependencies.

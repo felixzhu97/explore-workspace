@@ -1,0 +1,173 @@
+import { useMemo, useState, useCallback } from "react";
+import { ActivityIndicator, RefreshControl } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView } from "react-native-gesture-handler";
+import { NativeLineChart } from "@/src/components/native";
+import { PortfolioSummary } from "@/src/components/portfolio/PortfolioSummary";
+import { MetricCard } from "@/src/components/ui/MetricCard";
+import { AssetAllocationChart } from "@/src/components/portfolio/AssetAllocationChart";
+import { NetWorthLineChart } from "@/src/components/portfolio/NetWorthLineChart";
+import { useTheme } from "@/src/theme";
+import { formatScreenDateLong, getCurrencySymbol } from "@/src/lib/utils";
+import { useTranslation } from "@/src/lib/i18n";
+import {
+  ScreenRoot,
+  CenteredContainer,
+  ErrorText,
+  RetryText,
+  SectionTitle,
+  BlockWithGap,
+  ChartCard,
+  SafeAreaScreen,
+  ScreenHeader,
+  HeaderTitleBlock,
+  ScreenTitle,
+  ScreenDate,
+} from "@/src/theme/primitives";
+import styled from "@emotion/native";
+import { usePortfolio } from "@/src/hooks";
+
+const StyledScrollView = styled(ScrollView)`
+  flex: 1;
+  background-color: ${(p) => p.theme.colors.background};
+`;
+
+const ContentWrap = styled.View`
+  padding-horizontal: 16px;
+  padding-bottom: 40px;
+`;
+
+const Section = styled.View`
+  margin-top: 32px;
+`;
+
+const SectionHeader = styled.View`
+  margin-bottom: 12px;
+`;
+
+const NativeChartWrapper = styled.View`
+  height: 200px;
+  margin-bottom: 12px;
+`;
+
+const CARD_RADIUS = 16;
+
+export default function DashboardScreen() {
+  const { isDark, colors } = useTheme();
+  const { t } = useTranslation();
+  const { portfolio, allocation, history, loading, refresh } = usePortfolio();
+  const chartTheme = isDark ? "dark" : "light";
+  const [chartScrollLock, setChartScrollLock] = useState(false);
+
+  const onRefresh = useCallback(() => {
+    refresh();
+  }, [refresh]);
+
+  const fallbackTimestamps = useMemo(() => {
+    const base = Date.now() - 5 * 24 * 60 * 60 * 1000;
+    return [base + 864e5, base + 2 * 864e5, base + 3 * 864e5, base + 4 * 864e5, base + 5 * 864e5];
+  }, []);
+  const fallbackValues = useMemo(() => [102.4, 101.8, 103.2, 104.6, 103.9], []);
+
+  const lineData =
+    history.length > 0 ? history.map((p) => p.value) : fallbackValues;
+  const lineTimestamps =
+    history.length > 0
+      ? history.map((p) => new Date(p.date).getTime())
+      : fallbackTimestamps;
+
+  if (!portfolio) {
+    return (
+      <ScreenRoot>
+        <CenteredContainer>
+          {loading ? (
+            <ActivityIndicator size="small" color={colors.textSecondary} />
+          ) : (
+            <>
+              <ErrorText>{t("dashboard.unableToLoad")}</ErrorText>
+              <RetryText onPress={refresh}>{t("dashboard.tapToRetry")}</RetryText>
+            </>
+          )}
+        </CenteredContainer>
+      </ScreenRoot>
+    );
+  }
+
+  return (
+    <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+      <SafeAreaScreen>
+        <StatusBar style={isDark ? "light" : "dark"} />
+      <ScreenHeader>
+        <HeaderTitleBlock>
+          <ScreenTitle>{t("dashboard.title")}</ScreenTitle>
+          <ScreenDate>{formatScreenDateLong(new Date())}</ScreenDate>
+        </HeaderTitleBlock>
+      </ScreenHeader>
+      <StyledScrollView
+        contentContainerStyle={{ paddingBottom: 40 }}
+        scrollEnabled={!chartScrollLock}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={onRefresh}
+            tintColor={colors.accent}
+          />
+        }
+      >
+        <ContentWrap>
+          <Section>
+            <SectionHeader>
+              <SectionTitle>{t("dashboard.overview")}</SectionTitle>
+            </SectionHeader>
+            <PortfolioSummary portfolio={portfolio} />
+          </Section>
+          <Section>
+            <SectionHeader>
+              <SectionTitle>{t("dashboard.netWorthTrend")}</SectionTitle>
+            </SectionHeader>
+            <BlockWithGap>
+              <NetWorthLineChart points={history} baseCurrency={portfolio.baseCurrency} />
+              <MetricCard
+                label={t("dashboard.accounts")}
+                value={String(portfolio.accounts.length)}
+                helper={t("dashboard.accountsHelper")}
+              />
+            </BlockWithGap>
+          </Section>
+          <Section>
+            <SectionHeader>
+              <SectionTitle>{t("dashboard.allocation")}</SectionTitle>
+            </SectionHeader>
+            <AssetAllocationChart
+              items={allocation.map((item) => ({
+                label: item.type,
+                value: item.value,
+              }))}
+            />
+          </Section>
+          <Section>
+            <SectionHeader>
+              <SectionTitle>{t("dashboard.netWorthNativeChart")}</SectionTitle>
+            </SectionHeader>
+            <ChartCard style={{ borderRadius: CARD_RADIUS, padding: 20 }}>
+              <NativeChartWrapper>
+                <NativeLineChart
+                  data={lineData}
+                  theme={chartTheme}
+                  timestamps={lineTimestamps}
+                  currencySymbol={getCurrencySymbol(portfolio.baseCurrency)}
+                  style={{ flex: 1 }}
+                  onInteractionStart={() => setChartScrollLock(true)}
+                  onInteractionEnd={() => setChartScrollLock(false)}
+                />
+              </NativeChartWrapper>
+            </ChartCard>
+          </Section>
+        </ContentWrap>
+      </StyledScrollView>
+      </SafeAreaScreen>
+    </SafeAreaView>
+  );
+}

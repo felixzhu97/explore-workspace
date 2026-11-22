@@ -1,0 +1,275 @@
+import { useCallback, useState } from "react";
+import { ActivityIndicator, Dimensions, Platform, RefreshControl } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { BarChart } from "react-native-chart-kit";
+import { MetricCard } from "@/src/components/ui/MetricCard";
+import { RiskMetricDetailDrawer } from "@/src/components/insights";
+import { useComputedVar, useRiskMetrics, useRiskSummary } from "@/src/hooks";
+import { useTheme } from "@/src/theme";
+import { useTranslation } from "@/src/lib/i18n";
+import { formatScreenDateLong } from "@/src/lib/utils";
+import {
+  SafeAreaScreen,
+  ScreenHeader,
+  HeaderTitleBlock,
+  ScreenTitle,
+  ScreenDate,
+  CenteredContainer,
+  ErrorText,
+  RetryButton,
+  RetryButtonText,
+  LoadingWrap,
+  InsightsScrollView,
+  InsightsBlock,
+  InsightsSection,
+  InsightsSectionHeader,
+  OverviewGrid,
+  OverviewCard,
+  MetricsGrid,
+  MetricCardWrap,
+  InsightsChartCard,
+  InsightsSummaryCard,
+  SummaryBody,
+} from "@/src/theme/primitives";
+
+export default function InsightsScreen() {
+  const { colors, isDark } = useTheme();
+  const { t } = useTranslation();
+  const { metrics, loading, error, refresh } = useRiskMetrics();
+  const { summary, loading: summaryLoading, error: summaryError, refresh: refreshSummary } = useRiskSummary();
+  const { computedVar, loading: varLoading, error: varError, compute: computeVar } = useComputedVar();
+  const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<{ key: string; value: number } | null>(null);
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refresh(), refreshSummary(), computeVar()]);
+  }, [refresh, refreshSummary, computeVar]);
+
+  const highRatio = summary?.highRatio ?? 0;
+  const topConcentration = summary?.topHoldingsConcentration ?? 0;
+
+  const highRiskPercent = (highRatio * 100).toFixed(1);
+  const concentrationPercent = (topConcentration * 100).toFixed(1);
+
+  const screenWidth = Dimensions.get("window").width;
+  const chartWidth = screenWidth - 80;
+
+  const hasError = (error || summaryError || varError) && !metrics && !summary && !computedVar;
+  const isLoading = (loading && !metrics) || (summaryLoading && !summary) || (varLoading && !computedVar);
+
+  const hasApiMetrics =
+    metrics &&
+    (metrics.volatility != null ||
+      metrics.sharpe_ratio != null ||
+      metrics.var != null ||
+      metrics.beta != null);
+
+  if (hasError) {
+    return (
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+        <SafeAreaScreen>
+          <StatusBar style={isDark ? "light" : "dark"} />
+          <ScreenHeader>
+            <HeaderTitleBlock>
+              <ScreenTitle>{t("tabs.insights")}</ScreenTitle>
+              <ScreenDate>{formatScreenDateLong(new Date())}</ScreenDate>
+            </HeaderTitleBlock>
+          </ScreenHeader>
+          <CenteredContainer>
+            <ErrorText>{t("insights.unableToLoad")}</ErrorText>
+            <RetryButton onPress={handleRefresh}>
+              <RetryButtonText>{t("common.retry")}</RetryButtonText>
+            </RetryButton>
+          </CenteredContainer>
+        </SafeAreaScreen>
+        <RiskMetricDetailDrawer
+          visible={detailDrawerVisible}
+          metricKey={selectedMetric?.key ?? null}
+          metricValue={selectedMetric?.value ?? null}
+          onClose={() => {
+            setDetailDrawerVisible(false);
+            setSelectedMetric(null);
+          }}
+        />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+      <SafeAreaScreen>
+        <StatusBar style={isDark ? "light" : "dark"} />
+        <ScreenHeader>
+          <HeaderTitleBlock>
+            <ScreenTitle>{t("tabs.insights")}</ScreenTitle>
+            <ScreenDate>{formatScreenDateLong(new Date())}</ScreenDate>
+          </HeaderTitleBlock>
+        </ScreenHeader>
+        {isLoading ? (
+          <LoadingWrap>
+            <ActivityIndicator size="small" color={colors.textSecondary} />
+          </LoadingWrap>
+        ) : (
+    <InsightsScrollView
+      contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 40 }}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl
+          refreshing={loading}
+          onRefresh={handleRefresh}
+          tintColor={colors.accent}
+        />
+      }
+    >
+        <InsightsBlock>
+          <InsightsSection>
+            <InsightsSectionHeader>{t("insights.overview")}</InsightsSectionHeader>
+            <OverviewGrid>
+              <OverviewCard>
+                <MetricCard
+                  label={t("insights.highRiskExposure")}
+                  value={`${highRiskPercent}%`}
+                  tone={highRatio > 0.4 ? "negative" : "default"}
+                />
+              </OverviewCard>
+              <OverviewCard>
+                <MetricCard
+                  label={t("insights.top5HoldingsConcentration")}
+                  value={`${concentrationPercent}%`}
+                  tone={topConcentration > 0.5 ? "negative" : "default"}
+                />
+              </OverviewCard>
+            </OverviewGrid>
+          </InsightsSection>
+
+          {(computedVar?.var != null || hasApiMetrics) ? (
+            <InsightsSection>
+              <InsightsSectionHeader>{t("insights.riskMetricsApi")}</InsightsSectionHeader>
+              <MetricsGrid>
+                {computedVar?.var != null && (
+                  <MetricCardWrap>
+                    <MetricCard
+                      label={t("insights.computedVar")}
+                      value={computedVar.var.toFixed(4)}
+                      onInfoPress={() => {
+                        setSelectedMetric({ key: "computedVar", value: computedVar.var! });
+                        setDetailDrawerVisible(true);
+                      }}
+                    />
+                  </MetricCardWrap>
+                )}
+                {[
+                  { key: "volatility", val: metrics?.volatility, fmt: (v: number) => v.toFixed(4) },
+                  { key: "sharpeRatio", val: metrics?.sharpe_ratio, fmt: (v: number) => v.toFixed(2) },
+                  { key: "var", val: metrics?.var, fmt: (v: number) => v.toFixed(2) },
+                  { key: "beta", val: metrics?.beta, fmt: (v: number) => v.toFixed(2) },
+                ]
+                  .filter((m) => m.val != null)
+                  .map((m) => (
+                    <MetricCardWrap key={m.key}>
+                      <MetricCard
+                        label={t(`insights.${m.key}`)}
+                        value={m.fmt(m.val!)}
+                        onInfoPress={() => {
+                          setSelectedMetric({ key: m.key, value: m.val! });
+                          setDetailDrawerVisible(true);
+                        }}
+                      />
+                    </MetricCardWrap>
+                  ))}
+              </MetricsGrid>
+            </InsightsSection>
+          ) : null}
+          <InsightsSection>
+            <InsightsSectionHeader>{t("insights.riskOverview")}</InsightsSectionHeader>
+            <InsightsChartCard
+              style={
+                Platform.OS === "ios"
+                  ? {
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.1,
+                      shadowRadius: 8,
+                    }
+                  : { elevation: 2 }
+              }
+            >
+            <BarChart
+              data={{
+                labels: ["High risk", "Top 5"],
+                datasets: [
+                  {
+                    data: [
+                      Number(highRiskPercent),
+                      Number(concentrationPercent),
+                    ],
+                  },
+                ],
+              }}
+              width={chartWidth}
+              height={220}
+              fromZero
+              yAxisLabel=""
+              yAxisSuffix="%"
+              chartConfig={{
+                backgroundGradientFrom: colors.card,
+                backgroundGradientFromOpacity: 0,
+                backgroundGradientTo: colors.card,
+                backgroundGradientToOpacity: 0,
+                color: (opacity = 1) => {
+                  const hex = colors.accent;
+                  if (hex.startsWith("#") && hex.length === 7) {
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
+                    return `rgba(${r},${g},${b},${opacity})`;
+                  }
+                  return colors.accent;
+                },
+                labelColor: (opacity = 1) => {
+                  const textColor = colors.textSecondary;
+                  if (typeof textColor === "string" && textColor.startsWith("rgba")) {
+                    return textColor;
+                  }
+                  return `rgba(142, 142, 147, ${opacity})`;
+                },
+                decimalPlaces: 1,
+                barPercentage: 0.6,
+                propsForBackgroundLines: {
+                  strokeWidth: 0,
+                },
+                propsForLabels: {
+                  fontSize: 12,
+                  fontWeight: "500",
+                },
+              }}
+              withInnerLines={false}
+              showBarTops={false}
+              style={{ marginLeft: -8, marginRight: -8, backgroundColor: "transparent" }}
+              verticalLabelRotation={0}
+            />
+            </InsightsChartCard>
+          </InsightsSection>
+          <InsightsSection>
+            <InsightsSectionHeader>{t("insights.summary")}</InsightsSectionHeader>
+            <InsightsSummaryCard style={Platform.OS === "ios" ? { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8 } : { elevation: 2 }}>
+              <SummaryBody>{t("insights.summaryBody")}</SummaryBody>
+            </InsightsSummaryCard>
+          </InsightsSection>
+        </InsightsBlock>
+    </InsightsScrollView>
+        )}
+        <RiskMetricDetailDrawer
+          visible={detailDrawerVisible}
+          metricKey={selectedMetric?.key ?? null}
+          metricValue={selectedMetric?.value ?? null}
+          onClose={() => {
+            setDetailDrawerVisible(false);
+            setSelectedMetric(null);
+          }}
+        />
+      </SafeAreaScreen>
+    </SafeAreaView>
+  );
+}

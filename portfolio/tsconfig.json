@@ -12,9 +12,9 @@
   },
   "files": [],
   "references": [
-    { "path": "./apps/admin" },
+    { "path": "./admin" },
+    { "path": "./portal" },
     { "path": "./packages/ui" },
-    { "path": "./packages/utils" },
-    { "path": "./packages/test-utils" }
+    { "path": "./packages/utils" }
   ]
 }

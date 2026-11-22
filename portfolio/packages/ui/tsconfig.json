@@ -13,7 +13,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {
-      "@fintech/utils": ["../utils/src"]
+      "@explore/portfolio-utils": ["../utils/src"]
     }
   },
   "include": ["src/**/*"],

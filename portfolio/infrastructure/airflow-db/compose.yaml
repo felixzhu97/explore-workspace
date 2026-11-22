@@ -1,0 +1,17 @@
+services:
+  airflow-db:
+    image: postgres:15-alpine
+    profiles: [portfolio]
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - airflow-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      retries: 5
+
+volumes:
+  airflow-db-data:

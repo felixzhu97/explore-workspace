@@ -1,0 +1,12 @@
+{
+  "name": "portfolio-server",
+  "tags": ["scope:portfolio", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "readyWhen": { "url": "http://localhost:8801/health" },
+      "command": "./gradlew :portfolio-server:bootRun",
+      "options": { "cwd": "{workspaceRoot}" }
+    }
+  }
+}
