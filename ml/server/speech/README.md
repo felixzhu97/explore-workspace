@@ -69,7 +69,7 @@ and Qwen3-TTS recipes on Hugging Face Jobs and push the final checkpoint. Point
 downloaded directory.
 `python -m speech.training.eval_wer` compares the WER (CER for CJK) of the fine-tuned
 and base ASR checkpoints. See the
-[fine-tuning guide](../../docs/user-guide/fine-tuning.md).
+[fine-tuning guide](../../../docs/ml/user-guide/fine-tuning.md).
 
 ## Tests
 

@@ -16,7 +16,7 @@ every module; `data/` holds small fixtures.
 You need Python 3.11+ and Git. The optional model-test UI needs Node.js
 22.22+ or 24.15+. Redis is optional for recommendation Celery workers. Some
 modules also expect Ollama, a GPU stack, or local model weights — see each
-module README and the [Model download](docs/user-guide/model-download.md)
+module README and the [Model download](../docs/ml/user-guide/model-download.md)
 guide.
 
 ### Initial setup
@@ -59,7 +59,7 @@ uvicorn main:app --port 8000
 | Video            | `video`            | `videos:generate`, `videoJobs/{id}`             |
 
 Wire your product’s upstream to `http://127.0.0.1:8000`. For a fuller
-walkthrough, see the [User Guide](docs/user-guide/README.md).
+walkthrough, see the [User Guide](../docs/ml/user-guide/README.md).
 
 ### Start the model test UI (optional)
 
@@ -82,7 +82,7 @@ Settings are constants in `server/config.py` and each
 secrets (`DATABASE_URL`, `REDIS_PASSWORD`, `OPENAI_API_KEY`); never commit
 it. Large model weights stay out of git under `~/Codes/models`
 (`LOCAL_MODELS_ROOT`); download them with the
-[Model download](docs/user-guide/model-download.md) guide. Image
+[Model download](../docs/ml/user-guide/model-download.md) guide. Image
 Playground, Speech, RAG rerank and the recommendation feed ranker read
 those paths; Video loads a Hugging Face id (`COGVIDEOX_MODEL`). Put small
 fixtures under `data/`.
@@ -101,16 +101,17 @@ the other modules' suites locally.
 
 ## Next steps
 
-- Follow the [User Guide](docs/user-guide/README.md) for local setup and
+- Follow the [User Guide](../docs/ml/user-guide/README.md) for local setup and
   loopback integration.
 - Download checkpoints with the
-  [Model download](docs/user-guide/model-download.md) guide.
-- Read the [Guideline](docs/Guideline.md) for ML practice boundaries.
+  [Model download](../docs/ml/user-guide/model-download.md) guide.
+- Read the [Guideline](../docs/ml/Guideline.md) for ML practice boundaries.
 - Learn the shared
-  [Python services layout](docs/developer/python-services.md).
-- Browse the [Glossary](docs/Glossary.md) and
-  [C4 model](docs/developer/c4-model/).
-- Review the [User Story Map](docs/product-owner/User-Story-Map.md).
+  [Python services layout](../docs/ml/developer/python-services.md).
+- Browse the [Glossary](../docs/ml/Glossary.md) and
+  [C4 model](../docs/ml/developer/c4-model/).
+- [Architecture Definition (TOGAF)](../docs/ml/developer/togaf/Architecture-Definition-Document.md)
+- Review the [User Story Map](../docs/ml/product-owner/User-Story-Map.md).
 
 ## Repository layout
 

@@ -17,7 +17,7 @@ Clients talk only to the Spring API over HTTPS and Socket.IO (plus WebRTC signal
 - pnpm 10 or later
 - Git
 
-Optional: [Ollama](https://ollama.com/) and Python services in [explore-ml](https://github.com/felixzhu97/explore-ml) (`python_ml/`). See [Guideline](docs/Guideline.md) and [Glossary](docs/Glossary.md).
+Optional: [Ollama](https://ollama.com/) and Python services in [explore-ml](https://github.com/felixzhu97/explore-ml) (`python_ml/`). See [Guideline](../docs/chat/Guideline.md) and [Glossary](../docs/chat/Glossary.md).
 
 ### Initial setup
 
@@ -77,11 +77,12 @@ Demo user (seeded on API boot): `alice@example.com` / `123456`.
 
 ## Next steps
 
-- [QUICKSTART](docs/developer/QUICKSTART.md)
-- [Guideline](docs/Guideline.md) · [Glossary](docs/Glossary.md)
-- [API notes](docs/developer/api.md) · [Python services](docs/developer/python-services.md) (→ [explore-ml](https://github.com/felixzhu97/explore-ml))
-- [C4 model](docs/developer/c4-model/README.md)
-- [User Story Map](docs/product-owner/User-Story-Map.md)
+- [QUICKSTART](../docs/chat/developer/QUICKSTART.md)
+- [Guideline](../docs/chat/Guideline.md) · [Glossary](../docs/chat/Glossary.md)
+- [API notes](../docs/chat/developer/api.md) · [Python services](../docs/chat/developer/python-services.md) (→ [explore-ml](https://github.com/felixzhu97/explore-ml))
+- [C4 model](../docs/chat/developer/c4-model/README.md)
+- [Architecture Definition (TOGAF)](../docs/chat/developer/togaf/Architecture-Definition-Document.md)
+- [User Story Map](../docs/chat/product-owner/User-Story-Map.md)
 
 ## Repository layout
 

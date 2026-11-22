@@ -115,7 +115,7 @@ alembic current        # Show current revision
 - Quotes: `GET /api/v1/quotes`, `WebSocket /ws/quotes`, `GET /api/v1/quotes/history`
 - Analytics: `/api/v1/risk-metrics`, `/api/v1/valuations`, `/api/v1/analytics/*`, `/api/v1/forecast/*`
 
-**Blockchain**: Demo endpoints are on the Java API. See [User Story E11](../docs/product-owner/user-stories/E11-blockchain-demo.md) and [C4](../docs/developer/c4-model/).
+**Blockchain**: Demo endpoints are on the Java API. See [User Story E11](../../docs/portfolio/product-owner/user-stories/E11-blockchain-demo.md) and [C4](../../docs/portfolio/developer/c4-model/).
 
 ### AI, ML and DL (integrated into business flows)
 
@@ -168,4 +168,4 @@ The service integrates a Python-centric big data stack alongside the core API. A
 - **Delta read**: Run `python -m jobs.batch.delta_sync_info` to sync Delta table stats to ClickHouse; then `GET /api/v1/analytics/delta-info?path=...` returns row count and sample.
 - **Stream**: Run Faust with `faust -A src.infrastructure.stream.faust_app worker -l info` (consumes `market.quotes.enriched`, `portfolio.events`). Set `STREAM_WRITE_TO_MINIO=1` to write batches to MinIO via `S3ObjectStorageClient`.
 - **ML**: `python -m jobs.ml.train_sample` logs a sample PyTorch model to MLflow. `POST /api/v1/forecast/model` with `{"model_uri": "runs:/...", "values": [...]}` loads a model via MLflow and returns predictions. `GET /api/v1/analytics/portfolio-risk` and `GET /api/v1/analytics/delta-info` read from ClickHouse.
-- **Runbook**: See `docs/runbook.md` in this directory for startup order and troubleshooting.
+- **Runbook**: See [`../../docs/portfolio/analytics/runbook.md`](../../docs/portfolio/analytics/runbook.md) for startup order and troubleshooting.

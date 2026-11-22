@@ -6,9 +6,9 @@ Code that changes architecture, domain language, or product capabilities must up
 
 | Document        | Path                                                                                                                                                     | Owns                                                                        |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Domain Glossary | [docs/Glossary.md](../../../../docs/Glossary.md)                                                                                                         | Preferred Terms, modules, routes, API prefixes                              |
-| C4 model        | [docs/developer/c4-model/](../../../../docs/developer/c4-model/)                                                                                         | Context / containers / components / deployment (`.puml` is source of truth) |
-| User Story Map  | [docs/product-owner/User-Story-Map.md](../../../../docs/product-owner/User-Story-Map.md) + [user-stories/](../../../../docs/product-owner/user-stories/) | Jeff Patton map index; epic files own GWT stories                           |
+| Domain Glossary | [docs/Glossary.md](../../../../../docs/commerce/Glossary.md)                                                                                                         | Preferred Terms, modules, routes, API prefixes                              |
+| C4 model        | [docs/developer/c4-model/](../../../../../docs/commerce/developer/c4-model/)                                                                                         | Context / containers / components / deployment (`.puml` is source of truth) |
+| User Story Map  | [docs/product-owner/User-Story-Map.md](../../../../../docs/commerce/product-owner/User-Story-Map.md) + [user-stories/](../../../../../docs/commerce/product-owner/user-stories/) | Jeff Patton map index; epic files own GWT stories                           |
 
 ## Trigger matrix
 

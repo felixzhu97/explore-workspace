@@ -11,7 +11,7 @@ Value first. Language minimal. Outcomes testable. Create / refine Jira work usin
 
 **Required skill:** read and follow [`~/.cursor/skills/scrum-team/developers/product-owner/SKILL.md`](~/.cursor/skills/scrum-team/developers/product-owner/SKILL.md) (story template, acceptance criteria, DoD, Story Points).
 
-Living map: [User-Story-Map](../../docs/product-owner/User-Story-Map.md). Jira project: **EXP** (https://felixzhu.atlassian.net).
+Living map: [User-Story-Map](../../../docs/portfolio/product-owner/User-Story-Map.md). Jira project: **EXP** (https://felixzhu.atlassian.net).
 
 ## Required fields
 

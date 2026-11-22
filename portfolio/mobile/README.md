@@ -97,7 +97,7 @@ Components / Hooks → lib/ (api, services)
 
 ### Diagrams
 
-- **C4 model**: [`docs/developer/c4-model/`](../docs/developer/c4-model/) (single Component + Deployment diagrams)
+- **C4 model**: [`docs/developer/c4-model/`](../../docs/portfolio/developer/c4-model/) (single Component + Deployment diagrams)
 
 ## Storybook (native component catalog)
 

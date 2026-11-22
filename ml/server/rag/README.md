@@ -88,7 +88,7 @@ Constants in [`config.py`](config.py); only `OPENAI_API_KEY` comes from
 The reranker is a separate HTTP server, not part of this repo. It must answer
 `POST {RERANK_URL}/rerank` with `{scores}`, and loads
 `$LOCAL_MODELS_ROOT/rerank/models/Qwen3-Reranker-8B`. Download the weights
-with the [model download guide](../../docs/user-guide/model-download.md) and
+with the [model download guide](../../../docs/ml/user-guide/model-download.md) and
 start your sidecar on port 8091, or set `RERANK_ENABLED = False`.
 
 ### Fine-tuning
@@ -105,7 +105,7 @@ start your sidecar on port 8091, or set `RERANK_ENABLED = False`.
 After switching `EMBEDDING_MODEL`, re-index every document. For the chat
 model, `to_ollama.sh <dir> rag-llm-ft Q4_K_M` registers the merged model and
 `LLM_MODEL=rag-llm-ft` selects it. See the
-[fine-tuning guide](../../docs/user-guide/fine-tuning.md).
+[fine-tuning guide](../../../docs/ml/user-guide/fine-tuning.md).
 
 > Keep chunks within the embedding model's context (~2000 characters for
 > `nomic-embed-text`).

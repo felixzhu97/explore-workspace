@@ -76,7 +76,7 @@ Business rules like “cannot archive twice” stay on `Post`, not in the use ca
 
 ## Ubiquitous language
 
-Source of truth: [docs/Glossary.md](../../../../docs/Glossary.md)
+Source of truth: [docs/Glossary.md](../../../../../docs/commerce/Glossary.md)
 
 - Name **types, variables, and methods** with the glossary **Preferred Term (English)** for that bounded context
 - Keep the **same** terms in BDD scenarios, unit tests, domain code, REST/DTO fields, and commits

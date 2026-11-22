@@ -7,7 +7,7 @@
 
 FinPulse brings financial technology into everyday life. Our mission is to drive breakthroughs that benefit people, society, and the portfolios we manage every day.
 
-Chinese docs: see bilingual [docs/Glossary.md](docs/Glossary.md). Living docs live under [`docs/`](docs/).
+Chinese docs: see bilingual [docs/Glossary.md](../docs/portfolio/Glossary.md). Living docs live under [`docs/portfolio/`](../docs/portfolio/).
 
 ## Table of Contents
 
@@ -72,7 +72,7 @@ Chinese docs: see bilingual [docs/Glossary.md](docs/Glossary.md). Living docs li
 | Data | TimescaleDB, Redis, Kafka |
 | Tooling | pnpm workspaces, TypeScript 5; Bazel for Java API (`server/`) |
 
-Architecture notes: [docs/developer/c4-model/](docs/developer/c4-model/), [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
+Architecture notes: [docs/developer/c4-model/](../docs/portfolio/developer/c4-model/), [docs/developer/QUICKSTART.md](../docs/portfolio/developer/QUICKSTART.md).
 
 ## Prerequisites
 
@@ -124,7 +124,7 @@ explore-portfolio/
 │   ├── ui/            # @explore/portfolio-ui
 │   └── utils/         # @explore/portfolio-utils
 ├── scripts/           # Backend start, seed, database helpers
-└── docs/              # Product, data, and R&D docs (en / zh)
+└── (see ../docs/portfolio/)                 # Product, data, and R&D docs (en / zh)
 ```
 
 ### Java (`server/`)
@@ -163,12 +163,13 @@ pnpm test:api
 
 | Doc | Link |
 |-----|------|
-| Glossary | [docs/Glossary.md](docs/Glossary.md) |
-| Quick start | [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md) |
-| API | [docs/developer/api.md](docs/developer/api.md) |
-| C4 model | [docs/developer/c4-model/](docs/developer/c4-model/) |
-| CI/CD | [docs/developer/cicd/](docs/developer/cicd/) |
-| User Story Map | [docs/product-owner/User-Story-Map.md](docs/product-owner/User-Story-Map.md) |
+| Glossary | [docs/Glossary.md](../docs/portfolio/Glossary.md) |
+| Quick start | [docs/developer/QUICKSTART.md](../docs/portfolio/developer/QUICKSTART.md) |
+| API | [docs/developer/api.md](../docs/portfolio/developer/api.md) |
+| C4 model | [docs/developer/c4-model/](../docs/portfolio/developer/c4-model/) |
+| CI/CD | [docs/developer/cicd/](../docs/portfolio/developer/cicd/) |
+| User Story Map | [docs/product-owner/User-Story-Map.md](../docs/portfolio/product-owner/User-Story-Map.md) |
+| Architecture Definition (TOGAF) | [docs/developer/togaf/Architecture-Definition-Document.md](../docs/portfolio/developer/togaf/Architecture-Definition-Document.md) |
 
 ## Deployment
 

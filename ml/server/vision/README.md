@@ -54,7 +54,7 @@ Then set `MODEL_PATH = "<dir>/model.pt"` and
 
 With a custom head, moderation uses NudeNet only, because the prohibited-class
 check relies on ImageNet ids. See the
-[fine-tuning guide](../../docs/user-guide/fine-tuning.md).
+[fine-tuning guide](../../../docs/ml/user-guide/fine-tuning.md).
 
 ## Tests
 

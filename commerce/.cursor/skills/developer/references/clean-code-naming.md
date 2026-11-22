@@ -4,7 +4,7 @@
 
 ## Glossary first (required)
 
-Canonical source: [docs/Glossary.md](../../../../docs/Glossary.md)
+Canonical source: [docs/Glossary.md](../../../../../docs/commerce/Glossary.md)
 
 | Rule                  | Detail                                                                 |
 | --------------------- | ---------------------------------------------------------------------- |
