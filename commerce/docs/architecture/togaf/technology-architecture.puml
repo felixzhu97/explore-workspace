@@ -40,7 +40,7 @@ package "Mobile (apps/mobile)" {
     component [Zustand] as mobile_zustand
 }
 
-package "API (services/api)" {
+package "API (server)" {
     component [Node.js] as api_node
     component [Express.js] as api_express
     component [TypeScript] as api_ts

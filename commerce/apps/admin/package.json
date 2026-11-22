@@ -1,10 +1,10 @@
 {
-  "name": "admin",
+  "name": "commerce-admin",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "dev": "ng serve",
-    "start": "ng serve --host 0.0.0.0 --port 4200",
+    "dev": "ng serve --host 0.0.0.0 --port 4240",
+    "start": "ng serve --host 0.0.0.0 --port 4240",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "typecheck": "tsc --noEmit",
@@ -23,7 +23,6 @@
     ]
   },
   "private": true,
-  "packageManager": "pnpm@10.1.0",
   "dependencies": {
     "@angular/common": "^21.1.0",
     "@angular/compiler": "^21.1.0",

@@ -1,0 +1,32 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "typeRoots": ["./node_modules/@types", "../node_modules/@types", "./src/types"],
+    "paths": {
+      "*": ["node_modules/*", "src/types/*"],
+      "monitoring": ["../packages/monitoring/dist"],
+      "monitoring/*": ["../packages/monitoring/dist/*"],
+      "types": ["../packages/types/dist"],
+      "types/*": ["../packages/types/dist/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    {
+      "path": "../packages/monitoring"
+    },
+    {
+      "path": "../packages/types"
+    }
+  ]
+}

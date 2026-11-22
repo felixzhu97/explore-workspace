@@ -1,0 +1,19 @@
+{
+  "name": "commerce-admin",
+  "tags": ["scope:commerce", "type:app"],
+  "targets": {
+    "serve": {
+      "continuous": true,
+      "dependsOn": [
+        {
+          "projects": ["commerce-server"],
+          "target": "serve",
+          "waitFor": "ready"
+        }
+      ],
+      "readyWhen": { "url": "http://localhost:4240" },
+      "command": "pnpm exec ng serve --host 0.0.0.0 --port 4240",
+      "options": { "cwd": "{projectRoot}" }
+    }
+  }
+}
