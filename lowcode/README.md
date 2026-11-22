@@ -1,6 +1,6 @@
 # Explore Lowcode
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](web/LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](https://www.typescriptlang.org/)
@@ -47,7 +47,8 @@ Explore Lowcode brings visual page building into everyday product work. Our miss
 | Forms | React Hook Form + Zod |
 | Tests | Vitest + Testing Library |
 
-Source is organized by **business domain** under `src/{domain}/` (UI, stores, and helpers colocated). Shared UI lives in `src/components/`, shared hooks in `src/hooks/`, and shared utilities in `src/lib/`. See [Glossary](docs/Glossary.md) and [architecture rule](.cursor/rules/architecture.mdc).
+Source is organized by **business domain** under `src/{domain}/` (UI, stores, and helpers colocated). Shared UI lives in `src/components/`, shared hooks in `src/hooks/`, and shared utilities in `src/lib/`. See [Glossary](web/docs/Glossary.md) and the local skill
+[`lowcode-architecture`](~/.cursor/skills/software-engineer/reference/explore-workspace/lowcode-architecture.md).
 
 ## Prerequisites
 
@@ -61,16 +62,23 @@ No API keys are required for the local editor.
 
 ## Getting Started
 
+**Monorepo (explore-workspace root):**
+
 ```bash
-git clone https://github.com/felixzhu97/explore-lowcode.git
-cd explore-lowcode
+pnpm dev lowcode
+```
+
+Opens the editor at [http://localhost:3020](http://localhost:3020).
+
+**Product-only:**
+
+```bash
+cd web
 pnpm install
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-More detail: [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md).
+More detail: [docs/developer/QUICKSTART.md](web/docs/developer/QUICKSTART.md).
 
 ## Usage
 
@@ -102,7 +110,14 @@ explore-lowcode/
 └── public/
 ```
 
-## Deployment
+## Deployment (docs only)
+
+| Setting | Value |
+|---------|-------|
+| Vercel Root Directory (monorepo) | `lowcode/web` |
+| Config | [`web/vercel.json`](web/vercel.json) |
+
+Do not change live Vercel project settings from this repo until cutover.
 
 | Target | Notes |
 |--------|--------|
@@ -113,19 +128,19 @@ explore-lowcode/
 
 | Doc | Link |
 |-----|------|
-| Quick start | [docs/developer/QUICKSTART.md](docs/developer/QUICKSTART.md) |
-| C4 model | [docs/developer/c4-model/](docs/developer/c4-model/) |
-| Glossary | [docs/Glossary.md](docs/Glossary.md) |
-| User story map | [docs/product-owner/User-Story-Map.md](docs/product-owner/User-Story-Map.md) |
+| Quick start | [docs/developer/QUICKSTART.md](web/docs/developer/QUICKSTART.md) |
+| C4 model | [docs/developer/c4-model/](web/docs/developer/c4-model/) |
+| Glossary | [docs/Glossary.md](web/docs/Glossary.md) |
+| User story map | [docs/product-owner/User-Story-Map.md](web/docs/product-owner/User-Story-Map.md) |
 
-![C1 Context](docs/developer/c4-model/png/C1-Context.png)
+![C1 Context](web/docs/developer/c4-model/png/C1-Context.png)
 
-![C2 Container](docs/developer/c4-model/png/C2-Container.png)
+![C2 Container](web/docs/developer/c4-model/png/C2-Container.png)
 
 ## Contributing
 
-Issues and pull requests are welcome. Use the repository [pull request template](.github/pull_request_template.md) (why paragraph, References, Jira link).
+Issues and pull requests are welcome. Use the repository [pull request template](web/.github/pull_request_template.md) (why paragraph, References, Jira link).
 
 ## License
 
-[MIT](LICENSE) © Felix
+[MIT](web/LICENSE) © Felix
