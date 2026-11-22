@@ -145,12 +145,7 @@ class H2DocumentChunkRepositoryTest {
     private void save(DocumentId documentId, String ownerId, String content, float[] embedding) {
       repository.saveChunk(
           DocumentChunk.createChunk(
-                  ChunkId.generateId(),
-                  documentId,
-                  OwnerId.parseKey(ownerId),
-                  content,
-                  0,
-                  Map.of())
+                  ChunkId.generateId(), documentId, OwnerId.parseKey(ownerId), content, 0, Map.of())
               .copyWithEmbedding(embedding));
     }
 

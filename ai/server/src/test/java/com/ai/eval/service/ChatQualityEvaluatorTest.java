@@ -7,8 +7,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.domain.model.BuiltInGateResult;
+import com.ai.eval.domain.model.ChatEvaluationResult;
 import com.ai.eval.service.ChatQualityEvaluator.LlmEvaluationResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

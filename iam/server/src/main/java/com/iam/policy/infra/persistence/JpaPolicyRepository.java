@@ -2,8 +2,8 @@ package com.iam.policy.infra.persistence;
 
 import com.iam.common.domain.model.ResourceName;
 import com.iam.policy.domain.model.Policy;
-import com.iam.policy.domain.model.PolicyId;
 import com.iam.policy.domain.model.PolicyAssignment;
+import com.iam.policy.domain.model.PolicyId;
 import com.iam.policy.domain.repository.PolicyRepository;
 import java.util.ArrayList;
 import java.util.List;

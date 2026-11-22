@@ -2,11 +2,11 @@ package com.ai.eval.service;
 
 import com.ai.chat.service.ChatService;
 import com.ai.common.service.llm.TextChatOptions;
+import com.ai.eval.domain.model.BuiltInGateResult;
 import com.ai.eval.domain.model.CaseEvalOutcome;
 import com.ai.eval.domain.model.GoldenEvalCase;
 import com.ai.eval.domain.model.GoldenEvalCategory;
 import com.ai.eval.domain.model.GoldenSuiteReport;
-import com.ai.eval.domain.model.BuiltInGateResult;
 import com.ai.eval.domain.repository.GoldenSuiteRepository;
 import com.ai.eval.infra.golden.GoldenRagFixtureSeeder;
 import com.ai.rag.domain.model.SourceCitation;
