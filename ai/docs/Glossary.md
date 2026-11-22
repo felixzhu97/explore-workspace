@@ -583,8 +583,8 @@ UI shell only (no dedicated Java package). Routes under `/generate` host **Image
 | Multimodal                           | 多模态     | Input combining text and other modalities (e.g. image)     | Technical | `VisionChatService`                           | Ollama qwen3.5 / qwen3-vl; see Appendix D **Vision Encoder** |
 | Model Context Protocol (MCP)         | 模型上下文协议 | Standard protocol for exposing Tools and Resources to LLMs | Protocol  | `McpServerToolsProvider`                          | Anthropic-initiated standard; peer to A2A |
 | Agent2Agent Protocol (A2A)           | Agent 互操作协议 | Open standard for discovery and task messaging between opaque agents | Protocol | `com.ai.a2a` | Linux Foundation; Agent Card + Tasks |
-| Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `.cursor/agents/orchestrator.md`              | Cursor agent routing (dev tooling)  |
-| Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `.cursor/agents/*.md`                         | e.g. business-analyst, market-analyst, developer |
+| Orchestrator                         | 编排器     | Agent that delegates tasks to specialized Subagents        | Pattern   | `~/.cursor/agents/orchestrator.md`            | Cursor agent routing (dev tooling)  |
+| Subagent                             | 子智能体    | Specialized Agent focused on a single responsibility       | Pattern   | `~/.cursor/agents/*.md`                       | e.g. business-analyst, market-analyst, developer |
 | Grounding                            | 事实锚定    | Constraining LLM answers to retrieved Source Documents     | Pattern   | `LocalizedRagPromptBuilder`, `RagChatService` | Reduces unsupported claims          |
 | Prompt Engineering                   | 提示工程    | Crafting prompts to improve LLM output quality             | Practice  | —                                             | No fine-tuning in this project      |
 

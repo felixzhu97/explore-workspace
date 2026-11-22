@@ -12,20 +12,6 @@
             "ollama"
           ],
           "target": "serve"
-        },
-        {
-          "projects": [
-            "iam-server"
-          ],
-          "target": "serve",
-          "waitFor": "ready"
-        },
-        {
-          "projects": [
-            "ml-server"
-          ],
-          "target": "serve",
-          "waitFor": "ready"
         }
       ],
       "readyWhen": {
