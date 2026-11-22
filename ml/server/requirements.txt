@@ -8,3 +8,7 @@
 
 # Pin transformers for qwen-asr/qwen-tts
 transformers==4.57.6
+
+# httpx needs this when ALL_PROXY/HTTPS_PROXY is a SOCKS URL (common on
+# developer machines); without it ollama.Client() fails at import time.
+socksio>=1.0.0
