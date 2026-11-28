@@ -19,26 +19,26 @@
 | 持久化 | Persistence | 将领域状态保存到存储的过程。 | 保存页面到本地/远端 |
 | 协作 | Collaboration | 多人同时编辑与共享。 | 多人同编 |
 | 共享 UI | Shared UI | 跨应用共享的用户界面组件。 | 跨应用组件库 |
-| 共享 hooks | Shared hooks | 跨界面共享的钩子逻辑。 | 如：共享 hooks |
-| 共享工具 | Shared lib | 跨模块共享的程序库。 | 如：共享工具 |
+| 共享 hooks | Shared hooks | 跨界面共享的钩子逻辑。 | Shared hooks |
+| 共享工具 | Shared lib | 跨模块共享的程序库。 | Shared lib |
 
 ## Core Terms | 核心术语
 
 | 中文 | English | 定义 | 举例 |
 |------|---------|------|------|
 | 组件实例 | Component Instance | 组件的一次具体实例。 | 画布上的一颗组件 |
-| 组件工厂 | Component Factory | 创建组件实例的工厂。 | 如：组件工厂 |
-| 组件管理 | Component Management | 组件的登记与生命周期管理。 | 如：组件管理 |
-| 组件面板 | Component Panel | 选择与配置组件的面板。 | 如：组件面板 |
+| 组件工厂 | Component Factory | 创建组件实例的工厂。 | 画布组件 |
+| 组件管理 | Component Management | 组件的登记与生命周期管理。 | 画布组件 |
+| 组件面板 | Component Panel | 选择与配置组件的面板。 | 画布组件 |
 | 组件树 | Component Tree | 组件的层级树。 | 层级树面板 |
-| 组件渲染器 | Component Renderer | 将组件渲染为界面的器。 | 如：组件渲染器 |
+| 组件渲染器 | Component Renderer | 将组件渲染为界面的器。 | 画布组件 |
 | 预览画布 | Preview Canvas | 用于预览效果的画布。 | 实时预览区 |
 | 设备预览 | Device Preview | 按目标设备预览界面。 | iPhone / Desktop |
-| 自定义组件 | Custom Component | 用户自定义组件。 | 如：自定义组件 |
+| 自定义组件 | Custom Component | 用户自定义组件。 | 画布组件 |
 | 模板库 | Template Gallery | 模板陈列与选用。 | 模板陈列 |
-| 主题配置 | Theme Config | 主题的配置。 | 如：主题配置 |
+| 主题配置 | Theme Config | 主题的配置。 | 主题配置 |
 | 撤销 / 重做 | Undo / Redo | 撤销或重做最近变更。 | Ctrl+Z / Ctrl+Shift+Z |
-| 本地持久化 | Local Persistence | 在本地存储中的持久化。 | 如：本地持久化 |
+| 本地持久化 | Local Persistence | 在本地存储中的持久化。 | Local Persistence |
 
 ## Domain Model | 领域模型补遗
 
@@ -52,4 +52,4 @@
 | ARIA | ARIA | 为辅助技术描述可访问名称、角色与状态的规范。 | role=button |
 | 人机界面指南 | HIG | 平台人机界面设计惯例。 | Apple HIG |
 | 空状态 | Empty State | 尚无内容时的占位呈现。 | 无数据占位 |
-| 动效 | Effect | 可组合的视觉或交互动效。 | 如：动效 |
+| 动效 | Effect | 可组合的视觉或交互动效。 | Effect |

@@ -40,7 +40,7 @@
 | 信息流条目 | Feed Entry | 信息流中的一条内容引用。 | Feed 中的 Post 引用 |
 | 互动 | Engagement | 用户与内容的互动行为。 | 点赞数 / 收藏数 |
 | Explore AI BFF | Explore AI BFF | 面向客户端聚合 AI 能力的后端中间层。 | /api/v1/ai/explore |
-| 客户端身份 | Client Identity | 客户端的稳定身份标识。 | 如：客户端身份 |
+| 客户端身份 | Client Identity | 客户端的稳定身份标识。 | OAuth 客户端字段 |
 | 主目的地 | Primary Destination | 应用主导航的目标位置。 | feed；chat；explore |
 | AIP REST | AIP REST | 遵循 Google AIP 惯例的资源导向 HTTP API。 | AIP-121/136/158 |
 | IAM 模块范围 | IAM Module Scope | 访问令牌上约束模块能力的范围声明。 | write:chat_messaging |
@@ -48,8 +48,8 @@
 | 分页令牌 | Page Token | 用于继续分页的不透明令牌。 | next_page_token |
 | 自定义方法 | Custom Method | 在标准 CRUD 之外以动词命名的资源操作。 | POST …/users/{id}:disable |
 | 搜索范围 | Search Scope | 搜索所覆盖的对象类型范围。 | posts；users |
-| 语音合成目标语言 | Voice Gen Target Language | 语音合成的目标语言。 | 如：语音合成目标语言 |
-| 语音翻译目标语言 | Voice Translate Target Language | 语音翻译的目标语言。 | 如：语音翻译目标语言 |
+| 语音合成目标语言 | Voice Gen Target Language | 语音合成的目标语言。 | 语音能力调用 |
+| 语音翻译目标语言 | Voice Translate Target Language | 语音翻译的目标语言。 | 语音能力调用 |
 | 客户端消息 ID | Client Message ID | 由发送方生成的消息幂等标识。 | 客户端幂等号 |
 | 消息投递状态 | Message Delivery Status | 消息从发送到已读的投递状态。 | sent；delivered；read |
 | 会话 ID | Chat Id | 会话的唯一标识。 | chat-… |
@@ -58,7 +58,7 @@
 | 聊天线程 | Chat Thread | 单一会话的消息时间线。 | 单会话消息轴 |
 | 会话目录 | Chat Catalog | 会话列表及其预览。 | 会话列表 |
 | 灌库 | Hydrate | 用权威数据填充本地投影。 | REST 灌入本地投影 |
-| 接受实时消息 | Accept Live Message | 将实时消息纳入会话时间线。 | 如：接受实时消息 |
+| 接受实时消息 | Accept Live Message | 将实时消息纳入会话时间线。 | Accept Live Message |
 | 客户端领域事件 | Domain Event (client) | 领域中已发生事实的记录。 | OrderPaid；MessageAccepted |
 | IM 契约 | IM Contract | 即时通讯跨端消息与会话的协议契约。 | im-contract/openapi.yaml |
 | 不可变基类 | Abstract Immutable | 创建后不可变实体的基类型。 | @MappedSuperclass 不可变基类 |
@@ -67,8 +67,8 @@
 | 参与者基类 | Abstract Participant | 会话或群组成员的基类型。 | 映射超类 / 基类型 |
 | 嵌入值对象基类 | Abstract Embeddable | 可嵌入值对象的基类型。 | @Embeddable 值对象基类 |
 | 软删除 | Soft Delete | 标记删除而不立即物理清除记录。 | deleted=true |
-| 确保参与者 | Ensure Participant | 确认主体属于会话参与者。 | 如：确保参与者 |
-| 断言可发送 | Assert Sendable By | 断言发送方有权向该会话发信。 | 如：断言可发送 |
+| 确保参与者 | Ensure Participant | 确认主体属于会话参与者。 | Ensure Participant |
+| 断言可发送 | Assert Sendable By | 断言发送方有权向该会话发信。 | Assert Sendable By |
 | Prisma 仓储基类 | Abstract Prisma Repository | 基于 Prisma 的仓储基类型。 | 映射超类 / 基类型 |
 
 ## Domain Model | 领域模型补遗
@@ -92,7 +92,7 @@
 | 消息已读 | Message Read | 接收方已阅读某消息的事实。 | 已读回执 |
 | 消息已接受 | Message Accepted | 会话时间线已接纳某消息的事实。 | 写入时间线 |
 | 投递状态变更 | Delivery Status Changed | 消息投递状态发生变化的事实。 | 状态枚举值 |
-| 线程已灌库 | Thread Hydrated | 本地会话时间线已用权威数据填满的事实。 | 如：线程已灌库 |
-| 目录已替换 | Catalog Replaced | 会话目录被完整替换的事实。 | 如：目录已替换 |
-| 预览已变更 | Chat Preview Changed | 会话列表预览信息已更新的事实。 | 如：预览已变更 |
-| 末条消息已变更 | Last Message Changed | 会话最后一条消息预览已更新的事实。 | 如：末条消息已变更 |
+| 线程已灌库 | Thread Hydrated | 本地会话时间线已用权威数据填满的事实。 | Thread Hydrated |
+| 目录已替换 | Catalog Replaced | 会话目录被完整替换的事实。 | Catalog Replaced |
+| 预览已变更 | Chat Preview Changed | 会话列表预览信息已更新的事实。 | Chat Preview Changed |
+| 末条消息已变更 | Last Message Changed | 会话最后一条消息预览已更新的事实。 | Last Message Changed |
