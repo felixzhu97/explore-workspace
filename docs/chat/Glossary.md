@@ -6,49 +6,37 @@
 
 ## 1. Purpose | 文档说明
 
-This document defines the project **Ubiquitous Language**. English terms are the **preferred canonical names** and must align with code, API, and architecture naming. Chinese labels are for localization and stakeholder communication only.
+本文定义项目**统一语言**。英文 Preferred Term 为规范名，须与代码、API、架构命名一致；中文仅供本地化与干系人沟通。
 
 ### Maintenance Principles
 
-1. **Glossary first**: Add or update terms here before implementing code
-2. **Code sync**: Domain model changes must update the corresponding glossary entry
-3. **Preferred term**: Use the **Preferred Term (English)** column for code, API, Jira keys, commits, and technical docs
+1. **Glossary first**：先改术语表，再改代码
+2. **Code sync**：领域模型变更必须回写对应词条
+3. **Preferred term**：代码、API、Jira、提交与技术文档一律用 Preferred Term（English）
 
 ### Naming | 命名
 
-Classes (entities, value objects, aggregates, services, DTOs) are nouns for
-what the thing is. Fields, parameters, and locals are plain nouns for what
-they hold. Methods are a verb plus a noun: `createUser`, `createMessage`,
-`createParticipant`, `createCall`, `parseId`, `generateId`, `markDeleted`.
-The same concept uses one word in Java, the database (snake_case), and the
-web/mobile client. Framework names stay as the framework defines them
-(`save`, `findById`, Lombok `getX()`).
+类（实体、值对象、聚合根、服务、DTO）用名词。字段、参数、局部变量用名词。方法为动词 + 名词：`createUser`、`createMessage`、`createParticipant`、`createCall`、`parseId`、`generateId`、`markDeleted`。同一概念在 Java、库表（snake_case）与 Web/移动端用同一词。框架既定名保持不变（`save`、`findById`、Lombok `getX()`）。
 
-Domain types live under `domain.model` only (entities, aggregates, value
-objects, events). There is no `domain.vo` package. Repository ports stay in
-`domain.repository`. Soft delete uses `markDeleted` (sets `deleted` /
-`isDeleted`); do not invent parallel synonyms.
+领域类型仅落在 `domain.model`（实体、聚合根、值对象、领域事件）；无 `domain.vo` 包。仓储端口在 `domain.repository`。软删除用 `markDeleted`（置 `deleted` / `isDeleted`）；禁止平行同义词。
 
 | Concept | Canonical class | Physical table (Liquibase 0.1) | Notes |
 | --- | --- | --- | --- |
-| Signed-in person | `User` | `chat_user` | SQL `user` reserved; class stays `User` |
+| Signed-in person | `User` | `chat_user` | SQL `user` 保留字；类名仍为 `User` |
 | Conversation | `Chat` | `chat` | — |
 | Instant message | `Message` | `message` | — |
-| Feed item | `Post` | `social_post` | was `SocialPost` |
-| Post reply | `Comment` | `post_comment` | was `PostComment` |
-| Social circle | `Group` | `social_group` | was `SocialGroup` |
-| Realtime call | `Call` | `voice_call` | was `VoiceCall` |
-| In-app notice | `Notification` | `activity_notification` | was `ActivityNotification` |
+| Feed item | `Post` | `social_post` | 曾用 `SocialPost` |
+| Post reply | `Comment` | `post_comment` | 曾用 `PostComment` |
+| Social circle | `Group` | `social_group` | 曾用 `SocialGroup` |
+| Realtime call | `Call` | `voice_call` | 曾用 `VoiceCall` |
+| In-app notice | `Notification` | `activity_notification` | 曾用 `ActivityNotification` |
 
-Do not put `@Table` on domain types; table names are fixed in
-`db/changelog/0.1.xml` (`createTable` only — edit the baseline, no alter
-migrations).
+领域类型禁止 `@Table`；表名固定于 `db/changelog/0.1.xml`（仅 `createTable`——改基线，无 alter）。
 
 ---
 
 ## 2. Business Domains | 业务域总览
 
-| Preferred Term | 中文            | Code / Package (Java)            | Web (`src/main/web/src`) | Mobile (Expo) (`src/main/mobile/src`)  | Frontend Surface | API Prefix                      | Notes                                            |
 | -------------- | --------------- | -------------------------------- | -------------------- | ---------------------------------- | ---------------- | ------------------------------- | ------------------------------------------------ |
 | Auth           | 认证            | `com.chat.auth`                  | `auth/`              | `auth/`                            | 登录 / 注册      | `/api/v1/auth`                  | Chat HS JWT (`ROLE_USER`) + Explore IAM Bearer (`SCOPE_write:chat_*` / `SCOPE_admin:chat`) |
 | User           | 用户            | `com.chat.users` / `User`                    | `profile/`           | `profile/`                         | 个人页           | `/api/v1/users`                 | 资料、搜索；表 `chat_user`                       |
@@ -108,8 +96,8 @@ flowchart TB
 | Explore AI BFF                  | Explore AI BFF   | API 服务间代理；`X-Service-Key` + `X-Client-Id`                                                                  |
 | Client Identity                 | 客户端身份       | 映射到 Explore AI 的稳定客户端 ID（UUID）                                                                        |
 | Primary Destination             | 主目的地         | 跨端规范导航身份：`feed` / `chat` / `reels` / `explore` / `user` / `search`；path/tab 由各端映射                 |
-| AIP REST                        | AIP REST         | Google API Improvement Proposals 风格的 REST：资源路径、标准方法、page_token、RpcStatus 错误；前缀仍为 `/api/v1`；Nest 与 Python ML helpers 共用 |
-| IAM Module Scope                | IAM 模块范围     | GitHub-style OAuth scope on Explore IAM access tokens (`write:chat_messaging`, `write:chat_social`, `admin:chat`); not Search Scope |
+| AIP REST                        | AIP REST         | Google API Improvement Proposals 风格 REST：资源路径、标准方法、page_token、RpcStatus 错误；前缀仍为 `/api/v1`；Nest 与 Python ML helpers 共用 |
+| IAM Module Scope                | IAM 模块范围     | Explore IAM access token 上的 GitHub 风格 OAuth scope（`write:chat_messaging`、`write:chat_social`、`admin:chat`）；非 Search Scope |
 | RpcStatus                       | RPC 状态         | AIP-193 错误体：`{ code, message, details[] }`，对齐 google.rpc.Status JSON                                      |
 | Page Token                      | 分页令牌         | AIP-158 不透明 `page_token` / `next_page_token`；客户端不解析内部 offset/cursor                                  |
 | Custom Method                   | 自定义方法       | AIP-136：`POST …/{resource}:verb`（如 `:archive`、`:follow`）                                                    |
@@ -141,4 +129,4 @@ flowchart TB
 
 ## 4. Living docs
 
-变更术语、模块或 API 前缀时，同步更新本文件与 [C4](developer/c4-model/)、[User Story Map](product-owner/User-Story-Map.md)。
+变更术语、模块或 API 前缀时，同步更新本文件与 [C4](c4-model/)、[User Story Map](User-Story-Map.md)。
