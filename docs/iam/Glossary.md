@@ -6,26 +6,24 @@
 
 ## 1. Purpose | 文档说明
 
-This document defines the project **Ubiquitous Language**. English terms are the **preferred canonical names** and must align with code, API, and architecture naming. Chinese labels are for localization and stakeholder communication only.
+本文件定义项目**统一语言**。英文 Preferred Term 为代码、API、架构命名的权威形式；中文仅用于沟通与本地化。
 
-### Maintenance Principles
+### 维护原则
 
-1. **Glossary first**: Add or update terms here before implementing code
-2. **Code sync**: Domain model changes (entity, value object, enum) must update the corresponding glossary entry
-3. **Preferred term**: Use the **Preferred Term (English)** column for code, API, Jira keys, commits, and technical docs
+1. **先 Glossary**：改代码前先增改术语
+2. **与代码同步**：聚合根 / 实体 / 值对象 / 枚举变更必须回写本表
+3. **Preferred Term**：代码、API、Jira、提交、技术文档一律用英文列
 
-### Reference Rules
+### 引用规则
 
-| Scenario                   | Rule                                                             |
-| -------------------------- | ---------------------------------------------------------------- |
-| Java class / API / commits | Use Preferred Term (English)                                     |
-| Jira / user stories        | English preferred; Chinese may appear in parentheses for clarity |
-| Frontend i18n              | Map English preferred terms to localized UI copy                 |
-| Cross-team communication   | Lead with English; add Chinese when needed                       |
+| 场景 | 规则 |
+|------|------|
+| Java / API / 提交 | 用 Preferred Term（英文） |
+| Jira / 用户故事 | 英文为主；必要时括号附中文 |
+| 前端 i18n | 英文术语映射到本地文案 |
+| 跨团队沟通 | 先英文，需要时补中文 |
 
-Preferred vocabulary follows [Google Cloud IAM](https://cloud.google.com/iam/docs/overview)
-and [OAuth clients](https://support.google.com/cloud/answer/15549257). Value
-objects live in `domain.model` (no `domain.vo`).
+采用 [Google Cloud IAM](https://cloud.google.com/iam/docs/overview) 词汇 与 [OAuth clients](https://support.google.com/cloud/answer/15549257)。值对象落在 `domain.model`（无 `domain.vo`）。
 
 ---
 
@@ -52,7 +50,7 @@ objects live in `domain.model` (no `domain.vo`).
 | `/oauth-clients` | OAuth Client | `/api/v1/oauthClients` |
 | `/`          | Console        | Control Plane REST |
 
-**AIP REST (management APIs)** — Google [API Improvement Proposals](https://google.aip.dev/): resource paths under `/api/v1`, standard Get/List/Create/Update/Delete, AIP-136 custom methods (`POST …/{resource}:disable`), AIP-158 `page_size` / `page_token` / `next_page_token`, AIP-193 `RpcStatus` errors.
+**AIP REST（管理 API）** — Google [API Improvement Proposals](https://google.aip.dev/)：资源路径 `/api/v1`；标准 Get/List/Create/Update/Delete；AIP-136 自定义方法（`POST …/{resource}:disable`）；AIP-158 分页；AIP-193 `RpcStatus` 错误。
 
 ---
 
@@ -88,7 +86,7 @@ objects live in `domain.model` (no `domain.vo`).
 
 ## 4. Spring Security & Framework | Spring Security 与框架映射
 
-Terms mapping Explore IAM security behavior to [Spring Security](https://docs.spring.io/spring-security/reference/index.html) and [Spring Authorization Server](https://docs.spring.io/spring-authorization-server/reference/index.html) APIs. Use these names when discussing filters, beans, and configuration — not as domain aggregate names unless listed in a domain section below.
+将 Explore IAM 安全行为映射到 [Spring Security](https://docs.spring.io/spring-security/reference/index.html) 与 [Spring Authorization Server](https://docs.spring.io/spring-authorization-server/reference/index.html) API。讨论过滤器、Bean、配置时用下列名称——除非下方领域节已列出，否则勿当作聚合根名。
 
 ### 4.1 Core Security
 
@@ -204,12 +202,12 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 | Abstract Audit Event | 不可变审计聚合基类 | Immutable audit aggregate base; `occurred_at` column | `AbstractAuditEvent` | implemented |
 | Abstract Embeddable | 可嵌入值对象基类 | Embeddable VO and typed id base | `com.explore.kernel.AbstractEmbeddable` (`shared/kernel`) | implemented |
 | Domain Strings | 域字符串校验 | Shared non-blank string validation | `DomainStrings.requireNonBlank` | implemented |
-| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | Pattern | e.g. `User.isLoginEnabled`, `Policy.getStatements` | implemented |
+| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | 模式 | e.g. `User.isLoginEnabled`, `Policy.getStatements` | implemented |
 | Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `RulesJsonConverter` | implemented |
 | Optimistic Locking | 乐观锁 | Concurrent update detection via `@Version` | `AbstractEntity.version` | implemented |
 | Liquibase Changelog | Liquibase 变更日志 | Versioned SQL schema migrations | `db/changelog/0.1.xml` | implemented |
 | Schema Validation | 模式校验 | Hibernate validates entities against DB schema | `spring.jpa.hibernate.ddl-auto: validate` | implemented |
-| Domain Event | 领域事件 | Fact published by an application service after a state change, inside its transaction; a `record` named `*Event` in `<module>/domain/event`, carrying ids only | `ApplicationEventPublisher.publishEvent` | implemented |
+| 领域事件 | 领域事件 | Fact published by an application service after a state change, inside its transaction; a `record` named `*Event` in `<module>/domain/event`, carrying ids only | `ApplicationEventPublisher.publishEvent` | implemented |
 | Event Handler | 事件处理方法 | Synchronous `handleXxxEvent` method on the consuming module's service; runs in the publisher's transaction | `@EventListener` | implemented |
 
 ### 4.8 Provisioning Delivery
@@ -246,38 +244,35 @@ Terms mapping Explore IAM security behavior to [Spring Security](https://docs.sp
 
 ## 5.5 Shared Value Objects | 共享值对象
 
-Cross-bounded-context value objects in `com.iam.common.domain.model`
-(Google IAM resource / permission vocabulary).
+跨限界上下文值对象，位于 `com.iam.common.domain.model`（Google IAM 资源 / 权限词汇）。
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Resource Name | 资源名 | Full resource name (value may still use `arn:iam::…` shape) | Value Object | `ResourceName` | implemented |
-| User Resource Name | 用户资源名 | Resource name for a User | Factory | `ResourceName.createUserResourceName` | implemented |
-| Role Resource Name | 角色资源名 | Resource name for a Role | Factory | `ResourceName.createRoleResourceName` | implemented |
-| Principal ID | 主体 ID | Identifier of the principal under evaluation | Value Object | `PrincipalId` | implemented |
-| Permission | 权限 | IAM permission string (also used in allow-policy statements) | Value Object | `com.iam.common.domain.model.Permission` | implemented |
-| Resource | 资源 | Target of a Permission | Value Object | `Resource` | implemented |
-| Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | implemented |
-| Reason Code | 理由码 | Machine-readable authorization outcome | Value Object | `ReasonCode` | implemented |
-| Explicit Deny Reason | 显式拒绝理由 | Matched Deny statement | Constant | `ReasonCode.EXPLICIT_DENY` | implemented |
-| Explicit Allow Reason | 显式允许理由 | Matched Allow statement | Constant | `ReasonCode.EXPLICIT_PERMIT` | implemented |
-| Implicit Deny Reason | 隐式拒绝理由 | No Allow matched | Constant | `ReasonCode.IMPLICIT_DENY` | implemented |
+| Resource Name | 资源名 | 完整资源名（值可仍为 `arn:iam::…` 形态） | 值对象 | `ResourceName` | implemented |
+| User Resource Name | 用户资源名 | User 的资源名 | 工厂 | `ResourceName.createUserResourceName` | implemented |
+| Role Resource Name | 角色资源名 | Role 的资源名 | 工厂 | `ResourceName.createRoleResourceName` | implemented |
+| Principal ID | 主体 ID | 求值中主体标识 | 值对象 | `PrincipalId` | implemented |
+| Permission | 权限 | IAM 权限字符串（亦用于允许策略语句） | 值对象 | `com.iam.common.domain.model.Permission` | implemented |
+| Resource | 资源 | Permission 作用目标 | 值对象 | `Resource` | implemented |
+| Effect | 效力 | `ALLOW` 或 `DENY` | 枚举 | `Effect` | implemented |
+| Reason Code | 理由码 | 可机读的鉴权结果 | 值对象 | `ReasonCode` | implemented |
+| Explicit Deny Reason | 显式拒绝理由 | 命中 Deny 语句 | 常量 | `ReasonCode.EXPLICIT_DENY` | implemented |
+| Explicit Allow Reason | 显式允许理由 | 命中 Allow 语句 | 常量 | `ReasonCode.EXPLICIT_PERMIT` | implemented |
+| Implicit Deny Reason | 隐式拒绝理由 | 无 Allow 命中 | 常量 | `ReasonCode.IMPLICIT_DENY` | implemented |
 
 ---
 
 ## 5.6 Zero Trust | 零信任
 
-Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture](developer/zero-trust/Zero-Trust-Architecture.md).
-
 | Preferred Term (English) | 中文 | Definition | Explore Mapping | Status |
 | ------------------------ | ---- | ---------- | --------------- | ------ |
-| Zero Trust | 零信任 | No implicit trust from network location; every request is authenticated, authorized, and continuously verified (NIST SP 800-207) | Ecosystem security model | planned |
-| Policy Decision Point (PDP) | 策略决策点 | Component that decides whether a subject may access a resource | explore-iam (token issuance, `PolicyEngine`, Permission Point scopes) | partial |
-| Policy Enforcement Point (PEP) | 策略执行点 | Component that enforces the PDP decision on each request | AI / Chat resource servers, Chat Socket.IO gateway, ML gateway (target) | partial |
-| Service Identity | 服务身份 | Workload principal used for service-to-service calls | OAuth2 `client_credentials` client per workload | planned |
-| Token Audience | 令牌受众 | `aud` claim restricting which resource server may accept a token (RFC 8707) | Per-service audience on access tokens | planned |
-| Token Exchange | 令牌交换 | Swap a user token for a downstream token on behalf of the user (RFC 8693) | AI / Chat → ML calls | planned |
-| Sender-Constrained Token | 发送方约束令牌 | Token bound to a client key so stolen tokens cannot be replayed (DPoP RFC 9449, mTLS RFC 8705) | Public clients (DPoP), internal workloads (mTLS) | planned |
+| Zero Trust | 零信任 | 不因网络位置隐式信任；每请求认证、鉴权并持续校验（NIST SP 800-207） | 生态安全模型 | planned |
+| Policy Decision Point (PDP) | 策略决策点 | 判定主体可否访问资源 | explore-iam（令牌签发、`PolicyEngine`、权限点 scope） | partial |
+| Policy Enforcement Point (PEP) | 策略执行点 | 在请求路径执行 PDP 决策 | AI / Chat 资源服务器、Chat Socket.IO 网关、ML 网关（目标） | partial |
+| Service Identity | 服务身份 | 服务间调用的工作负载主体 | 每工作负载 OAuth2 `client_credentials` 客户端 | planned |
+| Token Audience | 令牌受众 | `aud` 限制可接受该令牌的资源服务器（RFC 8707） | 访问令牌按服务受众 | planned |
+| Token Exchange | 令牌交换 | 以用户名义将用户令牌换为下游令牌（RFC 8693） | AI / Chat → ML | planned |
+| Sender-Constrained Token | 发送方约束令牌 | 令牌绑定客户端密钥，防盗用重放（DPoP RFC 9449、mTLS RFC 8705） | 公共客户端（DPoP）、内部工作负载（mTLS） | planned |
 
 ---
 
@@ -285,45 +280,45 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Principal | 主体 | Identity that can make requests (Google IAM principal) | Concept | `Principal` | — |
-| User | 用户 | Long-lived human or service identity | Aggregate | `User` (`directory_user`) | implemented |
-| User Status | 用户状态 | `ACTIVE` or `DISABLED` | Enum | via `enabled` flag | implemented |
-| Enable User | 启用用户 | Re-enables form login for a user | Behavior | `User.enableUser` | implemented |
-| Disable User | 禁用用户 | Blocks form login for a user | Behavior | `User.disableUser` | implemented |
-| Change Email | 修改邮箱 | Updates the user's contact email | Behavior | `User.changeEmail` | implemented |
-| Create User | 创建用户 | Factory for a local user | Behavior | `User.createUser` | implemented |
-| Create Federated User | 创建联邦用户 | Factory for external IdP login | Behavior | `User.createFederatedUser` | implemented |
-| External ID | 外部 ID | Identifier assigned by the provisioning client (SCIM `externalId`) | Value Object | `ExternalId` | implemented |
-| Display Name | 显示名 | Human-readable name (SCIM `displayName`) | Attribute | `User.displayName` | implemented |
-| Provision User | 开通用户 | Factory for a password-less user created by a SCIM Client | Behavior | `User.provisionUser` | implemented |
-| Update Profile | 更新资料 | Replaces username, email, and display name | Behavior | `User.updateProfile` | implemented |
-| Change External ID | 修改外部 ID | Sets or clears the External ID | Behavior | `User.changeExternalId` / `Group.changeExternalId` | implemented |
-| Group | 组 | Collection of users for shared policy binding | Aggregate | `Group` | implemented |
-| Group Member | 组成员 | Child entity linking a user to a group | Entity | `GroupMember` | implemented |
-| Provision Group | 开通组 | Factory for a group created by a SCIM Client | Behavior | `Group.provisionGroup` | implemented |
-| Rename Group | 重命名组 | Changes the group display name | Behavior | `Group.renameGroup` | implemented |
-| Replace Members | 替换成员 | Sets the full member list; returns the added / removed ids | Behavior | `Group.replaceMembers` | implemented |
-| User Provisioned Event | 用户已开通事件 | User created (console, SCIM, federated sign-in, or seed) | Domain Event | `UserProvisionedEvent` | implemented |
-| User Profile Changed Event | 用户资料已变更事件 | Username / email / display name / External ID changed | Domain Event | `UserProfileChangedEvent` | implemented |
-| User Deactivated Event | 用户已停用事件 | User disabled | Domain Event | `UserDeactivatedEvent` | implemented |
-| User Reactivated Event | 用户已恢复事件 | User re-enabled | Domain Event | `UserReactivatedEvent` | implemented |
-| User Password Reset Event | 用户密码已重置事件 | Admin reset a user's password | Domain Event | `UserPasswordResetEvent` | implemented |
-| User Role Assigned Event | 用户已分配角色事件 | Role bound to a user | Domain Event | `UserRoleAssignedEvent` | implemented |
-| User Role Unassigned Event | 用户已解除角色事件 | Role unbound from a user | Domain Event | `UserRoleUnassignedEvent` | implemented |
-| User Deletion Requested Event | 用户删除请求事件 | Published before the user row is deleted so other modules clean up their links in the same transaction | Domain Event | `UserDeletionRequestedEvent` | implemented |
-| User Deleted Event | 用户已删除事件 | User removed | Domain Event | `UserDeletedEvent` | implemented |
-| Group Created Event | 组已创建事件 | Group created | Domain Event | `GroupCreatedEvent` | implemented |
-| Group Profile Changed Event | 组资料已变更事件 | Group name / External ID changed | Domain Event | `GroupProfileChangedEvent` | implemented |
-| Group Membership Changed Event | 组成员已变更事件 | User ids added to / removed from a group | Domain Event | `GroupMembershipChangedEvent` | implemented |
-| Group Deleted Event | 组已删除事件 | Group removed | Domain Event | `GroupDeletedEvent` | implemented |
-| Role Created Event | 角色已创建事件 | Role created | Domain Event | `RoleCreatedEvent` | implemented |
-| Role | 角色 | Named collection of permissions (Google IAM role) | Aggregate | `Role` | implemented |
-| Role Assignment | 角色绑定 | Links a principal to a Role | Entity | `RoleAssignment` | implemented |
-| Assign Role | 分配角色 | Bind a role to a user | Behavior | `User.assignRole` | implemented |
-| Impersonation Policy | 模拟策略 | Who may obtain short-lived credentials for a Role | Value Object | `ImpersonationPolicy` | implemented |
-| Federated Identity | 联邦身份 | Maps external provider + subject to local user | Aggregate | `FederatedIdentity` | implemented |
-| TOTP Credential | TOTP 凭证 | Authenticator-app second factor (RFC 6238); secret encrypted at rest | Aggregate | `TotpCredential` | implemented |
-| OAuth Client | OAuth 客户端 | Relying product registered as an OAuth / OIDC client | Aggregate | `OAuthClient` | implemented |
+| Principal | 主体 | 可发起请求的身份（Google IAM principal） | 概念 | `Principal` | — |
+| User | 用户 | 长期人类或服务身份 | 聚合根 | `User` (`directory_user`) | implemented |
+| User Status | 用户状态 | `ACTIVE` 或 `DISABLED` | 枚举 | via `enabled` flag | implemented |
+| Enable User | 启用用户 | 重新允许用户表单登录 | 行为 | `User.enableUser` | implemented |
+| Disable User | 禁用用户 | 阻止用户表单登录 | 行为 | `User.disableUser` | implemented |
+| Change Email | 修改邮箱 | 更新用户联系邮箱 | 行为 | `User.changeEmail` | implemented |
+| Create User | 创建用户 | 本地用户工厂 | 行为 | `User.createUser` | implemented |
+| Create Federated User | 创建联邦用户 | 外部 IdP 登录用户工厂 | 行为 | `User.createFederatedUser` | implemented |
+| External ID | 外部 ID | 开通客户端分配的标识（SCIM `externalId`） | 值对象 | `ExternalId` | implemented |
+| Display Name | 显示名 | 可读显示名（SCIM `displayName`） | 属性 | `User.displayName` | implemented |
+| Provision User | 开通用户 | SCIM Client 创建的无密码用户工厂 | 行为 | `User.provisionUser` | implemented |
+| Update Profile | 更新资料 | 替换用户名、邮箱与显示名 | 行为 | `User.updateProfile` | implemented |
+| Change External ID | 修改外部 ID | 设置或清除外部 ID | 行为 | `User.changeExternalId` / `Group.changeExternalId` | implemented |
+| Group | 组 | 共享策略绑定的用户集合 | 聚合根 | `Group` | implemented |
+| Group Member | 组成员 | 将用户关联到组的子实体 | 实体 | `GroupMember` | implemented |
+| Provision Group | 开通组 | SCIM Client 创建的组工厂 | 行为 | `Group.provisionGroup` | implemented |
+| Rename Group | 重命名组 | 修改组显示名 | 行为 | `Group.renameGroup` | implemented |
+| Replace Members | 替换成员 | 设置完整成员列表；返回增删 id | 行为 | `Group.replaceMembers` | implemented |
+| User Provisioned Event | 用户已开通事件 | 用户已创建（控制台 / SCIM / 联邦登录 / 种子） | 领域事件 | `UserProvisionedEvent` | implemented |
+| User Profile Changed Event | 用户资料已变更事件 | 用户名 / 邮箱 / 显示名 / 外部 ID 已变更 | 领域事件 | `UserProfileChangedEvent` | implemented |
+| User Deactivated Event | 用户已停用事件 | 用户已停用 | 领域事件 | `UserDeactivatedEvent` | implemented |
+| User Reactivated Event | 用户已恢复事件 | 用户已恢复 | 领域事件 | `UserReactivatedEvent` | implemented |
+| User Password Reset Event | 用户密码已重置事件 | 管理员重置用户密码 | 领域事件 | `UserPasswordResetEvent` | implemented |
+| User Role Assigned Event | 用户已分配角色事件 | 角色已绑定到用户 | 领域事件 | `UserRoleAssignedEvent` | implemented |
+| User Role Unassigned Event | 用户已解除角色事件 | 角色已从用户解绑 | 领域事件 | `UserRoleUnassignedEvent` | implemented |
+| User Deletion Requested Event | 用户删除请求事件 | 用户行删除前发布，供其他模块同事务清理关联 | 领域事件 | `UserDeletionRequestedEvent` | implemented |
+| User Deleted Event | 用户已删除事件 | 用户已删除 | 领域事件 | `UserDeletedEvent` | implemented |
+| Group Created Event | 组已创建事件 | 组已创建 | 领域事件 | `GroupCreatedEvent` | implemented |
+| Group Profile Changed Event | 组资料已变更事件 | 组名 / 外部 ID 已变更 | 领域事件 | `GroupProfileChangedEvent` | implemented |
+| Group Membership Changed Event | 组成员已变更事件 | 组成员 id 增删 | 领域事件 | `GroupMembershipChangedEvent` | implemented |
+| Group Deleted Event | 组已删除事件 | 组已删除 | 领域事件 | `GroupDeletedEvent` | implemented |
+| Role Created Event | 角色已创建事件 | 角色已创建 | 领域事件 | `RoleCreatedEvent` | implemented |
+| Role | 角色 | 命名权限集合（Google IAM role） | 聚合根 | `Role` | implemented |
+| Role Assignment | 角色绑定 | 将主体绑定到 Role | 实体 | `RoleAssignment` | implemented |
+| Assign Role | 分配角色 | 将角色绑定到用户 | 行为 | `User.assignRole` | implemented |
+| Impersonation Policy | 模拟策略 | 谁可为 Role 获取临时凭证 | 值对象 | `ImpersonationPolicy` | implemented |
+| Federated Identity | 联邦身份 | 外部提供方 + subject 映射到本地用户 | 聚合根 | `FederatedIdentity` | implemented |
+| TOTP Credential | TOTP 凭证 | 认证器 App 第二因素（RFC 6238）；密钥静态加密 | 聚合根 | `TotpCredential` | implemented |
+| OAuth Client | OAuth 客户端 | 注册为 OAuth / OIDC 客户端的依赖产品 | 聚合根 | `OAuthClient` | implemented |
 
 ---
 
@@ -331,18 +326,18 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Allow Policy | 允许策略 | Document of statements (Effect, Permission, Resource) | Aggregate | `Policy` | implemented |
-| Policy Statement | 策略语句 | Single Allow or Deny rule block | Value Object | `Rule` | implemented |
-| Effect | 效力 | `ALLOW` or `DENY` | Enum | `Effect` | see §5.5 |
-| Policy Assignment | 策略绑定 | Links an Allow Policy to a principal resource name | Aggregate | `PolicyAssignment` | implemented |
-| Permission | 权限 | Catalog entry: code, Resource, and GitHub-style `oauthScope` | Aggregate | `com.iam.policy.domain.model.Permission` | implemented |
-| Access Tuple | 访问元组 | Principal + Permission + Resource (Policy Troubleshooter shape) | Value Object | `AccessTuple` | implemented |
-| Access Decision | 访问决策 | Allow or Deny with reason | Value Object | `AccessDecision` | implemented |
-| Policy Engine | 策略引擎 | Evaluates policies: Deny > Allow > Implicit Deny | Domain Service | `PolicyEngine` | implemented |
-| Allow Policy Created Event | 允许策略已创建事件 | Allow Policy created | Domain Event | `PolicyCreatedEvent` | implemented |
-| Policy Attached Event | 策略已绑定事件 | Policy Assignment created | Domain Event | `PolicyAttachedEvent` | implemented |
-| Permission Created Event | 权限已创建事件 | Permission catalog entry created | Domain Event | `PermissionCreatedEvent` | implemented |
-| Access Evaluated Event | 访问已评估事件 | Access Tuple evaluated to an Access Decision | Domain Event | `AccessEvaluatedEvent` | implemented |
+| Allow Policy | 允许策略 | 语句文档（Effect、Permission、Resource） | 聚合根 | `Policy` | implemented |
+| Policy Statement | 策略语句 | 单条 Allow 或 Deny 规则块 | 值对象 | `Rule` | implemented |
+| Effect | 效力 | `ALLOW` or `DENY` | 枚举 | `Effect` | see §5.5 |
+| Policy Assignment | 策略绑定 | 将允许策略绑定到主体资源名 | 聚合根 | `PolicyAssignment` | implemented |
+| Permission | 权限 | 目录项：code、Resource、GitHub 风格 `oauthScope` | 聚合根 | `com.iam.policy.domain.model.Permission` | implemented |
+| Access Tuple | 访问元组 | 主体 + 权限 + 资源（排障形状） | 值对象 | `AccessTuple` | implemented |
+| Access Decision | 访问决策 | 带理由的 Allow 或 Deny | 值对象 | `AccessDecision` | implemented |
+| Policy Engine | 策略引擎 | 策略求值：Deny > Allow > 隐式拒绝 | 领域服务 | `PolicyEngine` | implemented |
+| Allow Policy Created Event | 允许策略已创建事件 | 允许策略已创建 | 领域事件 | `PolicyCreatedEvent` | implemented |
+| Policy Attached Event | 策略已绑定事件 | 策略绑定已创建 | 领域事件 | `PolicyAttachedEvent` | implemented |
+| Permission Created Event | 权限已创建事件 | 权限目录项已创建 | 领域事件 | `PermissionCreatedEvent` | implemented |
+| Access Evaluated Event | 访问已评估事件 | 访问元组已求值为访问决策 | 领域事件 | `AccessEvaluatedEvent` | implemented |
 
 ---
 
@@ -350,11 +345,11 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Token Exchange | 短期凭证 | Temporary JWT after role impersonation | Aggregate | `TokenExchange` | implemented |
-| Impersonation Policy | 模拟策略 | Who may create short-lived credentials for a Role | Concept | `ImpersonationPolicy` on `Role` | implemented |
-| Create Token Exchange | 创建短期凭证 | Exchange caller identity for role session credentials | Use Case | `TokenExchangeService` | implemented |
-| Session Expired | 会话已过期 | Whether credentials are no longer valid | Behavior | `TokenExchange.isExpired` | implemented |
-| Role Assumed Event | 角色已扮演事件 | Caller obtained short-lived credentials for a Role | Domain Event | `RoleAssumedEvent` | implemented |
+| Token Exchange | 短期凭证 | 角色扮演后的临时 JWT | 聚合根 | `TokenExchange` | implemented |
+| Impersonation Policy | 模拟策略 | 谁可为 Role 创建临时凭证 | 概念 | `ImpersonationPolicy` on `Role` | implemented |
+| Create Token Exchange | 创建短期凭证 | 将调用方身份换为角色会话凭证 | 用例 | `TokenExchangeService` | implemented |
+| Session Expired | 会话已过期 | 凭证是否已失效 | 行为 | `TokenExchange.isExpired` | implemented |
+| Role Assumed Event | 角色已扮演事件 | 调用方已获得 Role 临时凭证 | 领域事件 | `RoleAssumedEvent` | implemented |
 
 ---
 
@@ -362,55 +357,53 @@ Architecture vocabulary for the Explore ecosystem; see [Zero Trust Architecture]
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| OIDC Provider | OIDC 提供方 | Explore IAM as OIDC issuer | Container | Spring Authorization Server | implemented |
-| OAuth Client | OAuth 客户端 | Domain aggregate for Relying Party registration | Aggregate | `OAuthClient` | implemented |
-| Client ID | 客户端 ID | OAuth2 `client_id` value object | Value Object | `ClientId` | implemented |
-| Public Client | 公共客户端 | Client authenticated with `none` only | Behavior | `OAuthClient.isPublicClient` | implemented |
-| Relying Party | 依赖方 | Application trusting Explore IAM | Concept | — | — |
-| Federated Identity | 联邦身份 | Maps external provider + subject to local user | Aggregate | `FederatedIdentity` | implemented |
-| Create OAuth Client | 创建 OAuth 客户端 | Factory for confidential / public clients | Behavior | `OAuthClient.createOAuthClient` | implemented |
-| Restore OAuth Client | 恢复 OAuth 客户端 | Rehydrate from persistence | Behavior | `OAuthClient.restoreOAuthClient` | implemented |
-| SSO Login | 单点登录 | One login for multiple Relying Parties | Use Case | OIDC Authorization Code | implemented |
-| OAuth Client Registered Event | OAuth 客户端已注册事件 | OAuth Client created | Domain Event | `OAuthClientRegisteredEvent` | implemented |
-| OAuth Client Scopes Changed Event | OAuth 客户端范围已变更事件 | Allowed scopes replaced | Domain Event | `OAuthClientScopesChangedEvent` | implemented |
+| OIDC Provider | OIDC 提供方 | Explore IAM 作为 OIDC 签发方 | 容器 | Spring Authorization Server | implemented |
+| OAuth Client | OAuth 客户端 | 依赖方注册的领域聚合根 | 聚合根 | `OAuthClient` | implemented |
+| Client ID | 客户端 ID | OAuth2 `client_id` 值对象 | 值对象 | `ClientId` | implemented |
+| Public Client | 公共客户端 | 仅以 `none` 认证的客户端 | 行为 | `OAuthClient.isPublicClient` | implemented |
+| Relying Party | 依赖方 | 信任 Explore IAM 的应用 | 概念 | — | — |
+| Federated Identity | 联邦身份 | 外部提供方 + subject 映射到本地用户 | 聚合根 | `FederatedIdentity` | implemented |
+| 创建 OAuth 客户端 | 创建 OAuth 客户端 | 机密 / 公共客户端工厂 | 行为 | `OAuthClient.createOAuthClient` | implemented |
+| Restore OAuth Client | 恢复 OAuth 客户端 | 自持久化重建 | 行为 | `OAuthClient.restoreOAuthClient` | implemented |
+| SSO Login | 单点登录 | 一次登录服务多个依赖方 | 用例 | OIDC Authorization Code | implemented |
+| OAuth Client Registered Event | OAuth 客户端已注册事件 | OAuth 客户端已创建 | 领域事件 | `OAuthClientRegisteredEvent` | implemented |
+| OAuth Client Scopes Changed Event | OAuth 客户端范围已变更事件 | 允许的 scope 已替换 | 领域事件 | `OAuthClientScopesChangedEvent` | implemented |
 
 ---
 
 ## 10. Audit Aggregates | 审计聚合
 
-Immutable **aggregate roots** for append-only audit rows (Google Cloud Audit Logs style).
+只追加审计行的不可变**聚合根**（Google Cloud Audit Logs 风格）。
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Admin Activity | 管理活动 | Management-plane action with actor, target, outcome | Aggregate | `AdminActivity` | implemented |
-| Data Access Log | 数据访问日志 | Persisted Permit/Deny with reason code | Aggregate | `DataAccessLog` | implemented |
-| Audit Actor | 审计主体 | Principal that performed a management action | Value Object | `AuditActor` | implemented |
-| Audit Target | 审计目标 | Resource type and id affected | Value Object | `AuditTarget` | implemented |
-| Audit Outcome | 审计结果 | Success or failure | Enum | `AuditOutcome` | implemented |
-| Record Admin Activity | 记录管理活动 | Factory on `AdminActivity` | Behavior | `AdminActivity.recordAdminActivity` | implemented |
-| Record Sign-In Activity | 记录登录活动 | Factory for sign-in admin activity | Behavior | `AdminActivity.recordSignInActivity` | implemented |
-| Record Data Access Log | 记录数据访问 | Factory on `DataAccessLog` | Behavior | `DataAccessLog.recordDataAccessLog` | implemented |
-| Admin Activity Recorder | 管理活动记录器 | Handles domain events from other modules and persists Admin Activity / Data Access Log rows; other modules never call it | Service | `AdminActivityRecorder.handleXxxEvent` | implemented |
+| Admin Activity | 管理活动 | 含主体、目标、结果的管理面动作 | 聚合根 | `AdminActivity` | implemented |
+| Data Access Log | 数据访问日志 | 已持久化的允许/拒绝及理由码 | 聚合根 | `DataAccessLog` | implemented |
+| Audit Actor | 审计主体 | 执行管理动作的主体 | 值对象 | `AuditActor` | implemented |
+| Audit Target | 审计目标 | 受影响的资源类型与 id | 值对象 | `AuditTarget` | implemented |
+| Audit Outcome | 审计结果 | 成功或失败 | 枚举 | `AuditOutcome` | implemented |
+| Record Admin Activity | 记录管理活动 | `AdminActivity` 工厂 | 行为 | `AdminActivity.recordAdminActivity` | implemented |
+| Record Sign-In Activity | 记录登录活动 | 登录管理活动工厂 | 行为 | `AdminActivity.recordSignInActivity` | implemented |
+| Record Data Access Log | 记录数据访问 | `DataAccessLog` 工厂 | 行为 | `DataAccessLog.recordDataAccessLog` | implemented |
+| Admin Activity Recorder | 管理活动记录器 | 处理他模块领域事件并持久化管理活动 / 数据访问日志；他模块不得直接调用 | 应用服务 | `AdminActivityRecorder.handleXxxEvent` | implemented |
 
 ---
 
 ## 10.1 Provisioning | 开通（SCIM）
 
-IAM is the identity hub: external IdPs push to IAM; IAM pushes users to
-downstream products. Protocol types stay in `com.iam.scim`; the
-identity domain never imports SCIM classes.
+IAM 为身份中枢：外部 IdP 推入 IAM；IAM 再推用户到下游。协议类型留在 `com.iam.scim`；身份限界上下文不导入 SCIM 类。
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Provisioning | 开通 | Creating, updating, deactivating, and deleting identities across systems | Concept | `com.iam.scim` | implemented |
-| Provisioning Target | 开通目标 | Downstream SCIM Service Provider IAM pushes to | Aggregate | `ProvisioningTarget` | implemented |
-| Assignment Group | 分配组 | Optional group limiting which users a Target receives | Attribute | `ProvisioningTarget.assignmentGroupId` | implemented |
-| Provisioned Account | 已开通账号 | Mapping of IAM user id to the Target's remote id and last synced version | Entity | `ProvisionedAccount` | implemented |
-| SCIM Provisioning Service | SCIM 开通服务 | Orchestrates inbound SCIM calls via `UserService` / `GroupService` | Service | `ScimProvisioningService` | implemented |
-| SCIM Push Service | SCIM 推送服务 | Sends idempotent SCIM calls to a Provisioning Target | Service | `ScimPushService` | implemented |
-| SCIM Push Listener | SCIM 推送监听器 | Turns identity domain events into pushes | Listener | `ScimPushListener` | implemented |
-| SCIM Provisioner Client | SCIM 开通客户端 | OAuth client for external IdPs (`client_credentials`, `write:iam_scim`) | OAuth Client | `scim-provisioner` | implemented |
-| SCIM Outbound Registration | SCIM 出站注册 | IAM's own OAuth client for pushes (`client_credentials`, `write:ai_scim`) | Client Registration | `iam-scim-outbound` | implemented |
+| Provisioning | 开通 | 跨系统创建、更新、停用与删除身份 | 概念 | `com.iam.scim` | implemented |
+| Provisioning Target | 开通目标 | IAM 推送到的下游 SCIM 服务端 | 聚合根 | `ProvisioningTarget` | implemented |
+| Assignment Group | 分配组 | 可选：限制目标接收用户范围的组 | 属性 | `ProvisioningTarget.assignmentGroupId` | implemented |
+| Provisioned Account | 已开通账号 | IAM 用户 id 到目标远端 id 与最近同步版本的映射 | 实体 | `ProvisionedAccount` | implemented |
+| SCIM Provisioning Service | SCIM 开通服务 | 经 `UserService` / `GroupService` 编排入站 SCIM | 应用服务 | `ScimProvisioningService` | implemented |
+| SCIM Push Service | SCIM 推送服务 | 向开通目标发送幂等 SCIM 调用 | 应用服务 | `ScimPushService` | implemented |
+| SCIM Push Listener | SCIM 推送监听器 | 将身份领域事件转为推送 | 监听器 | `ScimPushListener` | implemented |
+| SCIM Provisioner Client | SCIM 开通客户端 | 外部 IdP 用 OAuth 客户端（`client_credentials`、`write:iam_scim`） | OAuth Client | `scim-provisioner` | implemented |
+| SCIM Outbound Registration | SCIM 出站注册 | IAM 出站推送用 OAuth 客户端（`client_credentials`、`write:ai_scim`） | Client Registration | `iam-scim-outbound` | implemented |
 
 ---
 
@@ -418,8 +411,8 @@ identity domain never imports SCIM classes.
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| IAM Console | IAM 控制台 | Angular SPA for administrators | UI | Angular 22 app | partial |
-| OAuth Client Registration | OAuth 客户端注册 | Create OAuth Client | Use Case | Console + `/api/v1/oauthClients` | implemented |
+| IAM Console | IAM 控制台 | 管理员 Angular SPA | UI | Angular 22 app | partial |
+| OAuth Client Registration | OAuth 客户端注册 | 创建 OAuth 客户端 | 用例 | Console + `/api/v1/oauthClients` | implemented |
 
 ---
 
@@ -451,14 +444,14 @@ Permission `oauthScope` / `code` uses GitHub OAuth scope shape
 
 | Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
 | ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
-| Orchestrator | 编排器 | Agent delegating to Subagents | Pattern | `~/.cursor/agents/orchestrator.md` | dev tooling |
-| Subagent | 子智能体 | Specialized single-purpose Agent | Pattern | `~/.cursor/agents/*.md` | dev tooling |
+| Orchestrator | 编排器 | 委托子智能体的编排器 | 模式 | `~/.cursor/agents/orchestrator.md` | dev tooling |
+| Subagent | 子智能体 | 专用单用途智能体 | 模式 | `~/.cursor/agents/*.md` | dev tooling |
 
 ---
 
-## Reference
+## References
 
-- [Guideline](Guideline.md) — IAM domain principles and related standards
-- [C4 model](developer/c4-model/)
-- [Zero Trust Architecture](developer/zero-trust/Zero-Trust-Architecture.md)
-- [User Story Map](product-owner/User-Story-Map.md)
+- [References](References.md)
+- [Guideline](Guideline.md)
+- [C4 model](c4-model/)
+- [User Story Map](User-Story-Map.md)

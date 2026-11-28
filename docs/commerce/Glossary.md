@@ -40,7 +40,8 @@ This document defines the project **Ubiquitous Language**. English terms are the
 | Payment Intent | 支付意图 | Request to charge via gateway | Entity | Stripe / gateway |
 | Customer | 顾客 | End user of the storefront | Role | — |
 
-## Reference
+## References
 
-- [C4 model](developer/c4-model/)
-- [User Story Map](product-owner/User-Story-Map.md)
+- [C4 model](c4-model/)
+- [References](References.md)
+- [User Story Map](User-Story-Map.md)
