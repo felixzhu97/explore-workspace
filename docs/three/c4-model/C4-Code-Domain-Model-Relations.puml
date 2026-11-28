@@ -1,0 +1,59 @@
+@startuml C4-Code-Domain-Model-Relations
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+hide members
+
+title 领域模型关系 — Explore Three
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | System | 系统 |
+  | Service | 应用服务 |
+endlegend
+
+package "Geography\n地理" <<Bounded Context>> {
+  class SpherePoint as "SpherePoint\n球面点" <<Value Object>>
+  class GeoCoord as "GeoCoord\n地理坐标" <<Value Object>>
+  class GeographyService as "GeographyService\n地理服务" <<Service>>
+}
+
+package "Route\n航线" <<Bounded Context>> {
+  class FlightRoute as "FlightRoute\n飞行航线" <<Entity>>
+  class RouteService as "RouteService\n航线服务" <<Service>>
+}
+
+package "Theme\n主题" <<Bounded Context>> {
+  class ThemeId as "ThemeId\n主题标识" <<Value Object>>
+  class RouteColor as "RouteColor\n航线颜色" <<Value Object>>
+  class ThemeAppearance as "ThemeAppearance\n主题外观" <<Value Object>>
+  class ThemeService as "ThemeService\n主题服务" <<Service>>
+}
+
+GeoCoord --> SpherePoint : 投影 / project
+FlightRoute --> GeoCoord : 起点 / origin
+FlightRoute --> GeoCoord : 终点 / destination
+RouteService --> FlightRoute
+ThemeService --> ThemeAppearance
+ThemeAppearance --> ThemeId
+ThemeService --> RouteColor
+
+@enduml

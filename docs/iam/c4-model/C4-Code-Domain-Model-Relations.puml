@@ -1,0 +1,197 @@
+@startuml C4-Code-Domain-Model-Relations
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+title 领域模型关系 — Explore IAM
+
+hide members
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | System | 系统 |
+  | Service | 应用服务 |
+endlegend
+
+package "Domain Kernel (shared/kernel)" as pkg_kernel {
+  class AbstractImmutableEntity<IdT> <<Abstract>> 
+  class AbstractEntity<IdT> <<Abstract>> 
+  class AbstractEmbeddable as "AbstractEmbeddable\n抽象可嵌入类型" <<Abstract>>
+  class AbstractNamedEntity <<Abstract>>
+  class AbstractAuditEvent <<Abstract>>
+  class DomainStrings 
+}
+
+AbstractEntity --|> AbstractImmutableEntity
+AbstractNamedEntity --|> AbstractEntity
+AbstractAuditEvent --|> AbstractImmutableEntity
+
+package "Common" as pkg_common {
+  class ResourceName <<Value Object>>
+  class "Permission" as Permission <<Value Object>> 
+  class Resource <<Value Object>>
+  class Scope <<Value Object>>
+  class PrincipalId <<Value Object>>
+  class ReasonCode <<Value Object>>
+  enum Effect <<Enum>>
+}
+
+ResourceName --|> AbstractEmbeddable
+Permission --|> AbstractEmbeddable
+Resource --|> AbstractEmbeddable
+Scope --|> AbstractEmbeddable
+PrincipalId --|> AbstractEmbeddable
+ReasonCode --|> AbstractEmbeddable
+
+package "Identity" as pkg_identity {
+  class User as "User\n用户" <<Aggregate Root>>
+  class Group as "Group\n组" <<Aggregate Root>>
+  class ExternalId <<Value Object>>
+  class UserProvisionedEvent <<Domain Event>>
+  class UserProfileChangedEvent <<Domain Event>>
+  class UserDeactivatedEvent <<Domain Event>>
+  class UserReactivatedEvent <<Domain Event>>
+  class UserPasswordResetEvent <<Domain Event>>
+  class UserRoleAssignedEvent <<Domain Event>>
+  class UserRoleUnassignedEvent <<Domain Event>>
+  class UserDeletionRequestedEvent <<Domain Event>>
+  class UserDeletedEvent <<Domain Event>>
+  class GroupCreatedEvent <<Domain Event>>
+  class GroupProfileChangedEvent <<Domain Event>>
+  class GroupMembershipChangedEvent <<Domain Event>>
+  class GroupDeletedEvent <<Domain Event>>
+  class RoleCreatedEvent <<Domain Event>>
+  class GroupMember <<Entity>>
+  class RoleAssignment as "RoleAssignment\n角色绑定" <<Entity>>
+  class Role as "Role\n角色" <<Aggregate Root>>
+  class ImpersonationPolicy <<Value Object>>
+  class TotpCredential <<Aggregate Root>>
+  class WebAuthnCredential <<Value Object>>
+}
+
+User --|> AbstractEntity
+Group --|> AbstractEntity
+Role --|> AbstractNamedEntity
+TotpCredential --|> AbstractEntity
+Group "1" *-- "0..*" GroupMember : members
+User "1" *-- "0..*" RoleAssignment : roleBindings
+User "1" o-- "0..1" TotpCredential : optional
+User "1" o-- "0..*" WebAuthnCredential : passkeys
+Role --> ResourceName
+Role --> ImpersonationPolicy
+ExternalId --|> AbstractEmbeddable
+User --> ExternalId
+Group --> ExternalId
+UserProvisionedEvent ..> User : userId
+UserDeletionRequestedEvent ..> User : userId
+GroupMembershipChangedEvent ..> Group : groupId
+RoleCreatedEvent ..> Role : roleId
+
+package "Provisioning" as pkg_provisioning {
+  class ProvisioningTarget <<Aggregate Root>>
+  class ProvisionedAccount <<Entity>>
+}
+
+ProvisioningTarget --|> AbstractNamedEntity
+ProvisioningTarget "1" *-- "0..*" ProvisionedAccount : accounts
+ProvisionedAccount ..> User : iamUserId
+ProvisioningTarget ..> Group : assignmentGroupId
+ProvisioningTarget ..> UserProvisionedEvent : reacts via listener
+ProvisioningTarget ..> GroupMembershipChangedEvent : reacts via listener
+
+package "Policy" as pkg_policy {
+  class Policy as "Policy\n策略" <<Aggregate Root>>
+  class Rule <<Value Object>>
+  class PolicyAssignment <<Aggregate Root>>
+  class "Permission" as PermissionCatalogEntry <<Aggregate Root>> 
+  class AccessTuple <<Value Object>>
+  class AccessDecision <<Value Object>>
+  class PolicyEngine <<Domain Service>>
+  class PolicyCreatedEvent <<Domain Event>>
+  class PolicyAttachedEvent <<Domain Event>>
+  class PermissionCreatedEvent <<Domain Event>>
+  class AccessEvaluatedEvent <<Domain Event>>
+}
+
+Policy --|> AbstractNamedEntity
+PolicyAssignment --|> AbstractImmutableEntity
+PermissionCatalogEntry --|> AbstractImmutableEntity
+Policy "1" *-- "1..*" Rule : statements
+PolicyAssignment --> Policy : references policyId
+PolicyAssignment --> ResourceName
+PermissionCatalogEntry --> Permission
+PermissionCatalogEntry --> Resource
+PermissionCatalogEntry --> Scope : oauthScope
+AccessTuple --> PrincipalId
+AccessTuple --> Permission
+AccessTuple --> Resource
+AccessDecision --> Effect
+AccessDecision --> ReasonCode
+PolicyEngine ..> Policy : reads
+PolicyEngine ..> AccessDecision : returns
+PermissionCatalogEntry ..> PolicyEngine : catalog for Permission/Resource
+
+package "Short-lived credentials" as pkg_sts {
+  class TokenExchange <<Aggregate Root>>
+  class RoleAssumedEvent <<Domain Event>>
+}
+
+TokenExchange --|> AbstractImmutableEntity
+TokenExchange --> ResourceName
+RoleAssumedEvent ..> Role : roleId
+
+package "Federation" as pkg_federation {
+  class OAuthClient as "OAuthClient\nOAuth 客户端" <<Aggregate Root>>
+  class FederatedIdentity as "FederatedIdentity\n联邦身份" <<Aggregate Root>>
+  class ClientId <<Value Object>>
+  class RedirectUri <<Value Object>>
+  class OAuthClientRegisteredEvent <<Domain Event>>
+  class OAuthClientScopesChangedEvent <<Domain Event>>
+  note right of OAuthClient
+    Public clients (explore-ai-ios / explore-chat-ios):
+    requireProofKey; custom-scheme RedirectUri
+    (com.explore.*://oauth/callback) allowed.
+    Scopes persist via SAS oauth2_registered_client.scopes.
+  end note
+}
+
+FederatedIdentity --|> AbstractImmutableEntity
+OAuthClient --> ClientId
+OAuthClient --> RedirectUri
+FederatedIdentity ..> User : links
+
+package "Audit" as pkg_audit {
+  class AuditActor <<Value Object>>
+  class AuditTarget <<Value Object>>
+  class AdminActivity <<Aggregate Root>>
+  class DataAccessLog <<Aggregate Root>>
+  enum AuditOutcome <<Enum>>
+}
+
+AdminActivity --|> AbstractAuditEvent
+DataAccessLog --|> AbstractAuditEvent
+AdminActivity --> AuditActor
+AdminActivity --> AuditTarget
+AdminActivity --> AuditOutcome
+DataAccessLog --> PrincipalId
+DataAccessLog --> Permission
+DataAccessLog --> Resource
+DataAccessLog --> Effect
+DataAccessLog --> ReasonCode
+DataAccessLog ..> AccessDecision : records
+AccessEvaluatedEvent ..> DataAccessLog : handled into
+AdminActivity ..> UserDeletedEvent : handled into
+
+@enduml

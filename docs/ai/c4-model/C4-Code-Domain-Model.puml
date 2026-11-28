@@ -1,27 +1,29 @@
 @startuml C4-Code-Domain-Model
+!include ../../c4-model/style.puml
 !theme plain
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
 skinparam classAttributeIconSize 0
-skinparam linetype ortho
 skinparam class {
   BackgroundColor #FFFFFF
   BorderColor #000000
   FontColor #000000
 }
 
-title Code diagram (C4) — Domain model (by business domain)
+title 领域模型 — Explore AI
 hide empty members
 
 legend right
-  |= Stereotype |= Meaning |
-  | <<Abstract>> | 抽象基类 |
-  | <<AggregateRoot>> | 聚合根 |
-  | <<Entity>> | 实体 |
-  | <<ValueObject>> | 值对象 |
-  | <<Enum>> | 枚举 |
-  | <<DomainEvent>> | 领域事件 |
-  | <<Repository>> | 仓储 / 网关端口 |
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | Abstract | 抽象 |
+  | Enum | 枚举 |
+  | System | 系统 |
+  | Service | 应用服务 |
 endlegend
 
 note as N_LAYERS
@@ -47,7 +49,7 @@ package "Domain Kernel" as pkg_base {
   class AbstractEmbeddable <<Abstract>> {
     implements Serializable
   }
-  class TypedId <<ValueObject>> {
+  class TypedId <<Value Object>> {
     @Embeddable Lombok class, e.g. ScheduleId
     +value: UUID
     --
@@ -97,7 +99,7 @@ package "Common" as pkg_common_kernel {
     +enable()
     +updateEnabledState(enabled)
   }
-  class OwnerId <<ValueObject>> {
+  class OwnerId <<Value Object>> {
     +value: String
     --
     +{static} forClient(id)
@@ -115,7 +117,7 @@ package "Common" as pkg_common_kernel {
     +deleteByIdAndOwnerId(id, ownerId)
     +existsByOwnerIdAndNameIgnoringId(ownerId, name, excludeId)
   }
-  class AiInvocationCompletedEvent <<DomainEvent>> {
+  class AiInvocationCompletedEvent <<Domain Event>> {
     +capability: String
     +operation: String
     +latencyMs: long
@@ -126,7 +128,7 @@ package "Common" as pkg_common_kernel {
     +documentId: String
     +agentType: String
   }
-  class AiInvocationFailedEvent <<DomainEvent>> {
+  class AiInvocationFailedEvent <<Domain Event>> {
     +capability: String
     +operation: String
     +latencyMs: long
@@ -150,7 +152,7 @@ AbstractOwnerAwareImmutable --> OwnerId
 
 ' ── chat ───────────────────────────────────────────────────
 package "Chat" as pkg_chat {
-  class ChatSession <<AggregateRoot>> {
+  class ChatSession <<Aggregate Root>> {
     +id: ChatSessionId
     +ownerId: OwnerId
     +title: SessionTitle
@@ -169,7 +171,7 @@ package "Chat" as pkg_chat {
     +isInactiveSince(cutoff)
     +isEmpty()
   }
-  class SessionTitle <<ValueObject>> {
+  class SessionTitle <<Value Object>> {
     +value: String
     --
     +{static} DEFAULT
@@ -191,11 +193,11 @@ package "Chat" as pkg_chat {
     USER
     ASSISTANT
   }
-  class WebSource <<ValueObject>> {
+  class WebSource <<Value Object>> {
     +url: String
     +title: String
   }
-  class DetectedLanguage <<ValueObject>> {
+  class DetectedLanguage <<Value Object>> {
     +code: String
     --
     +{static} of(text)
@@ -208,7 +210,7 @@ package "Chat" as pkg_chat {
   interface ChatWebSourcesRepository <<Repository>> {
     +findByConversationId(conversationId)
   }
-  class ChatSessionsErasedEvent <<DomainEvent>> {
+  class ChatSessionsErasedEvent <<Domain Event>> {
     +sessionIds: List<String>
   }
 }
@@ -219,7 +221,7 @@ ChatMessage --> MessageRole
 
 ' ── rag ────────────────────────────────────────────────────
 package "RAG" as pkg_rag {
-  class RagDocument <<AggregateRoot>> {
+  class RagDocument <<Aggregate Root>> {
     +id: DocumentId
     +ownerId: OwnerId
     +title: String
@@ -243,7 +245,7 @@ package "RAG" as pkg_rag {
     +calculateSimilarity(queryVector)
     +getExcerpt()
   }
-  class ScoredChunk <<ValueObject>> {
+  class ScoredChunk <<Value Object>> {
     +chunk: DocumentChunk
     +score: double
     --
@@ -254,7 +256,7 @@ package "RAG" as pkg_rag {
     READY
     FAILED
   }
-  class SourceCitation <<ValueObject>> {
+  class SourceCitation <<Value Object>> {
     +content: String
     +score: double
   }
@@ -270,7 +272,7 @@ ScoredChunk --> DocumentChunk
 
 ' ── pipeline + skill ───────────────────────────────────────
 package "Pipeline" as pkg_pipeline {
-  class AgentPipeline <<AggregateRoot>> {
+  class AgentPipeline <<Aggregate Root>> {
     +nodes: List
     +edges: List
     --
@@ -281,7 +283,7 @@ package "Pipeline" as pkg_pipeline {
     +type: AgentType
     +systemPrompt: String
   }
-  class PipelineNode <<ValueObject>> {
+  class PipelineNode <<Value Object>> {
     +agentType: AgentType
     --
     +buildDefinition(fallback)
@@ -324,14 +326,14 @@ package "Agent" as pkg_agent {
 }
 
 package "A2A" as pkg_a2a {
-  class AgentCard <<ValueObject>> {
+  class AgentCard <<Value Object>> {
     +name: String
     +skills: List
     +supportedInterfaces: List
     --
     +{static} createCard(baseUrl, skills)
   }
-  class A2aSkill <<ValueObject>> {
+  class A2aSkill <<Value Object>> {
     +id: String
     +name: String
     +description: String
@@ -346,7 +348,7 @@ package "A2A" as pkg_a2a {
     +completeWithText(text)
     +failWithMessage(message)
   }
-  class A2aMessage <<ValueObject>> {
+  class A2aMessage <<Value Object>> {
     +messageId: String
     +role: String
     +parts: List
@@ -357,7 +359,7 @@ package "A2A" as pkg_a2a {
 }
 
 package "Skill" as pkg_skill {
-  class Skill <<AggregateRoot>> {
+  class Skill <<Aggregate Root>> {
     +id: SkillId
     +name: String
     +enabled: boolean
@@ -374,7 +376,7 @@ package "Skill" as pkg_skill {
 
 ' ── automation ─────────────────────────────────────────────
 package "Automation" as pkg_automation {
-  class AutomationSchedule <<AggregateRoot>> {
+  class AutomationSchedule <<Aggregate Root>> {
     @DynamicUpdate
     +id: ScheduleId
     +timing: ScheduleTiming
@@ -393,7 +395,7 @@ package "Automation" as pkg_automation {
     +resultEmail(textBody, htmlBody)
     +isOnce()
   }
-  class ScheduleTiming <<ValueObject>> {
+  class ScheduleTiming <<Value Object>> {
     +kind: ScheduleKind
     +cronExpression: String
     +timezone: String
@@ -450,28 +452,28 @@ package "Account" as pkg_account {
     +findGuestOwnerId(): Optional
     +findDisplayLabel(): Optional
   }
-  class ExternalIdentity <<ValueObject>> {
+  class ExternalIdentity <<Value Object>> {
     +provider: String
     +subject: String
     --
     +{static} createIdentity(provider, subject)
     +{static} createIamIdentity(subject)
   }
-  class ContactEmail <<ValueObject>> {
+  class ContactEmail <<Value Object>> {
     +value: String
     --
     +{static} parseOptionalEmail(raw)
   }
-  class ClientId <<ValueObject>> {
+  class ClientId <<Value Object>> {
     +value: String (UUID)
     --
     +{static} parseId(raw)
     +{static} isValid(raw)
   }
-  class OwnerErasureRequestedEvent <<DomainEvent>> {
+  class OwnerErasureRequestedEvent <<Domain Event>> {
     +ownerId: OwnerId
   }
-  class GuestLinkedToAccountEvent <<DomainEvent>> {
+  class GuestLinkedToAccountEvent <<Domain Event>> {
     +fromOwnerId: OwnerId
     +toOwnerId: OwnerId
   }
@@ -496,7 +498,7 @@ package "Billing" as pkg_billing {
     FREE
     PRO
   }
-  class QuotaPolicy <<ValueObject>> {
+  class QuotaPolicy <<Value Object>> {
     +enforced: boolean
     +plan: Plan
     --
@@ -504,7 +506,7 @@ package "Billing" as pkg_billing {
     +ipDailyLimit()
     +globalDailyLimit(): OptionalInt
   }
-  class DailyUsage <<ValueObject>> {
+  class DailyUsage <<Value Object>> {
     +day: LocalDate
     +count: int
     --
@@ -513,14 +515,14 @@ package "Billing" as pkg_billing {
     +consume(today)
     +release(today)
   }
-  class QuotaSubject <<ValueObject>> {
+  class QuotaSubject <<Value Object>> {
     +key: String
     --
     +{static} owner(ownerId)
     +{static} address(ip)
     +{static} GLOBAL
   }
-  class QuotaDecision <<ValueObject>> {
+  class QuotaDecision <<Value Object>> {
     +allowed: boolean
     +plan: Plan
     +limit: int
@@ -536,7 +538,7 @@ QuotaDecision --> Plan
 
 ' ── mcp ────────────────────────────────────────────────────
 package "MCP" as pkg_mcp {
-  class McpSession <<AggregateRoot>> {
+  class McpSession <<Aggregate Root>> {
     +id: UUID
     +status: McpSessionStatus
     --
@@ -559,35 +561,35 @@ package "Metrics" as pkg_metrics {
     +{static} createSucceededEvent(capability, operation, latency, ownerId)
     +{static} createFailedEvent(capability, operation, latency, ownerId, error)
   }
-  class Latency <<ValueObject>> {
+  class Latency <<Value Object>> {
     +millis: long
     --
     +{static} measureSince(startNanos)
   }
-  class ErrorSummary <<ValueObject>> {
+  class ErrorSummary <<Value Object>> {
     +code: String
     +message: String
     --
     +{static} createSummary(throwable)
   }
-  class TokenUsage <<ValueObject>> {
+  class TokenUsage <<Value Object>> {
     +prompt: Integer
     +completion: Integer
     --
     +calculateTotal()
   }
-  class InvocationStats <<ValueObject>> {
+  class InvocationStats <<Value Object>> {
     +requests: long
     +errors: long
     --
     +calculateErrorRate()
     +calculateSuccessRate()
   }
-  class MetricsWindow <<ValueObject>> {
+  class MetricsWindow <<Value Object>> {
     +{static} parseWindow(range)
     +from(now)
   }
-  class LatencyStats <<ValueObject>> {
+  class LatencyStats <<Value Object>> {
     +{static} calculateStats(latencies)
   }
   enum AiCapability <<Enum>> {

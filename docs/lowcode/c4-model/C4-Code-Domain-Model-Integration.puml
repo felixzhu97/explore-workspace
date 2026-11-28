@@ -1,0 +1,111 @@
+@startuml C4-Code-Domain-Model-Integration
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+skinparam package<<System>> {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam package<<Bounded Context>> {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+title 系统对接 — Explore Lowcode
+
+legend right
+  |= 包 / Stereotype |= 中文术语 |
+  | System | 系统 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | 同上下文 | 实线 / 组合 |
+  | 跨上下文 / 跨系统 | 虚线 |
+endlegend
+
+package "探索 Lowcode\nExplore Lowcode" <<System>> {
+  package "Core Domain\n核心领域" <<Bounded Context>> {
+    class Page as "Page\n页面" <<Entity>> {
+      + 标识 (id)
+    }
+    class Component as "Component\n组件" <<Entity>> {
+      + 标识 (id)
+    }
+    class Theme as "Theme\n主题" <<Entity>> {
+      + 标识 (id)
+    }
+    class Template as "Template\n模板" <<Entity>> {
+      + 标识 (id)
+    }
+    class DataSource as "DataSource\n数据源" <<Entity>> {
+      + 标识 (id)
+    }
+  }
+  package "Integration Config\n对接配置" <<Bounded Context>> {
+    class IntegrationConfig as "IntegrationConfig\n对接配置" <<Aggregate Root>> {
+      + 启用 (enabled)
+      + 端点 (endpoint)
+      --
+      + 登记接口() (registerInterface())
+    }
+  }
+}
+
+package "Web Browser" <<System>> {
+  class browser_Facade as "Web Browser\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "CDN" <<System>> {
+  class cdn_Facade as "CDN\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Vercel" <<System>> {
+  class vercel_Facade as "Vercel\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Git Hosting" <<System>> {
+  class git_Facade as "Git Hosting\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+IntegrationConfig --> Page : 配置 / configures
+Page ..> browser_Facade : 对接 / integrate
+Page ..> cdn_Facade : 对接 / integrate
+Page ..> vercel_Facade : 对接 / integrate
+Page ..> git_Facade : 对接 / integrate
+
+@enduml

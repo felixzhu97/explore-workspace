@@ -1,0 +1,210 @@
+@startuml C4-Code-Domain-Model-Relations
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+title 领域模型关系 — Explore Chat
+
+hide members
+
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | System | 系统 |
+  | Service | 应用服务 |
+endlegend
+
+' ── Domain Kernel ──────────────────────────────────────────
+package "Domain Kernel" as pkg_kernel {
+  abstract class AbstractImmutable <<Abstract>> 
+  abstract class AbstractEntity <<Abstract>> 
+}
+
+AbstractImmutable <|-- AbstractEntity
+
+' ── Auth ───────────────────────────────────────────────────
+package "Auth" as pkg_auth {
+  interface AuthService <<Domain Service>>
+  class AuthTokens <<Value Object>>
+}
+
+AuthService ..> AuthTokens
+
+' ── User ───────────────────────────────────────────────────
+package "User" as pkg_user {
+  class User as "User\n用户" <<Aggregate Root>>
+  interface UserRepository <<Repository>>
+}
+
+AuthService ..> User
+
+' ── Follow ─────────────────────────────────────────────────
+package "Follow" as pkg_follow {
+  class UserFollow <<Entity>>
+}
+
+User "1" o-- "0..*" UserFollow : follower
+User "1" o-- "0..*" UserFollow : following
+
+' ── Chat ───────────────────────────────────────────────────
+package "Chat" as pkg_chat {
+  class Chat as "Chat\n聊天" <<Aggregate Root>>
+  enum ChatType <<Value Object>>
+  class ChatParticipant <<Entity>>
+  interface ChatRepository <<Repository>>
+  interface ChatParticipantRepository <<Repository>>
+  class SpringDataChatRepository 
+  class SpringDataChatParticipantRepository 
+}
+
+Chat "1" *-- "1..*" ChatParticipant
+Chat --> ChatType
+ChatParticipant --> User
+
+' ── Message ────────────────────────────────────────────────
+package "Message" as pkg_message {
+  class Message as "Message\n消息" <<Aggregate Root>>
+  enum MessageType <<Enum>>
+  class MessageReaction <<Entity>>
+  class MessageRead <<Entity>>
+  interface MessageRepository <<Repository>>
+  note right of Message
+    Participant checks live in ChatsService
+    (not Chat.ensureParticipant).
+    Soft delete: markDeleted() → deleted.
+    clientMsgId is client Local Chat Projection only.
+  end note
+  class SpringDataMessageRepository 
+}
+
+SpringDataMessageRepository ..|> MessageRepository
+SpringDataChatRepository ..|> ChatRepository
+SpringDataChatParticipantRepository ..|> ChatParticipantRepository
+
+Chat "1" o-- "0..*" Message : chatId
+Message "1" o-- "0..*" MessageReaction
+Message "1" o-- "0..*" MessageRead
+Message --> User : senderId
+Message ..> MessageRepository
+Chat ..> ChatRepository
+
+' ── Group ──────────────────────────────────────────────────
+package "Group" as pkg_group {
+  class Group as "Group\n组" <<Aggregate Root>>
+  class GroupParticipant <<Entity>>
+}
+
+Group "1" *-- "0..*" GroupParticipant
+
+' ── Post ───────────────────────────────────────────────────
+package "Post" as pkg_post {
+  class Post as "Post\n动态" <<Aggregate Root>>
+  enum MediaType <<Enum>>
+  class FeedEntry <<Entity>>
+  interface PostRepository <<Repository>>
+}
+
+Post --> User : author
+Post "1" o-- "0..*" FeedEntry
+
+' ── Comment ────────────────────────────────────────────────
+package "Comment" as pkg_comment {
+  class Comment <<Entity>>
+  interface CommentRepository <<Repository>>
+}
+
+Post "1" o-- "0..*" Comment
+Comment --> User : author
+
+' ── Call ───────────────────────────────────────────────────
+package "Call" as pkg_call {
+  class Call <<Aggregate Root>>
+  enum CallStatus <<Enum>>
+}
+
+' ── Notification ───────────────────────────────────────────
+package "Notification" as pkg_notification {
+  class Notification <<Entity>>
+  interface NotificationRepository <<Repository>>
+}
+
+Notification --> Post
+
+' ── Status ─────────────────────────────────────────────────
+package "Status" as pkg_status {
+  class Status <<Aggregate Root>>
+  interface StatusRepository <<Repository>>
+}
+
+Status --> User : author
+
+N_LAYERS .. pkg_kernel
+N_LAYERS .. pkg_user
+N_LAYERS .. pkg_chat
+N_LAYERS .. pkg_post
+
+' --- Client Local Chat Projection (TS web/mobile) ---
+' Display name Message; alias ClientMessage avoids clash with Java Message.
+package "Local Chat Projection" as pkg_projection {
+  class ChatId <<Value Object>>
+  class MessageId <<Value Object>>
+  class ClientMsgId <<Value Object>>
+  class SenderId <<Value Object>>
+  class MessageBody <<Value Object>>
+  class ChatTitle <<Value Object>>
+  class AvatarURL <<Value Object>>
+  class MessageDeliveryStatus <<Value Object>>
+  class ChatCatalog <<Aggregate Root>>
+  class ChatThread <<Aggregate Root>>
+  class "Message" as ClientMessage <<Entity>> 
+  class ThreadHydrated <<Domain Event>>
+  class MessageAccepted <<Domain Event>>
+  class LastMessageChanged <<Domain Event>>
+  class DeliveryStatusChanged <<Domain Event>>
+  class CatalogReplaced <<Domain Event>>
+  class ChatPreviewChanged <<Domain Event>>
+  interface ChatProjectionRepository <<Repository>>
+  note as N_CLIENT
+    Local Chat Projection: UI reads client aggregates;
+    authority = Spring + IM Contract.
+    Catalog and Thread are separate aggregates;
+    ChatProjectionService / ChatThreadService
+    orchestrate (not Catalog⊃Thread).
+    Repository stores projection rows; rebuilds aggregates.
+    Domain Event (client): in-process drain only.
+  end note
+}
+
+ChatCatalog ..> ChatId
+ChatCatalog ..> ChatTitle
+ChatCatalog ..> AvatarURL
+ChatThread "1" *-- "0..*" ClientMessage
+ChatThread --> ChatId
+ClientMessage --> MessageId
+ClientMessage --> ClientMsgId
+ClientMessage --> MessageDeliveryStatus
+ClientMessage --> MessageBody
+ChatThread ..> ThreadHydrated
+ChatThread ..> MessageAccepted
+ChatThread ..> LastMessageChanged
+ChatThread ..> DeliveryStatusChanged
+ChatCatalog ..> CatalogReplaced
+ChatCatalog ..> ChatPreviewChanged
+ChatProjectionRepository ..> ChatCatalog : rows ↔
+ChatProjectionRepository ..> ClientMessage : rows ↔
+N_CLIENT .. ChatThread
+N_CLIENT .. ChatCatalog
+
+@enduml
