@@ -1,132 +1,98 @@
-# Glossary | 领域术语表
+# Glossary
 
-> Chat — Ubiquitous Language（统一语言）
+## Business Domains | 业务域总览
 
----
+| 中文 | English | 定义 |
+|------|---------|------|
+| 认证 | Auth | 核实主体身份或授予访问权限的过程。 |
+| 用户 | User | 可登录并被授权的人员主体。 |
+| 聊天 | Chat | 参与者之间的会话式交流。 |
+| 消息 | Message | 通信中传递的一条信息单元。 |
+| 通话 | Call | 实时语音或视频通话。 |
+| 群组 | Group | 由多名用户组成的社交群体。 |
+| 帖子 | Post | 用户发布到信息流的一条内容。 |
+| 信息流 | Feed | 按时间或相关性排列的内容流。 |
+| 短视频 | Reels | 短视频形态的内容流。 |
+| 探索 | Explore | 发现与浏览内容的入口。 |
+| 评论 | Comment | 对内容发表的附言。 |
+| 关注 | Follow | 订阅另一用户更新的关系。 |
+| 搜索 | Search | 按条件查找信息的过程。 |
+| 通知 | Notification | 向用户告知事件的提示。 |
+| 媒体上传 | Media | 图像、音视频等多媒体内容。 |
+| 状态 | Status | 用户短暂展示的状态更新。 |
+| 图片生成 | Image Gen | 由提示生成图像。 |
+| 视频生成 | Video Gen | 由提示生成视频。 |
+| 语音合成 | Voice Gen | 由文本生成语音。 |
+| 视觉审核 | Vision | 对图像或视频进行理解与分析。 |
+| 分析 | Analytics | 对使用与业务数据的度量分析。 |
+| 广告 | Ads | 面向用户投放的广告。 |
+| 管理 | Admin | 系统管理与运营能力。 |
+| 本地 AI | AI Chat | 与模型进行的文本对话。 |
+| Explore AI 代理 | Explore AI BFF | 面向客户端聚合 AI 能力的后端中间层。 |
+| 健康检查 | Health | 系统可用性与就绪状态的检查。 |
 
-## 1. Purpose | 文档说明
+## Preferred Terms | 术语表
 
-本文定义项目**统一语言**。英文 Preferred Term 为规范名，须与代码、API、架构命名一致；中文仅供本地化与干系人沟通。
+| 中文 | English | 定义 |
+|------|---------|------|
+| Chat | Chat | 参与者之间的会话式交流。 |
+| 封面 URL | Cover URL | 媒体内容的封面图像地址。 |
+| 信息流条目 | Feed Entry | 信息流中的一条内容引用。 |
+| 互动 | Engagement | 用户与内容的互动行为。 |
+| Explore AI BFF | Explore AI BFF | 面向客户端聚合 AI 能力的后端中间层。 |
+| 客户端身份 | Client Identity | 客户端的稳定身份标识。 |
+| 主目的地 | Primary Destination | 应用主导航的目标位置。 |
+| AIP REST | AIP REST | 遵循 Google AIP 惯例的资源导向 HTTP API。 |
+| IAM 模块范围 | IAM Module Scope | 访问令牌上约束模块能力的范围声明。 |
+| RPC 状态 | RpcStatus | 表示远程调用错误的状态对象。 |
+| 分页令牌 | Page Token | 用于继续分页的不透明令牌。 |
+| 自定义方法 | Custom Method | 在标准 CRUD 之外以动词命名的资源操作。 |
+| 搜索范围 | Search Scope | 搜索所覆盖的对象类型范围。 |
+| 语音合成目标语言 | Voice Gen Target Language | 语音合成的目标语言。 |
+| 语音翻译目标语言 | Voice Translate Target Language | 语音翻译的目标语言。 |
+| 客户端消息 ID | Client Message ID | 由发送方生成的消息幂等标识。 |
+| 消息投递状态 | Message Delivery Status | 消息从发送到已读的投递状态。 |
+| 会话 ID | Chat Id | 会话的唯一标识。 |
+| 消息 ID | Message Id | 消息的唯一标识。 |
+| 本地聊天投影 | Local Chat Projection | 客户端保存的会话与消息只读投影。 |
+| 聊天线程 | Chat Thread | 单一会话的消息时间线。 |
+| 会话目录 | Chat Catalog | 会话列表及其预览。 |
+| 灌库 | Hydrate | 用权威数据填充本地投影。 |
+| 接受实时消息 | Accept Live Message | 将实时消息纳入会话时间线。 |
+| 客户端领域事件 | Domain Event (client) | 领域中已发生事实的记录。 |
+| IM 契约 | IM Contract | 即时通讯跨端消息与会话的协议契约。 |
+| 不可变基类 | Abstract Immutable | 创建后不可变实体的基类型。 |
+| 实体基类 | Abstract Entity | 可变实体的持久化基类型。 |
+| 聚合根基类 | Abstract Aggregate Root | 聚合根实体的基类型。 |
+| 参与者基类 | Abstract Participant | 会话或群组成员的基类型。 |
+| 嵌入值对象基类 | Abstract Embeddable | 可嵌入值对象的基类型。 |
+| 软删除 | Soft Delete | 标记删除而不立即物理清除记录。 |
+| 确保参与者 | Ensure Participant | 确认主体属于会话参与者。 |
+| 断言可发送 | Assert Sendable By | 断言发送方有权向该会话发信。 |
+| Prisma 仓储基类 | Abstract Prisma Repository | 基于 Prisma 的仓储基类型。 |
 
-### Maintenance Principles
+## Domain Model | 领域模型补遗
 
-1. **Glossary first**：先改术语表，再改代码
-2. **Code sync**：领域模型变更必须回写对应词条
-3. **Preferred term**：代码、API、Jira、提交与技术文档一律用 Preferred Term（English）
-
-### Naming | 命名
-
-类（实体、值对象、聚合根、服务、DTO）用名词。字段、参数、局部变量用名词。方法为动词 + 名词：`createUser`、`createMessage`、`createParticipant`、`createCall`、`parseId`、`generateId`、`markDeleted`。同一概念在 Java、库表（snake_case）与 Web/移动端用同一词。框架既定名保持不变（`save`、`findById`、Lombok `getX()`）。
-
-领域类型仅落在 `domain.model`（实体、聚合根、值对象、领域事件）；无 `domain.vo` 包。仓储端口在 `domain.repository`。软删除用 `markDeleted`（置 `deleted` / `isDeleted`）；禁止平行同义词。
-
-| Concept | Canonical class | Physical table (Liquibase 0.1) | Notes |
-| --- | --- | --- | --- |
-| Signed-in person | `User` | `chat_user` | SQL `user` 保留字；类名仍为 `User` |
-| Conversation | `Chat` | `chat` | — |
-| Instant message | `Message` | `message` | — |
-| Feed item | `Post` | `social_post` | 曾用 `SocialPost` |
-| Post reply | `Comment` | `post_comment` | 曾用 `PostComment` |
-| Social circle | `Group` | `social_group` | 曾用 `SocialGroup` |
-| Realtime call | `Call` | `voice_call` | 曾用 `VoiceCall` |
-| In-app notice | `Notification` | `activity_notification` | 曾用 `ActivityNotification` |
-
-领域类型禁止 `@Table`；表名固定于 `db/changelog/0.1.xml`（仅 `createTable`——改基线，无 alter）。
-
----
-
-## 2. Business Domains | 业务域总览
-
-| -------------- | --------------- | -------------------------------- | -------------------- | ---------------------------------- | ---------------- | ------------------------------- | ------------------------------------------------ |
-| Auth           | 认证            | `com.chat.auth`                  | `auth/`              | `auth/`                            | 登录 / 注册      | `/api/v1/auth`                  | Chat HS JWT (`ROLE_USER`) + Explore IAM Bearer (`SCOPE_write:chat_*` / `SCOPE_admin:chat`) |
-| User           | 用户            | `com.chat.users` / `User`                    | `profile/`           | `profile/`                         | 个人页           | `/api/v1/users`                 | 资料、搜索；表 `chat_user`                       |
-| Chat           | 聊天            | `com.chat.chats`                 | `chat/`              | `chat/`                            | 消息             | `/api/v1/chats`                 | 会话列表；线缆契约 `src/main/im-contract/openapi.yaml` |
-| Message        | 消息            | `com.chat.messages`              | `chat/`              | `chat/`                            | 私信             | `/api/v1/chats/{chat}/messages` | 子资源；Socket.IO `:9002`；契约同上               |
-| Call           | 通话            | `com.chat.calls` / `Call`        | `calls/`             | `calls/` + `core/call`             | WebRTC UI        | `/api/v1/calls`                 | 表 `voice_call`；媒体仍走 WebRTC                       |
-| Group          | 群组            | `com.chat.groups` / `Group` | `chat/group.model`   | `chat/`                            | 群组             | `/api/v1/groups`                | 表 `social_group`                              |
-| Post           | 帖子            | `com.chat.post` / `Post`         | `feed/`              | `feed/`                            | 发帖 / 网格      | `/api/v1/posts`                 | 表 `social_post`；mediaUrls、coverUrl                              |
-| Feed           | 信息流          | `com.chat.post`   | `feed/`              | `feed/`                            | 首页 Feed        | REST `GET /posts/feed`     | Query `feed` 在切流完成前仍可走 Spring API             |
-| Reels          | 短视频          | `com.chat.post`          | `reels/`             | `reels/`                           | Reels Tab        | `/api/v1/posts/reels`               | REST reels                                    |
-| Explore        | 探索            | `com.chat.post`      | `explore/`           | `explore/`                         | 探索网格         | `/api/v1/posts/explore`         |                                                  |
-| Comment        | 评论            | `com.chat.comments` / `Comment`  | `feed/components/`   | `feed/` / `app/post-comments`      | 评论弹窗         | `/api/v1/posts/{post}/comments` | 表 `post_comment`                                           |
-| Follow         | 关注            | `com.chat.follow`                | `profile/`           | `profile/`                         | 粉丝 / 关注      | `/api/v1/users/{user}:follow`   | AIP-136 custom method                            |
-| Search         | 搜索            | `com.chat.search`                | `search/`            | — (embedded in `explore/`)         | 全局搜索         | `/api/v1/search`                |                                                  |
-| Notification   | 通知            | `com.chat.notifications` / `Notification` | `layout/`     | `secondary/` / `app/notifications` | 通知抽屉         | `/api/v1/notifications`         | 表 `activity_notification`；WS `notification:new` |
-| Media          | 媒体上传        | `com.chat.media`                 | `ai/apis/file.api`   | `feed/` (upload via RTK)           | 发帖上传         | `/api/v1/media`                 | 本地盘 / 对象存储                                |
-| Status         | 状态            | `com.chat.status`           | `secondary/pages/`   | `feed/` (story via feedApi)        | Status UI        | `/api/v1/status`                | 24h 状态                                         |
-| Image Gen      | 图片生成        | `com.chat.ai` → explore-ml image_playground | `ai/apis/image.api`  | —                                  | 生成对话框       | `/api/v1/images:generate`       | API → explore-ml `:8000`                         |
-| Video Gen      | 视频生成        | `com.chat.ai` → explore-ml video | `ai/apis/video.api`  | —                                  | 生成对话框       | `/api/v1/videos:generate`       | API → explore-ml `:8000`                         |
-| Voice Gen      | 语音合成        | `com.chat.ai` → explore-ml speech | `ai/apis/voice.api`  | —                                  | 生成对话框       | `/api/v1/voices:synthesize`     | API → explore-ml `:8000`                         |
-| Vision         | 视觉审核        | `com.chat.ai` → explore-ml vision    | `ai/apis/vision.api` | —                                  | 发帖链路         | `/api/v1/vision`                | 旁路 explore-ml `:8000`                          |
-| Analytics      | 分析            | `com.chat.analytics`        | —                    | `layout/providers`                 | Admin            | `/api/v1/analytics`             |                                                  |
-| Ads            | 广告            | `com.chat.ads`              | —                    | —                                  | Admin            | `/api/v1/ads`                   |                                                  |
-| Admin          | 管理            | `com.chat.admin`            | —                    | —                                  | Admin App        | `/api/v1/admin`                 |                                                  |
-| AI Chat        | 本地 AI         | `com.chat.ai` → Ollama           | `ai/`                | —                                  | 文本生成         | `/api/v1/ai`                    | Ollama                                           |
-| Explore AI BFF | Explore AI 代理 | `com.chat.ai`                    | `ai/`                | —                                  | 经 API 代理      | `/api/v1/ai/explore`            | 客户端勿直连 Explore AI                          |
-| Health         | 健康检查        | `com.chat.health` + actuator     | —                    | —                                  | 运维             | `/api/v1/health`                | 另见 `/actuator/health`                          |
-
-```mermaid
-flowchart TB
-  subgraph clients [Clients]
-    Web[Web]
-    Mobile[Mobile_Expo]
-    AdminApp[Admin]
-  end
-  subgraph api [Spring API]
-    Auth
-    Feed
-    Chat
-    ExploreBFF[Explore AI BFF]
-  end
-  Web --> api
-  Mobile --> api
-  AdminApp --> api
-```
-
----
-
-## 3. Preferred Terms | 术语表
-
-| Preferred Term                  | 中文             | Definition                                                                                                       |
-| ------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Chat                     | Chat      | 社交 + 即时通讯产品；npm scope `@chat/*`；`explore-chat-*` / `explorechat-*` 为历史名                                 |
-| Cover URL                       | 封面 URL         | 视频帖封面图地址；与 mediaUrls 分离                                                                              |
-| Feed Entry                      | 信息流条目       | Feed 中的一条 Post 引用                                                                                          |
-| Engagement                      | 互动             | 点赞、收藏及计数                                                                                                 |
-| Explore AI BFF                  | Explore AI BFF   | API 服务间代理；`X-Service-Key` + `X-Client-Id`                                                                  |
-| Client Identity                 | 客户端身份       | 映射到 Explore AI 的稳定客户端 ID（UUID）                                                                        |
-| Primary Destination             | 主目的地         | 跨端规范导航身份：`feed` / `chat` / `reels` / `explore` / `user` / `search`；path/tab 由各端映射                 |
-| AIP REST                        | AIP REST         | Google API Improvement Proposals 风格 REST：资源路径、标准方法、page_token、RpcStatus 错误；前缀仍为 `/api/v1`；Nest 与 Python ML helpers 共用 |
-| IAM Module Scope                | IAM 模块范围     | Explore IAM access token 上的 GitHub 风格 OAuth scope（`write:chat_messaging`、`write:chat_social`、`admin:chat`）；非 Search Scope |
-| RpcStatus                       | RPC 状态         | AIP-193 错误体：`{ code, message, details[] }`，对齐 google.rpc.Status JSON                                      |
-| Page Token                      | 分页令牌         | AIP-158 不透明 `page_token` / `next_page_token`；客户端不解析内部 offset/cursor                                  |
-| Custom Method                   | 自定义方法       | AIP-136：`POST …/{resource}:verb`（如 `:archive`、`:follow`）                                                    |
-| Search Scope                    | 搜索范围         | Nest `type`：`posts` / `users` / `hashtags`；UI `all` 仅客户端聚合，勿作为 API type                              |
-| Voice Gen Target Language       | 语音合成目标语言 | Voice Gen：`auto` / `zh` / `en`                                                                                  |
-| Voice Translate Target Language | 语音翻译目标语言 | Voice translate：`zh` / `en`（无 `auto`）                                                                        |
-| Client Message ID               | 客户端消息 ID    | 发送方生成的幂等键（`clientMsgId`）；服务端 ack 原样回传，用于乐观气泡对账；见 `im-contract` Message.clientMsgId |
-| Message Delivery Status         | 消息投递状态     | `sending`（仅客户端）→ `sent` → `delivered` → `read`；失败为 `failed`；OpenAPI `MessageDeliveryStatus`           |
-| Chat Id                         | 会话 ID          | 客户端/契约中的会话标识值对象；非空 string                                                                        |
-| Message Id                      | 消息 ID          | 服务端或临时乐观消息标识值对象                                                                                    |
-| Local Chat Projection           | 本地聊天投影     | 客户端会话/消息可读副本；权威仍在服务端 + IM Contract；UI 读投影                                                  |
-| Chat Thread                     | 聊天线程         | 客户端聚合根：单会话消息时间线；`hydrate` / `accept` / 投递迁移                                                    |
-| Chat Catalog                    | 会话目录         | 客户端聚合：会话列表与 lastMessage 预览                                                                            |
-| Hydrate                         | 灌库             | REST 拉取结果合并进 Chat Thread / Chat Catalog（聚合行为）                                                         |
-| Accept Live Message             | 接受实时消息     | Socket/乐观消息进入 Chat Thread（去重、Client Message ID 对账）                                                    |
-| Domain Event (client)           | 客户端领域事件   | 聚合产生的事实（如 `MessageAccepted`）；进程内 drain，不落网                                                       |
-| IM Contract                     | IM 契约          | 跨语言协议接口（非 SDK）：`src/main/im-contract/openapi.yaml`；各端手写 DTO 对照接入，无 codegen                 |
-| Abstract Immutable              | 不可变基类       | 领域内核：`id`（cuid String）、`createdAt`；对齐 Prisma；身份只落基类                                            |
-| Abstract Entity                 | 实体基类         | 继承 Abstract Immutable；`updatedAt`、计划中的 `version`；可变实体继承它                                         |
-| Abstract Aggregate Root         | 聚合根基类       | 继承 Abstract Entity；一致性边界（User / Chat / Message / Group / Post）                                         |
-| Abstract Participant            | 参与者基类       | 继承 Abstract Entity；`userId` / `role` / `joinedAt`；Chat 与 Group 参与者共用                                   |
-| Abstract Embeddable             | 嵌入值对象基类   | 无独立表身份的值对象内核                                                                                         |
-| Soft Delete                     | 软删除           | Message 等领域：`deleted` / `isDeleted` + `markDeleted()`；不物理删行                                            |
-| Ensure Participant              | 确保参与者       | Chat 聚合校验 userId 是否为会话参与者                                                                            |
-| Assert Sendable By              | 断言可发送       | Message / Chat 侧规则：发送方须有权发往该会话                                                                    |
-| Abstract Prisma Repository      | Prisma 仓储基类  | infra 通用基类，持有 PrismaClient；各 `*Repository` 实现继承它以减样板；domain 不依赖 Prisma                     |
-
----
-
-## 4. Living docs
-
-变更术语、模块或 API 前缀时，同步更新本文件与 [C4](c4-model/)、[User Story Map](User-Story-Map.md)。
+| 中文 | English | 定义 |
+|------|---------|------|
+| 会话参与者 | Chat Participant | 属于某一会话并具有角色的用户成员。 |
+| 群组成员 | Group Participant | 属于某一社交群组的用户成员。 |
+| 会话标题 | Chat Title | 会话的显示名称。 |
+| 会话类型 | Chat Type | 私聊、群聊等会话分类。 |
+| 通话状态 | Call Status | 通话从发起、接通到结束所处的状态。 |
+| 消息正文 | Message Body | 消息所承载的文本或结构化内容。 |
+| 消息类型 | Message Type | 文本、媒体等消息形态分类。 |
+| 消息反应 | Message Reaction | 用户对消息作出的表情或态度回应。 |
+| 媒体类型 | Media Type | 图像、视频、音频等内容类型。 |
+| 发送方标识 | Sender Id | 发出消息的用户标识。 |
+| 头像地址 | Avatar URL | 用户头像资源的网络地址。 |
+| 认证令牌对 | Auth Tokens | 登录后用于访问与续期的令牌组合。 |
+| 用户关注 | User Follow | 用户之间单向关注关系。 |
+| 客户端消息号 | ClientMsgId | 发送端生成的消息幂等编号。 |
+| 消息已读 | Message Read | 接收方已阅读某消息的事实。 |
+| 消息已接受 | Message Accepted | 会话时间线已接纳某消息的事实。 |
+| 投递状态变更 | Delivery Status Changed | 消息投递状态发生变化的事实。 |
+| 线程已灌库 | Thread Hydrated | 本地会话时间线已用权威数据填满的事实。 |
+| 目录已替换 | Catalog Replaced | 会话目录被完整替换的事实。 |
+| 预览已变更 | Chat Preview Changed | 会话列表预览信息已更新的事实。 |
+| 末条消息已变更 | Last Message Changed | 会话最后一条消息预览已更新的事实。 |

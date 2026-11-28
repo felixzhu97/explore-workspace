@@ -1,115 +1,112 @@
-# Glossary | 领域术语表
+# Glossary
 
-> FinPulse — Ubiquitous Language（统一语言）
+## Business Domains | 业务域总览
 
----
+| 中文 | English | 定义 |
+|------|---------|------|
+| 认证 | Auth | 投资者或投顾登录并建立会话的过程。 |
+| 客户 | Customer | 接受投顾服务或自行管理资产的投资者主体。 |
+| 账户 | Account | 客户名下用于持仓与资金往来的证券或资金账户。 |
+| 标的 | Instrument | 可报价、委托与持仓的金融工具。 |
+| 市场数据 | MarketData | 标的价格、成交量等行情观测。 |
+| 组合 | Portfolio | 客户账户下按策略归集的资产集合。 |
+| 持仓 | Position | 组合内对某一标的的数量与成本状态。 |
+| 自选 | Watchlist | 客户关注但未必持有的标的列表。 |
+| 行情 | Quote | 标的在某一时点的买卖报价。 |
+| 交易 | Trading | 下达委托并达成买卖的过程。 |
+| 支付 | Payment | 账户相关资金收付的过程。 |
+| 清算 | Settlement | 成交后证券与资金的交收过程。 |
+| 分析 | Analytics | 对组合收益、风险与流水的度量分析。 |
+| 债券 | Bond | 约定还本付息的债权类标的。 |
+| 期权 | Option | 在约定条件买卖标的的权利合约。 |
+| 区块链演示 | Blockchain | 以链式账本演示链上资产或交易的能力。 |
+| 横切 | Common | 跨业务域共享的内核与基础设施能力。 |
 
-## 1. Purpose | 文档说明
+## Core Entities | 核心实体
 
-本文定义项目 **统一语言**。英文 Preferred Term 为规范名，必须与代码、API、架构命名一致。中文标签仅用于本地化与干系人沟通。
+| 中文 | English | 定义 |
+|------|---------|------|
+| 客户 | Customer | 与投顾平台建立业务关系的投资者。 |
+| 账户 | Account | 记录持仓、资金与交易权限的账户。 |
+| 标的 | Instrument | 股票、债券、期权等可交易工具。 |
+| 组合 | Portfolio | 账户内用于管理持仓的投资组合。 |
+| 持仓 | Position | 组合对某一标的的多空数量与成本。 |
+| 自选 | Watchlist | 客户自定义的关注标的清单。 |
+| 自选明细 | WatchlistItem | 自选列表中的一条标的记录。 |
+| 行情 | Quote | 标的最新或深度报价。 |
+| 委托 | Order | 向市场或柜台提交的买卖指令。 |
+| 成交 | Trade | 委托部分或全部成交后的交易事实。 |
+| 支付 | Payment | 一笔资金转入或转出账户的记录。 |
+| 清算 | Settlement | 成交对应的交收状态与结果。 |
+| 资金流水 | CashTransaction | 账户现金增减的流水记录。 |
+| 风险指标 | RiskMetric | 度量组合或持仓风险的指标。 |
+| 市场数据 | MarketData | 持久化保存的行情或市场观测记录。 |
+| 债券 | Bond | 具有面值、票息与到期日的债权工具。 |
+| 期权 | Option | 看涨或看跌等权利类型的期权合约。 |
+| 会话 | Session | 认证后持续有效的登录会话。 |
+| 用户凭证 | UserCredential | 用于登录校验的凭证材料。 |
+| 用户偏好 | UserPreference | 投资者对展示与通知等的偏好。 |
 
-### Maintenance Principles
+## Domain Kernel | 领域内核
 
-1. **Glossary first**：术语先入表，再写代码
-2. **Code sync**：领域模型变更必须同步更新对应词条
-3. **Preferred term**：代码、API、Jira、提交与技术文档一律使用 **Preferred Term (English)**
+| 中文 | English | 定义 |
+|------|---------|------|
+| 实体标识 | Entity ID | 聚合或实体的唯一标识。 |
+| 类型化标识 | Typed Id | 带类型约束的标识值对象。 |
+| 值对象基类 | Abstract Embeddable | 可嵌入实体的值对象基类型。 |
+| 不可变实体基类 | Abstract Immutable | 创建后不再变更的实体基类型。 |
+| 可变实体基类 | Abstract Entity | 允许变更并跟踪更新的实体基类型。 |
+| 金额 | Money | 由币种与数值构成的货币量。 |
+| 币种 | Currency Code | ISO 4217 货币代码。 |
+| 交易代码 | Symbol | 标的在交易所或目录中的代码。 |
+| 数量 | Quantity | 委托、成交或持仓的计量数量。 |
+| 资产类别 | Asset Class | 标的所属的资产分类。 |
+| 账户类型 | Account Type | 资金户、证券户等账户分类。 |
+| 账户状态 | Account Status | 账户是否可交易或已冻结等状态。 |
+| 委托方向 | Order Side | 买入或卖出方向。 |
+| 委托类型 | Order Type | 市价、限价等委托方式。 |
+| 委托状态 | Order Status | 委托从提交到完成或撤销的状态。 |
+| KYC 状态 | Kyc Status | 客户身份核验所处阶段。 |
 
-| Scenario | Rule |
-| -------- | ---- |
-| Java / Python / API / commits | 使用 Preferred Term (English) |
-| Jira / user stories | 英文优先；中文可括注 |
-| Frontend i18n | Preferred Term 映射为界面文案 |
+## Platforms & Ports | 平台与端口
 
----
+| 中文 | English | 定义 |
+|------|---------|------|
+| Java API | Java API | 组合业务的主应用编程接口。 |
+| Python 分析 API | Python Analytics API | 提供量化与风险分析的接口。 |
+| 管理端 | Admin | 投顾与运营管理客户与账户的界面。 |
+| 门户 | Portal | 投资者使用的 Web 门户。 |
+| 移动端 | Mobile | 投资者使用的移动应用。 |
 
-## 2. Business Domains | 业务域总览
+## Domain Model | 领域模型补遗
 
-| Preferred Term | 中文 | Java package (`com.finpulse.server`) | Surfaces | API prefix | Notes |
-| -------------- | ---- | ------------------------------------- | -------- | ---------- | ----- |
-| Auth | 认证 | `auth` | admin / portal / mobile | `/api/v1/auth` | 登录、注册、会话 |
-| Customer | 客户 | `customer` | admin / portal | `/api/v1/customers` | 零售 / 投顾客户 |
-| Account | 账户 | `account` | admin / portal / mobile | `/api/v1/accounts` | 资金 / 券商账户 |
-| Instrument | 标的 | `instrument` | all | `/api/v1/instruments` | 股票及其他上市标的 |
-| Bond | 债券 | `bond` | admin / portal | `/api/v1/bonds` | 固收扩展 |
-| Option | 期权 | `option` | admin / portal | `/api/v1/options` | 衍生品扩展 |
-| Portfolio | 组合 | `portfolio` | all | `/api/v1/portfolios` | 持仓容器 |
-| Position | 持仓 | `position` | all | `/api/v1/positions` | 组合内数量 |
-| Watchlist | 自选 | `watchlist` | portal / mobile | `/api/v1/watchlists` | 已保存代码 |
-| WatchlistItem | 自选明细 | `watchlistitem` | portal / mobile | `/api/v1/watchlist-items` | 代码行 |
-| Quote | 行情 | `quote` + Python | all | `/api/v1/quotes` | Java CRUD；Python 实时/历史 |
-| Order | 委托 | `order` | portal / mobile / admin | `/api/v1/orders` | 委托单 |
-| Trade | 成交 | `trade` | admin / portal | `/api/v1/trades` | 成交记录 |
-| Payment | 支付 | `payment` | mobile / admin | `/api/v1/payments` | 入金 / 出金 |
-| Settlement | 清算 | `settlement` | admin | `/api/v1/settlements` | 清算指令 |
-| CashTransaction | 资金流水 | `cashtransaction` | admin / portal | `/api/v1/cash-transactions` | 账本资金变动 |
-| MarketData | 市场数据 | `marketdata` | admin | `/api/v1/market-data` | 已存市场观测 |
-| Preference | 偏好 | `preference` | all | `/api/v1/user-preferences` | 用户偏好 |
-| Blockchain | 区块链演示 | `blockchain` | mobile | blockchain routes | 演示钱包 / Sepolia |
-| Analytics | 分析 | Python (`analytics`) | admin / portal | `/api/v1` analytics / risk / forecast | VaR、事件、MLflow |
-| Common | 横切 | `common` | — | — | 共享领域内核基类与值对象 |
-
----
-
-## 2.5 Domain Kernel | 领域内核
-
-共享持久化与聚合基类位于 `com.finpulse.server.common.domain.model`。特性模块继承这些类型，禁止重复 JPA 映射。
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
-| Entity ID | 实体标识 | 单个聚合的类型化 UUID 标识，用作 `@EmbeddedId` | 值对象 | `@Embeddable` Lombok 类（如 `PortfolioId`，含一个 `UUID value`） | `generateId` / `parseId` / `createId`；不同聚合的 id 永不相等 |
-| Abstract Embeddable | 值对象基类 | 嵌入实体的值对象层超类型 | Mapped Superclass | `AbstractEmbeddable` | 实现 `Serializable`（嵌入 id 所需） |
-| Abstract Immutable | 不可变实体基类 | 一切实体之根：已分配 id 与创建时间 | Mapped Superclass | `AbstractImmutable<IdT>` | Hibernate 写入 `createdAt`；实现 Spring Data `Persistable` |
-| Abstract Entity | 可变实体基类 | 不可变基类 + 更新时间与乐观锁 `@Version` | Mapped Superclass | `AbstractEntity<IdT>` | 脏行 flush 时 Hibernate 写入 `updatedAt` |
-| Money | 金额 | 带币种的金额 | 值对象 | `Money` | 嵌入 amount + `CurrencyCode` |
-| Currency Code | 币种 | ISO 风格币种代码 | 值对象 | `CurrencyCode` | 嵌入字符串代码 |
-| Symbol | 代码 | 交易所 ticker / 标的代码 | 值对象 | `Symbol` | 嵌入字符串 |
-| Quantity | 数量 | 持仓或委托的十进制数量 | 值对象 | `Quantity` | 嵌入 `BigDecimal` |
-
-**分层包（按特性模块）：** `controller` → `service` → `domain` ← `infra`（必要时 + `mapper`）。
-
-**领域包：** `domain.model` 承载实体、聚合根、值对象与枚举；`domain.repository` 承载仓储接口。JPA 仓储扩展 Spring Data `Repository<T, ID>`，由 Spring Data 实现。无 `domain.vo`、`domain.service`、`domain.exception` 包。
-
----
-
-## 3. Core Entities | 核心实体
-
-| Preferred Term | 中文 | Definition |
-| -------------- | ---- | ---------- |
-| Customer | 客户 | 拥有账户与组合的个人或组织 |
-| Account | 账户 | 归属 Customer 的金融账户 |
-| Instrument | 标的 | 以 symbol / id 标识的可交易证券 |
-| Portfolio | 组合 | Customer / Account 下命名的 Position 集合 |
-| Position | 持仓 | Portfolio 内某 Instrument 的数量 |
-| Watchlist | 自选 | 用户关注的命名标的列表 |
-| Order | 委托 | 买入或卖出 Instrument 的指令 |
-| Trade | 成交 | 针对 Order 的成交执行 |
-| Payment | 支付 | 与入金或出金相关的资金移动 |
-| Settlement | 清算 | 交易后义务清算 |
-| Quote | 行情 | Instrument 的价格快照或流 |
-| RiskMetric | 风险指标 | Portfolio 的计算风险度量（如 VaR） |
-
----
-
-## 4. Platforms & Ports | 平台与端口
-
-| Preferred Term | 中文 | Notes |
-| -------------- | ---- | ----- |
-| Java API | Java API | 主 HTTP 入口，默认 **:8801**（`src/`，Bazel `//:server`） |
-| Python Analytics API | Python 分析 API | `analytics` 内 FastAPI，**:8800** |
-| Admin | 管理端 | React + Vite（`admin`），通常 :4200 |
-| Portal | 门户 | React + Vite（`portal`），通常 :3001 |
-| Mobile | 移动端 | React Native + Expo（`mobile`） |
-
----
-
-## 5. Forbidden synonyms | 禁止同义混用
-
-| Prefer | Avoid |
-| ------ | ----- |
-| Portfolio | Holding book（作实体名） |
-| Position | Holding（意指 Position 时作实体名） |
-| Watchlist | Favorites list |
-| Instrument | Stock（类型未必是股票时） |
-| Customer | User（意指领域 Customer 时） |
-| Order | TradeOrder（作 Glossary 首选名；Java 类为 `Order`） |
-| Option | OptionContract（作实体名） |
+| 中文 | English | 定义 |
+|------|---------|------|
+| 流水类型 | Cash Txn Type | 资金流入、流出等流水分类。 |
+| 流水状态 | Cash Txn Status | 资金流水从登记到入账所处的状态。 |
+| 期权类型 | Option Type | 看涨或看跌等期权权利类型。 |
+| 支付状态 | Payment Status | 资金收付从发起到完成所处的状态。 |
+| 清算状态 | Settlement Status | 交收从待办到完成或失败所处的状态。 |
+| 账户标识 | Account Id | 账户的唯一标识。 |
+| 客户标识 | Customer Id | 客户的唯一标识。 |
+| 标的标识 | Instrument Id | 金融工具的唯一标识。 |
+| 组合标识 | Portfolio Id | 投资组合的唯一标识。 |
+| 持仓标识 | Position Id | 持仓记录的唯一标识。 |
+| 委托标识 | Order Id | 买卖委托的唯一标识。 |
+| 成交标识 | Trade Id | 成交记录的唯一标识。 |
+| 自选标识 | Watchlist Id | 自选列表的唯一标识。 |
+| 自选明细标识 | Watchlist Item Id | 自选明细的唯一标识。 |
+| 会话标识 | Session Id | 登录会话的唯一标识。 |
+| 凭证标识 | Credential Id | 用户凭证的唯一标识。 |
+| 债券标识 | Bond Id | 债券标的的唯一标识。 |
+| 期权标识 | Option Id | 期权合约的唯一标识。 |
+| 支付标识 | Payment Id | 支付记录的唯一标识。 |
+| 清算标识 | Settlement Id | 清算记录的唯一标识。 |
+| 流水标识 | Cash Transaction Id | 资金流水的唯一标识。 |
+| 行情标识 | Market Data Id | 市场数据记录的唯一标识。 |
+| 偏好标识 | Preference Id | 用户偏好的唯一标识。 |
+| ISIN | ISIN | 证券国际识别码（ISO 6166）。 |
+| MIC | MIC | 交易场所市场识别码（ISO 10383）。 |
+| FIX | FIX | 证券交易电子会话与消息协议。 |
+| CAPM | CAPM | 描述资产预期收益与系统性风险关系的模型。 |
+| Markowitz 组合 | Markowitz Portfolio | 基于均值—方差优化的投资组合。 |
