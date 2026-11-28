@@ -1,0 +1,25 @@
+' Explore Workspace — 共用 PlantUML 样式（黑白 · 正交直线）
+' 凡图必引：结构图用 style-c4.puml；类图 / 领域图直接 !include 本文件。
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam linetype ortho
+skinparam ArrowColor #000000
+skinparam ArrowThickness 1
+skinparam ArrowFontColor #000000
+skinparam defaultFontColor #000000
+skinparam BorderColor #000000
+skinparam PackageBorderColor #000000
+skinparam PackageFontColor #000000
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
