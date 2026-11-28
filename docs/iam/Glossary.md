@@ -1,457 +1,344 @@
-# Glossary | 领域术语表
-
-> Explore IAM — Ubiquitous Language（统一语言）
-
----
-
-## 1. Purpose | 文档说明
-
-本文件定义项目**统一语言**。英文 Preferred Term 为代码、API、架构命名的权威形式；中文仅用于沟通与本地化。
-
-### 维护原则
-
-1. **先 Glossary**：改代码前先增改术语
-2. **与代码同步**：聚合根 / 实体 / 值对象 / 枚举变更必须回写本表
-3. **Preferred Term**：代码、API、Jira、提交、技术文档一律用英文列
-
-### 引用规则
-
-| 场景 | 规则 |
-|------|------|
-| Java / API / 提交 | 用 Preferred Term（英文） |
-| Jira / 用户故事 | 英文为主；必要时括号附中文 |
-| 前端 i18n | 英文术语映射到本地文案 |
-| 跨团队沟通 | 先英文，需要时补中文 |
-
-采用 [Google Cloud IAM](https://cloud.google.com/iam/docs/overview) 词汇 与 [OAuth clients](https://support.google.com/cloud/answer/15549257)。值对象落在 `domain.model`（无 `domain.vo`）。
-
----
-
-## 2. Business Domains | 业务域总览
-
-| Preferred Term | 中文   | Java Package | Frontend Route | API Prefix | Status | Notes |
-| -------------- | ------ | ------------ | -------------- | ---------- | ------ | ----- |
-| Identity       | 身份   | `com.iam.identity` | `/identity` | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` | partial | AIP-121; `User` / Group / Role / RoleAssignment |
-| Policy         | 策略   | `com.iam.policy` | `/allow-policies` | `/api/v1/allowPolicies`, `/api/v1/permissions` | partial | Policy Engine + Permission catalog |
-| Short-lived credentials | 临时凭证 | `com.iam.sts` | — | `/api/v1/tokenExchanges` | partial | TokenExchange JWT |
-| Federation     | 联邦   | `com.iam.federation` | `/oauth-clients` | OIDC + `/api/v1/oauthClients` | partial | SAS Provider + `OAuthClient` |
-| Console        | 控制台 | — | `/` | — | partial | Login + OAuth client registration |
-| Audit          | 审计   | `com.iam.audit` | `/audit` | `/api/v1/adminActivities`, `/api/v1/dataAccessLogs` | partial | AdminActivity + DataAccessLog |
-| Provisioning   | 开通   | `com.iam.scim` | — | `/scim/v2` | implemented | SCIM 2.0 Service Provider (IdP → IAM) + SCIM Client (IAM → Explore AI) |
-| Common         | 横切   | `com.iam.common` | — | — | partial | Shared model VOs, security, AIP helpers |
-
-**Frontend route map (canonical)**
-
-| Route        | Preferred Term | API prefix (AIP) |
-| ------------ | -------------- | ---------------- |
-| `/identity`  | Identity       | `/api/v1/users`, `/api/v1/groups`, `/api/v1/roles` |
-| `/allow-policies` | Policy    | `/api/v1/allowPolicies`, `/api/v1/permissions` |
-| `/audit`     | Audit          | `/api/v1/adminActivities`, `/api/v1/dataAccessLogs` |
-| `/oauth-clients` | OAuth Client | `/api/v1/oauthClients` |
-| `/`          | Console        | Control Plane REST |
-
-**AIP REST（管理 API）** — Google [API Improvement Proposals](https://google.aip.dev/)：资源路径 `/api/v1`；标准 Get/List/Create/Update/Delete；AIP-136 自定义方法（`POST …/{resource}:disable`）；AIP-158 分页；AIP-193 `RpcStatus` 错误。
-
----
-
-## 3. Protocols & Standards | 协议与标准
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping |
-| ------------------------ | ---- | ---------- | ----------------- |
-| OAuth 2.0 | OAuth 2.0 | Authorization framework; authorization code and refresh token grants | Spring Authorization Server |
-| OpenID Connect (OIDC) | 开放身份连接 | Identity layer on OAuth 2.0; `openid` scope | SAS `oidc()` |
-| Authorization Code | 授权码 | Browser redirect flow exchanging code for tokens | `/oauth2/authorize` |
-| PKCE | PKCE | Proof Key for Code Exchange for public clients | `ClientSettings.requireProofKey` |
-| Access Token | 访问令牌 | Token authorizing resource access | JWT via `OAuth2TokenCustomizer` |
-| ID Token | 身份令牌 | OIDC token carrying identity claims | `OidcTokenCustomizerConfig` |
-| Refresh Token | 刷新令牌 | Long-lived token to obtain new access tokens | SAS `TokenSettings` |
-| JWKS | JWKS | JSON Web Key Set for signature verification | `JWKSource`, `/.well-known/jwks.json` |
-| JWK | JWK | Single JSON Web Key in a JWKS | `RSAKey` in `AuthorizationServerConfig` |
-| JWT | JWT | Self-contained signed token format | `NimbusJwtDecoder` |
-| Token Introspection | 令牌自省 | Resource server validates opaque or JWT tokens | SAS introspection endpoint (optional) |
-| OAuth2 Client Authentication | OAuth2 客户端认证 | `client_secret_basic`, `client_secret_post`, `none` | Registered client settings |
-| SAML 2.0 | SAML 2.0 | Secondary federation protocol (document only) | Not in current scope |
-| SCIM 2.0 | SCIM 2.0 | System for Cross-domain Identity Management; REST provisioning of Users and Groups ([RFC 7643](https://datatracker.ietf.org/doc/html/rfc7643), [RFC 7644](https://datatracker.ietf.org/doc/html/rfc7644)) | UnboundID `scim2-sdk-common` models + Spring MVC |
-| SCIM Service Provider | SCIM 服务端 | Server receiving provisioning calls at `/scim/v2` | `com.iam.scim.controller` (IAM); `com.ai.scim` (Explore AI, Users only) |
-| SCIM Client | SCIM 客户端 | Caller pushing provisioning changes to a Service Provider | Okta / Entra ID → IAM; `ScimPushService` (IAM → Explore AI) |
-| SCIM Media Type | SCIM 媒体类型 | `application/scim+json` request and response body | `ScimJsonHttpMessageConverter` |
-| SCIM Discovery | SCIM 发现端点 | `/ServiceProviderConfig`, `/ResourceTypes`, `/Schemas` | `ScimDiscoveryController` |
-| SCIM Filter | SCIM 过滤 | `filter` query (`eq`, `and`) on `userName`, `externalId`, `displayName`, `id` | UnboundID `Filter` + `ScimFilterTranslator` |
-| SCIM PATCH | SCIM 局部更新 | `PatchOp` with `add` / `replace` / `remove` operations | UnboundID `PatchRequest` |
-| List Response | 列表响应 | Paged SCIM list (`startIndex`, `count`, `totalResults`) | UnboundID `ListResponse` |
-| SCIM Error | SCIM 错误 | Error body with `status` and `scimType` (RFC 7644 §3.12) | UnboundID `ErrorResponse` |
-| Weak ETag | 弱 ETag | `W/"<version>"` from `@Version`; `If-Match` mismatch → 412 | `AbstractEntity.version` |
-
----
-
-## 4. Spring Security & Framework | Spring Security 与框架映射
-
-将 Explore IAM 安全行为映射到 [Spring Security](https://docs.spring.io/spring-security/reference/index.html) 与 [Spring Authorization Server](https://docs.spring.io/spring-authorization-server/reference/index.html) API。讨论过滤器、Bean、配置时用下列名称——除非下方领域节已列出，否则勿当作聚合根名。
-
-### 4.1 Core Security
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Spring Security | Spring Security | Servlet security framework for authentication and authorization | `spring-boot-starter-security` | implemented |
-| Security Filter Chain | 安全过滤器链 | Ordered chain of servlet filters applying security rules | `SecurityFilterChain` | implemented |
-| Authorization Server Filter Chain | 授权服务器过滤器链 | Filter chain scoped to SAS OAuth2/OIDC endpoints (`@Order(1)`) | `authorizationServerSecurityFilterChain` in `WebSecurityConfig` | implemented |
-| SCIM Security Filter Chain | SCIM 安全过滤器链 | Stateless Bearer chain for `/scim/v2/**`; requires `SCOPE_write:iam_scim` (`@Order(2)`) | `scimSecurityFilterChain` in `ScimSecurityConfig` | implemented |
-| Default Security Filter Chain | 默认安全过滤器链 | Filter chain for SPA, form login, and management APIs (`@Order(3)`) | `defaultSecurityFilterChain` in `WebSecurityConfig` | implemented |
-| Authentication | 认证 | Verifying who the caller is | `Authentication`, `AuthenticationManager` | implemented |
-| Authorization | 授权 | Deciding whether an authenticated caller may access a resource | `AuthorizationManager`, `@PreAuthorize` | implemented |
-| Security Context | 安全上下文 | Thread-local holder for the current `Authentication` | `SecurityContextHolder` | implemented |
-| Principal | 安全主体 | Identity attached to `Authentication` (username, JWT `sub`, etc.) | `Authentication.getPrincipal()` | implemented |
-| Granted Authority | 授权权限 | Role or scope string granted to a principal (e.g. `ROLE_IAM_ADMIN`) | `GrantedAuthority`, `SimpleGrantedAuthority` | implemented |
-| Authentication Entry Point | 认证入口点 | Handles unauthenticated access (redirect to login, 401, etc.) | `OAuthAwareLoginEntryPoint` | implemented |
-| Authentication Success Handler | 认证成功处理器 | Post-login redirect (e.g. continue OAuth authorize URL) | `ContinueUrlAuthenticationSuccessHandler` | implemented |
-| Authentication Failure Handler | 认证失败处理器 | Handles failed form login | `LoginAuthenticationFailureHandler` | implemented |
-| Authentication Event | 认证事件 | Success/failure events published by Spring Security | `AuthenticationSuccessEvent`, `AbstractAuthenticationFailureEvent` | implemented |
-| Enable Web Security | 启用 Web 安全 | Activates Spring Security filter chains | `@EnableWebSecurity` on `WebSecurityConfig` | implemented |
-
-### 4.2 Session & Form Login
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Form Login | 表单登录 | Username/password authentication via HTML form | `HttpSecurity.formLogin()` | implemented |
-| Login Page | 登录页 | SPA route served at `/sign-in`; the form posts to `/login` | `form.loginPage("/sign-in").loginProcessingUrl("/login")` | implemented |
-| User Details Service | 用户详情服务 | Loads `UserDetails` for form login from IAM store | `IamUserDetailsService` implements `UserDetailsService` | implemented |
-| User Details | 用户详情 | Spring Security adapter wrapping IAM user + authorities | `org.springframework.security.core.userdetails.User` | implemented |
-| Password Encoder | 密码编码器 | One-way hash for stored passwords (never plaintext) | `BCryptPasswordEncoder` | implemented |
-| Logout | 登出 | Invalidates session and clears security context | `HttpSecurity.logout()` → `/logout` | implemented |
-| Session | 会话 | Server-side HTTP session binding authenticated principal | `HttpSession` + Spring Security context | implemented |
-
-### 4.2.1 Multi-Factor Authentication
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| MFA | 多因素认证 | Require more than one authentication factor before a full session | Spring Security `FactorGrantedAuthority` + factor authorization rules | implemented |
-| Factor Authority | 因素权限 | Authority issued when a factor succeeds (e.g. password, OTT) | `FactorGrantedAuthority` (`FACTOR_PASSWORD`, `FACTOR_OTT`, …) | implemented |
-| One-Time Token | 一次性令牌 | Server-generated login token delivered out-of-band (magic link); **not** TOTP | `HttpSecurity.oneTimeTokenLogin()` / `OneTimeTokenService` | implemented |
-| Passkey | 通行密钥 | WebAuthn public-key credential for phishing-resistant sign-in | `HttpSecurity.webAuthn()` + JDBC WebAuthn repositories | implemented |
-| WebAuthn Credential | WebAuthn 凭证 | Stored public key / credential id for a Passkey | Spring Security WebAuthn JDBC tables | implemented |
-| TOTP Credential | TOTP 凭证 | Shared secret for authenticator-app codes (RFC 6238) | Domain `TotpCredential` + custom `FACTOR_TOTP` | implemented |
-
-### 4.3 OAuth 2.0 / OIDC (Authorization Server)
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| OAuth2 Authorization Server | OAuth2 授权服务器 | Spring Authorization Server issuer and token endpoints | `HttpSecurity.oauth2AuthorizationServer()` | implemented |
-| Authorization Endpoint | 授权端点 | Browser redirect to obtain authorization code | `/oauth2/authorize` | implemented |
-| Token Endpoint | 令牌端点 | Exchange code or refresh token for tokens | `/oauth2/token` | implemented |
-| OpenID Provider Configuration | OIDC 发现文档 | Machine-readable issuer metadata | `/.well-known/openid-configuration` via `oidc()` | implemented |
-| JWK Set Endpoint | JWK 集端点 | Public signing keys for JWT verification | `/.well-known/jwks.json` | implemented |
-| Registered Client Repository | 注册客户端仓库 | Persistence adapter for SAS `RegisteredClient` | `JdbcOAuthClientRepository` → `oauth2_registered_client` | implemented |
-| Authorization Server Settings | 授权服务器设置 | Issuer URL and server-wide SAS options | `AuthorizationServerSettings` | implemented |
-| Token Settings | 令牌设置 | Access token and refresh token TTL | `AuthorizationServerTokenSettingsConfig` | implemented |
-| Client Settings | 客户端设置 | Per-client PKCE, consent, and metadata | `ClientSettings` on `RegisteredClient` | implemented |
-| OAuth2 Token Customizer | 令牌定制器 | Adds claims to issued access/ID tokens | `OidcTokenCustomizerConfig` | implemented |
-| JWT Encoder | JWT 编码器 | Signs JWT access tokens and assumed-role tokens | `JwtEncoder` bean in `JwtEncoderConfig` | implemented |
-| JWT Decoder | JWT 解码器 | Validates JWT signatures on resource APIs | `oauth2ResourceServer().jwt()` | implemented |
-| OAuth2 Resource Server | OAuth2 资源服务器 | Protects APIs by validating Bearer JWTs | `HttpSecurity.oauth2ResourceServer()` on SAS chain | implemented |
-| Authorization Grant Type | 授权类型 | e.g. `authorization_code`, `refresh_token` | `AuthorizationGrantType` | implemented |
-| Client Authentication Method | 客户端认证方式 | e.g. `client_secret_basic`, `client_secret_post`, `none` | `ClientAuthenticationMethod` | implemented |
-| Redirect URI | 重定向 URI | Allowed OAuth callback URL for a client | `RedirectUri` VO, `RegisteredClient.redirectUris` | implemented |
-| Scope | 范围 | OAuth scope string; OIDC std (`openid`, `profile`, `email`) plus GitHub-style product scopes (`write:ai_chat`, `admin:chat`) | `RegisteredClient.scopes` / Permission `oauthScope` | implemented |
-| Scope Catalog | 范围目录 | Curated set of OAuth scopes backed by Permissions | Permission seeds | implemented |
-| GitHub-Style Scope | GitHub 风格范围 | `{access}:{resource}` as in GitHub OAuth (`read:user`, `write:packages`, `admin:org`); access ∈ `read` \| `write` \| `admin` | Permission `oauthScope` | implemented |
-| Issuer | 签发者 | OIDC issuer identifier URL | `spring.security.oauth2.authorizationserver.issuer` | implemented |
-
-### 4.4 Federation (OAuth2 Client)
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| OAuth2 Client | OAuth2 客户端 | Spring Security client for upstream IdPs | `spring-boot-starter-oauth2-client` | partial |
-| OAuth2 Login | OAuth2 登录 | Browser login via external provider | `HttpSecurity.oauth2Login()` | partial |
-| Client Registration | 客户端注册 | External IdP client id/secret and endpoints | `ClientRegistration`, `ClientRegistrationRepository` | planned |
-| OAuth2 User Service | OAuth2 用户服务 | Maps external user info to local IAM principal | `FederatedLoginService` | partial |
-| Federation Link Service | 联邦链接服务 | Resolves or provisions `FederatedIdentityLink` and local user | `FederationLinkService` | partial |
-| User Info Endpoint | 用户信息端点 | External IdP profile URL used after OAuth2 login | `oauth2Login().userInfoEndpoint()` | partial |
-
-### 4.5 Method Security & RBAC
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Method Security | 方法级安全 | RBAC on controller/service methods | `@EnableMethodSecurity` in `MethodSecurityConfig` | implemented |
-| PreAuthorize | 预授权 | SpEL expression evaluated before method invocation | `@PreAuthorize("hasRole('IAM_ADMIN')")` | implemented |
-| Has Role | 拥有角色 | SpEL helper matching `ROLE_*` granted authority | `hasRole('IAM_ADMIN')` → `ROLE_IAM_ADMIN` | implemented |
-| Has Any Role | 拥有任一角色 | SpEL helper matching any of several roles | `hasAnyRole('IAM_ADMIN', 'IAM_AUDITOR')` | implemented |
-| Is Authenticated | 已认证 | SpEL helper requiring any authenticated principal | `@PreAuthorize("isAuthenticated()")` on STS | implemented |
-| IAM Admin Role | IAM 管理员角色 | Full management API access | `SecurityRoles.IAM_ADMIN` (`ROLE_IAM_ADMIN`) | implemented |
-| IAM Auditor Role | IAM 审计员角色 | Read-only audit and list APIs | `SecurityRoles.IAM_AUDITOR` (`ROLE_IAM_AUDITOR`) | implemented |
-| User Role | 普通用户角色 | Default role for demo / authenticated users | `SecurityRoles.USER` (`ROLE_USER`) | implemented |
-
-### 4.6 CSRF & HTTP Hardening
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| CSRF Token | CSRF 令牌 | Token validating state-changing requests | `CsrfToken` | implemented |
-| Cookie CSRF Token Repository | Cookie CSRF 仓库 | Stores CSRF token in `XSRF-TOKEN` cookie for SPA | `CookieCsrfTokenRepository.withHttpOnlyFalse()` | implemented |
-| CSRF Token Request Handler | CSRF 请求处理器 | Resolves token from header (`X-XSRF-TOKEN`) or form field | `SpaCsrfTokenRequestHandler` | implemented |
-| CSRF Cookie Filter | CSRF Cookie 过滤器 | Ensures CSRF cookie is written on each response | `CsrfCookieFilter` | implemented |
-| Security Headers | 安全响应头 | HSTS, frame options, content-type options, etc. | `HttpSecurity.headers(withDefaults())` | implemented |
-| Permit All | 全部放行 | Matcher allowing anonymous access | `authorize.requestMatchers(...).permitAll()` | implemented |
-
-### 4.7 Persistence & Domain Kernel
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Abstract Immutable | 不可变聚合基类 | Shared domain/JPA base: typed `id` + `createdAt` | `com.explore.kernel.AbstractImmutableEntity` (`shared/kernel`) | implemented |
-| Abstract Entity | 可变聚合基类 | Extends immutable; adds `updatedAt` + `@Version` | `com.explore.kernel.AbstractEntity` (`shared/kernel`) | implemented |
-| Typed Id | 类型化标识 | Embeddable id per aggregate wrapping the UUID string; column stays `id` | e.g. `UserId`, `GroupId`, `RoleId` | implemented |
-| Abstract Named Entity | 具名聚合基类 | Mutable aggregate with unique `name` | `AbstractNamedEntity` | implemented |
-| Abstract Audit Event | 不可变审计聚合基类 | Immutable audit aggregate base; `occurred_at` column | `AbstractAuditEvent` | implemented |
-| Abstract Embeddable | 可嵌入值对象基类 | Embeddable VO and typed id base | `com.explore.kernel.AbstractEmbeddable` (`shared/kernel`) | implemented |
-| Domain Strings | 域字符串校验 | Shared non-blank string validation | `DomainStrings.requireNonBlank` | implemented |
-| Semantic Accessor | 语义化访问器 | Prefer Lombok getters when the field name is the Preferred Term; behavior methods use verb + noun | 模式 | e.g. `User.isLoginEnabled`, `Policy.getStatements` | implemented |
-| Attribute Converter | 属性转换器 | JPA mapping between domain type and column | e.g. `ArnAttributeConverter`, `RulesJsonConverter` | implemented |
-| Optimistic Locking | 乐观锁 | Concurrent update detection via `@Version` | `AbstractEntity.version` | implemented |
-| Liquibase Changelog | Liquibase 变更日志 | Versioned SQL schema migrations | `db/changelog/0.1.xml` | implemented |
-| Schema Validation | 模式校验 | Hibernate validates entities against DB schema | `spring.jpa.hibernate.ddl-auto: validate` | implemented |
-| 领域事件 | 领域事件 | Fact published by an application service after a state change, inside its transaction; a `record` named `*Event` in `<module>/domain/event`, carrying ids only | `ApplicationEventPublisher.publishEvent` | implemented |
-| Event Handler | 事件处理方法 | Synchronous `handleXxxEvent` method on the consuming module's service; runs in the publisher's transaction | `@EventListener` | implemented |
-
-### 4.8 Provisioning Delivery
-
-| Preferred Term (English) | 中文 | Definition | Framework Mapping | Status |
-| ------------------------ | ---- | ---------- | ----------------- | ------ |
-| Event Publication Registry | 事件发布登记表 | Stores each event publication in the business transaction (transactional outbox) | `spring-modulith-starter-jpa` → `event_publication` | implemented |
-| Application Module Listener | 应用模块监听器 | Async, after-commit listener in its own transaction | `@ApplicationModuleListener` on `ScimPushListener` | implemented |
-| Incomplete Event Publication | 未完成事件发布 | Publication whose listener failed; re-delivered later | `IncompleteEventPublications` | implemented |
-| OAuth2 Client HTTP Request Interceptor | OAuth2 客户端请求拦截器 | Adds a `client_credentials` Bearer token to `RestClient` calls | `OAuth2ClientHttpRequestInterceptor` (`iam-scim-outbound`) | implemented |
-| Retryable | 可重试 | Retry 5xx / 429 with backoff and jitter; honors `Retry-After` | Spring Framework 7 `@Retryable` | implemented |
-
----
-
-## 5. Security Controls | 安全控制
-
-| Preferred Term (English) | 中文 | Definition | Framework Capability | Status |
-| ------------------------ | ---- | ---------- | -------------------- | ------ |
-| CSRF Protection | CSRF 防护 | Prevents cross-site request forgery on session APIs | `CookieCsrfTokenRepository` | implemented |
-| Session Fixation Protection | 会话固定防护 | New session ID after authentication | Spring Security `changeSessionId` | default |
-| Method Security | 方法级安全 | RBAC on management APIs | `@EnableMethodSecurity` + `@PreAuthorize` | implemented |
-| Security Headers | 安全响应头 | HSTS, frame options, content type options | `http.headers()` | implemented |
-| Password Hashing | 密码哈希 | Stored credentials never plaintext | `PasswordEncoder` (BCrypt) | implemented |
-| Disabled User | 停用用户 | Principal cannot authenticate when disabled | `UserDetails.isEnabled()` | implemented |
-| Consent | 授权同意 | User approves OAuth client scopes | `OAuth2AuthorizationConsentService` | planned |
-| Persistent Signing Key | 持久化签名密钥 | JWKS stable across restarts | `SigningKey`, `PersistentJwkSourceConfig` | implemented |
-| Implicit Deny | 隐式拒绝 | No matching Allow → Deny | `PolicyEngine` default | implemented |
-| Reason Code | 理由码 | Machine-readable authz/audit outcome | `ReasonCode` VO | implemented |
-| Least Privilege Session | 最小权限会话 | Short TTL temporary credentials | STS + `TokenSettings` | implemented |
-| IAM Admin Role | IAM 管理员角色 | Console and management API access | `ROLE_IAM_ADMIN` | implemented |
-| IAM Auditor Role | IAM 审计员角色 | Read-only audit API access | `ROLE_IAM_AUDITOR` | implemented |
-
----
-
-## 5.5 Shared Value Objects | 共享值对象
-
-跨限界上下文值对象，位于 `com.iam.common.domain.model`（Google IAM 资源 / 权限词汇）。
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Resource Name | 资源名 | 完整资源名（值可仍为 `arn:iam::…` 形态） | 值对象 | `ResourceName` | implemented |
-| User Resource Name | 用户资源名 | User 的资源名 | 工厂 | `ResourceName.createUserResourceName` | implemented |
-| Role Resource Name | 角色资源名 | Role 的资源名 | 工厂 | `ResourceName.createRoleResourceName` | implemented |
-| Principal ID | 主体 ID | 求值中主体标识 | 值对象 | `PrincipalId` | implemented |
-| Permission | 权限 | IAM 权限字符串（亦用于允许策略语句） | 值对象 | `com.iam.common.domain.model.Permission` | implemented |
-| Resource | 资源 | Permission 作用目标 | 值对象 | `Resource` | implemented |
-| Effect | 效力 | `ALLOW` 或 `DENY` | 枚举 | `Effect` | implemented |
-| Reason Code | 理由码 | 可机读的鉴权结果 | 值对象 | `ReasonCode` | implemented |
-| Explicit Deny Reason | 显式拒绝理由 | 命中 Deny 语句 | 常量 | `ReasonCode.EXPLICIT_DENY` | implemented |
-| Explicit Allow Reason | 显式允许理由 | 命中 Allow 语句 | 常量 | `ReasonCode.EXPLICIT_PERMIT` | implemented |
-| Implicit Deny Reason | 隐式拒绝理由 | 无 Allow 命中 | 常量 | `ReasonCode.IMPLICIT_DENY` | implemented |
-
----
-
-## 5.6 Zero Trust | 零信任
-
-| Preferred Term (English) | 中文 | Definition | Explore Mapping | Status |
-| ------------------------ | ---- | ---------- | --------------- | ------ |
-| Zero Trust | 零信任 | 不因网络位置隐式信任；每请求认证、鉴权并持续校验（NIST SP 800-207） | 生态安全模型 | planned |
-| Policy Decision Point (PDP) | 策略决策点 | 判定主体可否访问资源 | explore-iam（令牌签发、`PolicyEngine`、权限点 scope） | partial |
-| Policy Enforcement Point (PEP) | 策略执行点 | 在请求路径执行 PDP 决策 | AI / Chat 资源服务器、Chat Socket.IO 网关、ML 网关（目标） | partial |
-| Service Identity | 服务身份 | 服务间调用的工作负载主体 | 每工作负载 OAuth2 `client_credentials` 客户端 | planned |
-| Token Audience | 令牌受众 | `aud` 限制可接受该令牌的资源服务器（RFC 8707） | 访问令牌按服务受众 | planned |
-| Token Exchange | 令牌交换 | 以用户名义将用户令牌换为下游令牌（RFC 8693） | AI / Chat → ML | planned |
-| Sender-Constrained Token | 发送方约束令牌 | 令牌绑定客户端密钥，防盗用重放（DPoP RFC 9449、mTLS RFC 8705） | 公共客户端（DPoP）、内部工作负载（mTLS） | planned |
-
----
-
-## 6. Identity | 身份
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Principal | 主体 | 可发起请求的身份（Google IAM principal） | 概念 | `Principal` | — |
-| User | 用户 | 长期人类或服务身份 | 聚合根 | `User` (`directory_user`) | implemented |
-| User Status | 用户状态 | `ACTIVE` 或 `DISABLED` | 枚举 | via `enabled` flag | implemented |
-| Enable User | 启用用户 | 重新允许用户表单登录 | 行为 | `User.enableUser` | implemented |
-| Disable User | 禁用用户 | 阻止用户表单登录 | 行为 | `User.disableUser` | implemented |
-| Change Email | 修改邮箱 | 更新用户联系邮箱 | 行为 | `User.changeEmail` | implemented |
-| Create User | 创建用户 | 本地用户工厂 | 行为 | `User.createUser` | implemented |
-| Create Federated User | 创建联邦用户 | 外部 IdP 登录用户工厂 | 行为 | `User.createFederatedUser` | implemented |
-| External ID | 外部 ID | 开通客户端分配的标识（SCIM `externalId`） | 值对象 | `ExternalId` | implemented |
-| Display Name | 显示名 | 可读显示名（SCIM `displayName`） | 属性 | `User.displayName` | implemented |
-| Provision User | 开通用户 | SCIM Client 创建的无密码用户工厂 | 行为 | `User.provisionUser` | implemented |
-| Update Profile | 更新资料 | 替换用户名、邮箱与显示名 | 行为 | `User.updateProfile` | implemented |
-| Change External ID | 修改外部 ID | 设置或清除外部 ID | 行为 | `User.changeExternalId` / `Group.changeExternalId` | implemented |
-| Group | 组 | 共享策略绑定的用户集合 | 聚合根 | `Group` | implemented |
-| Group Member | 组成员 | 将用户关联到组的子实体 | 实体 | `GroupMember` | implemented |
-| Provision Group | 开通组 | SCIM Client 创建的组工厂 | 行为 | `Group.provisionGroup` | implemented |
-| Rename Group | 重命名组 | 修改组显示名 | 行为 | `Group.renameGroup` | implemented |
-| Replace Members | 替换成员 | 设置完整成员列表；返回增删 id | 行为 | `Group.replaceMembers` | implemented |
-| User Provisioned Event | 用户已开通事件 | 用户已创建（控制台 / SCIM / 联邦登录 / 种子） | 领域事件 | `UserProvisionedEvent` | implemented |
-| User Profile Changed Event | 用户资料已变更事件 | 用户名 / 邮箱 / 显示名 / 外部 ID 已变更 | 领域事件 | `UserProfileChangedEvent` | implemented |
-| User Deactivated Event | 用户已停用事件 | 用户已停用 | 领域事件 | `UserDeactivatedEvent` | implemented |
-| User Reactivated Event | 用户已恢复事件 | 用户已恢复 | 领域事件 | `UserReactivatedEvent` | implemented |
-| User Password Reset Event | 用户密码已重置事件 | 管理员重置用户密码 | 领域事件 | `UserPasswordResetEvent` | implemented |
-| User Role Assigned Event | 用户已分配角色事件 | 角色已绑定到用户 | 领域事件 | `UserRoleAssignedEvent` | implemented |
-| User Role Unassigned Event | 用户已解除角色事件 | 角色已从用户解绑 | 领域事件 | `UserRoleUnassignedEvent` | implemented |
-| User Deletion Requested Event | 用户删除请求事件 | 用户行删除前发布，供其他模块同事务清理关联 | 领域事件 | `UserDeletionRequestedEvent` | implemented |
-| User Deleted Event | 用户已删除事件 | 用户已删除 | 领域事件 | `UserDeletedEvent` | implemented |
-| Group Created Event | 组已创建事件 | 组已创建 | 领域事件 | `GroupCreatedEvent` | implemented |
-| Group Profile Changed Event | 组资料已变更事件 | 组名 / 外部 ID 已变更 | 领域事件 | `GroupProfileChangedEvent` | implemented |
-| Group Membership Changed Event | 组成员已变更事件 | 组成员 id 增删 | 领域事件 | `GroupMembershipChangedEvent` | implemented |
-| Group Deleted Event | 组已删除事件 | 组已删除 | 领域事件 | `GroupDeletedEvent` | implemented |
-| Role Created Event | 角色已创建事件 | 角色已创建 | 领域事件 | `RoleCreatedEvent` | implemented |
-| Role | 角色 | 命名权限集合（Google IAM role） | 聚合根 | `Role` | implemented |
-| Role Assignment | 角色绑定 | 将主体绑定到 Role | 实体 | `RoleAssignment` | implemented |
-| Assign Role | 分配角色 | 将角色绑定到用户 | 行为 | `User.assignRole` | implemented |
-| Impersonation Policy | 模拟策略 | 谁可为 Role 获取临时凭证 | 值对象 | `ImpersonationPolicy` | implemented |
-| Federated Identity | 联邦身份 | 外部提供方 + subject 映射到本地用户 | 聚合根 | `FederatedIdentity` | implemented |
-| TOTP Credential | TOTP 凭证 | 认证器 App 第二因素（RFC 6238）；密钥静态加密 | 聚合根 | `TotpCredential` | implemented |
-| OAuth Client | OAuth 客户端 | 注册为 OAuth / OIDC 客户端的依赖产品 | 聚合根 | `OAuthClient` | implemented |
-
----
-
-## 7. Policy | 策略
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Allow Policy | 允许策略 | 语句文档（Effect、Permission、Resource） | 聚合根 | `Policy` | implemented |
-| Policy Statement | 策略语句 | 单条 Allow 或 Deny 规则块 | 值对象 | `Rule` | implemented |
-| Effect | 效力 | `ALLOW` or `DENY` | 枚举 | `Effect` | see §5.5 |
-| Policy Assignment | 策略绑定 | 将允许策略绑定到主体资源名 | 聚合根 | `PolicyAssignment` | implemented |
-| Permission | 权限 | 目录项：code、Resource、GitHub 风格 `oauthScope` | 聚合根 | `com.iam.policy.domain.model.Permission` | implemented |
-| Access Tuple | 访问元组 | 主体 + 权限 + 资源（排障形状） | 值对象 | `AccessTuple` | implemented |
-| Access Decision | 访问决策 | 带理由的 Allow 或 Deny | 值对象 | `AccessDecision` | implemented |
-| Policy Engine | 策略引擎 | 策略求值：Deny > Allow > 隐式拒绝 | 领域服务 | `PolicyEngine` | implemented |
-| Allow Policy Created Event | 允许策略已创建事件 | 允许策略已创建 | 领域事件 | `PolicyCreatedEvent` | implemented |
-| Policy Attached Event | 策略已绑定事件 | 策略绑定已创建 | 领域事件 | `PolicyAttachedEvent` | implemented |
-| Permission Created Event | 权限已创建事件 | 权限目录项已创建 | 领域事件 | `PermissionCreatedEvent` | implemented |
-| Access Evaluated Event | 访问已评估事件 | 访问元组已求值为访问决策 | 领域事件 | `AccessEvaluatedEvent` | implemented |
-
----
-
-## 8. Short-lived credentials | 临时凭证
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Token Exchange | 短期凭证 | 角色扮演后的临时 JWT | 聚合根 | `TokenExchange` | implemented |
-| Impersonation Policy | 模拟策略 | 谁可为 Role 创建临时凭证 | 概念 | `ImpersonationPolicy` on `Role` | implemented |
-| Create Token Exchange | 创建短期凭证 | 将调用方身份换为角色会话凭证 | 用例 | `TokenExchangeService` | implemented |
-| Session Expired | 会话已过期 | 凭证是否已失效 | 行为 | `TokenExchange.isExpired` | implemented |
-| Role Assumed Event | 角色已扮演事件 | 调用方已获得 Role 临时凭证 | 领域事件 | `RoleAssumedEvent` | implemented |
-
----
-
-## 9. Federation | 联邦与 SSO
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| OIDC Provider | OIDC 提供方 | Explore IAM 作为 OIDC 签发方 | 容器 | Spring Authorization Server | implemented |
-| OAuth Client | OAuth 客户端 | 依赖方注册的领域聚合根 | 聚合根 | `OAuthClient` | implemented |
-| Client ID | 客户端 ID | OAuth2 `client_id` 值对象 | 值对象 | `ClientId` | implemented |
-| Public Client | 公共客户端 | 仅以 `none` 认证的客户端 | 行为 | `OAuthClient.isPublicClient` | implemented |
-| Relying Party | 依赖方 | 信任 Explore IAM 的应用 | 概念 | — | — |
-| Federated Identity | 联邦身份 | 外部提供方 + subject 映射到本地用户 | 聚合根 | `FederatedIdentity` | implemented |
-| 创建 OAuth 客户端 | 创建 OAuth 客户端 | 机密 / 公共客户端工厂 | 行为 | `OAuthClient.createOAuthClient` | implemented |
-| Restore OAuth Client | 恢复 OAuth 客户端 | 自持久化重建 | 行为 | `OAuthClient.restoreOAuthClient` | implemented |
-| SSO Login | 单点登录 | 一次登录服务多个依赖方 | 用例 | OIDC Authorization Code | implemented |
-| OAuth Client Registered Event | OAuth 客户端已注册事件 | OAuth 客户端已创建 | 领域事件 | `OAuthClientRegisteredEvent` | implemented |
-| OAuth Client Scopes Changed Event | OAuth 客户端范围已变更事件 | 允许的 scope 已替换 | 领域事件 | `OAuthClientScopesChangedEvent` | implemented |
-
----
-
-## 10. Audit Aggregates | 审计聚合
-
-只追加审计行的不可变**聚合根**（Google Cloud Audit Logs 风格）。
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Admin Activity | 管理活动 | 含主体、目标、结果的管理面动作 | 聚合根 | `AdminActivity` | implemented |
-| Data Access Log | 数据访问日志 | 已持久化的允许/拒绝及理由码 | 聚合根 | `DataAccessLog` | implemented |
-| Audit Actor | 审计主体 | 执行管理动作的主体 | 值对象 | `AuditActor` | implemented |
-| Audit Target | 审计目标 | 受影响的资源类型与 id | 值对象 | `AuditTarget` | implemented |
-| Audit Outcome | 审计结果 | 成功或失败 | 枚举 | `AuditOutcome` | implemented |
-| Record Admin Activity | 记录管理活动 | `AdminActivity` 工厂 | 行为 | `AdminActivity.recordAdminActivity` | implemented |
-| Record Sign-In Activity | 记录登录活动 | 登录管理活动工厂 | 行为 | `AdminActivity.recordSignInActivity` | implemented |
-| Record Data Access Log | 记录数据访问 | `DataAccessLog` 工厂 | 行为 | `DataAccessLog.recordDataAccessLog` | implemented |
-| Admin Activity Recorder | 管理活动记录器 | 处理他模块领域事件并持久化管理活动 / 数据访问日志；他模块不得直接调用 | 应用服务 | `AdminActivityRecorder.handleXxxEvent` | implemented |
-
----
-
-## 10.1 Provisioning | 开通（SCIM）
-
-IAM 为身份中枢：外部 IdP 推入 IAM；IAM 再推用户到下游。协议类型留在 `com.iam.scim`；身份限界上下文不导入 SCIM 类。
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| Provisioning | 开通 | 跨系统创建、更新、停用与删除身份 | 概念 | `com.iam.scim` | implemented |
-| Provisioning Target | 开通目标 | IAM 推送到的下游 SCIM 服务端 | 聚合根 | `ProvisioningTarget` | implemented |
-| Assignment Group | 分配组 | 可选：限制目标接收用户范围的组 | 属性 | `ProvisioningTarget.assignmentGroupId` | implemented |
-| Provisioned Account | 已开通账号 | IAM 用户 id 到目标远端 id 与最近同步版本的映射 | 实体 | `ProvisionedAccount` | implemented |
-| SCIM Provisioning Service | SCIM 开通服务 | 经 `UserService` / `GroupService` 编排入站 SCIM | 应用服务 | `ScimProvisioningService` | implemented |
-| SCIM Push Service | SCIM 推送服务 | 向开通目标发送幂等 SCIM 调用 | 应用服务 | `ScimPushService` | implemented |
-| SCIM Push Listener | SCIM 推送监听器 | 将身份领域事件转为推送 | 监听器 | `ScimPushListener` | implemented |
-| SCIM Provisioner Client | SCIM 开通客户端 | 外部 IdP 用 OAuth 客户端（`client_credentials`、`write:iam_scim`） | OAuth Client | `scim-provisioner` | implemented |
-| SCIM Outbound Registration | SCIM 出站注册 | IAM 出站推送用 OAuth 客户端（`client_credentials`、`write:ai_scim`） | Client Registration | `iam-scim-outbound` | implemented |
-
----
-
-## 11. Console | 控制台
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Status |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ------ |
-| IAM Console | IAM 控制台 | 管理员 Angular SPA | UI | Angular 22 app | partial |
-| OAuth Client Registration | OAuth 客户端注册 | 创建 OAuth 客户端 | 用例 | Console + `/api/v1/oauthClients` | implemented |
-
----
-
-## 11.1 Module Scope Vocabulary | 模块范围词汇（GitHub-style）
-
-Permission `oauthScope` / `code` uses GitHub OAuth scope shape
-[`{access}:{resource}`](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps)
-(`read:user`, `write:packages`, `admin:org`). Reject dotted product scopes
-(`ai.chat`, `chat.admin`).
-
-| Module | oauthScope | Relying Party use |
-|--------|------------|-------------------|
-| oidc | `openid`, `profile`, `email` | OIDC standard |
-| ai | `write:ai_chat` | Explore AI chat / text / privacy |
-| ai | `write:ai_audio` | ASR / TTS |
-| ai | `write:ai_rag` | RAG |
-| ai | `write:ai_media` | image / vision |
-| ai | `write:ai_agent` | Gallery `/api/agents` invoke、A2A Tasks、pipeline / workflow / automation / skill（Agent Registry 总闸；非 per-skill scope） |
-| ai | `write:ai_tools` | mcp / tools / eval |
-| ai | `write:ai_scim` | IAM → Explore AI SCIM `/scim/v2/Users` |
-| iam | `write:iam_scim` | External IdP → IAM SCIM `/scim/v2` |
-| chat | `write:chat_messaging` | chats / messages / calls / media / notifications |
-| chat | `write:chat_social` | posts / follow / groups / status / search |
-| chat | `admin:chat` | Chat admin APIs |
-
----
-
-## 12. Dev Tooling | 开发工具
-
-| Preferred Term (English) | 中文 | Definition | Type | Code Mapping | Notes |
-| ------------------------ | ---- | ---------- | ---- | ------------ | ----- |
-| Orchestrator | 编排器 | 委托子智能体的编排器 | 模式 | `~/.cursor/agents/orchestrator.md` | dev tooling |
-| Subagent | 子智能体 | 专用单用途智能体 | 模式 | `~/.cursor/agents/*.md` | dev tooling |
-
----
-
-## References
-
-- [References](References.md)
-- [Guideline](Guideline.md)
-- [C4 model](c4-model/)
-- [User Story Map](User-Story-Map.md)
+# Glossary
+
+## Business Domains | 业务域总览
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 身份 | Identity | 可被认证与授权的主体身份。 |
+| 策略 | Policy | 规定主体对资源访问条件的规则集合。 |
+| 临时凭证 | Short-lived credentials | 短有效期的访问凭证。 |
+| 联邦 | Federation | 跨安全域共享认证与属性的机制。 |
+| 控制台 | Console | 管理与配置控制台。 |
+| 审计 | Audit | 对安全相关活动的可核查记录。 |
+| 开通 | Provisioning | 供给与生命周期管理身份资源。 |
+| 横切 | Common | 跨功能共享的横切能力。 |
+
+## Protocols & Standards | 协议与标准
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| OAuth 2.0 | OAuth 2.0 | 开放授权标准：在不共享口令的前提下委托访问资源。 |
+| 开放身份连接 | OpenID Connect (OIDC) | 基于 OAuth 2.0 的身份层，提供 ID Token 与用户信息。 |
+| 授权码 | Authorization Code | 授权码许可中用于兑换令牌的一次性中间凭证。 |
+| PKCE | PKCE | OAuth 公共客户端用于防护授权码拦截的扩展。 |
+| 访问令牌 | Access Token | 授权访问受保护资源的令牌。 |
+| 身份令牌 | ID Token | OIDC 中断言终端用户身份的 JWT。 |
+| 刷新令牌 | Refresh Token | 用于获取新访问令牌的长期凭证。 |
+| JWKS | JWKS | JSON Web Key 集合，用于发布验签公钥。 |
+| JWK | JWK | 表示密钥材料的 JSON 数据结构（RFC 7517）。 |
+| JWT | JWT | 由头部、声明与签名组成的紧凑声明格式（RFC 7519）。 |
+| 令牌自省 | Token Introspection | 查询令牌状态与元数据的协议（RFC 7662）。 |
+| OAuth2 客户端认证 | OAuth2 Client Authentication | OAuth2 客户端认证。 |
+| SAML 2.0 | SAML 2.0 | 基于 XML 断言的联邦身份标准。 |
+| SCIM 2.0 | SCIM 2.0 | 跨域身份资源供给与管理的 HTTP/JSON 标准（RFC 7643/7644）。 |
+| SCIM 服务端 | SCIM Service Provider | 对外提供 SCIM 资源接口的服务方。 |
+| SCIM 客户端 | SCIM Client | 调用 SCIM 服务方以管理身份资源的客户端。 |
+| SCIM 媒体类型 | SCIM Media Type | SCIM 使用的媒体类型。 |
+| SCIM 发现端点 | SCIM Discovery | 发现 SCIM 服务能力与模式。 |
+| SCIM 过滤 | SCIM Filter | SCIM 查询过滤表达式。 |
+| SCIM 局部更新 | SCIM PATCH | SCIM 部分更新操作。 |
+| 列表响应 | List Response | 包含资源列表与分页信息的响应。 |
+| SCIM 错误 | SCIM Error | SCIM 协议错误响应。 |
+| 弱 ETag | Weak ETag | 允许语义等价表示共享的弱实体标签。 |
+
+## Core Security
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| Spring Security | Spring Security | Spring 生态中的认证与授权框架。 |
+| 安全过滤器链 | Security Filter Chain | 按顺序处理安全关注点的过滤器链。 |
+| 授权服务器过滤器链 | Authorization Server Filter Chain | 授权服务器端点的安全过滤器链。 |
+| SCIM 安全过滤器链 | SCIM Security Filter Chain | 保护 SCIM 端点的安全过滤链。 |
+| 默认安全过滤器链 | Default Security Filter Chain | 默认的安全过滤器链。 |
+| 认证 | Authentication | 核实主体身份的过程。 |
+| 授权 | Authorization | 判定主体可否对资源执行操作。 |
+| 安全上下文 | Security Context | 当前认证与授权信息的上下文。 |
+| 安全主体 | Principal | 安全上下文中的已认证主体。 |
+| 授权权限 | Granted Authority | 已授予主体的一条权限。 |
+| 认证入口点 | Authentication Entry Point | 未认证请求的入口处理点。 |
+| 认证成功处理器 | Authentication Success Handler | 认证成功后的处理器。 |
+| 认证失败处理器 | Authentication Failure Handler | 认证失败后的处理器。 |
+| 认证事件 | Authentication Event | 认证过程产生的事件。 |
+| 启用 Web 安全 | Enable Web Security | 启用 Web 层安全配置。 |
+
+## Session & Form Login
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 表单登录 | Form Login | 基于表单提交的口令登录方式。 |
+| 登录页 | Login Page | 登录页面。 |
+| 用户详情服务 | User Details Service | 按用户名加载用户详情的服务。 |
+| 用户详情 | User Details | 供认证使用的用户账户详情。 |
+| 密码编码器 | Password Encoder | 对口令进行编码或校验的组件。 |
+| 登出 | Logout | 结束认证会话的过程。 |
+| 会话 | Session | 主体与系统之间的持续交互上下文。 |
+
+## Multi-Factor Authentication
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 多因素认证 | MFA | 要求多种独立凭证完成认证的机制。 |
+| 因素权限 | Factor Authority | 多因素认证中的一个认证因素权威。 |
+| 一次性令牌 | One-Time Token | 仅可使用一次的令牌。 |
+| 通行密钥 | Passkey | 基于公钥的无口令登录凭证。 |
+| WebAuthn 凭证 | WebAuthn Credential | WebAuthn 注册的认证器公钥凭证。 |
+| TOTP 凭证 | TOTP Credential | 基于时间的一次性口令凭证。 |
+
+## OAuth 2.0 / OIDC (Authorization Server)
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| OAuth2 授权服务器 | OAuth2 Authorization Server | 按 OAuth 2.0 签发访问令牌的授权服务器。 |
+| 授权端点 | Authorization Endpoint | 用户授权并返回授权码或令牌的端点。 |
+| 令牌端点 | Token Endpoint | 颁发或刷新令牌的端点。 |
+| OIDC 发现文档 | OpenID Provider Configuration | OIDC 发现文档中的提供者配置。 |
+| JWK 集端点 | JWK Set Endpoint | 发布 JSON Web Key 集合的端点。 |
+| 注册客户端仓库 | Registered Client Repository | 持久化已登记 OAuth 客户端的仓库。 |
+| 授权服务器设置 | Authorization Server Settings | 授权服务器的运行配置。 |
+| 令牌设置 | Token Settings | 令牌签发与有效期等设置。 |
+| 客户端设置 | Client Settings | OAuth 客户端行为相关设置。 |
+| 令牌定制器 | OAuth2 Token Customizer | 定制令牌声明的组件。 |
+| JWT 编码器 | JWT Encoder | 编码并签发 JWT 的组件。 |
+| JWT 解码器 | JWT Decoder | 解析并校验 JWT 的组件。 |
+| OAuth2 资源服务器 | OAuth2 Resource Server | 校验访问令牌并托管受保护资源的服务器。 |
+| 授权类型 | Authorization Grant Type | OAuth 获取令牌的许可类型。 |
+| 客户端认证方式 | Client Authentication Method | 客户端向令牌端点证明自身身份的方法。 |
+| 重定向 URI | Redirect URI | 授权完成后客户端接收回调的 URI。 |
+| 范围 | Scope | 访问令牌所授权的权限范围。 |
+| 范围目录 | Scope Catalog | 可授予范围的目录。 |
+| GitHub 风格范围 | GitHub-Style Scope | 以资源:权限形式书写的范围声明。 |
+| 签发者 | Issuer | 签发令牌或断言的权威方。 |
+
+## Federation (OAuth2 Client)
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| OAuth2 客户端 | OAuth2 Client | 向授权服务器请求并使用令牌访问受保护资源的客户端。 |
+| OAuth2 登录 | OAuth2 Login | 基于 OAuth 2.0 / OIDC 的登录流程。 |
+| 客户端注册 | Client Registration | 在授权服务器登记 OAuth 客户端。 |
+| OAuth2 用户服务 | OAuth2 User Service | 加载 OAuth2/OIDC 用户信息的服务。 |
+| 联邦链接服务 | Federation Link Service | 维护联邦身份关联的服务。 |
+| 用户信息端点 | User Info Endpoint | 返回已认证用户声明的端点。 |
+
+## Method Security & RBAC
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 方法级安全 | Method Security | 方法级访问控制。 |
+| 预授权 | PreAuthorize | 方法执行前的访问表达式校验。 |
+| 拥有角色 | Has Role | 判断主体是否具有指定角色。 |
+| 拥有任一角色 | Has Any Role | 判断主体是否具有任一指定角色。 |
+| 已认证 | Is Authenticated | 判断当前是否已认证。 |
+| IAM 管理员角色 | IAM Admin Role | IAM 管理员角色。 |
+| IAM 审计员角色 | IAM Auditor Role | IAM 审计员角色。 |
+| 普通用户角色 | User Role | 用户所具有的角色。 |
+
+## CSRF & HTTP Hardening
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| CSRF 令牌 | CSRF Token | 用于校验请求来自预期站点的防伪令牌。 |
+| Cookie CSRF 仓库 | Cookie CSRF Token Repository | 在 Cookie 中存放 CSRF 令牌的仓库。 |
+| CSRF 请求处理器 | CSRF Token Request Handler | 从请求中解析 CSRF 令牌的处理器。 |
+| CSRF Cookie 过滤器 | CSRF Cookie Filter | 读写 CSRF Cookie 的过滤器。 |
+| 安全响应头 | Security Headers | 增强浏览器安全的 HTTP 响应头。 |
+| 全部放行 | Permit All | 允许所有主体访问。 |
+
+## Persistence & Domain Kernel
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 不可变聚合基类 | Abstract Immutable | 创建后不可变实体的基类型。 |
+| 可变聚合基类 | Abstract Entity | 可变实体的持久化基类型。 |
+| 类型化标识 | Typed Id | 带类型约束的标识值。 |
+| 具名聚合基类 | Abstract Named Entity | 带名称属性的实体基类型。 |
+| 不可变审计聚合基类 | Abstract Audit Event | 审计事件的抽象基类型。 |
+| 可嵌入值对象基类 | Abstract Embeddable | 可嵌入值对象的基类型。 |
+| 域字符串校验 | Domain Strings | 领域字符串的规范化与校验。 |
+| 语义化访问器 | Semantic Accessor | 按语义访问声明或属性的访问器。 |
+| 属性转换器 | Attribute Converter | 属性与持久化列之间的类型转换器。 |
+| 乐观锁 | Optimistic Locking | 用版本号检测并发写冲突的策略。 |
+| Liquibase 变更日志 | Liquibase Changelog | 数据库结构变更的变更日志。 |
+| 模式校验 | Schema Validation | 按模式校验数据结构是否合规。 |
+| 领域事件 | 领域事件 | 领域中已发生事实的记录。 |
+| 事件处理方法 | Event Handler | 响应领域或应用事件的处理器。 |
+
+## Provisioning Delivery
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 事件发布登记表 | Event Publication Registry | 跟踪事件发布状态的登记处。 |
+| 应用模块监听器 | Application Module Listener | 监听应用模块事件的组件。 |
+| 未完成事件发布 | Incomplete Event Publication | 尚未完成投递的事件发布记录。 |
+| OAuth2 客户端请求拦截器 | OAuth2 Client HTTP Request Interceptor | 为出站请求附加 OAuth2 凭证的拦截器。 |
+| 可重试 | Retryable | 失败后可重试。 |
+
+## Security Controls | 安全控制
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| CSRF 防护 | CSRF Protection | 防止跨站请求伪造的防护机制。 |
+| 会话固定防护 | Session Fixation Protection | 防止会话固定攻击的保护。 |
+| 密码哈希 | Password Hashing | 将口令变换为不可逆摘要以便存储。 |
+| 停用用户 | Disabled User | 已被停用的用户。 |
+| 授权同意 | Consent | 资源所有者对授权的明确同意。 |
+| 持久化签名密钥 | Persistent Signing Key | 用于签发令牌的持久密钥。 |
+| 隐式拒绝 | Implicit Deny | 无允许规则时的默认拒绝。 |
+| 理由码 | Reason Code | 解释决定原因的代码。 |
+| 最小权限会话 | Least Privilege Session | 仅授予完成任务所需最小权限的会话。 |
+
+## Shared Value Objects | 共享值对象
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 资源名 | Resource Name | 资源的规范名称路径。 |
+| 用户资源名 | User Resource Name | 用户资源的规范名称。 |
+| 角色资源名 | Role Resource Name | 角色资源的规范名称。 |
+| 主体 ID | Principal ID | 主体的标识。 |
+| 资源 | Resource | 受访问控制保护的对象。 |
+| 效力 | Effect | 可组合的视觉或交互动效。 |
+| 显式拒绝理由 | Explicit Deny Reason | 显式拒绝的原因说明。 |
+| 显式允许理由 | Explicit Allow Reason | 显式允许的原因说明。 |
+| 隐式拒绝理由 | Implicit Deny Reason | 默认拒绝的原因说明。 |
+
+## Policy | 策略
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 权限 | Permission | 对特定操作或资源的允许权。 |
+| 允许策略 | Allow Policy | 显式允许访问的策略。 |
+| 策略语句 | Policy Statement | 策略中的一条允许或拒绝陈述。 |
+| 策略绑定 | Policy Assignment | 将策略绑定到主体或资源的关系。 |
+| 访问元组 | Access Tuple | 主体、操作与资源组成的访问三元组。 |
+| 访问决策 | Access Decision | 一次访问控制评估的结论。 |
+| 策略引擎 | Policy Engine | 评估策略并输出访问决定的引擎。 |
+| 允许策略已创建事件 | Allow Policy Created Event | 允许策略已创建的事实。 |
+| 策略已绑定事件 | Policy Attached Event | 策略已绑定的事实。 |
+| 权限已创建事件 | Permission Created Event | 权限已创建的事实。 |
+| 访问已评估事件 | Access Evaluated Event | 访问已被评估的事实。 |
+
+## Zero Trust | 零信任
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 零信任 | Zero Trust | 不默认信任网络位置、持续验证访问的安全模型（NIST SP 800-207）。 |
+| 策略决策点 | Policy Decision Point (PDP) | 评估访问策略并作出允许/拒绝决定的组件。 |
+| 策略执行点 | Policy Enforcement Point (PEP) | 执行访问决定、拦截未授权请求的组件。 |
+| 服务身份 | Service Identity | 代表服务本身的机器身份。 |
+| 令牌受众 | Token Audience | 令牌预期接收方的声明。 |
+| 令牌交换 | Token Exchange | 将既有令牌兑换为其他令牌的协议（RFC 8693）。 |
+| 发送方约束令牌 | Sender-Constrained Token | 绑定到持有者密钥、限制被盗用的令牌。 |
+
+## Identity | 身份
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 用户 | User | 可登录并被授权的人员主体。 |
+| 用户状态 | User Status | 用户账户的状态。 |
+| 启用用户 | Enable User | 启用用户。 |
+| 禁用用户 | Disable User | 停用用户。 |
+| 修改邮箱 | Change Email | 变更电子邮箱。 |
+| 创建用户 | Create User | 创建用户。 |
+| 创建联邦用户 | Create Federated User | 创建联邦用户。 |
+| 外部 ID | External ID | 外部系统中的对应标识。 |
+| 显示名 | Display Name | 用于展示的名称。 |
+| 开通用户 | Provision User | 供给用户资源。 |
+| 更新资料 | Update Profile | 更新主体资料。 |
+| 修改外部 ID | Change External ID | 变更外部标识。 |
+| 组 | Group | 可集体授予权限的主体集合。 |
+| 组成员 | Group Member | 组的成员。 |
+| 开通组 | Provision Group | 供给组资源。 |
+| 重命名组 | Rename Group | 重命名组。 |
+| 替换成员 | Replace Members | 替换组成员。 |
+| 用户已开通事件 | User Provisioned Event | 用户已供给的事实。 |
+| 用户资料已变更事件 | User Profile Changed Event | 用户资料已变更的事实。 |
+| 用户已停用事件 | User Deactivated Event | 用户已停用的事实。 |
+| 用户已恢复事件 | User Reactivated Event | 用户已重新启用的事实。 |
+| 用户密码已重置事件 | User Password Reset Event | 用户口令已重置的事实。 |
+| 用户已分配角色事件 | User Role Assigned Event | 用户角色已分配的事实。 |
+| 用户已解除角色事件 | User Role Unassigned Event | 用户角色已解除的事实。 |
+| 用户删除请求事件 | User Deletion Requested Event | 已请求删除用户的事实。 |
+| 用户已删除事件 | User Deleted Event | 用户已删除的事实。 |
+| 组已创建事件 | Group Created Event | 组已创建的事实。 |
+| 组资料已变更事件 | Group Profile Changed Event | 组资料已变更的事实。 |
+| 组成员已变更事件 | Group Membership Changed Event | 组成员关系已变更的事实。 |
+| 组已删除事件 | Group Deleted Event | 组已删除的事实。 |
+| 角色已创建事件 | Role Created Event | 角色已创建的事实。 |
+| 角色 | Role | 可赋予主体的权限集合命名。 |
+| 角色绑定 | Role Assignment | 将角色赋予主体的关系。 |
+| 分配角色 | Assign Role | 为主体分配角色。 |
+| 模拟策略 | Impersonation Policy | 允许代理他人身份访问的策略。 |
+| 联邦身份 | Federated Identity | 由外部身份提供者断言的主体身份。 |
+| OAuth 客户端 | OAuth Client | 已登记的 OAuth 客户端应用。 |
+
+## Short-lived credentials | 临时凭证
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 创建短期凭证 | Create Token Exchange | 创建一次令牌兑换。 |
+| 会话已过期 | Session Expired | 会话已过期。 |
+| 角色已扮演事件 | Role Assumed Event | 角色已被承担的事实。 |
+
+## Federation | 联邦与 SSO
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| OIDC 提供方 | OIDC Provider | 实现 OpenID Connect 的身份提供者。 |
+| 客户端 ID | Client ID | OAuth 或客户端的标识符。 |
+| 公共客户端 | Public Client | 无法保密客户端凭证的 OAuth 客户端。 |
+| 依赖方 | Relying Party | 依赖身份提供者断言的应用方。 |
+| 创建 OAuth 客户端 | 创建 OAuth 客户端 | 登记新的 OAuth 客户端。 |
+| 恢复 OAuth 客户端 | Restore OAuth Client | 恢复 OAuth 客户端。 |
+| 单点登录 | SSO Login | 一次登录后访问多个相关系统。 |
+| OAuth 客户端已注册事件 | OAuth Client Registered Event | OAuth 客户端已登记的事实。 |
+| OAuth 客户端范围已变更事件 | OAuth Client Scopes Changed Event | OAuth 客户端范围已变更的事实。 |
+
+## Audit Aggregates | 审计聚合
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 管理活动 | Admin Activity | 管理员操作的审计记录。 |
+| 数据访问日志 | Data Access Log | 数据访问行为的审计日志。 |
+| 审计主体 | Audit Actor | 引发审计事件的主体。 |
+| 审计目标 | Audit Target | 审计事件所作用的对象。 |
+| 审计结果 | Audit Outcome | 审计事件的结果状态。 |
+| 记录管理活动 | Record Admin Activity | 写入一条管理活动审计。 |
+| 记录登录活动 | Record Sign-In Activity | 写入一条登录活动审计。 |
+| 记录数据访问 | Record Data Access Log | 写入一条数据访问审计。 |
+| 管理活动记录器 | Admin Activity Recorder | 记录管理活动的组件。 |
+
+## Provisioning | 开通（SCIM）
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 开通目标 | Provisioning Target | 接受身份供给的目标系统。 |
+| 分配组 | Assignment Group | 用于授权指派的组。 |
+| 已开通账号 | Provisioned Account | 经供给预先创建的账号。 |
+| SCIM 开通服务 | SCIM Provisioning Service | 执行 SCIM 供给用例的服务。 |
+| SCIM 推送服务 | SCIM Push Service | 向下游推送身份变更的服务。 |
+| SCIM 推送监听器 | SCIM Push Listener | 接收身份变更推送的监听器。 |
+| SCIM 开通客户端 | SCIM Provisioner Client | 执行出站 SCIM 供给的客户端。 |
+| SCIM 出站注册 | SCIM Outbound Registration | 出站 SCIM 目标的登记。 |
+
+## Console | 控制台
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| IAM 控制台 | IAM Console | 身份与访问管理控制台。 |
+| OAuth 客户端注册 | OAuth Client Registration | 登记 OAuth 客户端的过程或记录。 |
+
+## Dev Tooling | 开发工具
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 编排器 | Orchestrator | 协调多个工作者完成任务的组件。 |
+| 子智能体 | Subagent | 在编排下执行子任务的智能体。 |
+
+## Domain Model | 领域模型补遗
+
+| 中文 | English | 定义 |
+|------|---------|------|
+| 策略规则 | Rule | 策略中单条允许或拒绝条件。 |
+| 策略已创建事件 | Policy Created Event | 访问策略已被创建的事实。 |
+| 不可变实体基类 | Abstract Immutable Entity | 带标识与创建时间、创建后不再变更的实体基类型。 |
+| 企业身份提供者 | Enterprise IdP | 企业侧签发联邦断言的身份提供者。 |

@@ -1,125 +1,91 @@
-# Glossary | 领域术语表
+# Glossary
 
-> Explore ML — Ubiquitous Language（统一语言）
+## Business Domains | 业务域总览
 
----
+| 中文 | English | 定义 |
+|------|---------|------|
+| 推荐 | Recommendation | 根据偏好预测用户可能感兴趣的内容。 |
+| 视觉审核 | Vision | 对图像或视频进行理解与分析。 |
+| 检索增强 | RAG | 先检索外部知识再据此生成回答的范式。 |
+| 图像游乐场 | Image Playground | 交互试验图像能力的场所。 |
+| 语音 | Speech | 人口头语言的声波形式。 |
+| 视频生成 | Video | 动态影像内容。 |
+| 测模界面 | Model Test UI | 用于试验模型的界面。 |
 
-## 1. Purpose | 文档说明
+## Preferred Terms | 术语表
 
-本文件定义项目**统一语言**。英文 Preferred Term 为代码、API、架构命名的权威形式；中文仅用于沟通与本地化。
+| 中文 | English | 定义 |
+|------|---------|------|
+| 测试数据 | Fixture Data | 用于测试的固定样例数据。 |
+| Explore ML | Explore ML | 探索工作区中的机器学习服务。 |
+| ML 应用 | ML App | 机器学习应用。 |
+| 模块 | Module | 相对独立的功能单元。 |
+| 设置 | Setting | 系统或用户的配置项。 |
+| 旁路上游 | Loopback Upstream | 回环到本地上游服务。 |
+| 语音识别 | ASR | 将语音转换为文本。 |
+| 流式识别 | Streaming ASR | 边接收音频边输出转写的语音识别。 |
+| 语音合成 | TTS | 将文本转换为语音。 |
+| ML 代理 | ML Proxy | 机器学习服务的代理。 |
+| 模块页 | Module Page | 功能模块对应的页面。 |
+| 图表 | Chart | 数据的图形化表示。 |
+| 健康报告 | Health Report | 健康检查的报告。 |
 
-### 维护原则
+## RAG（`server/rag`）
 
-1. **先 Glossary**：改代码前先增改术语
-2. **与代码同步**：聚合根 / 实体 / 值对象 / 枚举变更必须回写本表
-3. **Preferred Term**：代码、API、提交、技术文档一律用英文列
+| 中文 | English | 定义 |
+|------|---------|------|
+| 文本块 | Chunk | 文档切分后的一个片段。 |
+| 分块器 | Text Chunker | 将文本切分为片段的组件。 |
+| 块索引器 | Chunk Indexer | 为片段建立检索索引的组件。 |
+| 集合 | Collection | 一组相关资源的集合。 |
+| 检索命中 | Search Hit | 一次搜索命中的结果项。 |
+| 回答 | Answer | 对问题给出的回答。 |
+| 重排旁路 | Rerank Sidecar | 旁路运行的重排序服务。 |
+| 导出向量 | Exported Vectors | 导出的向量数据。 |
+| 已索引文档 | Indexed Document | 已建立检索索引的文档。 |
+| 已抓取网页 | Scraped Webpage | 抓取得到的网页内容。 |
+| 同步结果 | Sync Result | 一次同步操作的结果。 |
+| 领域错误 | Domain Error | 领域规则校验失败的错误。 |
 
----
+## Vision（`server/vision`）
 
-## 2. Business Domains | 业务域总览
+| 中文 | English | 定义 |
+|------|---------|------|
+| 预测 | Prediction | 模型给出的预测结果。 |
+| 审核类别 | Moderation Category | 内容审核的类别。 |
+| 帧结论 | Frame Verdict | 对单帧内容的审核判定。 |
+| 审核结论 | Moderation Verdict | 内容审核给出的判定结果。 |
 
-全部模块挂在同一 FastAPI 应用（`server/main.py`，端口 `8000`）。设置为各 `config.py` 常量；仅密钥来自 `server/.env`。
+## Image Playground and Video
 
-| Preferred Term   | 中文       | Code / Path                  | Notes |
-| ---------------- | ---------- | ---------------------------- | ----- |
-| Recommendation   | 推荐       | `server/recommendation`   | Feed / Explore / Reels 排序 |
-| Vision           | 视觉审核   | `server/vision`           | 标签 + 审核 |
-| RAG              | 检索增强   | `server/rag`              | 文档 + 本地 Qdrant |
-| Image Playground | 图像游乐场 | `server/image_playground` | 图像生成 |
-| Speech           | 语音       | `server/speech`           | ASR + TTS |
-| Video            | 视频生成   | `server/video`            | 视频生成 |
-| Model Test UI    | 测模界面   | `web/`（`:4210`）           | Angular；代理 `/ml` |
-| Fixture Data     | 测试数据   | `data/`                      | 仅小体积夹具 |
+| 中文 | English | 定义 |
+|------|---------|------|
+| 生成任务 | Job | 可调度执行的工作单元。 |
+| 任务状态 | Job Status | 任务执行所处的状态。 |
+| 任务仓储 | Job Store | 调度任务状态的存储。 |
+| LoRA 适配器 | LoRA Adapter | 以低秩矩阵适配预训练权重的微调方法。 |
 
-```mermaid
-flowchart LR
-  siblingApi[explore-chat Spring] --> pyMl[server app :8000]
-  testUi[Model Test UI] -->|/ml proxy| pyMl
-  pyMl --> rec[Recommendation]
-  pyMl --> vis[Vision]
-  pyMl --> ragSvc[RAG]
-  pyMl --> ip[Image Playground]
-  pyMl --> sp[Speech]
-  pyMl --> vd[Video]
-```
+## Recommendation（`server/recommendation`）
 
-限界上下文即上表六模块；彼此不共享可变领域状态。
+| 中文 | English | 定义 |
+|------|---------|------|
+| 排序 | Rank | 结果的排序名次或分数。 |
+| 召回 | Recall | 召回率：相关项被检出的比例。 |
+| 特征注册 | Feature Registry | 功能特性的登记处。 |
+| 向量仓储 | Vector Store | 存储并检索嵌入向量的存储系统。 |
 
----
+## Domain Model | 领域模型补遗
 
-## 3. Preferred Terms | 术语表
-
-| Preferred Term    | 中文       | Definition |
-| ----------------- | ---------- | ---------- |
-| Explore ML        | Explore ML | Explore 产品的可选 Python FastAPI 旁路（六模块） |
-| ML App            | ML 应用    | `server/main.py` → `server.build_app`；单端口挂载全部模块路由（`PORT = 8000`） |
-| Module            | 模块       | `server/` 下包，暴露 `module.py`（`router`、`health`、可选 `lifespan`）；`main.py` 导入全部六个 |
-| Setting           | 设置       | `server/config.py` 或 `<module>/config.py` 常量；仅密钥（`DATABASE_URL`、`REDIS_PASSWORD`、`OPENAI_API_KEY`）来自 `server/.env` |
-| Loopback Upstream | 旁路上游   | 仅由兄弟 API 经 localhost 调用；产品客户端不得直连 |
-| Fixture Data      | 测试数据   | `data/` 下已提交小文件；大权重保持 gitignore |
-| ASR               | 语音识别   | Speech 转写（`POST /api/v1/audios:transcribe`）；默认本地 Qwen3-ASR |
-| Streaming ASR     | 流式识别   | `WS /ws/v1/audios:transcribe`；客户端发 `audio` / `commit` / `stop`，服务端回 `partial` / `final` / `error`；由 `StreamingTranscriptionSession` 缓冲 |
-| TTS               | 语音合成   | Speech 合成（`POST /api/v1/voices:synthesize`）；直接返回 `audio_url`（Qwen 为 `.wav`，Edge 为 `.mp3`） |
-| ML Proxy          | ML 代理    | `ng serve` 路由 `/ml` → 回环 ML 应用（去前缀、WebSocket 开）；目标见 `:web/proxy.conf.json` |
-| Module Page       | 模块页     | 每模块一页（`#/<id>`）；每端点一卡片，结果以 D3 图表展示 |
-| Chart             | 图表       | `:web/src/app/shared/` 下 D3 组件；计算在 `chart-math.ts` |
-| Health Report     | 健康报告   | `GET /health` → `{status: ok \| degraded, modules: {name: {status, latency_ms, …}}}` |
-
----
-
-## 4. Domain Terms by Module | 各模块领域术语
-
-术语对应模块 `domain/`（或注明的 `service/` / `infra/`）中的类或常量。服务为 `XService`，由 `@lru_cache` 的 `get_x_service()` 提供。
-
-### RAG（`server/rag`）
-
-| Preferred Term     | 中文       | Code | Definition |
-| ------------------ | ---------- | ---- | ---------- |
-| Chunk              | 文本块     | `domain/chunker.py` `Chunk` | 按 token 切分的文档切片：id、文本、元数据；值对象语义 |
-| Text Chunker       | 分块器     | `domain/chunker.py` `TextChunker` | 将文本或 PDF 页切为块（`CHUNK_SIZE`、`CHUNK_OVERLAP`）；领域服务 |
-| Chunk Indexer      | 块索引器   | `service/indexing.py` `ChunkIndexer` | 按批 10 条嵌入并 upsert 到同一集合 |
-| Collection         | 集合       | `domain/query.py` `SEARCHABLE_COLLECTIONS` | Qdrant 集合：`documents` / `posts` / `comments` / `webpages` |
-| Search Hit         | 检索命中   | `domain/query.py` `SearchHit` | 一条命中：id、分数、payload；值对象 |
-| Answer             | 回答       | `domain/query.py` `Answer` | LLM 文本 + 来源命中 + 检索块数 + 生成耗时；值对象 |
-| Rerank Sidecar     | 重排旁路   | `infra/reranker.py` | 可选 HTTP 重排（`RERANK_URL`）；对 `top_k * 3` 候选重打分 |
-| Exported Vectors   | 导出向量   | `domain/query.py` `ExportedVectors` | `documents:exportVectors` 的存库向量；空时 `dimension` 为 0 |
-| Indexed Document   | 已索引文档 | `domain/document.py` `IndexedDocument` | 上传结果：id、文件名、大小、块数；实体 |
-| Scraped Webpage    | 已抓取网页 | `domain/webpage.py` `ScrapedWebpage` | 单次抓取结果；`status` 为 `completed` 或 `error: ...` |
-| Sync Result        | 同步结果   | `domain/sync.py` `SyncResult` | 帖子 / 评论自内容 API 同步的合计；值对象 |
-| Domain Error       | 领域错误   | `domain/errors.py` | `InvalidRequestError` 400、`NotFoundError` 404、`ServiceUnavailableError` 503、`UpstreamError` 上游状态 |
-
-### Vision（`server/vision`）
-
-| Preferred Term      | 中文     | Code | Definition |
-| ------------------- | -------- | ---- | ---------- |
-| Prediction          | 预测     | `domain/prediction.py` `Prediction` | 单标签 + softmax 分数；`top_unique` 保留每标签最优；值对象 |
-| Moderation Category | 审核类别 | `domain/moderation.py` `ModerationCategory` | 被标记标签及其分数；值对象 |
-| Frame Verdict       | 帧结论   | `domain/moderation.py` `FrameVerdict` | 采样帧：`offset_seconds`、类别分数、`safe`；值对象 |
-| Moderation Verdict  | 审核结论 | `domain/moderation.py` `ModerationVerdict` | `safe`、标记类别、各类峰值分（视频跨帧）与帧列表；值对象 |
-
-### Image Playground and Video
-
-| Preferred Term | 中文       | Code | Definition |
-| -------------- | ---------- | ---- | ---------- |
-| Job            | 生成任务   | `domain/job.py` `Job` | 一次生成：id、状态、url、error；聚合根 |
-| Job Status     | 任务状态   | `domain/job.py` `JobStatus` | `pending` / `succeeded` / `failed` |
-| Job Store      | 任务仓储   | `domain/job.py` `JobStore` | 内存仓储，供 `imageJobs/{id}`、`videoJobs/{id}` 轮询 |
-| LoRA Adapter   | LoRA 适配器 | `infra/pipeline.py` `LORA_ADAPTER_NAME` | Image Playground 将 `IMAGE_LORA_PATH` 加载为适配器 `fine_tuned` |
-
-### Recommendation（`server/recommendation`）
-
-| Preferred Term   | 中文     | Code | Definition |
-| ---------------- | -------- | ---- | ---------- |
-| Rank             | 排序     | `feeds:rank` / `explores:rank` / `reels:rank` | 对调用方候选打分；无模型时分数为 1.0 |
-| Recall           | 召回     | `feeds:recall` | 自向量仓储取用户近邻项 |
-| Feature Registry | 特征注册 | `domain/feature_registry.py` | 训练与在线共用的命名特征定义 |
-| Vector Store     | 向量仓储 | `domain/vector_store.py` `VectorStore` | 接口；`infra/` 中 Redis / Faiss 实现 |
-
----
-
-## References
-
-- [References](References.md)
-- [Guideline](Guideline.md)
-- [C4 model](c4-model/)
-- [User Story Map](User-Story-Map.md)
+| 中文 | English | 定义 |
+|------|---------|------|
+| 数据集 | Dataset | 用于训练或评估的样本集合。 |
+| 服务端点 | Endpoint | 对外提供模型能力的网络接口。 |
+| 模型制品 | Model Artifact | 可分发、可加载的模型权重与元数据打包。 |
+| 训练任务 | Training Job | 一次模型训练或微调的执行单元。 |
+| 操作员会话 | Operator Session | 操作员使用控制台时的工作会话。 |
+| 嵌入 | Embedding | 将文本或多媒体映射到向量空间的表示。 |
+| ONNX | ONNX | 跨框架交换机器学习模型的开放格式。 |
+| 向量数据库 | Vector Database | 以近似最近邻检索向量的专用存储。 |
+| 重排 | Rerank | 对初检结果按相关性再次排序。 |
+| 模型清单 | Model Manifest | 描述模型制品组成与用途的清单。 |
+| 权重 | Weights | 模型可学习参数的数值集合。 |

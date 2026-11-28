@@ -1,137 +1,55 @@
-# Glossary | 领域术语表
+# Glossary
 
-> Explore Lowcode — Ubiquitous Language（统一语言）
+## Business Domains | 业务域总览
 
----
+| 中文 | English | 定义 |
+|------|---------|------|
+| 画布 | Canvas | 可视化编排界面的工作区。 |
+| 组件 | Component | 可复用的界面或功能单元。 |
+| 属性配置 | Properties | 对象可配置的属性集合。 |
+| 模板 | Template | 可复用的预置结构。 |
+| 主题 | Theme | 界面或场景的视觉外观方案。 |
+| 动画 | Animation | 随时间变化的视觉过渡。 |
+| 数据绑定 | Data Binding | 界面与数据源之间的关联。 |
+| 数据源 | Data Source | 提供数据的来源。 |
+| 表单构建 | Form Builder | 表单的可视化构造器。 |
+| 图表 | Chart | 数据的图形化表示。 |
+| 代码导出 | Code Export | 将设计导出为源代码。 |
+| 历史记录 | History | 过往交互或变更的记录。 |
+| 持久化 | Persistence | 将领域状态保存到存储的过程。 |
+| 协作 | Collaboration | 多人同时编辑与共享。 |
+| 共享 UI | Shared UI | 跨应用共享的用户界面组件。 |
+| 共享 hooks | Shared hooks | 跨界面共享的钩子逻辑。 |
+| 共享工具 | Shared lib | 跨模块共享的程序库。 |
 
-## 0. Product naming | 产品命名
+## Core Terms | 核心术语
 
-| Use | Form | Notes |
-| ---- | ---- | ----- |
-| Display (EN / UI title) | `Explore Lowcode` | Explore 与 Lowcode 之间空格；禁止 ExploreLowcode / Explore Low-Code / Explore LowCode |
-| Repo / npm / clone dir | `explore-lowcode` | 仅小写连字符 |
-| Chinese gloss | 低代码 | 英文品牌后可选括注 |
-| Technique (not the product) | low-code / 低代码 | 通用技术概念；产品名不用「低代码平台」 |
+| 中文 | English | 定义 |
+|------|---------|------|
+| 组件实例 | Component Instance | 组件的一次具体实例。 |
+| 组件工厂 | Component Factory | 创建组件实例的工厂。 |
+| 组件管理 | Component Management | 组件的登记与生命周期管理。 |
+| 组件面板 | Component Panel | 选择与配置组件的面板。 |
+| 组件树 | Component Tree | 组件的层级树。 |
+| 组件渲染器 | Component Renderer | 将组件渲染为界面的器。 |
+| 预览画布 | Preview Canvas | 用于预览效果的画布。 |
+| 设备预览 | Device Preview | 按目标设备预览界面。 |
+| 自定义组件 | Custom Component | 用户自定义组件。 |
+| 模板库 | Template Gallery | 模板陈列与选用。 |
+| 主题配置 | Theme Config | 主题的配置。 |
+| 撤销 / 重做 | Undo / Redo | 撤销或重做最近变更。 |
+| 本地持久化 | Local Persistence | 在本地存储中的持久化。 |
 
-**中英混排：** 中文与拉丁字母、数字之间保留半角空格，例如：`Explore Lowcode 的架构`。  
-**首次出现（中文正文）：** `Explore Lowcode（低代码）`；之后可只写 `Explore Lowcode`。
+## Domain Model | 领域模型补遗
 
----
-
-## 1. Purpose | 文档说明
-
-本文定义项目**统一语言**。英文 Preferred Term 为**规范名**，须与代码、架构命名一致。中文标签仅用于本地化与干系人沟通。
-
-### Maintenance Principles
-
-1. **术语表先行**：增改术语先落本文，再改代码
-2. **代码同步**：领域模型（实体、值对象、枚举）变更须同步术语表
-3. **规范名**：代码、提交与技术文档一律使用 **Preferred Term (English)**
-
-### Reference Rules
-
-| Scenario | Rule |
-| -------- | ---- |
-| TypeScript / commits | 使用 Preferred Term (English) |
-| Jira / user stories | 英文为主；中文可括注 |
-| UI copy | 将 Preferred Term 映射为本地化文案 |
-| Cross-team communication | 英文先行；必要时补中文 |
-
----
-
-## 2. Business Domains | 业务域总览
-
-| Preferred Term | 中文 | Code Path | UI Area | Notes |
-| -------------- | ---- | --------- | ------- | ----- |
-| Canvas | 画布 | `src/canvas/` | 中央编辑区 | 拖放布局、预览、组件树、属性面板 |
-| Component | 组件 | `src/component/` | 左栏 + 画布节点 | 类型、工厂、管理、面板 / 渲染器 |
-| Properties | 属性配置 | `src/canvas/properties-panel.tsx` | 右栏 | 样式 / 数据 / 交互属性（归属 Canvas） |
-| Template | 模板 | `src/template/` | 模板库 | 预制页面布局 |
-| Theme | 主题 | `src/theme/` | 主题编辑器 | 色板、字体、CSS 变量 |
-| Animation | 动画 | `src/theme/animation-editor.tsx` | 动画编辑器 | 动效预设（归属 Theme） |
-| Data Binding | 数据绑定 | `src/data/data-binding.service.ts` | 数据面板 | 组件绑定数据源 |
-| Data Source | 数据源 | `src/data/data-source.service.ts` | 数据面板 | 拉取 / 缓存 / 刷新 |
-| Form Builder | 表单构建 | `src/form/` | 表单构建器 | React Hook Form + Zod |
-| Chart | 图表 | `src/chart/` | 画布图表 | 基于 Recharts 的可视化 |
-| Code Export | 代码导出 | `src/export/` | 导出对话框 | 生成可部署前端代码 |
-| History | 历史记录 | `src/lib/history.store.ts`, `src/lib/history.ts` | 撤销/重做 | 操作历史 |
-| Persistence | 持久化 | `src/lib/persistence.manager.ts` | LocalStorage | 浏览器本地项目状态 |
-| Collaboration | 协作 | `src/collaboration/` | 协作 UI | 规划中 / 部分实时同步 |
-| Shared UI | 共享 UI | `src/components/` | — | UI kit + shell |
-| Shared hooks | 共享 hooks | `src/hooks/` | — | 跨域 hooks |
-| Shared lib | 共享工具 | `src/lib/` | — | utils、持久化、历史 |
-
-**架构（规范）：业务域目录 + 就近放置**
-
-| Area | Path | Responsibility |
-| ---- | ---- | -------------- |
-| Business domains | `src/{domain}/` | UI、store、hooks、helpers 同域放置（无 CA 分层目录） |
-| Components | `src/components/` | 共享可复用 UI |
-| Hooks | `src/hooks/` | 共享 hooks |
-| Lib | `src/lib/` | 共享非 UI 工具 |
-
-```mermaid
-flowchart TB
-  subgraph contexts [BusinessDomains]
-    Canvas[Canvas]
-    Component[Component]
-    Properties[Properties]
-    Template[Template]
-    Theme[Theme]
-    Data[DataBinding]
-    Chart[Chart]
-    Export[CodeExport]
-    History[History]
-  end
-  User[User] --> Canvas
-  User --> Component
-  User --> Template
-  Canvas --> Component
-  Canvas --> Properties
-  Component --> Data
-  Component --> Chart
-  Canvas --> History
-  Template --> Canvas
-  Theme --> Canvas
-  Export --> Component
-```
-
----
-
-## 3. Core Terms | 核心术语
-
-| Preferred Term | 中文 | Definition | Code Anchors |
-| -------------- | ---- | ---------- | ------------ |
-| Component Instance | 组件实例 | 画布上的已放置节点：类型、属性、位置 | `src/component/types.ts` |
-| Component Factory | 组件工厂 | 按类型创建带默认值的组件实例 | `src/component/component-factory.service.ts` |
-| Component Management | 组件管理 | 对实例的 CRUD / 移动 / 选中 | `src/component/component-management.service.ts` |
-| Component Panel | 组件面板 | 可拖拽组件类型调色板 | `src/component/component-panel.tsx` |
-| Component Tree | 组件树 | 画布实例的层级视图 | `src/canvas/component-tree.tsx` |
-| Component Renderer | 组件渲染器 | 递归渲染布局 / 数据 / 图表 / 表单节点 | `src/component/component-renderer/` |
-| Preview Canvas | 预览画布 | 只读渲染设计页 | `src/canvas/preview-canvas.tsx` |
-| Device Preview | 设备预览 | 响应式视口模拟（desktop/tablet/mobile） | `src/canvas/canvas.store.ts` |
-| Custom Component | 自定义组件 | 用户定义的可复用组件 | `src/component/custom-components.store.ts` |
-| Template Gallery | 模板库 | 浏览并应用页面模板 | `src/template/template-gallery.tsx` |
-| Theme Config | 主题配置 | 颜色、字体、圆角等 token 集 | `src/theme/types.ts` / `theme.store.ts` |
-| Undo / Redo | 撤销 / 重做 | 遍历画布变更历史栈 | `history.store` |
-| Local Persistence | 本地持久化 | 在 LocalStorage 读写编辑器状态 | `persistence.manager.ts` |
-
----
-
-## 4. Terms to Avoid | 避免使用的说法
-
-| Avoid | Prefer | Reason |
-| ----- | ------ | ------ |
-| Page Builder（作域名） | Canvas + Component | 与包名 / UI 命名一致 |
-| Widget（歧义） | Component Instance | 用明确的实例术语 |
-| Store（单独出现） | 具名 store（`ComponentStore` 等） | 区分 Zustand 模块 |
-| Backend / API（指核心编辑器） | Local Persistence | 编辑器为客户端；当前无自有 REST API |
-
----
-
-## 5. Related Living Docs | 关联文档
-
-| Document | Path |
-| -------- | ---- |
-| C4 Model | [c4-model/README.md](./c4-model/README.md) |
-| User Story Map | [User-Story-Map.md](./User-Story-Map.md) |
+| 中文 | English | 定义 |
+|------|---------|------|
+| 页面 | Page | 由画布与组件构成的可编辑界面单元。 |
+| 低代码 | Low-code | 以可视化构造为主、编码为辅的开发方式。 |
+| 设计令牌 | Design Tokens | 可跨平台交换的设计决策令牌。 |
+| 领域特定语言 | DSL | 面向特定领域的专用语言。 |
+| WCAG | WCAG | Web 内容无障碍指南。 |
+| ARIA | ARIA | 为辅助技术描述可访问名称、角色与状态的规范。 |
+| 人机界面指南 | HIG | 平台人机界面设计惯例。 |
+| 空状态 | Empty State | 尚无内容时的占位呈现。 |
+| 动效 | Effect | 可组合的视觉或交互动效。 |
