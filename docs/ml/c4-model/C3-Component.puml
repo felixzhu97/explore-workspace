@@ -1,0 +1,50 @@
+@startuml
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+!include ../../c4-model/style-c4.puml
+LAYOUT_TOP_DOWN()
+title 组件图 — Explore ML
+
+Container_Boundary(app, "server") {
+  Component(server, "server.py", "FastAPI app shell", "build_app: module routers, lifespans, aggregated /health (main.py imports the six modules)")
+  Component(modules, "<module>/module.py", "module contract", "router, health, optional lifespan; RAG adds register_exception_handlers")
+}
+
+Container_Boundary(rag, "server/rag") {
+  Component(routers, "controller/", "FastAPI routers", "documents, query, crawler, sync, api (health); inline Pydantic DTOs; XServiceDependency")
+  Component(errors, "controller/errors.py", "exception handlers", "Domain errors -> 400 / 404 / 503 / upstream status, {detail}")
+  Component(services, "service/", "XService classes", "DocumentService, QueryService, WebpageService, SyncService; @lru_cache get_x_service()")
+  Component(indexer, "service/indexing.py", "ChunkIndexer", "Embed in batches of 10, upsert one collection")
+  Component(domain, "domain/", "dataclasses + rules", "Chunk, TextChunker, SearchHit, Answer, ExportedVectors, SyncResult, errors, system prompt")
+  Component(infra, "infra/", "adapters", "QdrantService, EmbeddingService, LlmClient, ContentApiClient, DocumentProcessor, pdf_parser, web_fetcher, reranker")
+}
+
+Container_Boundary(ui, ":web/src/app") {
+  Component(shared, "shared/", "Angular", "helpers registry, /ml proxy, HealthService, Call, SSE, polling, module page")
+  Component(charts, "shared/ charts", "Angular + d3", "bar, line, slope, histogram, scatter, job timeline, waveform; pure math in chart-math.ts")
+  Component(pages, "<module>/", "Angular", "<module>.page.ts + <module>.service.ts (HttpClient, inline types) per module")
+}
+
+Container_Ext(qdrant, "Qdrant", "Vector DB")
+Container_Ext(llm, "Ollama / OpenAI", "HTTP")
+Container_Ext(content_api, "Content API", "HTTP")
+
+Rel(server, modules, "imports and mounts")
+Rel(modules, routers, "exports routers + health")
+Rel(routers, services, "inject via Depends")
+Rel(errors, domain, "maps errors")
+Rel(services, indexer, "index chunks")
+Rel(services, domain, "rules / value types")
+Rel(services, infra, "calls")
+Rel(indexer, infra, "embed + upsert")
+Rel(infra, domain, "raises domain errors")
+Rel(infra, qdrant, "HTTP / embedded")
+Rel(infra, llm, "HTTP")
+Rel(infra, content_api, "HTTP")
+Rel(pages, shared, "uses")
+Rel(pages, charts, "renders results")
+Rel(shared, server, "/ml/health", "HTTP")
+Rel(pages, routers, "/ml/api/v1/...", "HTTP + SSE")
+
+SHOW_LEGEND()
+@enduml

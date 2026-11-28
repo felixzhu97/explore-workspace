@@ -1,0 +1,22 @@
+@startuml C4-Deployment
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+!include ../../c4-model/style-c4.puml
+LAYOUT_WITH_LEGEND()
+title 部署图 — Explore Three
+
+Deployment_Node(local, "Developer Machine", "macOS / Linux") {
+    Deployment_Node(ng_node, "Angular CLI", "pnpm start") {
+        Container(dev_spa, "Globe App (dev)", "Angular + Three.js", "HMR :4200")
+    }
+}
+
+Deployment_Node(vercel_cloud, "Vercel", "CDN") {
+    Container(prod_spa, "Globe App (prod)", "Static dist/explore-three/browser", "SPA rewrite")
+}
+
+Rel(dev_spa, prod_spa, "pnpm build → deploy", "CI / Vercel")
+
+SHOW_LEGEND()
+
+@enduml

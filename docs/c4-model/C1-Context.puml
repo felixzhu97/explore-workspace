@@ -1,0 +1,78 @@
+@startuml C1-Context
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include style-c4.puml
+LAYOUT_TOP_DOWN()
+title 系统上下文 — Explore Workspace
+
+Person(end_user, "终端用户\nEnd User", "经 Web / 原生客户端使用各产品")
+Person(operator, "运营与管理员\nOperator", "身份、内容、商品与投组运营")
+Person(builder, "开发者与设计师\nBuilder", "接入 OIDC、扩展 API、编排低代码与模型")
+
+System_Boundary(workspace, "Explore Workspace\n探索工作区") {
+  System(iam, "Explore IAM\n身份与访问", "OIDC / 策略 / STS / 审计 / SCIM")
+  System(ai, "Explore AI\n对话与智能体", "Chat · RAG · Agent · 工具调用")
+  System(chat, "Explore Chat\n社交与即时通讯", "Feed · 私信 · 通话 · 搜索")
+  System(commerce, "Explore Commerce\n电商交易", "店面 · 购物车 · 订单 · 支付")
+  System(ml, "Explore ML\n机器学习平台", "推荐 · 视觉 · 语音 · RAG 回路")
+  System(portfolio, "Explore Portfolio\n财富与投组", "账户 · 持仓 · 行情 · 交易")
+  System(lowcode, "Explore Lowcode\n低代码创作", "画布 · 组件 · 主题 · 导出")
+  System(three, "Explore Three\n三维可视化", "地球仪 · 航线 · 主题")
+}
+
+' —— 外部身份与托管 ——
+System_Ext(google_idp, "Google IdP", "OIDC / OAuth 联邦")
+System_Ext(github_idp, "GitHub IdP", "OAuth 联邦")
+System_Ext(enterprise_idp, "企业 IdP\nEnterprise IdP", "Okta / Entra · SCIM 客户端")
+System_Ext(vercel, "Vercel", "前端与静态托管")
+System_Ext(render, "Render", "后端托管（按产品）")
+
+' —— 外部能力 ——
+System_Ext(llm, "LLM 与生成式 API\nDeepSeek / OpenAI", "补全 · 图像 · 语音合成")
+System_Ext(obs, "可观测与开关\nDatadog / LaunchDarkly", "RUM · APM · 特性开关")
+System_Ext(pay, "支付网关\nStripe 等", "收单与结算")
+System_Ext(market, "行情源\nMarket Data", "报价与参考数据")
+System_Ext(chain, "Ethereum Sepolia", "链上演示")
+System_Ext(hf, "Hugging Face Hub", "模型权重与训练作业")
+System_Ext(local_ai, "本地推理\nOllama 等", "嵌入 · 多模态 · 回路服务")
+
+Rel(end_user, ai, "使用", "HTTPS / 原生")
+Rel(end_user, chat, "使用", "HTTPS / 原生")
+Rel(end_user, commerce, "使用", "HTTPS")
+Rel(end_user, portfolio, "使用", "HTTPS / 原生")
+Rel(end_user, lowcode, "使用", "HTTPS")
+Rel(end_user, three, "使用", "HTTPS")
+Rel(end_user, iam, "登录 / 同意", "OIDC / PKCE")
+Rel(operator, iam, "治理身份与策略", "HTTPS")
+Rel(operator, commerce, "运营商品与订单", "HTTPS")
+Rel(operator, portfolio, "运营客户与投组", "HTTPS")
+Rel(builder, iam, "登记客户端", "HTTPS")
+Rel(builder, lowcode, "搭建与导出", "HTTPS")
+Rel(builder, ml, "调试验证模型", "HTTPS")
+
+Rel(ai, iam, "鉴权 / JWKS / SCIM 目标", "OIDC · SCIM")
+Rel(chat, iam, "鉴权 / JWKS", "OIDC")
+Rel(commerce, iam, "鉴权", "OIDC")
+Rel(portfolio, iam, "鉴权", "OIDC")
+Rel(lowcode, iam, "鉴权", "OIDC")
+Rel(ai, ml, "回路能力", "HTTP")
+Rel(chat, ai, "可选 BFF 代理", "HTTP")
+Rel(portfolio, ml, "分析与行情辅助", "HTTP")
+
+Rel(iam, google_idp, "联邦认证", "OIDC")
+Rel(iam, github_idp, "联邦认证", "OAuth 2.0")
+Rel(enterprise_idp, iam, "开通用户与组", "SCIM 2.0")
+Rel(ai, llm, "推理与生成", "HTTPS")
+Rel(ai, local_ai, "本地嵌入 / 多模态", "HTTP")
+Rel(ml, hf, "拉取权重", "HTTPS")
+Rel(ml, local_ai, "本地推理", "HTTP")
+Rel(commerce, pay, "收单", "HTTPS")
+Rel(portfolio, market, "订阅行情", "HTTPS / WS")
+Rel(portfolio, chain, "链上演示", "JSON-RPC")
+Rel(ai, obs, "遥测与开关", "HTTPS")
+Rel(ai, vercel, "托管前端", "HTTPS")
+Rel(three, vercel, "托管静态站", "HTTPS")
+Rel(ai, render, "托管后端", "HTTPS")
+
+SHOW_LEGEND()
+@enduml

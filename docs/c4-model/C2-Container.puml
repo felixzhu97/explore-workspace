@@ -1,0 +1,86 @@
+@startuml C2-Container
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include style-c4.puml
+LAYOUT_TOP_DOWN()
+title 容器图 — Explore Workspace
+
+Person(end_user, "终端用户\nEnd User", "Web / 原生")
+Person(operator, "运营与管理员\nOperator", "治理与运营台")
+
+System_Boundary(workspace, "Explore Workspace\n探索工作区") {
+
+  System_Boundary(bc_identity, "身份与访问\nIdentity & Access") {
+    Container(iam_api, "IAM API", "Java / Spring", "OIDC · 策略 · STS · SCIM · 审计")
+    Container(iam_console, "IAM Console", "Angular", "治理台")
+  }
+
+  System_Boundary(bc_ai, "对话与智能体\nConversational AI") {
+    Container(ai_api, "AI API", "Java / Spring AI", "会话 · RAG · Agent · 工具")
+    Container(ai_web, "AI Web", "Angular", "对话与工作台")
+    ContainerDb(ai_store, "AI Store", "H2 / 向量", "会话与向量（默嵌）")
+  }
+
+  System_Boundary(bc_social, "社交与即时通讯\nSocial Messaging") {
+    Container(chat_api, "Chat API", "Java / Spring", "Feed · 私信 · 通话信令")
+    Container(chat_web, "Chat Web / Admin", "Web", "信息流与运营")
+    Container(chat_mobile, "Chat Mobile", "Expo / SwiftUI", "移动社交")
+  }
+
+  System_Boundary(bc_commerce, "电商交易\nCommerce") {
+    Container(commerce_api, "Commerce API", "Node / Express", "商品 · 订单 · 支付意图")
+    Container(commerce_web, "Storefront / Admin", "Web", "店面与运营")
+    Container(commerce_mobile, "Commerce Mobile", "Expo", "移动购物")
+  }
+
+  System_Boundary(bc_ml, "机器学习平台\nML Platform") {
+    Container(ml_api, "ML API", "Python / FastAPI", "推荐 · 视觉 · 语音 · RAG")
+    Container(ml_web, "Model Test UI", "Angular", "模型试炼")
+  }
+
+  System_Boundary(bc_wealth, "财富与投组\nWealth") {
+    Container(pf_api, "Portfolio API", "Java / Spring", "客户 · 账户 · 订单 · 支付")
+    Container(pf_analytics, "Analytics API", "Python / FastAPI", "行情聚合 · 风险")
+    Container(pf_web, "Admin / Portal", "React", "运营台与投资者门户")
+    Container(pf_mobile, "Portfolio Mobile", "Expo", "持仓与支付演示")
+  }
+
+  System_Boundary(bc_lowcode, "低代码创作\nLowcode Authoring") {
+    Container(lowcode_web, "Lowcode Editor", "Next.js", "画布 · 组件 · 导出")
+  }
+
+  System_Boundary(bc_viz, "三维可视化\nVisualization") {
+    Container(three_web, "Three Globe", "Angular / Three.js", "地球仪与飞线")
+  }
+}
+
+System_Ext(iam_ext_note, "外部身份 / 能力 / 托管", "见 C1：IdP · LLM · 支付 · 行情 · Vercel 等")
+
+Rel(end_user, ai_web, "对话", "HTTPS")
+Rel(end_user, chat_web, "浏览与聊天", "HTTPS")
+Rel(end_user, commerce_web, "购物", "HTTPS")
+Rel(end_user, pf_web, "查看投组", "HTTPS")
+Rel(end_user, lowcode_web, "编辑", "HTTPS")
+Rel(end_user, three_web, "浏览", "HTTPS")
+Rel(operator, iam_console, "治理", "HTTPS")
+
+Rel(ai_web, ai_api, "API", "HTTPS / SSE")
+Rel(ai_api, ai_store, "读写", "JDBC / 向量 API")
+Rel(ai_api, iam_api, "JWT / SCIM", "OIDC · SCIM")
+Rel(chat_api, iam_api, "JWT", "OIDC")
+Rel(chat_web, chat_api, "API", "HTTPS / WS")
+Rel(commerce_web, commerce_api, "API", "HTTPS")
+Rel(commerce_api, iam_api, "JWT", "OIDC")
+Rel(pf_web, pf_api, "API", "HTTPS")
+Rel(pf_api, pf_analytics, "分析", "HTTP")
+Rel(pf_api, iam_api, "JWT", "OIDC")
+Rel(ai_api, ml_api, "回路", "HTTP")
+Rel(ml_web, ml_api, "试炼", "HTTPS")
+
+Rel(ai_api, iam_ext_note, "调用外部能力", "HTTPS")
+Rel(commerce_api, iam_ext_note, "支付与登录", "HTTPS")
+Rel(pf_analytics, iam_ext_note, "行情", "HTTPS")
+Rel(ml_api, iam_ext_note, "权重与推理", "HTTPS")
+
+SHOW_LEGEND()
+@enduml

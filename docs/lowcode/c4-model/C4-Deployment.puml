@@ -1,0 +1,23 @@
+@startuml C4-Deployment
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+!include ../../c4-model/style-c4.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 部署图 — Lowcode（本地）
+
+Deployment_Node(dev_machine, "Developer Machine", "macOS / Linux / Windows") {
+    Deployment_Node(node_runtime, "Node.js >= 18", "pnpm") {
+        Container(next_dev, "Next.js Dev Server", "next dev", "Hot reload SPA on :3000")
+    }
+    Deployment_Node(browser, "Browser", "Chrome / Safari / Firefox") {
+        Container(spa_client, "Editor SPA", "React 19", "Canvas + panels + stores")
+    }
+}
+
+Rel(browser, next_dev, "HTTP", "localhost:3000")
+Rel(spa_client, next_dev, "HMR / assets")
+
+SHOW_LEGEND()
+@enduml
