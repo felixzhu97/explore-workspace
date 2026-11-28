@@ -2,127 +2,127 @@
 
 ## Introduce
 
-Chat brings social connection into everyday life. Use it so people can share Posts, browse Feed and Reels, discover others in Explore, message in Chat, and place Calls—simply and beautifully.
+Chat 将社交连接带入日常：发布 Post、浏览 Feed 与 Reels、在 Explore 发现他人、在 Chat 私信、发起 Call——简洁、清晰。
 
-A social messaging product defines how people publish content, discover others, stay in conversation, and stay safe. Prefer one API boundary (Spring Boot at the repo root), durable Preferred Terms, and real-time delivery that complements persisted history. This guideline describes how to design those experiences so people stay in control and integrations stay interoperable.
+社交即时通讯产品规定：如何发帖、如何发现、如何持续对话、如何保障安全。坚持单一 API 边界（仓库根 Spring Boot）、稳定 Preferred Term，以及与持久历史互补的实时投递。本指南约束体验设计，使人始终可控、集成始终可互操作。
 
 ## Best practices
 
-**Keep one client-facing API boundary.**
+**坚持单一客户端 API 边界。**
 
-Web, Mobile, and Admin obtain Feed, Chat, Call, Media, and AI capabilities through Spring `/api/v1` (REST and Socket.IO). Never call image-playground, speech, video, vision, recommendation, RAG, or Explore AI from the client. Upstream credentials stay on the server.
+Web、Mobile、Admin 经 Spring `/api/v1`（REST 与 Socket.IO）获取 Feed、Chat、Call、Media 与 AI 能力。客户端不得直连 image-playground、speech、video、vision、recommendation、RAG 或 Explore AI。上游凭证只留在服务端。
 
-**Keep people in control of conversation and publishing state.**
+**让人掌控对话与发布状态。**
 
-Prefer visible actions—send, retry, hang up, leave Group, open Notification—over silent automation. When generation assists creation, let people dismiss, retry, or edit before publish or send.
+优先可见操作——发送、重试、挂断、离开 Group、打开 Notification——而非静默自动化。生成辅助创作时，须在发布或发送前允许关闭、重试或编辑。
 
-**Protect private conversations by default.**
+**默认保护私密会话。**
 
-Message history, Call state, and personal Media stay inside authorized sessions. Ask only for camera, microphone, and files a feature needs.
+Message 历史、Call 状态与个人 Media 仅在授权会话内。仅请求功能所需的相机、麦克风与文件权限。
 
-**Persist history; treat live delivery as complementary.**
+**持久化历史；实时投递为补充。**
 
-Socket.IO improves presence and latency. Chat and Message storage on the API remain the source of truth after reconnect—reconcile streamed events with durable reads so gaps do not look like silent data loss.
+Socket.IO 提升在线感知与延迟。API 上的 Chat 与 Message 存储仍是重连后的权威源——流式事件须与持久读对账，避免缺口被误认为静默丢数据。
 
-**Separate Call signaling from media.**
+**分离 Call 信令与媒体。**
 
-The API handles invite, ring, accept, and hangup. WebRTC carries audio and video. Give distinct feedback when signaling succeeds but media fails.
+API 负责邀请、振铃、接听、挂断。WebRTC 承载音视频。信令成功而媒体失败时，须给出可区分反馈。
 
-**Offer generative features only where they provide clear value.**
+**仅在价值明确时提供生成能力。**
 
-When optional AI side services are unavailable, Feed, Chat, and Calls must still work.
+可选 AI 旁路不可用时，Feed、Chat 与 Calls 仍须可用。
 
-**Use Preferred Terms consistently.**
+**统一使用 Preferred Term。**
 
-Feed, Post, Chat, Message, Call, Notification, and related terms come from the Glossary. Avoid synonyms that split the ubiquitous language across UI and APIs.
+Feed、Post、Chat、Message、Call、Notification 等术语出自 Glossary。禁止在 UI 与 API 间用同义拆词破坏统一语言。
 
 ## Auth and User
 
 ### User
 
-**Treat User as the long-lived principal.** Display names and avatars may change. Follow, Chat membership, and Call participants hang off a stable, disableable User. Sessions expire; the account remains auditable.
+**将 User 视为长期主体。** 显示名与头像可变。Follow、Chat 成员与 Call 参与者挂靠稳定、可禁用的 User。会话会过期；账号仍可审计。
 
 ### JWT
 
-**Authenticate with short-lived JWTs on HTTPS.** Prefer Bearer tokens ([RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750)). Do not put access tokens in query strings. Validate `iss`, `aud`, `exp`, and algorithms carefully ([RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519), [RFC 8725](https://datatracker.ietf.org/doc/html/rfc8725)). Refresh and logout should rotate or invalidate access deliberately. For guidance, see [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html).
+**在 HTTPS 上使用短时 JWT 认证。** 优先 Bearer（[RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750)）。访问令牌不得放查询串。严格校验 `iss`、`aud`、`exp` 与算法（[RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519)、[RFC 8725](https://datatracker.ietf.org/doc/html/rfc8725)）。刷新与登出须有意轮换或作废访问令牌。参见 [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)。
 
 ### Follow
 
-**Model Follow as an explicit social edge.** Follower and following lists reconcile with the API. They are authorization-relevant relationships, not cosmetic UI state. Graph embedding work such as [DeepWalk](https://arxiv.org/abs/1403.6652) frames how social edges support discovery beyond hand-tuned rules. Large products often serve the social graph from a dedicated store (for example Meta’s [TAO](https://www.usenix.org/conference/atc13/technical-sessions/presentation/bronson)).
+**将 Follow 建模为显式社交边。** 粉丝与关注列表与 API 对账。它们是授权相关关系，不是装饰性 UI 状态。[DeepWalk](https://arxiv.org/abs/1403.6652) 说明社交边如何支撑超越手调规则的发现；大型产品常以专用存储服务社交图（如 Meta [TAO](https://www.usenix.org/conference/atc13/technical-sessions/presentation/bronson)）。
 
 ## Feed and discovery
 
 ### Post
 
-**Treat Post as the durable shareable unit.** Text, `mediaUrls`, and Cover URL belong to the Post. A Feed Entry references a Post—do not invent a parallel client-only card model.
+**将 Post 视为可持久分享单元。** 文本、`mediaUrls` 与 Cover URL 属于 Post。Feed Entry 引用 Post——禁止另造仅客户端卡片模型。
 
 ### Feed
 
-**Present Feed as the home timeline.** People encounter Posts through REST `GET /api/v1/posts/feed` (and Reels via `GET /api/v1/posts/reels`). Ranking and caching may change order; the timeline must remain coherent and refreshable. Classical collaborative filtering and factorization ([Item-based Collaborative Filtering](https://dl.acm.org/doi/10.1145/371920.372071), [Matrix Factorization Techniques for Recommender Systems](https://dl.acm.org/doi/10.1109/MC.2009.263)) underpin later deep models. Industrial ranking lineages include [Deep Neural Networks for YouTube Recommendations](https://research.google/pubs/pub45530/) and [Wide & Deep Learning for Recommender Systems](https://arxiv.org/abs/1606.07792).
+**将 Feed 呈现为首页时间线。** 用户经 REST `GET /api/v1/posts/feed`（Reels 经 `GET /api/v1/posts/reels`）接触 Post。排序与缓存可改顺序；时间线须连贯、可刷新。经典协同过滤与因子分解（[Item-based Collaborative Filtering](https://dl.acm.org/doi/10.1145/371920.372071)、[Matrix Factorization Techniques for Recommender Systems](https://dl.acm.org/doi/10.1109/MC.2009.263)）支撑后续深度模型。工业排序谱系含 [Deep Neural Networks for YouTube Recommendations](https://research.google/pubs/pub45530/) 与 [Wide & Deep Learning for Recommender Systems](https://arxiv.org/abs/1606.07792)。
 
 ### Reels
 
-**Keep Reels as continuous short video.** GraphQL `reels` optimizes vertical watch. Do not collapse Reels into Explore or Feed. Session and sequential recommenders such as [GRU4Rec](https://arxiv.org/abs/1511.06939) and [SASRec](https://arxiv.org/abs/1808.09781) inform how recent watch history drives the next candidate set.
+**将 Reels 保持为连续短视频。** GraphQL `reels` 优化竖屏观看。禁止把 Reels 并入 Explore 或 Feed。会话与序列推荐如 [GRU4Rec](https://arxiv.org/abs/1511.06939)、[SASRec](https://arxiv.org/abs/1808.09781) 说明近期观看如何驱动下一候选集。
 
 ### Explore
 
-**Keep Explore as discovery.** The Explore grid is for browsing and finding content beyond the home Feed. Classic two-stage systems separate candidate generation from ranking ([YouTube DNN](https://research.google/pubs/pub45530/)); large-scale nearest-neighbor retrieval ([FAISS](https://arxiv.org/abs/1702.08734)) often backs the first stage. Keep Explore’s job distinct from Feed personalization.
+**将 Explore 保持为发现面。** Explore 网格用于浏览与发现首页 Feed 之外的内容。经典两阶段系统分离召回与排序（[YouTube DNN](https://research.google/pubs/pub45530/)）；大规模近邻检索（[FAISS](https://arxiv.org/abs/1702.08734)）常支撑第一阶段。Explore 职责须与 Feed 个性化分离。
 
 ### Status
 
-**Treat Status as 24-hour ephemeral content.** Do not mix Status lifetime rules with durable Posts.
+**将 Status 视为 24 小时短暂内容。** 禁止与持久 Post 混用生命周期规则。
 
 ### Engagement
 
-**Make Engagement explicit.** Likes, saves, Comments, and Follow reconcile with the API. Optimistic UI is presentation, not source of truth. Engagement labels are the supervision signal behind industrial recommenders ([YouTube DNN](https://research.google/pubs/pub45530/), [Wide & Deep](https://arxiv.org/abs/1606.07792), [DLRM](https://arxiv.org/abs/1906.00091)).
+**使 Engagement 显式。** 点赞、收藏、Comment、Follow 与 API 对账。乐观 UI 是呈现，不是权威源。互动标签是工业推荐的监督信号（[YouTube DNN](https://research.google/pubs/pub45530/)、[Wide & Deep](https://arxiv.org/abs/1606.07792)、[DLRM](https://arxiv.org/abs/1906.00091)）。
 
 ### Media
 
-**Upload Media through the API before attach.** Create-post and Chat attachments use Media endpoints. Show progress and failure for large files. Vision runs through the API—fail closed on unsafe uploads; recommendation may degrade, safety must not. Multimodal encoders such as [CLIP](https://arxiv.org/abs/2103.00020) illustrate how vision models ground moderation and tagging pipelines.
+**经 API 上传 Media 后再附着。** 发帖与 Chat 附件使用 Media 端点。大文件须展示进度与失败。Vision 经 API——不安全上传失败闭合；推荐可降级，安全不可。多模态编码器如 [CLIP](https://arxiv.org/abs/2103.00020) 说明视觉模型如何支撑审核与打标。
 
 ### Search
 
-**Search with documented scopes.** Search `type` values are `posts`, `users`, and `hashtags`. UI “all” is client aggregation only—do not send it as an API type. Learned retrieval models such as [DSSM](https://www.microsoft.com/en-us/research/publication/learning-deep-structured-semantic-models-for-web-search-using-clickthrough-data/) show how queries and documents share an embedding space.
+**按已文档化范围搜索。** Search `type` 为 `posts`、`users`、`hashtags`。UI「全部」仅客户端聚合——不得作为 API type。[DSSM](https://www.microsoft.com/en-us/research/publication/learning-deep-structured-semantic-models-for-web-search-using-clickthrough-data/) 说明查询与文档如何共享嵌入空间。
 
 ### Primary Destination
 
-**Keep Primary Destinations obvious.** Cross-client navigation identities are `feed`, `chat`, `reels`, `explore`, `user`, and `search`; path and tab mapping may differ per client.
+**主目的地须一目了然。** 跨端导航身份为 `feed`、`chat`、`reels`、`explore`、`user`、`search`；path 与 tab 映射可因端而异。
 
 ## Messaging
 
 ### Chat
 
-**Treat Chat as the conversation container.** Conversation lists must survive reconnects and remain the entry point to Message history. Industry write-path patterns for huge chat stores are summarized in pieces such as [How Discord Stores Billions of Messages](https://discord.com/blog/how-discord-stores-billions-of-messages).
+**将 Chat 视为会话容器。** 会话列表须在重连后仍在，并作为 Message 历史入口。大规模聊天写路径见 [How Discord Stores Billions of Messages](https://discord.com/blog/how-discord-stores-billions-of-messages)。
 
 ### Message
 
-**Persist Messages; deliver live updates on Socket.IO.** Empty bodies do not render as bubbles. After reconnect, reconcile streamed events with Message history on the API. Transport sits on [WebSocket (RFC 6455)](https://datatracker.ietf.org/doc/html/rfc6455); Chat uses [Socket.IO](https://socket.io/docs/v4/) for Message, presence, and Notification signals.
+**持久化 Message；经 Socket.IO 投递实时更新。** 空正文不渲染气泡。重连后须将流式事件与 API 上 Message 历史对账。传输基于 [WebSocket (RFC 6455)](https://datatracker.ietf.org/doc/html/rfc6455)；Chat 用 [Socket.IO](https://socket.io/docs/v4/) 承载 Message、在线状态与 Notification 信号。
 
 ### Group
 
-**Treat Group membership as the authorization boundary.** Only members send and receive group Messages. Removal must stop further delivery.
+**将 Group 成员资格视为授权边界。** 仅成员收发群 Message。移除后须停止继续投递。
 
 ### Notification
 
-**Surface actionable Notifications.** People should open the Notification drawer and know what changed—Message, Follow, Comment—without opaque badges alone. Prefer named events such as `notification:new`.
+**呈现可行动的 Notification。** 打开通知抽屉即知变更——Message、Follow、Comment——而非仅靠不透明角标。优先命名事件如 `notification:new`。
 
 ### Delivery
 
-**Design for imperfect networks.** Avoid implying delivery that has not occurred. For industry delivery and presence models, see [XMPP Core (RFC 6120)](https://datatracker.ietf.org/doc/html/rfc6120), [XMPP IM (RFC 6121)](https://datatracker.ietf.org/doc/html/rfc6121), and [Matrix Client-Server API](https://spec.matrix.org/latest/client-server-api/). When end-to-end or group encryption is in scope, prefer reviewed designs such as [Signal Protocol](https://signal.org/docs/), the [Double Ratchet](https://signal.org/docs/specifications/doubleratchet/) formalized in [A Formal Security Analysis of the Signal Messaging Protocol](https://eprint.iacr.org/2016/1013), [Messaging Layer Security (RFC 9420)](https://datatracker.ietf.org/doc/html/rfc9420), and product whitepapers such as [WhatsApp Encryption Overview](https://www.whatsapp.com/security/WhatsApp-Security-Whitepaper.pdf).
+**按不完美网络设计。** 禁止暗示尚未发生的投递。行业投递与在线模型见 [XMPP Core (RFC 6120)](https://datatracker.ietf.org/doc/html/rfc6120)、[XMPP IM (RFC 6121)](https://datatracker.ietf.org/doc/html/rfc6121)、[Matrix Client-Server API](https://spec.matrix.org/latest/client-server-api/)。若纳入端到端或群加密，优先经审设计：[Signal Protocol](https://signal.org/docs/)、[Double Ratchet](https://signal.org/docs/specifications/doubleratchet/)（形式化见 [A Formal Security Analysis of the Signal Messaging Protocol](https://eprint.iacr.org/2016/1013)）、[Messaging Layer Security (RFC 9420)](https://datatracker.ietf.org/doc/html/rfc9420)、[WhatsApp Encryption Overview](https://www.whatsapp.com/security/WhatsApp-Security-Whitepaper.pdf)。
 
 ## Calls
 
 ### Signaling
 
-**Signal Calls on the API.** Invite, ring, accept, reject, and hangup use Call APIs and the Socket.IO gateway. A Call that rings but never establishes media is different from a declined invite.
+**经 API 信令 Call。** 邀请、振铃、接听、拒绝、挂断使用 Call API 与 Socket.IO 网关。振铃但未建媒体，与拒绝邀请不同。
 
 ### WebRTC
 
-**Carry Call media with WebRTC.** Audio and video use the IM/RTC client path ([WebRTC Overview RFC 8825](https://datatracker.ietf.org/doc/html/rfc8825), [JSEP RFC 9429](https://datatracker.ietf.org/doc/html/rfc9429), [SDP RFC 8866](https://datatracker.ietf.org/doc/html/rfc8866); [MDN WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)). Prefer specific status over a single unresolved “Connecting…”. For scale beyond 1:1, industry voice stacks often use SFU topologies (for example [How Discord Handles Two and Half Million Concurrent Voice Users](https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc)).
+**用 WebRTC 承载 Call 媒体。** 音视频走 IM/RTC 客户端路径（[WebRTC Overview RFC 8825](https://datatracker.ietf.org/doc/html/rfc8825)、[JSEP RFC 9429](https://datatracker.ietf.org/doc/html/rfc9429)、[SDP RFC 8866](https://datatracker.ietf.org/doc/html/rfc8866)；[MDN WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API)）。优先具体状态，而非单一未决「Connecting…」。超 1:1 规模时，行业语音栈常用 SFU（如 [How Discord Handles Two and Half Million Concurrent Voice Users](https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc)）。
 
 ## Generative assistance
 
-**Keep generative features and Explore AI behind the API.** Image, video, voice, and AI Chat may assist creation; they remain optional. Disclose assisted content, and keep Feed, Chat, and Calls usable when those services are down. Shared foundations include Transformers ([Attention Is All You Need](https://arxiv.org/abs/1706.03762)), [Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401), and [Latent Diffusion Models](https://arxiv.org/abs/2112.10752).
+**生成能力与 Explore AI 一律经 API。** 图片、视频、语音与 AI Chat 可辅助创作，且均为可选。披露辅助内容；旁路宕机时 Feed、Chat、Calls 仍须可用。共同基础含 Transformer（[Attention Is All You Need](https://arxiv.org/abs/1706.03762)）、[Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401)、[Latent Diffusion Models](https://arxiv.org/abs/2112.10752)。
 
 ## Related
 

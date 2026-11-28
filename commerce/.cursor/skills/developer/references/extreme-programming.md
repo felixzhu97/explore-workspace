@@ -18,7 +18,7 @@ Map XP to this repo. Do not invent a second process — reuse DDD / BDD / TDD / 
 
 | XP practice            | Do this                                                                                                   |
 | ---------------------- | --------------------------------------------------------------------------------------------------------- |
-| Planning Game          | Shape work with [Product Owner](../../product-owner/SKILL.md); estimate SP; behavior first, design second |
+| Planning Game          | Shape work with [Product Owner](../../SKILL.md); estimate SP; behavior first, design second |
 | Small Releases         | One outcome per PR; Chain PRs when dependent; no unrelated piles                                          |
 | Metaphor               | [Glossary](../../../../../docs/commerce/Glossary.md) as shared language                                               |
 | Simple Design          | Pass tests with the simplest structure; no speculative abstractions                                       |

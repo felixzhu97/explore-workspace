@@ -7,8 +7,8 @@ Code that changes architecture, domain language, or product capabilities must up
 | Document        | Path                                                                                                                                                     | Owns                                                                        |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | Domain Glossary | [docs/Glossary.md](../../../../../docs/commerce/Glossary.md)                                                                                                         | Preferred Terms, modules, routes, API prefixes                              |
-| C4 model        | [docs/developer/c4-model/](../../../../../docs/commerce/developer/c4-model/)                                                                                         | Context / containers / components / deployment (`.puml` is source of truth) |
-| User Story Map  | [docs/product-owner/User-Story-Map.md](../../../../../docs/commerce/product-owner/User-Story-Map.md) + [user-stories/](../../../../../docs/commerce/product-owner/user-stories/) | Jeff Patton map index; epic files own GWT stories                           |
+| C4 model        | [docs/c4-model/](../../../../../docs/commerce/c4-model/)                                                                                         | Context / containers / components / deployment (`.puml` is source of truth) |
+| User Story Map  | [docs/User-Story-Map.md](../../../../../docs/commerce/User-Story-Map.md) + [user-stories/](../../../../../docs/commerce/user-stories/) | Jeff Patton map index; epic files own GWT stories                           |
 
 ## Trigger matrix
 
@@ -34,7 +34,7 @@ If **any** row matches, update the listed doc(s) in the same PR. If none match, 
 | `C3-Component-Web.puml` / Admin   | New feature routes or shell structure            |
 | `C4-Deployment*.puml`        | Port, host, or runtime topology change             |
 
-`.puml` first under `docs/developer/c4-model/`. Regenerate `png/` when PlantUML is available; otherwise note in the PR that images are stale.
+`.puml` first under `docs/c4-model/`. Regenerate `png/` when PlantUML is available; otherwise note in the PR that images are stale.
 
 ## Workflow
 

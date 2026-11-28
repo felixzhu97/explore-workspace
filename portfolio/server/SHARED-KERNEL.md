@@ -11,4 +11,4 @@
 - Point domain ID/value types at `com.explore.kernel.AbstractEmbeddable` directly and delete the portfolio aliases.
 - Replace `ApiExceptionHandler` with `shared-errors` RFC 7807 handlers where response shape can change.
 - Add blockchain tables to Liquibase or align `ddl-auto` for production.
-- Refresh portfolio docs that still mention Bazel (`README.md`, `docs/developer/**`, CI diagrams).
+- Refresh portfolio docs that still mention Bazel (`README.md`, `docs/**`, CI diagrams).

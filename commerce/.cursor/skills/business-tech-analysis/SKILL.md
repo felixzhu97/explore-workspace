@@ -183,6 +183,6 @@ Scoring: [references/rubric.md](references/rubric.md). Sources: [references/sour
 | Industry moves (sub-agent)              | [market-analyst](../../agents/market-analyst.md)     |
 | Frontier research (sub-agent)           | [tech-analyst](../../agents/tech-analyst.md)         |
 | BMC / LTV / CAC deep dive               | `business-model-generator` (personal skill)          |
-| Implement chosen bet                    | [developer](../developer/SKILL.md)                   |
-| Product Owner story from recommendation | [Product Owner](../product-owner/SKILL.md)           |
+| Implement chosen bet                    | [developer](../SKILL.md)                   |
+| Product Owner story from recommendation | [Product Owner](../SKILL.md)           |
 | Domain / BA                             | [business-analysis](../business-analysis/SKILL.md)   |

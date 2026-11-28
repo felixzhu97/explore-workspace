@@ -48,7 +48,7 @@ Explore Lowcode brings visual page building into everyday product work. Our miss
 | Tests | Vitest + Testing Library |
 
 Source is organized by **business domain** under `src/{domain}/` (UI, stores, and helpers colocated). Shared UI lives in `src/components/`, shared hooks in `src/hooks/`, and shared utilities in `src/lib/`. See [Glossary](../../docs/lowcode/Glossary.md) and the local skill
-[`lowcode-architecture`](~/.cursor/skills/software-engineer/reference/explore-workspace/lowcode-architecture.md).
+[`lowcode-architecture`](~/.cursor/skills/reference/explore-workspace/lowcode-architecture.md).
 
 ## Prerequisites
 
@@ -71,7 +71,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-More detail: [docs/developer/QUICKSTART.md](../../docs/lowcode/developer/QUICKSTART.md).
+More detail: [docs/QUICKSTART.md](../../docs/lowcode/QUICKSTART.md).
 
 ## Usage
 
@@ -113,15 +113,15 @@ explore-lowcode/
 
 | Doc | Link |
 |-----|------|
-| Quick start | [docs/developer/QUICKSTART.md](../../docs/lowcode/developer/QUICKSTART.md) |
-| C4 model | [docs/developer/c4-model/](../../docs/lowcode/developer/c4-model/) |
+| Quick start | [docs/QUICKSTART.md](../../docs/lowcode/QUICKSTART.md) |
+| C4 model | [docs/c4-model/](../../docs/lowcode/c4-model/) |
 | Glossary | [docs/Glossary.md](../../docs/lowcode/Glossary.md) |
-| User story map | [docs/product-owner/User-Story-Map.md](../../docs/lowcode/product-owner/User-Story-Map.md) |
-| Architecture Definition (TOGAF) | [docs/developer/togaf/Architecture-Definition-Document.md](../../docs/lowcode/developer/togaf/Architecture-Definition-Document.md) |
+| User story map | [docs/User-Story-Map.md](../../docs/lowcode/User-Story-Map.md) |
+| Architecture Definition (TOGAF) | [docs/togaf/Architecture-Definition-Document.md](../../docs/lowcode/togaf/Architecture-Definition-Document.md) |
 
-[C1 Context](../../docs/lowcode/developer/c4-model/png/C1-Context.png)
+[C1 Context](../../docs/lowcode/c4-model/png/C1-Context.png)
 
-[C2 Container](../../docs/lowcode/developer/c4-model/png/C2-Container.png)
+[C2 Container](../../docs/lowcode/c4-model/png/C2-Container.png)
 
 ## Contributing
 

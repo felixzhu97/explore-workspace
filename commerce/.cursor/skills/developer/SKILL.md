@@ -7,7 +7,7 @@ description: Feature development for Shopping System — XP, DDD, BDD, TDD, Glos
 
 **XP + DDD + BDD + TDD + minimal Clean Code.** Smallest correct change. UI: Apple HIG + Tailwind / existing `components/ui`.
 
-**Every** commit and PR must follow §6 (project standards). **Every** Jira ticket must follow [Product Owner](../product-owner/SKILL.md). Do not invent alternate formats.
+**Every** commit and PR must follow §6 (project standards). **Every** Jira ticket must follow [Product Owner](../SKILL.md). Do not invent alternate formats.
 
 ## Hard constraints
 
@@ -17,7 +17,7 @@ description: Feature development for Shopping System — XP, DDD, BDD, TDD, Glos
 4. Names: Glossary [Preferred Term](../../../../docs/commerce/Glossary.md) + [clean-code-naming](references/clean-code-naming.md)
 5. UI: Apple HIG + Tailwind / `components/ui` + [apple-minimal-ux](references/apple-minimal-ux.md)
 6. Prefer existing Zustand stores and shared packages (`types`, `utils`, `components`) where they clarify client code
-7. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../product-owner/SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
+7. **Commit / PR / Jira / branches**: always reuse §6 + [Product Owner](../SKILL.md); branch `<type>/<slug>` (type matches commit); References = official docs + research
 8. **XP**: follow [extreme-programming](references/extreme-programming.md) — Simple Design / YAGNI, CI green, small releases, customer / AC feedback
 9. **Living docs**: when the change hits the trigger matrix, update Glossary, C4, and/or User Story Map in the **same PR** — see §4 and [living-docs](references/living-docs.md)
 10. Clients call `services/api` only — never browser/mobile → Python crawler / data-mining directly
@@ -72,8 +72,8 @@ When a change matches the trigger matrix, update the matching living docs in the
 | Document       | Path                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------- |
 | Glossary       | [docs/Glossary.md](../../../../docs/commerce/Glossary.md)                                         |
-| C4             | [docs/developer/c4-model/](../../../../docs/commerce/developer/c4-model/)                         |
-| User Story Map | [docs/product-owner/User-Story-Map.md](../../../../docs/commerce/product-owner/User-Story-Map.md) |
+| C4             | [docs/c4-model/](../../../../docs/commerce/c4-model/)                         |
+| User Story Map | [docs/User-Story-Map.md](../../../../docs/commerce/User-Story-Map.md) |
 
 | Change                                                                                                     | Must update                                           |
 | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -240,7 +240,7 @@ PR **References** must match the commit References (same links). No Test plan. N
 - [ ] Branch: `<type>/<slug>` (type matches commit); Chain PR base correct
 - [ ] Commit: subject + why + References (official/research)
 - [ ] PR: plain body + same References + Jira link; chain base; CI green
-- [ ] Jira (if any): [Product Owner](../product-owner/SKILL.md) template followed
+- [ ] Jira (if any): [Product Owner](../SKILL.md) template followed
 
 ## Related
 
@@ -250,9 +250,9 @@ PR **References** must match the commit References (same links). No Test plan. N
 | Living docs sync         | [living-docs](references/living-docs.md)                        |
 | Architecture             | [architecture rule](../../rules/architecture.mdc)               |
 | Glossary                 | [Glossary](../../../../docs/commerce/Glossary.md)                           |
-| C4 model                 | [c4-model](../../../../docs/commerce/developer/c4-model/README.md)          |
-| User Story Map           | [User-Story-Map](../../../../docs/commerce/product-owner/User-Story-Map.md) |
+| C4 model                 | [c4-model](../../../../docs/commerce/c4-model/README.md)          |
+| User Story Map           | [User-Story-Map](../../../../docs/commerce/User-Story-Map.md) |
 | Testing core             | [testing](references/testing.md)                                |
 | Business / tech strategy | [business-tech-analysis](../business-tech-analysis/SKILL.md)    |
 | Research / OSS watchlist | [sources.md](../business-tech-analysis/references/sources.md)   |
-| Product Owner            | [Product Owner](../product-owner/SKILL.md)                      |
+| Product Owner            | [Product Owner](../SKILL.md)                      |

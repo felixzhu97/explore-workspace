@@ -1,7 +1,7 @@
 # Explore Commerce
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](../LICENSE)
-[![Architecture](https://img.shields.io/badge/Architecture-C4-blue.svg)](../docs/commerce/developer/c4-model/)
+[![Architecture](https://img.shields.io/badge/Architecture-C4-blue.svg)](../docs/commerce/c4-model/)
 [![Next.js](https://img.shields.io/badge/Next.js-web-black.svg)](https://nextjs.org/)
 [![Angular](https://img.shields.io/badge/Angular-admin-red.svg)](https://angular.dev/)
 
@@ -24,7 +24,7 @@ Explore Commerce brings commerce into everyday life. Our mission is to make buyi
 | **API** | Commerce backend (Express / TS) |
 | **Auth** | OAuth (Google / GitHub) + JWT |
 
-See the [User Story Map](../docs/commerce/product-owner/User-Story-Map.md) for backlog indexing.
+See the [User Story Map](../docs/commerce/User-Story-Map.md) for backlog indexing.
 
 ## Tech Stack
 
@@ -69,10 +69,10 @@ MongoDB for local dev: root `infrastructure/mongodb/compose.yaml` (profile `comm
 
 | Doc | Link |
 |-----|------|
-| C4 model | [docs/developer/c4-model/](../docs/commerce/developer/c4-model/) |
+| C4 model | [docs/c4-model/](../docs/commerce/c4-model/) |
 | Glossary | [docs/Glossary.md](../docs/commerce/Glossary.md) |
-| User story map | [docs/product-owner/User-Story-Map.md](../docs/commerce/product-owner/User-Story-Map.md) |
-| Architecture Definition (TOGAF) | [docs/developer/togaf/Architecture-Definition-Document.md](../docs/commerce/developer/togaf/Architecture-Definition-Document.md) |
+| Reference | [docs/Reference.md](../docs/commerce/Reference.md) |
+| User story map | [docs/User-Story-Map.md](../docs/commerce/User-Story-Map.md) |
 | Contributing | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | Code of Conduct | [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) |
 | Security | [SECURITY.md](../SECURITY.md) |

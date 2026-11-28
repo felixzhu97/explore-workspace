@@ -18,7 +18,7 @@ This skill is **Business Analysis**: building a shared understanding of how the 
 
 1. **Analysis model = communication medium** between software experts and business experts — useful for building software, not a thick handoff document.
 2. **Bridge, not ferry**: surface open questions; enable direct alignment between business and engineering. Do **not** sit as a permanent intermediary that blocks contact.
-3. Align with [architecture](../../rules/architecture.mdc): domain has no outward dependencies; Prefer rich domain models ([ddd-rich-model](../developer/references/ddd-rich-model.md)).
+3. Align with [architecture](../../rules/architecture.mdc): domain has no outward dependencies; Prefer rich domain models ([ddd-rich-model](../references/ddd-rich-model.md)).
 4. Prefer Glossary [Preferred Terms](../../../../docs/commerce/Glossary.md); new concepts update Glossary in the same change (see developer living-docs).
 5. Keep output minimal: language, rules, boundaries, open questions — no slide-deck fluff.
 
@@ -33,8 +33,8 @@ This skill is **Business Analysis**: building a shared understanding of how the 
 | Need | Go to |
 |------|--------|
 | Market moves / competitors / GTM / pricing signals | Agent `market-analyst` + [business-tech-analysis](../business-tech-analysis/SKILL.md) |
-| User stories / AC / Jira | [product-owner](../product-owner/SKILL.md) |
-| Implement code / tests / PR | [developer](../developer/SKILL.md) |
+| User stories / AC / Jira | [product-owner](../SKILL.md) |
+| Implement code / tests / PR | [developer](../SKILL.md) |
 | Papers / models / HF trending | Agent `tech-analyst` |
 
 ## Workflow

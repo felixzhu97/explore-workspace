@@ -1,23 +1,10 @@
 # Guideline
 
-Machine learning in `explore-ml` helps sibling Explore products rank feeds,
-moderate media, ground answers in documents, and generate image, video, and
-speech—when those outcomes are clear and measurable. Use it to enrich product
-APIs without shipping opaque, untestable model stacks inside every service.
+`explore-ml` 为兄弟 Explore 产品提供 Feed 排序、媒体审核、文档 grounding，以及图像 / 视频 / 语音生成——结果必须可度量。用它增强产品 API，禁止把不可测的模型栈塞进每个服务。
 
 ## Introduction
 
-This guideline describes how to design Recommendation, Vision, RAG, and Media
-Gen (image, video, TTS, ASR) in `explore-ml`. Prefer official documentation,
-open protocols, and primary research when changing model behavior. Product
-vocabulary lives in the [Glossary](Glossary.md); architecture boundaries live
-in the [C4 model](developer/c4-model/); runbooks live in the
-[User guide](user-guide/README.md); obtaining checkpoints lives in
-[Model download](user-guide/model-download.md).
-
-Diagrams below show **target best practices** for the easiest integration and
-configuration. They are independent of today’s package layout; align code to
-these shapes over time.
+下列图示为**目标最佳实践**，不绑定今日包布局；代码按图演进。六个模块即六个限界上下文，共享同一进程与 base URL。
 
 ```mermaid
 flowchart LR
@@ -110,7 +97,6 @@ sidecar never blocks the whole answer path.
 **Default to local checkpoints; keep backends swappable.** Image Playground,
 Speech, RAG rerank and recommendation prefer weights under
 `LOCAL_MODELS_ROOT`; Video uses a Hugging Face id (see the
-[download guide](user-guide/model-download.md)). Operators may switch to HF ids,
 Stable Diffusion, edge-tts, or cloud embeddings without changing each API’s ML
 contract.
 
@@ -183,7 +169,6 @@ a single rented GPU. Write each result beside its base model under
 beats the base model on the same held-out split. Prefer LoRA / QLoRA for
 billion-parameter models ([LoRA](https://arxiv.org/abs/2106.09685),
 [QLoRA](https://arxiv.org/abs/2305.14314)). Steps live in the
-[fine-tuning guide](user-guide/fine-tuning.md).
 
 ```mermaid
 flowchart LR
@@ -645,8 +630,4 @@ flowchart LR
 
 [Glossary](Glossary.md)
 
-[User guide](user-guide/README.md)
-
-[Model download](user-guide/model-download.md)
-
-[C4 model](developer/c4-model/)
+[C4 model](c4-model/)

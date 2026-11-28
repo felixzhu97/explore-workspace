@@ -1,184 +1,182 @@
 # Guideline
 
-Generative AI in `explore-ai` helps people chat, retrieve knowledge, call tools, run agents, evaluate quality, and work with local models. Use it to offer features that save time, improve communication, and unlock creativity—when those outcomes are clear and specific.
+`explore-ai` 提供对话、知识检索、工具调用、Agent 编排、质量评估与本地模型能力。仅在产出明确价值时启用生成式能力。
 
 ## Introduction
 
-This guideline describes how to design and integrate Chat, RAG, Tools, MCP, Agents, Eval, Metrics, and local models in `explore-ai`. Prefer official documentation and primary research when changing AI behavior. Product vocabulary lives in the [Glossary](Glossary.md); architecture boundaries live in the [C4 model](developer/c4-model/).
+本指南规定 Chat、RAG、Tools、MCP、Agents、Eval、Metrics 与本地模型的设计与集成边界。变更 AI 行为时引用官方文档与一手研究。产品词汇见 [Glossary](Glossary.md)；架构边界见 [C4 model](c4-model/)。
 
 ## Best practices
 
-**Design your experience responsibly.**
+**负责任地设计体验。**
 
-Responsible AI considers direct and indirect impacts on people, systems, and society. It is often easy to prototype an exciting AI feature, yet harder to create a robust experience that works in real situations. Small changes to inputs—or the same input given more than once—can produce very different outcomes. Orient design around experiences that are inclusive, crafted with care, and protective of privacy.
+负责的 AI 设计必须覆盖对人、系统与社会的直接与间接影响。原型易做，稳健体验难做。同一输入可产生不同输出。设计目标：包容、可审慎操作、隐私可保护。
 
-**Keep people in control.**
+**把控制权留给人。**
 
-Respect people’s agency. Honor in-scope requests when the expected output is clear, handle sensitive content carefully, and let people dismiss, retry, or revert results they do not want. Clearly identify when and where the product uses AI. In Chat and Pipeline, prefer visible actions—send, stop, retry, apply Skill—over silent automation.
+尊重用户能动性。范围内且预期清晰的请求必须响应；敏感内容必须谨慎处理；用户必须能关闭、重试或撤销不需要的结果。产品必须标明 AI 使用位置。Chat 与 Pipeline 优先暴露可见动作——发送、停止、重试、应用 Skill——禁止静默自动化。
 
-**Offer generative features only where they provide clear value.**
+**仅在价值明确时提供生成能力。**
 
-Generative AI is powerful, but it is not the right solution for every situation. Prefer Chat, RAG, tools, and agents when they deliver time savings, grounded answers, or creative leverage. Avoid adding AI because it is new or expected.
+生成式 AI 不是默认答案。Chat、RAG、工具与 Agent 必须交付省时、有据回答或创作杠杆。禁止因「新颖」或「预期」而堆砌 AI。
 
-**Ensure a useful experience when generative features are unavailable.**
+**生成不可用时仍保持可用。**
 
-People may lack API keys, opt out of a provider, or run without a local model. Keep non-AI paths usable where reasonable—document browsing, empty states, and clear setup guidance—so the product does not feel broken when generation cannot run.
+用户缺少 API Key、拒绝提供商或未运行本地模型时，无 AI 路径必须仍可用：文档浏览、空态与明确配置指引。禁止因生成失败而呈现产品损坏态。
 
-**Score quality with evaluators, not anecdotes.**
+**用评估器衡量质量，禁止用轶事。**
 
-Golden Eval uses Spring AI evaluators and versioned cases so quality stays measurable as prompts and models change. See [Judging LLM-as-a-Judge](https://arxiv.org/abs/2306.05685) and [Spring AI evaluation testing](https://docs.spring.io/spring-ai/reference/api/testing.html).
+Golden Eval 使用 Spring AI 评估器与版本化用例。提示词与模型变更后质量必须可度量。参见 [Judging LLM-as-a-Judge](https://arxiv.org/abs/2306.05685) 与 [Spring AI evaluation testing](https://docs.spring.io/spring-ai/reference/api/testing.html)。
 
 ## Transparency
 
-**Communicate where the product uses AI.**
+**标明产品何处使用 AI。**
 
-Letting people know when AI is involved sets expectations and lets them choose knowingly. Never present model output as if it were authored by a human without disclosure.
+用户必须知道 AI 参与处，方可知情选择。禁止将模型输出冒充人类撰写且不做披露。
 
-**Set clear expectations about what a feature can and cannot do.**
+**设定能力与边界预期。**
 
-Clarify capabilities and limits so people build an accurate mental model—for example, RAG answers depend on uploaded documents; tools only run when registered and permitted.
+必须说明能力与限制。例如：RAG 回答依赖已上传文档；工具仅在已注册且获准时执行。
 
-**Surface sources for grounded answers.**
+**有据回答必须展示来源。**
 
-When RAG retrieves context, show Source Document hits or equivalent citations. Avoid ungrounded “knowledge base” claims.
+RAG 检索到上下文时，必须展示 Source Document 命中或等价引用。禁止无据「知识库」断言。
 
 ## Privacy
 
-**Isolate every Chat Session with an Owner Key.**
+**每个 Chat Session 用 Owner Key 隔离。**
 
-Sessions and messages stay within browser or account boundaries. Cross-owner access returns not found; the UI returns to a new chat. Terms: [Glossary](Glossary.md).
+会话与消息仅存在于浏览器或账号边界内。跨归属访问返回 not found；界面回到新对话。术语见 [Glossary](Glossary.md)。
 
-**Ask only for the data a feature needs.**
+**只收集功能所需数据。**
 
-Provider keys, documents, and optional account linking stay purpose-bound. Offer clear ways to revoke access or erase data where the product supports privacy controls.
+提供商密钥、文档与可选账号关联必须目的绑定。产品支持隐私控制处必须提供撤销访问或擦除数据的路径。
 
-**Disclose how models and providers use shared information.**
+**披露模型与提供商如何使用共享信息。**
 
-People are more comfortable when they understand where prompts and documents go—local Ollama versus a remote provider—before they commit sensitive content.
+用户提交敏感内容前，必须知悉提示词与文档去向——本地 Ollama 或远程提供商。
 
 ## Protocols and platform APIs
 
-**Use Spring AI as the integration surface for chat, tools, RAG, MCP, and evaluators.**
+**以 Spring AI 作为 chat、tools、RAG、MCP 与评估器的集成面。**
 
-Stay within documented APIs instead of custom provider HTTP clients. See the [Spring AI reference](https://docs.spring.io/spring-ai/reference/).
+使用已文档化 API；禁止自建提供商 HTTP 客户端。见 [Spring AI reference](https://docs.spring.io/spring-ai/reference/)。
 
-**Follow Model Context Protocol for cross-process tools.**
+**跨进程工具遵循 Model Context Protocol。**
 
-Server and client tool contracts follow MCP. See [MCP](https://modelcontextprotocol.io/) and the [specification](https://spec.modelcontextprotocol.io/).
+服务端与客户端工具契约遵循 MCP。见 [MCP](https://modelcontextprotocol.io/) 与 [specification](https://spec.modelcontextprotocol.io/)。
 
-**Stream assistant output with Server-Sent Events.**
+**助手输出用 Server-Sent Events 流式传输。**
 
-Chat and RAG replies use SSE so people see progress without waiting for a full completion. Keep event shapes stable and documented in the [API](developer/api.md). See [WHATWG SSE](https://html.spec.whatwg.org/multipage/server-sent-events.html).
+**通过已文档化 API 配置提供商。**
 
-**Configure providers through documented APIs.**
-
-Default chat and eval use [DeepSeek](https://api-docs.deepseek.com/). OpenAI-compatible and Anthropic paths follow their official docs when enabled. Local runtimes use [Ollama](https://github.com/ollama/ollama).
+默认对话与评估使用 [DeepSeek](https://api-docs.deepseek.com/)。启用 OpenAI 兼容与 Anthropic 路径时遵循其官方文档。本地运行时使用 [Ollama](https://github.com/ollama/ollama)。
 
 ## Chat and sessions
 
-**Persist history for non-empty sessions only.**
+**仅持久化非空会话。**
 
-Add sessions to Recents only after substantive user or assistant content. Empty message bodies do not render as bubbles.
+仅在存在实质用户或助手内容后将会话加入 Recents。空消息体不渲染为气泡。
 
-**Separate streaming from memory.**
+**流式与记忆分离。**
 
-Streaming is presentation. Session memory persists through ChatMemory and repository boundaries—not as authoritative history assembled in the UI.
+流式是呈现层。会话记忆经 ChatMemory 与仓储边界持久化——界面不得拼装权威历史。
 
-**Make it easy to refine or retry generated replies.**
+**便于精炼或重试生成回复。**
 
-Prefer stop, regenerate, and edit flows near assistant content so people stay in charge of the conversation.
+停止、重新生成与编辑流程必须靠近助手内容，用户保持对对话的控制。
 
 ## Retrieval-augmented generation
 
-**Keep retrieval and generation separate.**
+**检索与生成分离。**
 
-Retrieve document chunks, then generate with grounded context. Classic framing: [Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401).
+先检索文档分块，再以有据上下文生成。经典框架：[Retrieval-Augmented Generation](https://arxiv.org/abs/2005.11401)。
 
-**Mark documents ready only after chunking and embedding.**
+**仅在分块与嵌入完成后将文档标为就绪。**
 
-The Document state machine (uploading → processing → ready / failed) stays visible. Failures are retryable; do not pretend Q&A is available early.
+Document 状态机（uploading → processing → ready / failed）必须可见。失败可重试；禁止提前假装可问答。
 
-**Do not mix embedding spaces.**
+**禁止混用嵌入空间。**
 
-After changing an embedding model, re-ingest documents. Vector dimensions and model identity must match the store schema. Default embeddings: [Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/).
+更换嵌入模型后必须重新导入文档。向量维度与模型身份必须匹配存储 schema。默认嵌入：[Qwen3 Embedding](https://qwenlm.github.io/blog/qwen3-embedding/)。
 
 ## Tools, MCP, and agents
 
-**Design tool-using agents around clear reason–act loops.**
+**围绕明确的 reason–act 循环设计工具型 Agent。**
 
-Tool contracts stay explicit and steps observable. Readings: [ReAct](https://arxiv.org/abs/2210.03629), [Toolformer](https://arxiv.org/abs/2302.04761).
+工具契约必须显式；步骤必须可观测。读物：[ReAct](https://arxiv.org/abs/2210.03629)、[Toolformer](https://arxiv.org/abs/2302.04761)。
 
-**Share callable conventions across built-in and MCP tools.**
+**内置与 MCP 工具共享可调用约定。**
 
-Weather, search, datetime, and MCP-registered tools share naming, description, and error shape so Chat and Pipeline can reuse them.
+天气、搜索、日期时间与 MCP 注册工具共享命名、描述与错误形状，Chat 与 Pipeline 可复用。
 
-**Treat the Pipeline canvas as a directed execution graph.**
+**Pipeline 画布视为有向执行图。**
 
-Nodes are editable Agent copies (prompt and tools); edges express dependency order. Templates and run results stay separate.
+节点是可编辑的 Agent 副本（提示词与工具）；边表达依赖顺序。模版与运行结果分离。
 
-**Apply Skills as reusable instruction packs.**
+**将 Skills 作为可复用指令包应用。**
 
-Skills are explicit in Chat. Edits do not silently rewrite history; scope stays visible to people.
+Skills 在 Chat 中显式出现。编辑不得静默改写历史；作用域对用户可见。
 
-**Confirm before irreversible or high-impact tool actions.**
+**不可逆或高影响工具动作前必须确认。**
 
-When a tool can send mail, delete data, or trigger automation, prefer clear confirmation over silent side effects.
+工具可发邮件、删除数据或触发自动化时，必须明确确认，禁止静默副作用。
 
 ## Evaluation and metrics
 
-**Prefer versioned inputs and expected outputs.**
+**优先使用版本化输入与期望输出。**
 
-Extend suites with structured cases (for example JSONL: `id`, `input`, `ideal`, `metadata`). Do not rely on screenshots alone. Case format: [OpenAI Evals](https://github.com/openai/evals).
+以结构化用例扩展套件（例如 JSONL：`id`、`input`、`ideal`、`metadata`）。禁止仅依赖截图。用例格式：[OpenAI Evals](https://github.com/openai/evals)。
 
-**Record aggregatable invocation facts in Metrics.**
+**在 Metrics 中记录可聚合的调用事实。**
 
-Observe domain, outcome, latency, and tokens. Dashboards and drill-down use Glossary metric language.
+观测领域、结果、延迟与 token。看板与下钻使用 Glossary 指标用语。
 
-**Let people and developers improve quality over time.**
+**以评估与指标驱动持续改进。**
 
-Eval regressions and Metrics trends guide prompt, model, and tool changes—treat them as continuous improvement signals, not one-off demos.
+Eval 回归与 Metrics 趋势指导提示词、模型与工具变更——作为持续改进信号，禁止当作一次性演示。
 
 ## Speech and imagery
 
-**Align each modality with mature methods.**
+**各模态对齐成熟方法。**
 
-ASR lineage: [Whisper](https://arxiv.org/abs/2212.04356). Image generation lineage: [Latent Diffusion Models](https://arxiv.org/abs/2112.10752). Do not mix incompatible model contracts.
+ASR 谱系：[Whisper](https://arxiv.org/abs/2212.04356)。图像生成谱系：[Latent Diffusion Models](https://arxiv.org/abs/2112.10752)。禁止混用不兼容的模型契约。
 
-**Keep separate routes for TTS, ASR, image generation, and image analysis.**
+**TTS、ASR、图像生成与图像分析使用独立路由。**
 
-The Generation shell organizes image and TTS. Vision and ASR keep their own entries—avoid a single catch-all multimodal page.
+Generation 壳组织图像与 TTS。Vision 与 ASR 保留独立入口——禁止单一全能多模态页。
 
-**Factor processing time into the experience.**
+**将处理时间纳入体验。**
 
-Generative work can take longer than ordinary UI actions. Prefer specific status (for example summarizing or embedding) over a vague “Processing…” label, and allow cancel where streaming supports it.
+生成工作可长于普通 UI 操作。优先具体状态（例如 summarizing、embedding），禁止模糊的「Processing…」；流式支持处必须允许取消。
 
 ## Models and local runtimes
 
-**Treat Transformer decoding as the foundation for chat and local models.**
+**以 Transformer 解码作为对话与本地模型基础。**
 
-Shared vocabulary (tokens, sampling, context length): [Attention Is All You Need](https://arxiv.org/abs/1706.03762) and Glossary Appendix D.
+共享词汇（tokens、sampling、context length）：[Attention Is All You Need](https://arxiv.org/abs/1706.03762) 与 Glossary Appendix D。
 
-**Prefer documented open models and stable packaging.**
+**优先已文档化的开放模型与稳定打包。**
 
-Chat defaults follow DeepSeek ([DeepSeek-V3](https://arxiv.org/abs/2412.19437), [deepseek-ai](https://github.com/deepseek-ai)). Embeddings and multimodal families follow [Qwen](https://qwen.ai/). Discover models on [Hugging Face](https://huggingface.co/); scan new work on [arXiv cs.AI](https://arxiv.org/list/cs.AI/recent).
+对话默认遵循 DeepSeek（[DeepSeek-V3](https://arxiv.org/abs/2412.19437)、[deepseek-ai](https://github.com/deepseek-ai)）。嵌入与多模态族遵循 [Qwen](https://qwen.ai/)。在 [Hugging Face](https://huggingface.co/) 发现模型；在 [arXiv cs.AI](https://arxiv.org/list/cs.AI/recent) 跟踪新工作。
 
-**Use GGUF for local LLM weights and ONNX for local vision.**
+**本地 LLM 权重用 GGUF；本地视觉用 ONNX。**
 
-See [GGUF](https://huggingface.co/docs/hub/en/gguf) and [ONNX Runtime](https://onnxruntime.ai/).
+见 [GGUF](https://huggingface.co/docs/hub/en/gguf) 与 [ONNX Runtime](https://onnxruntime.ai/)。
 
-**Make cold start and context length visible.**
+**冷启动与上下文长度必须可见。**
 
-First load of a local model may be slow. Requests must not exceed the runtime’s declared context length.
+本地模型首次加载可慢。请求不得超过运行时声明的上下文长度。
 
 ## Product language
 
-**Use Preferred Terms in product UI: Chat, RAG, Tool Calling, MCP, Eval, Metrics.**
+**产品 UI 使用 Preferred Terms：Chat、RAG、Tool Calling、MCP、Eval、Metrics。**
 
-Avoid vendor brand names in the UI when a Preferred Term exists (Glossary *Terms to Avoid*).
+存在 Preferred Term 时，禁止在 UI 使用厂商品牌名（Glossary *Terms to Avoid*）。
 
-**Keep framework and provider names in developer documentation.**
+**框架与提供商名称留在开发者文档。**
 
-Keep Spring AI, Ollama, and provider labels out of end-user chrome unless the person is choosing a provider.
+Spring AI、Ollama 与提供商标签不得出现在终端用户 chrome，除非用户正在选择提供商。
 
 ## Related
 
@@ -242,8 +240,3 @@ Keep Spring AI, Ollama, and provider labels out of end-user chrome unless the pe
 
 [Glossary](Glossary.md)
 
-[Quick Start](developer/QUICKSTART.md)
-
-[API](developer/api.md)
-
-[Golden Eval](developer/golden-eval.md)

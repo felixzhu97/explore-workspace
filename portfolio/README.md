@@ -72,8 +72,6 @@ Chinese docs: see bilingual [docs/Glossary.md](../docs/portfolio/Glossary.md). L
 | Data | TimescaleDB, Redis, Kafka |
 | Tooling | pnpm workspaces, TypeScript 5; Bazel for Java API (`server/`) |
 
-Architecture notes: [docs/developer/c4-model/](../docs/portfolio/developer/c4-model/), [docs/developer/QUICKSTART.md](../docs/portfolio/developer/QUICKSTART.md).
-
 ## Prerequisites
 
 | Tool | Version |
@@ -164,12 +162,10 @@ pnpm test:api
 | Doc | Link |
 |-----|------|
 | Glossary | [docs/Glossary.md](../docs/portfolio/Glossary.md) |
-| Quick start | [docs/developer/QUICKSTART.md](../docs/portfolio/developer/QUICKSTART.md) |
-| API | [docs/developer/api.md](../docs/portfolio/developer/api.md) |
-| C4 model | [docs/developer/c4-model/](../docs/portfolio/developer/c4-model/) |
-| CI/CD | [docs/developer/cicd/](../docs/portfolio/developer/cicd/) |
-| User Story Map | [docs/product-owner/User-Story-Map.md](../docs/portfolio/product-owner/User-Story-Map.md) |
-| Architecture Definition (TOGAF) | [docs/developer/togaf/Architecture-Definition-Document.md](../docs/portfolio/developer/togaf/Architecture-Definition-Document.md) |
+| Reference | [docs/Reference.md](../docs/portfolio/Reference.md) |
+| C4 model | [docs/c4-model/](../docs/portfolio/c4-model/) |
+| CI/CD | [docs/cicd/](../docs/portfolio/cicd/) |
+| User Story Map | [docs/User-Story-Map.md](../docs/portfolio/User-Story-Map.md) |
 
 ## Deployment
 

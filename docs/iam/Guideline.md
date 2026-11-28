@@ -1,26 +1,10 @@
 # Guideline
 
-Identity and access in `explore-iam` helps sibling Explore products and any
-relying party authenticate people and services, obtain tokens through standard
-protocols, and grant only the access a job needs—when those outcomes are clear
-and auditable. Implement that control plane with Spring Boot, Spring Security,
-and Spring Authorization Server without shipping ad-hoc login stacks inside
-every application.
+`explore-iam` 为 Explore 产品与任意依赖方提供身份与访问：标准协议发令牌，按岗位最小授权，结果可审计。用 Spring Boot、Spring Security、Spring Authorization Server 实现控制面——禁止各应用自建登录栈。
 
 ## Introduction
 
-This guideline describes how to implement identity, policy, STS, federation,
-applications, groups, MFA, and audit with Spring Boot, Spring Security, and
-Spring Authorization Server. Prefer the smallest Spring configuration that
-works; use Apple and GitHub only as short capability mirrors. Keep protocol and
-NIST constraints when they shape the Spring setup. Vocabulary lives in the
-[Glossary](Glossary.md); living architecture (optional) in the
-[C4 model](developer/c4-model/); operator steps in the
-[User guide](user-guide/README.md).
-
-Diagrams below show **target best practices** for easy integration and
-configuration. They are independent of today’s package layout; align code to
-these shapes over time.
+下列图示为**目标最佳实践**，不绑定今日包布局；代码按图演进。限界上下文：`identity` / `policy` / `sts` / `federation` / `audit` / `scim`。
 
 ```mermaid
 flowchart LR
@@ -236,7 +220,7 @@ sign-in, send the user to `/sign-in/verify` and expose factor availability via
 `/api/login/mfa-options`. Prefer Passkeys when enrolled; keep OTT and TOTP as
 alternate second factors. Same assurance bar as Apple Account two-factor and
 GitHub org-required 2FA. Preferred Terms: [Glossary](./Glossary.md). Sequence:
-[C4-Dynamic-SSOLogin](./developer/c4-model/C4-Dynamic-SSOLogin.puml). See
+[C4-Dynamic-Sso-Login](./c4-model/C4-Dynamic-Sso-Login.puml). See
 [Spring Security MFA](https://docs.spring.io/spring-security/reference/servlet/authentication/mfa.html),
 [One-Time Token Login](https://docs.spring.io/spring-security/reference/servlet/authentication/onetimetoken.html),
 [Passkeys](https://docs.spring.io/spring-security/reference/servlet/authentication/passkeys.html),
@@ -615,9 +599,6 @@ nothing matches.
 
 [Glossary](Glossary.md)
 
-[C4 model](developer/c4-model/) — optional living architecture for this repo;
+[C4 model](c4-model/) — optional living architecture for this repo;
 prefer the Mermaid diagrams above as the integration target.
 
-[User guide](user-guide/README.md)
-
-[Relying party integration](user-guide/relying-party.md)

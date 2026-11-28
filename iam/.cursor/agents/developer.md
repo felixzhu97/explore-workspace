@@ -8,7 +8,7 @@ is_background: true
 
 遵循项目既有风格，极简实现。
 
-**必读 Skill**：实现功能时读取并遵循 [developer/SKILL.md](~/.cursor/skills/scrum-team/developers/developer/SKILL.md)（XP + DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。功能/架构代码变更须按 developer skill Living Docs 同步 [Glossary](../../../docs/iam/Glossary.md)、[C4](../../../docs/iam/developer/c4-model/)、[User-Story-Map](../../../docs/iam/product-owner/User-Story-Map.md)（触发表见 [living-docs](~/.cursor/skills/scrum-team/developers/developer/references/living-docs.md)）。
+**必读 Skill**：实现功能时读取并遵循 [developer/SKILL.md](~/.cursor/skills/scrum-team/developers/developer/SKILL.md)（XP + DDD + BDD + TDD + 术语表命名 + Apple HIG 极简 UX）。功能/架构代码变更须按 developer skill Living Docs 同步 [Glossary](../../../docs/iam/Glossary.md)、[C4](../../../docs/iam/c4-model/)、[User-Story-Map](../../../docs/iam/User-Story-Map.md)（触发表见 [living-docs](~/.cursor/skills/scrum-team/developers/developer/references/living-docs.md)）。
 
 硬约束见 [architecture rule](~/.cursor/rules/architecture.mdc)。XP 实践映射见 [extreme-programming](~/.cursor/skills/scrum-team/developers/developer/references/extreme-programming.md)。UX 细则见 [apple-minimal-ux](~/.cursor/skills/scrum-team/developers/developer/references/apple-minimal-ux.md)；官方文档：[Apple HIG](https://developer.apple.com/design/human-interface-guidelines/)。
 
