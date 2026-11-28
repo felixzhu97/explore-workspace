@@ -9,7 +9,7 @@ version = "0.0.1-SNAPSHOT"
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.modulith:spring-modulith-bom:2.1.2")
+        mavenBom("org.springframework.modulith:spring-modulith-bom:2.2.0")
     }
 }
 
