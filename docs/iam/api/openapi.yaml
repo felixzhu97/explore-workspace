@@ -1,0 +1,8 @@
+openapi: 3.0.3
+info:
+  title: Explore IAM API
+  version: 0.0.0
+  description: Explore IAM HTTP 契约。路径随实现与 Glossary 扩展。
+
+servers: []
+paths: {}
