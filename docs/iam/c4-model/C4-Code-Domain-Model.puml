@@ -1,27 +1,29 @@
 @startuml C4-Code-Domain-Model
+!include ../../c4-model/style.puml
 !theme plain
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
 skinparam classAttributeIconSize 0
-skinparam linetype ortho
 skinparam class {
   BackgroundColor #FFFFFF
   BorderColor #000000
   FontColor #000000
 }
 
-title Code diagram (C4) — Domain model (Google Cloud IAM naming)
+title 领域模型 — Explore IAM
 hide empty members
 
 legend right
-  |= Stereotype |= Meaning |
-  | <<Abstract>> | 抽象基类 |
-  | <<AggregateRoot>> | 聚合根 |
-  | <<Entity>> | 实体 |
-  | <<ValueObject>> | 值对象 |
-  | <<Enum>> | 枚举 |
-  | <<DomainService>> | 领域服务 |
-  | <<DomainEvent>> | 领域事件 |
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | Abstract | 抽象 |
+  | Enum | 枚举 |
+  | System | 系统 |
+  | Service | 应用服务 |
 endlegend
 
 package "Domain Kernel (shared/kernel)" as pkg_kernel {
@@ -34,7 +36,7 @@ package "Domain Kernel (shared/kernel)" as pkg_kernel {
     +version: Long
     # touch()
   }
-  class AbstractEmbeddable <<Abstract>>
+  class AbstractEmbeddable as "AbstractEmbeddable\n抽象可嵌入类型" <<Abstract>>
   class AbstractNamedEntity <<Abstract>> {
     +name: String
   }
@@ -54,34 +56,34 @@ AbstractNamedEntity --|> AbstractEntity
 AbstractAuditEvent --|> AbstractImmutableEntity
 
 package "Common" as pkg_common {
-  class ResourceName <<ValueObject>> {
+  class ResourceName <<Value Object>> {
     +value: String
     --
     +{static} createUserResourceName(username)
     +{static} createRoleResourceName(roleName)
   }
-  class "Permission" as Permission <<ValueObject>> {
+  class "Permission" as Permission <<Value Object>> {
     +value: String
     --
     +matchesPermission(requested)
   }
-  class Resource <<ValueObject>> {
+  class Resource <<Value Object>> {
     +value: String
     --
     +matchesResource(requested)
   }
-  class Scope <<ValueObject>> {
+  class Scope <<Value Object>> {
     +value: String
     --
     +{static} parseScope(raw)
     +isOidcStandard()
   }
-  class PrincipalId <<ValueObject>> {
+  class PrincipalId <<Value Object>> {
     +value: String
     --
     +{static} generatePrincipalId()
   }
-  class ReasonCode <<ValueObject>> {
+  class ReasonCode <<Value Object>> {
     +value: String
   }
   enum Effect <<Enum>> {
@@ -100,7 +102,7 @@ PrincipalId --|> AbstractEmbeddable
 ReasonCode --|> AbstractEmbeddable
 
 package "Identity" as pkg_identity {
-  class User <<AggregateRoot>> {
+  class User <<Aggregate Root>> {
     +username: String
     +email: String
     +displayName: String
@@ -122,7 +124,7 @@ package "Identity" as pkg_identity {
     +hasRole(roleId)
     +assignedRoleIds()
   }
-  class Group <<AggregateRoot>> {
+  class Group <<Aggregate Root>> {
     +name: String
     +externalId: ExternalId
     --
@@ -137,53 +139,53 @@ package "Identity" as pkg_identity {
     +hasMember(userId)
     +memberUserIds()
   }
-  class ExternalId <<ValueObject>> {
+  class ExternalId <<Value Object>> {
     +value: String
   }
-  class UserProvisionedEvent <<DomainEvent>> {
+  class UserProvisionedEvent <<Domain Event>> {
     +userId: String
   }
-  class UserProfileChangedEvent <<DomainEvent>> {
+  class UserProfileChangedEvent <<Domain Event>> {
     +userId: String
   }
-  class UserDeactivatedEvent <<DomainEvent>> {
+  class UserDeactivatedEvent <<Domain Event>> {
     +userId: String
   }
-  class UserReactivatedEvent <<DomainEvent>> {
+  class UserReactivatedEvent <<Domain Event>> {
     +userId: String
   }
-  class UserPasswordResetEvent <<DomainEvent>> {
+  class UserPasswordResetEvent <<Domain Event>> {
     +userId: String
   }
-  class UserRoleAssignedEvent <<DomainEvent>> {
-    +userId: String
-    +roleId: String
-  }
-  class UserRoleUnassignedEvent <<DomainEvent>> {
+  class UserRoleAssignedEvent <<Domain Event>> {
     +userId: String
     +roleId: String
   }
-  class UserDeletionRequestedEvent <<DomainEvent>> {
+  class UserRoleUnassignedEvent <<Domain Event>> {
+    +userId: String
+    +roleId: String
+  }
+  class UserDeletionRequestedEvent <<Domain Event>> {
     +userId: String
   }
-  class UserDeletedEvent <<DomainEvent>> {
+  class UserDeletedEvent <<Domain Event>> {
     +userId: String
   }
-  class GroupCreatedEvent <<DomainEvent>> {
+  class GroupCreatedEvent <<Domain Event>> {
     +groupId: String
   }
-  class GroupProfileChangedEvent <<DomainEvent>> {
+  class GroupProfileChangedEvent <<Domain Event>> {
     +groupId: String
   }
-  class GroupMembershipChangedEvent <<DomainEvent>> {
+  class GroupMembershipChangedEvent <<Domain Event>> {
     +groupId: String
     +addedUserIds: Set<String>
     +removedUserIds: Set<String>
   }
-  class GroupDeletedEvent <<DomainEvent>> {
+  class GroupDeletedEvent <<Domain Event>> {
     +groupId: String
   }
-  class RoleCreatedEvent <<DomainEvent>> {
+  class RoleCreatedEvent <<Domain Event>> {
     +roleId: String
   }
   class GroupMember <<Entity>> {
@@ -197,7 +199,7 @@ package "Identity" as pkg_identity {
     --
     +roleId()
   }
-  class Role <<AggregateRoot>> {
+  class Role <<Aggregate Root>> {
     +name: String
     +resourceName: ResourceName
     +trustPolicy: ImpersonationPolicy
@@ -206,12 +208,12 @@ package "Identity" as pkg_identity {
     +{static} createRole(name, trustPolicyJson)
     +authority()
   }
-  class ImpersonationPolicy <<ValueObject>> {
+  class ImpersonationPolicy <<Value Object>> {
     +json: String
     --
     +{static} createPermissiveImpersonationPolicy()
   }
-  class TotpCredential <<AggregateRoot>> {
+  class TotpCredential <<Aggregate Root>> {
     +userId: String
     +secretCiphertext: String
     +enabled: boolean
@@ -221,7 +223,7 @@ package "Identity" as pkg_identity {
     +disableTotp()
     +rotateSecret(secretCiphertext)
   }
-  class WebAuthnCredential <<ValueObject>> {
+  class WebAuthnCredential <<Value Object>> {
     +credentialId: byte[]
     +userHandle: byte[]
   }
@@ -251,7 +253,7 @@ GroupMembershipChangedEvent ..> Group : groupId
 RoleCreatedEvent ..> Role : roleId
 
 package "Provisioning" as pkg_provisioning {
-  class ProvisioningTarget <<AggregateRoot>> {
+  class ProvisioningTarget <<Aggregate Root>> {
     +name: String
     +baseUrl: String
     +registrationId: String
@@ -284,13 +286,13 @@ ProvisioningTarget ..> UserProvisionedEvent : reacts via listener
 ProvisioningTarget ..> GroupMembershipChangedEvent : reacts via listener
 
 package "Policy" as pkg_policy {
-  class Policy <<AggregateRoot>> {
+  class Policy <<Aggregate Root>> {
     +name: String
     +statements: List<Rule>
     --
     +{static} createPolicy(name, statements)
   }
-  class Rule <<ValueObject>> {
+  class Rule <<Value Object>> {
     +effect: Effect
     +actions: Set<Permission>
     +resources: Set<Resource>
@@ -298,13 +300,13 @@ package "Policy" as pkg_policy {
     +{static} createRule(effect, actions, resources)
     +matchesPermissionAndResource(action, resource)
   }
-  class PolicyAssignment <<AggregateRoot>> {
+  class PolicyAssignment <<Aggregate Root>> {
     +policyId: String
     +principalArn: ResourceName
     --
     +{static} createPolicyAssignment(policyId, principalArn)
   }
-  class "Permission" as PermissionCatalogEntry <<AggregateRoot>> {
+  class "Permission" as PermissionCatalogEntry <<Aggregate Root>> {
     +code: String
     +oauthScope: Scope
     +module: String
@@ -315,30 +317,30 @@ package "Policy" as pkg_policy {
     +{static} createPermission(code, oauthScope, module, action, resource, description)
     +matchesOAuthScope(scope)
   }
-  class AccessTuple <<ValueObject>> {
+  class AccessTuple <<Value Object>> {
     +principalId: PrincipalId
     +action: Permission
     +resource: Resource
   }
-  class AccessDecision <<ValueObject>> {
+  class AccessDecision <<Value Object>> {
     +effect: Effect
     +reasonCode: ReasonCode
     --
     +isAllowed()
   }
-  class PolicyEngine <<DomainService>> {
+  class PolicyEngine <<Domain Service>> {
     +evaluate(context, policies)
   }
-  class PolicyCreatedEvent <<DomainEvent>> {
+  class PolicyCreatedEvent <<Domain Event>> {
     +policyId: String
   }
-  class PolicyAttachedEvent <<DomainEvent>> {
+  class PolicyAttachedEvent <<Domain Event>> {
     +policyBindingId: String
   }
-  class PermissionCreatedEvent <<DomainEvent>> {
+  class PermissionCreatedEvent <<Domain Event>> {
     +code: String
   }
-  class AccessEvaluatedEvent <<DomainEvent>> {
+  class AccessEvaluatedEvent <<Domain Event>> {
     +principalId: String
     +action: String
     +resource: String
@@ -366,7 +368,7 @@ PolicyEngine ..> AccessDecision : returns
 PermissionCatalogEntry ..> PolicyEngine : catalog for Permission/Resource
 
 package "Short-lived credentials" as pkg_sts {
-  class TokenExchange <<AggregateRoot>> {
+  class TokenExchange <<Aggregate Root>> {
     +roleArn: ResourceName
     +sessionName: String
     +callerPrincipal: String
@@ -375,7 +377,7 @@ package "Short-lived credentials" as pkg_sts {
     +{static} createTokenExchange(roleArn, sessionName, callerPrincipal, expiresAt)
     +isExpired(now)
   }
-  class RoleAssumedEvent <<DomainEvent>> {
+  class RoleAssumedEvent <<Domain Event>> {
     +roleId: String
   }
 }
@@ -385,7 +387,7 @@ TokenExchange --> ResourceName
 RoleAssumedEvent ..> Role : roleId
 
 package "Federation" as pkg_federation {
-  class OAuthClient <<AggregateRoot>> {
+  class OAuthClient <<Aggregate Root>> {
     +clientId: ClientId
     +redirectUris: Set<RedirectUri>
     +scopes: Set<String>
@@ -397,23 +399,23 @@ package "Federation" as pkg_federation {
     +isPublicClient()
     +replaceScopes(scopes)
   }
-  class FederatedIdentity <<AggregateRoot>> {
+  class FederatedIdentity <<Aggregate Root>> {
     +userId: String
     +provider: String
     +externalSubject: String
     --
     +{static} createFederatedIdentity(userId, provider, externalSubject)
   }
-  class ClientId <<ValueObject>> {
+  class ClientId <<Value Object>> {
     +value: String
   }
-  class RedirectUri <<ValueObject>> {
+  class RedirectUri <<Value Object>> {
     +value: String
   }
-  class OAuthClientRegisteredEvent <<DomainEvent>> {
+  class OAuthClientRegisteredEvent <<Domain Event>> {
     +clientId: String
   }
-  class OAuthClientScopesChangedEvent <<DomainEvent>> {
+  class OAuthClientScopesChangedEvent <<Domain Event>> {
     +clientId: String
   }
   note right of OAuthClient
@@ -430,16 +432,16 @@ OAuthClient --> RedirectUri
 FederatedIdentity ..> User : links
 
 package "Audit" as pkg_audit {
-  class AuditActor <<ValueObject>> {
+  class AuditActor <<Value Object>> {
     +value: String
   }
-  class AuditTarget <<ValueObject>> {
+  class AuditTarget <<Value Object>> {
     +type: String
     +targetId: String
     --
     +matches(type, targetId)
   }
-  class AdminActivity <<AggregateRoot>> {
+  class AdminActivity <<Aggregate Root>> {
     +actor: AuditActor
     +action: String
     +target: AuditTarget
@@ -452,7 +454,7 @@ package "Audit" as pkg_audit {
     +involvesActor(candidate)
     +targets(candidate)
   }
-  class DataAccessLog <<AggregateRoot>> {
+  class DataAccessLog <<Aggregate Root>> {
     +principalId: PrincipalId
     +action: Permission
     +resource: Resource

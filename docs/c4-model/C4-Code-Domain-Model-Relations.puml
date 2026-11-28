@@ -1,0 +1,130 @@
+@startuml C4-Code-Domain-Model-Relations
+!include style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+hide members
+
+title 领域模型关系 — Explore Workspace
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | 跨限界上下文 | 虚线；仅 ID / 事件 / 契约 |
+endlegend
+
+package "Identity & Access\n身份与访问" <<Bounded Context>> {
+  class User as "User\n用户" <<Aggregate Root>>
+  class Group as "Group\n组" <<Aggregate Root>>
+  class Role as "Role\n角色" <<Aggregate Root>>
+  class AllowPolicy as "AllowPolicy\n允许策略" <<Aggregate Root>>
+  class OAuthClient as "OAuthClient\nOAuth 客户端" <<Aggregate Root>>
+  class FederatedIdentity as "FederatedIdentity\n联邦身份" <<Entity>>
+}
+
+package "Conversational AI\n对话与智能体" <<Bounded Context>> {
+  class ChatSession as "ChatSession\n聊天会话" <<Aggregate Root>>
+  class ChatMessage as "ChatMessage\n聊天消息" <<Entity>>
+  class Document as "Document\n文档" <<Aggregate Root>>
+  class Agent as "Agent\n智能体" <<Aggregate Root>>
+  class Skill as "Skill\n技能" <<Entity>>
+}
+
+package "Social Messaging\n社交与即时通讯" <<Bounded Context>> {
+  class Post as "Post\n动态" <<Aggregate Root>>
+  class Conversation as "Conversation\n会话" <<Aggregate Root>>
+  class DirectMessage as "DirectMessage\n私信" <<Entity>>
+  class CallSession as "CallSession\n通话会话" <<Aggregate Root>>
+}
+
+package "Commerce\n电商交易" <<Bounded Context>> {
+  class Product as "Product\n商品" <<Aggregate Root>>
+  class Cart as "Cart\n购物车" <<Aggregate Root>>
+  class Order as "Order\n订单" <<Aggregate Root>>
+  class OrderLine as "OrderLine\n订单明细" <<Entity>>
+  class PaymentIntent as "PaymentIntent\n支付意图" <<Aggregate Root>>
+}
+
+package "ML Platform\n机器学习平台" <<Bounded Context>> {
+  class ModelArtifact as "ModelArtifact\n模型制品" <<Aggregate Root>>
+  class TrainingJob as "TrainingJob\n训练任务" <<Aggregate Root>>
+  class Dataset as "Dataset\n数据集" <<Entity>>
+  class InferenceEndpoint as "InferenceEndpoint\n推理端点" <<Aggregate Root>>
+}
+
+package "Wealth\n财富与投组" <<Bounded Context>> {
+  class Customer as "Customer\n客户" <<Aggregate Root>>
+  class Account as "Account\n账户" <<Entity>>
+  class Portfolio as "Portfolio\n投资组合" <<Aggregate Root>>
+  class Position as "Position\n持仓" <<Entity>>
+  class Instrument as "Instrument\n金融工具" <<Aggregate Root>>
+  class TradeOrder as "TradeOrder\n交易订单" <<Aggregate Root>>
+}
+
+package "Lowcode Authoring\n低代码创作" <<Bounded Context>> {
+  class Page as "Page\n页面" <<Aggregate Root>>
+  class Component as "Component\n组件" <<Entity>>
+  class Theme as "Theme\n主题" <<Value Object>>
+  class Template as "Template\n模板" <<Aggregate Root>>
+}
+
+package "Visualization\n三维可视化" <<Bounded Context>> {
+  class FlightRoute as "FlightRoute\n飞行航线" <<Entity>>
+  class GeoCoord as "GeoCoord\n地理坐标" <<Value Object>>
+  class ThemeAppearance as "ThemeAppearance\n主题外观" <<Value Object>>
+}
+
+User "1" *-- "0..*" FederatedIdentity
+User "0..*" -- "0..*" Role
+Group "1" *-- "0..*" User
+AllowPolicy "0..*" --> "0..*" Role : 绑定 / bind
+OAuthClient "0..*" ..> User : 代表 / acts for
+
+ChatSession "1" *-- "0..*" ChatMessage
+Agent "1" *-- "0..*" Skill
+ChatSession "0..*" --> "0..1" Document : 检索 / retrieve
+
+Post "0..*" --> "1" User : 作者 ID
+Conversation "1" *-- "0..*" DirectMessage
+
+Order "1" *-- "0..*" OrderLine
+OrderLine "0..*" --> "1" Product
+Cart "0..*" --> "0..*" Product
+Order "0..1" --> "0..1" PaymentIntent
+
+TrainingJob "0..*" --> "1" Dataset
+TrainingJob "0..*" --> "0..1" ModelArtifact
+InferenceEndpoint "0..*" --> "1" ModelArtifact
+
+Customer "1" *-- "0..*" Account
+Portfolio "1" *-- "0..*" Position
+Position "0..*" --> "1" Instrument
+TradeOrder "0..*" --> "1" Instrument
+Portfolio "0..*" --> "1" Customer
+
+Page "1" *-- "0..*" Component
+Page "0..*" --> "0..1" Theme
+Template "0..*" --> "0..*" Page
+
+FlightRoute --> GeoCoord : 端点 / endpoints
+
+ChatSession ..> User : 所有者 ID / ownerId
+Order ..> User : 下单人 ID / buyerId
+Portfolio ..> User : 投资者 ID / investorId
+ChatSession ..> InferenceEndpoint : 可选回路 / loopback
+Post ..> Document : 可选入库 / ingest
+
+@enduml

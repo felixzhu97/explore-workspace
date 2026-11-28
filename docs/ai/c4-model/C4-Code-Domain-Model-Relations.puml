@@ -1,0 +1,224 @@
+@startuml C4-Code-Domain-Model-Relations
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+title 领域模型关系 — Explore AI
+
+hide members
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | System | 系统 |
+  | Service | 应用服务 |
+endlegend
+
+' ── Domain Kernel ──────────────────────────────────────────
+package "Domain Kernel" as pkg_base {
+  class AbstractEmbeddable as "AbstractEmbeddable\n抽象可嵌入类型" <<Abstract>>
+  class TypedId as "TypedId\n类型化标识" <<Value Object>>
+  class AbstractImmutableEntity as "AbstractImmutableEntity\n抽象不可变实体" <<Abstract>>
+  class AbstractEntity as "AbstractEntity\n抽象实体" <<Abstract>>
+}
+
+AbstractEmbeddable <|-- TypedId
+AbstractImmutableEntity <|-- AbstractEntity
+TypedId --> AbstractImmutableEntity : embedded id
+
+' ── Common (owner-aware bases) ─────────────────────────────
+package "Common" as pkg_common_kernel {
+  class AbstractOwnerAwareImmutable <<Abstract>>
+  class AbstractOwnerAwareEntity <<Abstract>>
+  class AbstractToggleableNamedOwnerEntity <<Abstract>>
+  class AbstractToggleableDescribedOwnerEntity <<Abstract>>
+  class OwnerId as "OwnerId\n所有者标识" <<Value Object>>
+  interface OwnerScopedRepository<E, I> <<Repository>> 
+  class AiInvocationCompletedEvent <<Domain Event>>
+  class AiInvocationFailedEvent <<Domain Event>>
+}
+
+AbstractImmutableEntity <|-- AbstractOwnerAwareImmutable
+AbstractEntity <|-- AbstractOwnerAwareEntity
+AbstractOwnerAwareEntity <|-- AbstractToggleableNamedOwnerEntity
+AbstractToggleableNamedOwnerEntity <|-- AbstractToggleableDescribedOwnerEntity
+AbstractOwnerAwareEntity --> OwnerId
+AbstractOwnerAwareImmutable --> OwnerId
+
+' ── chat ───────────────────────────────────────────────────
+package "Chat" as pkg_chat {
+  class ChatSession as "ChatSession\n聊天会话" <<Aggregate Root>>
+  class SessionTitle <<Value Object>>
+  class ChatMessage as "ChatMessage\n聊天消息" <<Entity>>
+  enum MessageRole <<Enum>>
+  class WebSource <<Value Object>>
+  class DetectedLanguage <<Value Object>>
+  interface ChatSessionRepository <<Repository>>
+  interface ChatWebSourcesRepository <<Repository>>
+  class ChatSessionsErasedEvent <<Domain Event>>
+}
+
+ChatSession "1" *-- "0..*" ChatMessage
+ChatSession --> SessionTitle
+ChatMessage --> MessageRole
+
+' ── rag ────────────────────────────────────────────────────
+package "RAG" as pkg_rag {
+  class RagDocument <<Aggregate Root>>
+  class DocumentChunk <<Entity>>
+  class ScoredChunk <<Value Object>>
+  enum DocumentStatus <<Enum>>
+  class SourceCitation <<Value Object>>
+  interface DocumentRepository <<Repository>>
+}
+
+RagDocument "1" *-- "0..*" DocumentChunk
+RagDocument --> DocumentStatus
+ScoredChunk --> DocumentChunk
+
+' ── pipeline + skill ───────────────────────────────────────
+package "Pipeline" as pkg_pipeline {
+  class AgentPipeline <<Aggregate Root>>
+  class AgentDefinition <<Entity>>
+  class PipelineNode <<Value Object>>
+  class PipelineTemplate <<Entity>>
+  class CustomAgent <<Entity>>
+  interface PipelineTemplateRepository <<Repository>>
+  interface CustomAgentRepository <<Repository>>
+  interface AgentRegistry <<Repository>>
+}
+
+package "Agent" as pkg_agent {
+  class AgentRun <<Entity>>
+}
+
+package "A2A" as pkg_a2a {
+  class AgentCard <<Value Object>>
+  class A2aSkill <<Value Object>>
+  class A2aTask <<Entity>>
+  class A2aMessage <<Value Object>>
+}
+
+package "Skill" as pkg_skill {
+  class Skill as "Skill\n技能" <<Aggregate Root>>
+  interface SkillRepository <<Repository>>
+}
+
+' ── automation ─────────────────────────────────────────────
+package "Automation" as pkg_automation {
+  class AutomationSchedule <<Aggregate Root>>
+  class ScheduleTiming <<Value Object>>
+  class AutomationRun <<Entity>>
+  enum RunStatus <<Enum>>
+}
+
+AutomationSchedule "1" o-- "0..*" AutomationRun
+AutomationSchedule --> ScheduleTiming : next run from
+
+' ── account ────────────────────────────────────────────────
+package "Account" as pkg_account {
+  class Account as "Account\n账户" <<Entity>>
+  class ExternalIdentity <<Value Object>>
+  class ContactEmail <<Value Object>>
+  class ClientId <<Value Object>>
+  class OwnerErasureRequestedEvent <<Domain Event>>
+  class GuestLinkedToAccountEvent <<Domain Event>>
+  note bottom of Account
+    SCIM (planned): IAM pushes Users to /scim/v2/Users.
+    externalId = IAM user id = subject of the
+    explore-iam identity, so first sign-in reuses
+    the Provisioned Account. Inactive accounts
+    cannot sign in; DELETE erases owner data first.
+  end note
+}
+
+Account --> ExternalIdentity : identified by
+GuestLinkedToAccountEvent ..> Account : published on link
+OwnerErasureRequestedEvent ..> OwnerId : erase all rows of
+Account --> ContactEmail
+Account --> ClientId : linked browser
+
+' ── billing ────────────────────────────────────────────────
+package "Billing" as pkg_billing {
+  enum Plan <<Enum>>
+  class QuotaPolicy <<Value Object>>
+  class DailyUsage <<Value Object>>
+  class QuotaSubject <<Value Object>>
+  class QuotaDecision <<Value Object>>
+}
+
+QuotaPolicy --> Plan
+QuotaDecision --> Plan
+
+' ── mcp ────────────────────────────────────────────────────
+package "MCP" as pkg_mcp {
+  class McpSession <<Aggregate Root>>
+}
+
+' ── metrics ────────────────────────────────────────────────
+package "Metrics" as pkg_metrics {
+  class AiInvocationEvent <<Entity>>
+  class Latency <<Value Object>>
+  class ErrorSummary <<Value Object>>
+  class TokenUsage <<Value Object>>
+  class InvocationStats <<Value Object>>
+  class MetricsWindow <<Value Object>>
+  class LatencyStats <<Value Object>>
+  enum AiCapability <<Enum>>
+}
+
+' ── tools (sample) ─────────────────────────────────────────
+package "Tool Calling" as pkg_tools {
+  class WeatherSimulator <<Entity>>
+}
+
+' ── cross-cutting (kernel note) ─────────────────────────────
+AbstractOwnerAwareEntity <|-- ChatSession : metadata only
+AbstractOwnerAwareEntity <|-- RagDocument
+AbstractToggleableDescribedOwnerEntity <|-- Skill
+AbstractToggleableDescribedOwnerEntity <|-- PipelineTemplate
+AbstractToggleableDescribedOwnerEntity <|-- CustomAgent
+AbstractToggleableNamedOwnerEntity <|-- AutomationSchedule
+AbstractOwnerAwareImmutable <|-- AutomationRun
+AbstractEntity <|-- Account
+AbstractOwnerAwareImmutable <|-- AiInvocationEvent
+
+OwnerScopedRepository <|-- SkillRepository
+OwnerScopedRepository <|-- PipelineTemplateRepository
+
+ChatSession ..> OwnerId : owned by
+RagDocument ..> OwnerId : owned by
+Skill ..> OwnerId : owned by
+Account ..> OwnerId : links browser
+AiInvocationEvent ..> OwnerId : attributed to
+AutomationSchedule ..> PipelineTemplate : by id (PipelineTemplateId)
+AiInvocationEvent --> Latency
+AiInvocationEvent --> ErrorSummary
+AiInvocationEvent --> TokenUsage
+AiInvocationCompletedEvent ..> AiInvocationEvent : recorded as
+AiInvocationFailedEvent ..> AiInvocationEvent : recorded as
+ChatSessionsErasedEvent ..> AiInvocationEvent : deletes by session
+PipelineTemplate ..> AgentPipeline : builds linear
+CustomAgent ..> AgentDefinition : overrides builtin
+AgentRun ..> AgentDefinition : invokes worker
+A2aTask ..> AgentRun : maps one run
+AgentCard "1" *-- "*" A2aSkill
+A2aMessage ..> A2aTask : starts
+
+N_LAYERS .. pkg_chat
+N_LAYERS .. pkg_base
+N_LAYERS .. pkg_common_kernel
+KERNEL_NOTE .. pkg_common_kernel
+
+@enduml

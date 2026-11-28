@@ -1,0 +1,240 @@
+@startuml C4-Code-Domain-Model-Relations
+!include ../../c4-model/style.puml
+title 领域模型关系 — Explore Portfolio
+
+hide members
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | System | 系统 |
+  | Service | 应用服务 |
+endlegend
+
+' ── Domain Kernel ──────────────────────────────────────────
+package "Domain Kernel" as pkg_base {
+  class AbstractEmbeddable as "AbstractEmbeddable\n抽象可嵌入类型" <<Abstract>>
+  class TypedId as "TypedId\n类型化标识" <<Value Object>>
+  class AbstractImmutable as "AbstractImmutable\n抽象不可变类型" <<Abstract>>
+  class AbstractEntity as "AbstractEntity\n抽象实体" <<Abstract>>
+  class Money as "Money\n金额" <<Value Object>>
+  class CurrencyCode as "CurrencyCode\n币种代码" <<Value Object>>
+  class Symbol as "Symbol\n交易代码" <<Value Object>>
+  class Quantity as "Quantity\n数量" <<Value Object>>
+}
+
+AbstractEmbeddable <|-- TypedId
+AbstractImmutable <|-- AbstractEntity
+TypedId --> AbstractImmutable : embedded id
+Money --> CurrencyCode
+
+' ── Auth ───────────────────────────────────────────────────
+package "Auth" as pkg_auth {
+  class Session as "Session\n会话" <<Entity>>
+  class SessionId as "SessionId\n会话标识" <<Value Object>>
+  class UserCredential as "UserCredential\n用户凭证" <<Entity>>
+  class CredentialId as "CredentialId\n凭证标识" <<Value Object>>
+}
+
+Session --> SessionId
+Session --> CustomerId
+UserCredential --> CredentialId
+UserCredential --> CustomerId
+
+' ── Customer ───────────────────────────────────────────────
+package "Customer" as pkg_customer {
+  class Customer as "Customer\n客户" <<Aggregate Root>>
+  class CustomerId as "CustomerId\n客户标识" <<Value Object>>
+  enum KycStatus <<Enum>>
+}
+
+Customer --> CustomerId
+Customer --> KycStatus
+
+' ── Account ────────────────────────────────────────────────
+package "Account" as pkg_account {
+  class Account as "Account\n账户" <<Entity>>
+  class AccountId as "AccountId\n账户标识" <<Value Object>>
+  enum AccountType <<Enum>>
+  enum AccountStatus <<Enum>>
+}
+
+Customer "1" *-- "0..*" Account : owns
+Account --> AccountId
+Account --> CustomerId
+Account --> AccountType
+Account --> AccountStatus
+Account --> CurrencyCode
+
+' ── Preference ─────────────────────────────────────────────
+package "Preference" as pkg_pref {
+  class UserPreference as "UserPreference\n用户偏好" <<Entity>>
+  class PreferenceId as "PreferenceId\n偏好标识" <<Value Object>>
+}
+
+Customer "1" o-- "0..1" UserPreference : has
+UserPreference --> PreferenceId
+UserPreference --> CustomerId
+
+' ── Instrument ─────────────────────────────────────────────
+package "Instrument" as pkg_instrument {
+  class Instrument as "Instrument\n标的" <<Aggregate Root>>
+  class InstrumentId as "InstrumentId\n金融工具标识" <<Value Object>>
+  enum AssetClass <<Enum>>
+}
+
+Instrument --> InstrumentId
+Instrument --> Symbol
+Instrument --> AssetClass
+Instrument --> CurrencyCode
+
+' ── Bond ───────────────────────────────────────────────────
+package "Bond" as pkg_bond {
+  class Bond as "Bond\n债券" <<Entity>>
+  class BondId as "BondId\n债券标识" <<Value Object>>
+}
+
+Instrument "1" o-- "0..1" Bond : extends as
+Bond --> BondId
+Bond --> InstrumentId
+Bond --> Money
+
+' ── Option ─────────────────────────────────────────────────
+package "Option" as pkg_option {
+  class Option as "Option\n期权" <<Entity>>
+  class OptionId as "OptionId\n期权标识" <<Value Object>>
+  enum OptionType <<Enum>>
+}
+
+Instrument "1" o-- "0..1" Option : listed as
+Option --> Instrument : underlying
+Option --> OptionId
+Option --> InstrumentId
+Option --> Money
+Option --> OptionType
+
+' ── Market Data ────────────────────────────────────────────
+package "Market Data" as pkg_mkt {
+  class MarketData as "MarketData\n行情数据" <<Entity>>
+  class MarketDataId as "MarketDataId\n行情数据标识" <<Value Object>>
+}
+
+Instrument "1" o-- "0..*" MarketData : priced by
+MarketData --> MarketDataId
+MarketData --> InstrumentId
+MarketData --> Money
+
+' ── Portfolio ──────────────────────────────────────────────
+package "Portfolio" as pkg_pf {
+  class Portfolio as "Portfolio\n组合" <<Aggregate Root>>
+  class PortfolioId as "PortfolioId\n投资组合标识" <<Value Object>>
+  class Position as "Position\n持仓" <<Entity>>
+  class PositionId as "PositionId\n持仓标识" <<Value Object>>
+}
+
+Account "1" *-- "0..*" Portfolio : holds
+Portfolio "1" *-- "0..*" Position : contains
+Portfolio --> PortfolioId
+Portfolio --> AccountId
+Portfolio --> CurrencyCode
+Position --> PositionId
+Position --> PortfolioId
+Position --> InstrumentId
+Position --> Quantity
+Position --> Money
+
+' ── Watchlist ──────────────────────────────────────────────
+package "Watchlist" as pkg_wl {
+  class Watchlist as "Watchlist\n自选" <<Aggregate Root>>
+  class WatchlistId as "WatchlistId\n自选列表标识" <<Value Object>>
+  class WatchlistItem as "WatchlistItem\n自选条目" <<Entity>>
+  class WatchlistItemId as "WatchlistItemId\n自选条目标识" <<Value Object>>
+}
+
+Customer "1" *-- "0..*" Watchlist : follows
+Watchlist "1" *-- "0..*" WatchlistItem : contains
+Watchlist --> WatchlistId
+Watchlist --> CustomerId
+WatchlistItem --> WatchlistItemId
+WatchlistItem --> WatchlistId
+WatchlistItem --> InstrumentId
+
+' ── Order ──────────────────────────────────────────────────
+package "Order" as pkg_order {
+  class Order as "Order\n订单" <<Aggregate Root>>
+  class OrderId as "OrderId\n订单标识" <<Value Object>>
+  enum OrderSide <<Enum>>
+  enum OrderType <<Enum>>
+  enum OrderStatus <<Enum>>
+}
+
+Account "1" *-- "0..*" Order : places
+Order --> OrderId
+Order --> AccountId
+Order --> InstrumentId
+Order --> OrderSide
+Order --> Quantity
+Order --> OrderType
+Order --> OrderStatus
+
+' ── Trade ──────────────────────────────────────────────────
+package "Trade" as pkg_trade {
+  class Trade as "Trade\n成交" <<Entity>>
+  class TradeId as "TradeId\n成交标识" <<Value Object>>
+}
+
+Order "1" *-- "0..*" Trade : fills
+Trade --> TradeId
+Trade --> OrderId
+Trade --> Quantity
+Trade --> Money
+
+' ── Payment ────────────────────────────────────────────────
+package "Payment" as pkg_payment {
+  class Payment as "Payment\n支付" <<Entity>>
+  class PaymentId as "PaymentId\n支付标识" <<Value Object>>
+  enum PaymentStatus <<Enum>>
+}
+
+Account "1" *-- "0..*" Payment : funds
+Payment --> PaymentId
+Payment --> AccountId
+Payment --> Money
+Payment --> PaymentStatus
+
+' ── Cash Transaction ───────────────────────────────────────
+package "Cash Transaction" as pkg_cash {
+  class CashTransaction as "CashTransaction\n资金流水" <<Entity>>
+  class CashTransactionId as "CashTransactionId\n资金流水标识" <<Value Object>>
+  enum CashTxnType <<Enum>>
+  enum CashTxnStatus <<Enum>>
+}
+
+Account "1" *-- "0..*" CashTransaction : ledger
+CashTransaction --> CashTransactionId
+CashTransaction --> AccountId
+CashTransaction --> CashTxnType
+CashTransaction --> Money
+CashTransaction --> CashTxnStatus
+
+' ── Settlement ─────────────────────────────────────────────
+package "Settlement" as pkg_settlement {
+  class Settlement as "Settlement\n结算" <<Entity>>
+  class SettlementId as "SettlementId\n结算标识" <<Value Object>>
+  enum SettlementStatus <<Enum>>
+}
+
+Trade "1" o-- "0..1" Settlement : settled by
+Payment "1" o-- "0..1" Settlement : settles
+Settlement --> SettlementId
+Settlement --> TradeId
+Settlement --> PaymentId
+Settlement --> SettlementStatus
+
+@enduml

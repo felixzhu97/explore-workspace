@@ -1,0 +1,49 @@
+@startuml C4-Code-Domain-Model-Relations
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+
+title 领域模型关系 — Explore ML
+
+hide members
+
+
+legend right
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | System | 系统 |
+  | Service | 应用服务 |
+endlegend
+
+package "Core\n核心" <<Bounded Context>> {
+  class ModelArtifact as "ModelArtifact\n模型制品" <<Aggregate Root>> 
+  class TrainingJob as "TrainingJob\n训练任务" <<Aggregate Root>> 
+  class Dataset as "Dataset\n数据集" <<Entity>> 
+  class Endpoint as "Endpoint\n推理端点" <<Aggregate Root>> 
+  class OperatorSession as "OperatorSession\n操作会话" <<Entity>> 
+}
+
+TrainingJob "0..*" --> "1" Dataset
+TrainingJob "0..*" --> "0..1" ModelArtifact
+Endpoint "0..*" --> "1" ModelArtifact
+OperatorSession "0..*" --> "0..*" TrainingJob
+
+@enduml

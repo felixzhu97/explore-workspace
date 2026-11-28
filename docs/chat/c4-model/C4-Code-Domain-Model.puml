@@ -1,25 +1,28 @@
 @startuml C4-Code-Domain-Model
+!include ../../c4-model/style.puml
 !theme plain
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
 skinparam classAttributeIconSize 0
-skinparam linetype ortho
 skinparam class {
   BackgroundColor #FFFFFF
   BorderColor #000000
   FontColor #000000
 }
 
-title Code diagram (C4) — Domain model (by business domain)
+title 领域模型 — Explore Chat
 
 legend right
-  |= Stereotype |= Meaning |
-  | <<AggregateRoot>> | Consistency boundary |
-  | <<Entity>> | Identity + lifecycle |
-  | <<ValueObject>> | Immutable by value |
-  | <<DomainService>> | Stateless domain / port |
-  | <<DomainEvent>> | Fact from aggregate (client) |
-  | <<Repository>> | Outbound port in domain/ |
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | Abstract | 抽象 |
+  | Enum | 枚举 |
+  | System | 系统 |
+  | Service | 应用服务 |
 endlegend
 
 note as N_LAYERS
@@ -56,12 +59,12 @@ AbstractImmutable <|-- AbstractEntity
 
 ' ── Auth ───────────────────────────────────────────────────
 package "Auth" as pkg_auth {
-  interface AuthService <<DomainService>> {
+  interface AuthService <<Domain Service>> {
     createUser(data)
     login(data)
     refresh(token)
   }
-  class AuthTokens <<ValueObject>> {
+  class AuthTokens <<Value Object>> {
     String accessToken
     String refreshToken
   }
@@ -71,7 +74,7 @@ AuthService ..> AuthTokens
 
 ' ── User ───────────────────────────────────────────────────
 package "User" as pkg_user {
-  class User <<AggregateRoot>> {
+  class User <<Aggregate Root>> {
     String username
     String email
     String phone
@@ -110,7 +113,7 @@ User "1" o-- "0..*" UserFollow : following
 
 ' ── Chat ───────────────────────────────────────────────────
 package "Chat" as pkg_chat {
-  class Chat <<AggregateRoot>> {
+  class Chat <<Aggregate Root>> {
     ChatType type
     String name
     String avatar
@@ -121,7 +124,7 @@ package "Chat" as pkg_chat {
     rename(name)
     markDeleted()
   }
-  enum ChatType <<ValueObject>> {
+  enum ChatType <<Value Object>> {
     PRIVATE
     GROUP
   }
@@ -162,7 +165,7 @@ ChatParticipant --> User
 
 ' ── Message ────────────────────────────────────────────────
 package "Message" as pkg_message {
-  class Message <<AggregateRoot>> {
+  class Message <<Aggregate Root>> {
     String chatId
     String senderId
     MessageType type
@@ -217,7 +220,7 @@ Chat ..> ChatRepository
 
 ' ── Group ──────────────────────────────────────────────────
 package "Group" as pkg_group {
-  class Group <<AggregateRoot>> {
+  class Group <<Aggregate Root>> {
     String name
     String creatorId
     --
@@ -234,7 +237,7 @@ Group "1" *-- "0..*" GroupParticipant
 
 ' ── Post ───────────────────────────────────────────────────
 package "Post" as pkg_post {
-  class Post <<AggregateRoot>> {
+  class Post <<Aggregate Root>> {
     String authorId
     String caption
     MediaType postType
@@ -284,7 +287,7 @@ Comment --> User : author
 
 ' ── Call ───────────────────────────────────────────────────
 package "Call" as pkg_call {
-  class Call <<AggregateRoot>> {
+  class Call <<Aggregate Root>> {
     String callerId
     String calleeId
     CallStatus status
@@ -323,7 +326,7 @@ Notification --> Post
 
 ' ── Status ─────────────────────────────────────────────────
 package "Status" as pkg_status {
-  class Status <<AggregateRoot>> {
+  class Status <<Aggregate Root>> {
     String authorId
     String mediaUrl
     Instant expiresAt
@@ -348,33 +351,33 @@ N_LAYERS .. pkg_post
 ' --- Client Local Chat Projection (TS web/mobile) ---
 ' Display name Message; alias ClientMessage avoids clash with Java Message.
 package "Local Chat Projection" as pkg_projection {
-  class ChatId <<ValueObject>> {
+  class ChatId <<Value Object>> {
     + value: String
   }
-  class MessageId <<ValueObject>> {
+  class MessageId <<Value Object>> {
     + value: String
   }
-  class ClientMsgId <<ValueObject>> {
+  class ClientMsgId <<Value Object>> {
     + value: String
   }
-  class SenderId <<ValueObject>> {
+  class SenderId <<Value Object>> {
     + value: String
   }
-  class MessageBody <<ValueObject>> {
+  class MessageBody <<Value Object>> {
     + text: String
   }
-  class ChatTitle <<ValueObject>> {
+  class ChatTitle <<Value Object>> {
     + value: String
   }
-  class AvatarURL <<ValueObject>> {
+  class AvatarURL <<Value Object>> {
     + value: String
   }
-  class MessageDeliveryStatus <<ValueObject>> {
+  class MessageDeliveryStatus <<Value Object>> {
     + sending, sent, delivered, read, failed
     --
     canTransition(to)
   }
-  class ChatCatalog <<AggregateRoot>> {
+  class ChatCatalog <<Aggregate Root>> {
     chats: ChatSummaryProps[]
     --
     {static} createEmpty()
@@ -384,7 +387,7 @@ package "Local Chat Projection" as pkg_projection {
     applyPreview(chatId, last)
     pullDomainEvents()
   }
-  class ChatThread <<AggregateRoot>> {
+  class ChatThread <<Aggregate Root>> {
     chatId: ChatId
     --
     {static} createEmpty(chatId)
@@ -407,12 +410,12 @@ package "Local Chat Projection" as pkg_projection {
     transition(to)
     matchesIdentity(...)
   }
-  class ThreadHydrated <<DomainEvent>>
-  class MessageAccepted <<DomainEvent>>
-  class LastMessageChanged <<DomainEvent>>
-  class DeliveryStatusChanged <<DomainEvent>>
-  class CatalogReplaced <<DomainEvent>>
-  class ChatPreviewChanged <<DomainEvent>>
+  class ThreadHydrated <<Domain Event>>
+  class MessageAccepted <<Domain Event>>
+  class LastMessageChanged <<Domain Event>>
+  class DeliveryStatusChanged <<Domain Event>>
+  class CatalogReplaced <<Domain Event>>
+  class ChatPreviewChanged <<Domain Event>>
   interface ChatProjectionRepository <<Repository>> {
     listChats()
     upsertChats(rows)

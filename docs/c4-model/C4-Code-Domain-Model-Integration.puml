@@ -1,0 +1,282 @@
+@startuml C4-Code-Domain-Model-Integration
+!include style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam package<<System>> {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam package<<Bounded Context>> {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+title 系统对接 — Explore Workspace
+
+legend right
+  |= 包 / Stereotype |= 中文术语 |
+  | System | 系统 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | 同上下文 | 实线 / 组合 |
+  | 跨系统 | 虚线；协议见边注 |
+endlegend
+
+package "Explore Workspace\n探索工作区" <<System>> {
+  package "Integration Config\n对接配置" <<Bounded Context>> {
+    class IntegrationConfig as "IntegrationConfig\n对接配置" <<Aggregate Root>> {
+      + 启用 (enabled)
+      + 端点 (endpoint)
+      --
+      + 登记接口() (registerInterface())
+    }
+  }
+  package "Identity & Access\n身份与访问" <<Bounded Context>> {
+    class FederatedIdentity as "FederatedIdentity\n联邦身份" <<Entity>> {
+      + 发行方 (issuer)
+      + 主体 (subject)
+    }
+    class OAuthClient as "OAuthClient\nOAuth 客户端" <<Aggregate Root>> {
+      + 客户端标识 (clientId)
+    }
+    class ProvisioningTarget as "ProvisioningTarget\n供给目标" <<Aggregate Root>> {
+      + 端点 (endpoint)
+    }
+  }
+  package "Conversational AI\n对话与智能体" <<Bounded Context>> {
+    class ChatSession as "ChatSession\n聊天会话" <<Aggregate Root>> {
+      + 所有者 (ownerId)
+    }
+    class Document as "Document\n文档" <<Aggregate Root>> {
+      + 标题 (title)
+    }
+  }
+  package "Commerce\n电商交易" <<Bounded Context>> {
+    class PaymentIntent as "PaymentIntent\n支付意图" <<Aggregate Root>> {
+      + 金额 (amount)
+    }
+  }
+  package "ML Platform\n机器学习平台" <<Bounded Context>> {
+    class ModelArtifact as "ModelArtifact\n模型制品" <<Aggregate Root>> {
+      + 名称 (name)
+      + 版本 (version)
+    }
+  }
+  package "Wealth\n财富与投组" <<Bounded Context>> {
+    class Instrument as "Instrument\n金融工具" <<Aggregate Root>> {
+      + 代码 (symbol)
+    }
+    class TradeOrder as "TradeOrder\n交易订单" <<Aggregate Root>> {
+      + 方向 (side)
+    }
+  }
+}
+
+' —— 身份与联邦 ——
+package "Google IdP" <<System>> {
+  class google_idp_Facade as "Google IdP\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "GitHub IdP" <<System>> {
+  class github_idp_Facade as "GitHub IdP\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Enterprise IdP\nOkta / Entra" <<System>> {
+  class enterprise_idp_Facade as "Enterprise IdP\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+' —— 生成式与检索 ——
+package "DeepSeek API" <<System>> {
+  class deepseek_Facade as "DeepSeek API\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "OpenAI API" <<System>> {
+  class openai_Facade as "OpenAI API\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Google AI\nGemini / Vertex" <<System>> {
+  class google_ai_Facade as "Google AI\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Serper.dev" <<System>> {
+  class serper_Facade as "Serper.dev\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Ollama" <<System>> {
+  class ollama_Facade as "Ollama\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Hugging Face Hub" <<System>> {
+  class hf_Facade as "Hugging Face Hub\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+' —— 商业与行情 ——
+package "Stripe" <<System>> {
+  class stripe_Facade as "Stripe\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Market Data" <<System>> {
+  class market_Facade as "Market Data\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Ethereum Sepolia" <<System>> {
+  class eth_Facade as "Ethereum Sepolia\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+' —— 平台与运维 ——
+package "Vercel" <<System>> {
+  class vercel_Facade as "Vercel\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Render" <<System>> {
+  class render_Facade as "Render\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Datadog" <<System>> {
+  class datadog_Facade as "Datadog\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "LaunchDarkly" <<System>> {
+  class launchdarkly_Facade as "LaunchDarkly\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Resend" <<System>> {
+  class resend_Facade as "Resend\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+' —— 内部结构 ——
+IntegrationConfig --> FederatedIdentity : 配置 / configures
+IntegrationConfig --> ChatSession : 配置 / configures
+IntegrationConfig --> PaymentIntent : 配置 / configures
+IntegrationConfig --> ModelArtifact : 配置 / configures
+IntegrationConfig --> Instrument : 配置 / configures
+OAuthClient "0..*" ..> FederatedIdentity : 代表 / acts for
+ProvisioningTarget "0..*" ..> FederatedIdentity : 供给映射 / map
+
+' —— 跨系统对接 ——
+FederatedIdentity ..> google_idp_Facade : OIDC 联邦 / federate
+FederatedIdentity ..> github_idp_Facade : OAuth 联邦 / federate
+enterprise_idp_Facade ..> ProvisioningTarget : SCIM 2.0 供给 / provision
+OAuthClient ..> google_idp_Facade : 授权码 / authorize
+
+ChatSession ..> deepseek_Facade : 补全 / complete
+ChatSession ..> openai_Facade : 补全 / complete
+ChatSession ..> google_ai_Facade : 补全 / complete
+ChatSession ..> ollama_Facade : 本地推理 / infer
+Document ..> serper_Facade : 检索增强 / search
+Document ..> openai_Facade : 嵌入 / embed
+
+PaymentIntent ..> stripe_Facade : 收单 / charge
+Instrument ..> market_Facade : 行情 / quote
+TradeOrder ..> eth_Facade : 链上演示 / rpc
+
+ModelArtifact ..> hf_Facade : 拉取权重 / pull
+ModelArtifact ..> ollama_Facade : 本地加载 / load
+
+IntegrationConfig ..> vercel_Facade : 前端托管 / host
+IntegrationConfig ..> render_Facade : 后端托管 / host
+IntegrationConfig ..> datadog_Facade : 遥测 / telemetry
+IntegrationConfig ..> launchdarkly_Facade : 特性开关 / flag
+IntegrationConfig ..> resend_Facade : 事务邮件 / mail
+
+@enduml

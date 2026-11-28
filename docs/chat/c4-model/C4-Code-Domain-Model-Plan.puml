@@ -1,27 +1,28 @@
 @startuml C4-Code-Domain-Model-Plan
+!include ../../c4-model/style.puml
 !theme plain
-skinparam backgroundColor #FFFFFF
-skinparam shadowing false
 skinparam classAttributeIconSize 0
-skinparam linetype ortho
 skinparam class {
   BackgroundColor #FFFFFF
   BorderColor #000000
   FontColor #000000
 }
 
-title Code diagram (C4) — Domain model plan (vs as-built)
+title 领域模型 — Chat（规划）
 
 legend right
-  |= Stereotype |= Meaning |
-  | <<AggregateRoot>> | Consistency boundary |
-  | <<Entity>> | Identity + lifecycle |
-  | <<ValueObject>> | Immutable by value |
-  | <<ReadModel>> | Query / projection (not AR) |
-  | <<DomainEvent>> | Client in-process fact |
-  | <<Repository>> | Outbound port |
-  | <color:#1A7F37>██</color> | Add / rename toward plan |
-  | <color:#CF222E>██</color> | Remove / demote from as-built |
+  |= Stereotype |= 中文术语 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | Domain Event | 领域事件 |
+  | Domain Service | 领域服务 |
+  | Repository | 仓储 |
+  | Abstract | 抽象 |
+  | Enum | 枚举 |
+  | System | 系统 |
+  | Service | 应用服务 |
 endlegend
 
 note as N_PLAN
@@ -45,7 +46,7 @@ AbstractImmutable <|-- AbstractEntity
 
 ' ========== Server (planned shape) ==========
 
-class User <<AggregateRoot>> {
+class User <<Aggregate Root>> {
   username
   email
   avatar
@@ -67,7 +68,7 @@ class Follow <<Entity>> {
 }
 User "1" o-- "0..*" Follow : follows
 
-class Chat <<AggregateRoot>> {
+class Chat <<Aggregate Root>> {
   type: PRIVATE | GROUP
   name
   avatar
@@ -137,7 +138,7 @@ interface MessageRepository <<Repository>> {
 Chat ..> ChatRepository
 Message ..> MessageRepository
 
-class Post <<AggregateRoot>> {
+class Post <<Aggregate Root>> {
   authorId
   caption
   type
@@ -192,15 +193,15 @@ end note
 
 ' ========== Client Local Chat Projection (planned) ==========
 
-class ChatId <<ValueObject>>
-class ClientMsgId <<ValueObject>>
-class DeliveryStatus <<ValueObject>> {
+class ChatId <<Value Object>>
+class ClientMsgId <<Value Object>>
+class DeliveryStatus <<Value Object>> {
   sending | sent | delivered | read | failed
   --
   canTransition(to)
 }
 
-class ChatThread <<AggregateRoot>> {
+class ChatThread <<Aggregate Root>> {
   chatId: ChatId
   --
   hydrate / accept

@@ -1,0 +1,200 @@
+@startuml C4-Code-Domain-Model-Integration
+!include ../../c4-model/style.puml
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+skinparam package<<System>> {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+skinparam package<<Bounded Context>> {
+  BackgroundColor #FFFFFF
+  BorderColor #000000
+  FontColor #000000
+}
+
+title 系统对接 — Explore AI
+
+legend right
+  |= 包 / Stereotype |= 中文术语 |
+  | System | 系统 |
+  | Bounded Context | 限界上下文 |
+  | Aggregate Root | 聚合根 |
+  | Entity | 实体 |
+  | Value Object | 值对象 |
+  | 同上下文 | 实线 / 组合 |
+  | 跨上下文 / 跨系统 | 虚线 |
+endlegend
+
+package "探索 AI\nExplore AI" <<System>> {
+  package "Core Domain\n核心领域" <<Bounded Context>> {
+    class AbstractEmbeddable as "AbstractEmbeddable\n抽象可嵌入类型" <<Entity>> {
+      + 标识 (id)
+    }
+    class TypedId as "TypedId\n类型化标识" <<Entity>> {
+      + 标识 (id)
+    }
+    class AbstractImmutableEntity as "AbstractImmutableEntity\n抽象不可变实体" <<Entity>> {
+      + 标识 (id)
+    }
+    class AbstractEntity as "AbstractEntity\n抽象实体" <<Entity>> {
+      + 标识 (id)
+    }
+    class AbstractOwnerAwareImmutable as "AbstractOwnerAwareImmutable" <<Entity>> {
+      + 标识 (id)
+    }
+    class AbstractOwnerAwareEntity as "AbstractOwnerAwareEntity" <<Entity>> {
+      + 标识 (id)
+    }
+    class AbstractToggleableNamedOwnerEntity as "AbstractToggleableNamedOwnerEntity" <<Entity>> {
+      + 标识 (id)
+    }
+    class AbstractToggleableDescribedOwnerEntity as "AbstractToggleableDescribedOwnerEntity" <<Entity>> {
+      + 标识 (id)
+    }
+  }
+  package "Integration Config\n对接配置" <<Bounded Context>> {
+    class IntegrationConfig as "IntegrationConfig\n对接配置" <<Aggregate Root>> {
+      + 启用 (enabled)
+      + 端点 (endpoint)
+      --
+      + 登记接口() (registerInterface())
+    }
+  }
+}
+
+package "Explore IAM" <<System>> {
+  class explore_iam_Facade as "Explore IAM\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "LaunchDarkly" <<System>> {
+  class launchdarkly_Facade as "LaunchDarkly\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Datadog (us5)" <<System>> {
+  class datadog_Facade as "Datadog (us5)\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "DeepSeek API" <<System>> {
+  class deepseek_api_Facade as "DeepSeek API\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "OpenAI API" <<System>> {
+  class openai_api_Facade as "OpenAI API\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Serper.dev API" <<System>> {
+  class serper_api_Facade as "Serper.dev API\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Resend" <<System>> {
+  class resend_api_Facade as "Resend\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "H2 Embedded" <<System>> {
+  class h2_db_Facade as "H2 Embedded\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Ollama [local]" <<System>> {
+  class ollama_Facade as "Ollama [local]\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Tesseract OCR [local]" <<System>> {
+  class tesseract_Facade as "Tesseract OCR [local]\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "explore-ml speech [local]" <<System>> {
+  class speech_Facade as "explore-ml speech [local]\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+package "Image Analysis ONNX [local]" <<System>> {
+  class onnx_vision_Facade as "Image Analysis ONNX [local]\n对接门面" <<Aggregate Root>> {
+    + 系统名 (systemName)
+    + 协议 (protocol)
+    --
+    + 调用() (invoke())
+  }
+}
+
+IntegrationConfig --> AbstractEmbeddable : 配置 / configures
+AbstractEmbeddable ..> explore_iam_Facade : 对接 / integrate
+AbstractEmbeddable ..> launchdarkly_Facade : 对接 / integrate
+AbstractEmbeddable ..> datadog_Facade : 对接 / integrate
+AbstractEmbeddable ..> deepseek_api_Facade : 对接 / integrate
+AbstractEmbeddable ..> openai_api_Facade : 对接 / integrate
+AbstractEmbeddable ..> serper_api_Facade : 对接 / integrate
+AbstractEmbeddable ..> resend_api_Facade : 对接 / integrate
+AbstractEmbeddable ..> h2_db_Facade : 对接 / integrate
+AbstractEmbeddable ..> ollama_Facade : 对接 / integrate
+AbstractEmbeddable ..> tesseract_Facade : 对接 / integrate
+AbstractEmbeddable ..> speech_Facade : 对接 / integrate
+AbstractEmbeddable ..> onnx_vision_Facade : 对接 / integrate
+
+@enduml
