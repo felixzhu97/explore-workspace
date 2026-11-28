@@ -1,0 +1,24 @@
+@startuml C4-Deployment-Production
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
+!include ../../c4-model/style-c4.puml
+
+LAYOUT_WITH_LEGEND()
+
+title 部署图 — Lowcode（生产）
+
+Person(user, "用户", "通过浏览器使用编辑器")
+
+Deployment_Node(vercel_edge, "Vercel", "CDN + Serverless") {
+    Container(next_prod, "Next.js App", "next start / Vercel runtime", "Production build; PORT from platform")
+}
+
+Deployment_Node(client, "Client Device") {
+    Container(browser, "Web Browser", "HTTPS", "Loads editor SPA; LocalStorage persistence")
+}
+
+Rel(user, browser, "使用")
+Rel(browser, next_prod, "HTTPS", "edge / region")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,23 @@
+@startuml C1-Context
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+!include ../../c4-model/style-c4.puml
+LAYOUT_WITH_LEGEND()
+title 系统上下文 — Explore Three
+
+Person(user, "Browser User", "浏览交互式地球仪")
+
+System_Boundary(boundary, "Explore Three") {
+    System(globe_app, "explore-three", "Angular SPA\nThree.js 地球仪与飞线")
+}
+
+System_Ext(vercel, "Vercel", "静态托管与 CDN")
+System_Ext(assets, "Static Assets", "public/img 纹理")
+
+Rel(user, globe_app, "打开主题页、拖拽地球仪", "HTTPS")
+Rel(globe_app, vercel, "部署产物", "CI / CDN")
+Rel(globe_app, assets, "加载陆地蒙版与弧线纹理", "HTTP")
+
+SHOW_LEGEND()
+
+@enduml

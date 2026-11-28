@@ -1,0 +1,35 @@
+@startuml
+!ROUNDED_STYLE=0
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include ../../c4-model/style-c4.puml
+LAYOUT_WITH_LEGEND()
+title 容器图 — Explore ML
+
+Person(engineer, "Platform engineer", "Local")
+System_Ext(sibling_api, "Sibling Explore API", "Product API boundary")
+
+System_Boundary(ml, "Explore ML") {
+  Container(ui, "Model Test UI", "Angular 22, NG-ZORRO, Tailwind, d3", ":web/ :4210 (ng serve); module pages with D3 charts")
+  Container(proxy, "ML proxy", "ng serve proxy", ":web/proxy.conf.json; /ml -> ML app (prefix stripped, WS on)")
+  Container(app, "ML app", "FastAPI, uvicorn", "server/main.py :8000; modules recommendation, vision, rag, image_playground, speech, video; GET /health aggregates them")
+  ContainerDb(fixtures, "Fixture data", "JSONL", "data/finetune/ for training/ scripts")
+}
+
+ContainerDb_Ext(qdrant, "Qdrant", "Vector DB", "Embedded at server/rag/data/qdrant or QDRANT_URL")
+Container_Ext(llm, "Ollama / OpenAI", "HTTP", "Embeddings + chat")
+Container_Ext(content_api, "Content API", "HTTP", "CONTENT_API_URL /posts, /comments")
+ContainerDb_Ext(rec_stores, "Postgres / Redis / Cassandra", "Stores", "Recommendation features and vectors")
+
+Rel(engineer, ui, "Module pages", "Browser")
+Rel(engineer, app, "uvicorn / pytest", "one process")
+Rel(ui, proxy, "/ml/...", "same origin")
+Rel(proxy, app, "HTTP + SSE + WS", "loopback")
+Rel(sibling_api, app, "HTTP /api/v1", "optional")
+Rel(app, qdrant, "Upsert / search", "rag")
+Rel(app, llm, "Embed / answer", "rag")
+Rel(app, content_api, "Sync", "rag")
+Rel(app, rec_stores, "Features / vectors", "recommendation")
+Rel(engineer, fixtures, "training/ --data")
+
+SHOW_LEGEND()
+@enduml
