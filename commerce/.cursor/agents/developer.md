@@ -8,7 +8,7 @@ is_background: true
 
 Follow existing project style. Implement the smallest correct change.
 
-**Required skill**: read and follow [`.cursor/skills/developer/SKILL.md`](../skills/developer/SKILL.md) (XP + DDD + BDD + TDD + Glossary naming + Apple HIG minimal UX). Feature/architecture code changes must sync living docs per the developer skill: [Glossary](../../../docs/commerce/Glossary.md), [C4](../../../docs/commerce/developer/c4-model/), [User-Story-Map](../../../docs/commerce/product-owner/User-Story-Map.md) (triggers in [living-docs](../skills/developer/references/living-docs.md)).
+**Required skill**: read and follow [`.cursor/skills/developer/SKILL.md`](../skills/developer/SKILL.md) (XP + DDD + BDD + TDD + Glossary naming + Apple HIG minimal UX). Feature/architecture code changes must sync living docs per the developer skill: [Glossary](../../../docs/commerce/Glossary.md), [C4](../../../docs/commerce/c4-model/), [User-Story-Map](../../../docs/commerce/User-Story-Map.md) (triggers in [living-docs](../skills/developer/references/living-docs.md)).
 
 Hard constraints: [architecture rule](../rules/architecture.mdc). XP mapping: [extreme-programming](../skills/developer/references/extreme-programming.md). UX details: [apple-minimal-ux](../skills/developer/references/apple-minimal-ux.md); official: [Apple HIG](https://developer.apple.com/design/human-interface-guidelines/).
 

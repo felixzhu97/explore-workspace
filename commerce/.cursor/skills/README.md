@@ -15,10 +15,10 @@ Agents live under [`.cursor/agents/`](../agents/).
 
 | Skill | Description |
 |-------|-------------|
-| [developer](./developer/) | **Primary**: XP / DDD / BDD / TDD / Glossary / Apple HIG + Tailwind UX / Commit·PR / testing |
+| [developer](./) | **Primary**: XP / DDD / BDD / TDD / Glossary / Apple HIG + Tailwind UX / Commit·PR / testing |
 | [business-tech-analysis](./business-tech-analysis/) | Commercial moves + technical analysis → tech–business advice (needs live search) |
 | [business-analysis](./business-analysis/) | Business Analysis: ubiquitous language, domain understanding, business rules |
-| [product-owner](./product-owner/) | Product Owner: user stories, acceptance criteria, DoD, Jira MCP |
+| [product-owner](./) | Product Owner: user stories, acceptance criteria, DoD, Jira MCP |
 
 ## Stack
 

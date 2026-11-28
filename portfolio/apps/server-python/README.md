@@ -115,7 +115,7 @@ alembic current        # Show current revision
 - Quotes: `GET /api/v1/quotes`, `WebSocket /ws/quotes`, `GET /api/v1/quotes/history`
 - Analytics: `/api/v1/risk-metrics`, `/api/v1/valuations`, `/api/v1/analytics/*`, `/api/v1/forecast/*`
 
-**Blockchain**: Demo endpoints are on the Java API. See [User Story E11](../../../docs/portfolio/product-owner/user-stories/E11-blockchain-demo.md) and [C4](../../../docs/portfolio/developer/c4-model/).
+**Blockchain**: Demo endpoints are on the Java API. See [User Story E11](../../../docs/portfolio/user-stories/E11-blockchain-demo.md) and [C4](../../../docs/portfolio/c4-model/).
 
 ### AI, ML and DL (integrated into business flows)
 

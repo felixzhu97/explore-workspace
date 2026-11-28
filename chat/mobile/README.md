@@ -46,8 +46,8 @@ pnpm exec expo start
 ## 文档
 
 - 仓库根 [README.md](../../README.md)
-- C4 容器 / 前端组件：[docs/developer/c4-model/](../../docs/chat/developer/c4-model/)（Mobile 见 C2；Web 主 C3）
-- User Story Map：[docs/product-owner/User-Story-Map.md](../../docs/chat/product-owner/User-Story-Map.md)
+- C4 容器 / 前端组件：[docs/c4-model/](../../docs/chat/c4-model/)（Mobile 见 C2；Web 主 C3）
+- User Story Map：[docs/User-Story-Map.md](../../docs/chat/User-Story-Map.md)
 
 ## 许可证
 

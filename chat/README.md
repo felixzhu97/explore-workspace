@@ -77,12 +77,9 @@ Demo user (seeded on API boot): `alice@example.com` / `123456`.
 
 ## Next steps
 
-- [QUICKSTART](../docs/chat/developer/QUICKSTART.md)
-- [Guideline](../docs/chat/Guideline.md) · [Glossary](../docs/chat/Glossary.md)
-- [API notes](../docs/chat/developer/api.md) · [Python services](../docs/chat/developer/python-services.md) (→ [explore-ml](https://github.com/felixzhu97/explore-ml))
-- [C4 model](../docs/chat/developer/c4-model/README.md)
-- [Architecture Definition (TOGAF)](../docs/chat/developer/togaf/Architecture-Definition-Document.md)
-- [User Story Map](../docs/chat/product-owner/User-Story-Map.md)
+- [Guideline](../docs/chat/Guideline.md) · [Glossary](../docs/chat/Glossary.md) · [Reference](../docs/chat/Reference.md)
+- [C4 model](../docs/chat/c4-model/README.md)
+- [User Story Map](../docs/chat/User-Story-Map.md)
 
 ## Repository layout
 
