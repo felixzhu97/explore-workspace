@@ -53,82 +53,26 @@ journey
 
 # 用户故事正文 | User Stories
 
-## E1 模块化服务 / Modularized services
+
+## E1 可独立演进的 ML 能力 / Independently evolvable ML capabilities
 
 ### 背景 | Background
 
-推荐、视觉、RAG、语音、图像、视频各为独立限界上下文，包结构扁平。兄弟服务只调用稳定路由；模型运算留在 Explore ML 内。 / Recommendations, visualization, RAG, Voice, image and video are the context of the independent limit and the package is flat. Bro services call only stable routes; model operation stays Explore ML Internal.
+推荐、视觉、RAG、语音、图像、视频等能力耦在一起时，一改全动、交付风险高。兄弟产品只需稳定契约，不必触碰模型内部。期望各能力边界清晰、对外只暴露稳定接口，运算留在 Explore ML 内。 / When recommendation, vision, RAG, speech, image, and video are tangled, one change ripples everywhere and raises delivery risk. Sibling products need stable contracts, not model internals. Each capability should have clear boundaries and stable APIs while compute stays inside Explore ML.
 
-### US-01 扁平分模块布局 / Flat per-module layout
-
-**As a** 平台工程师 / Platform Engineer  
-**I want** 每个模块遵循 `controller/`、`service/`、`domain/`、`infra/` / Each module follows `controller/`, `service/`, `domain/`, `infra/`  
-**So that** 改一能力不必动其他模块 / You don't have to move the other modules.
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 模块符合分层 / Module matches the layer  
-   **GIVEN** Explore ML 源码树 / Explore ML Source Tree  
-   **WHEN** 打开 `server/` 下任一模块 / Open `server/` Any next module  
-   **THEN** 遵循 `controller → service → domain ← infra` / Follow `controller → service → domain ← infra`  
-   **AND** 领域类型（聚合根  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-02 RAG 导出向量 / RAG Export Vector
-
-**As a** 兄弟 API 开发者 / Sibling API Developer  
-**I want** 经 `documents:exportVectors` 导出文档向量 / Via `documents:exportVectors` Export Document Vector  
-**So that** 上游可复用嵌入而不必重新入库 / Upstream re-entry without re-entry Library
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 导出文档向量 / Export Document Vector  
-   **GIVEN** RAG 模块已加载且存在测试文档 / RAG Module loaded and test document exists  
-   **WHEN** 调用导出向量路由 / Call export vector path  
-   **THEN** 响应含所请求文档的向量 / Respond to vectors containing requested documents  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-03 WebSocket 流式 ASR / WebSocket streaming ASR
-
-**As a** 兄弟 API 开发者 / Sibling API Developer  
-**I want** 在 `/ws/v1/audios:transcribe` 上流式 ASR / Via `/ws/v1/audios:transcribe` Upstream ASR  
-**So that** 语音客户端无需 HTTP 轮询即可获得中间结果 / Voice client not needed HTTP You can get intermediate results if you're in the loop.
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 流式转写帧 / Streaming frame  
-   **GIVEN** Speech 模块已加载 / Speech Module loaded  
-   **WHEN** 客户端经 WebSocket 推送音频 / Client Passes WebSocket Push Audio  
-   **THEN** 返回 partial 与 final 转写帧 / Back partial and final Convert Frame  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-04 微调脚本 / fine-tuning script
+### US-01 按能力分模块的清晰结构 / Clear per-capability module structure
 
 **As a** 平台工程师 / Platform Engineer  
-**I want** 除 video 外各模块提供 `training/` 脚本 / Divide video Provision of external modules `training/` Script  
-**So that** 可用测试数据本地再训练 / Local retraining of available test data
+**I want** 每个 ML 能力在代码库中拥有一致、可识别的分层结构 / each ML capability to follow a consistent, recognizable layered structure in the codebase  
+**So that** 增强或修复单一能力时不必牵动其他模块，降低返工与回归风险 / I can enhance or fix one capability without destabilizing others, reducing rework and regression risk
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 列出训练脚本 / List training scripts  
-   **GIVEN** 非 video 模块 / Not video Module  
-   **WHEN** 列出 `training/` / List `training/`  
-   **THEN** 存在微调入口脚本且有文档说明 / There is a fine-tuned entry script with a document description  
+1. **Scenario** 各模块遵循统一分层约定 / Each module follows the same layering contract  
+   **GIVEN** Explore ML 服务代码库已就绪 / the Explore ML service codebase is available  
+   **WHEN** 我审查任一业务能力模块的目录结构 / I review any business capability module's layout  
+   **THEN** 接口、编排、领域与基础设施职责分离清晰 / API, orchestration, domain, and infrastructure responsibilities are clearly separated  
+   **AND** 领域模型不依赖外层实现细节 / domain models do not depend on outer-layer implementation details  
 
 #### 状态 | Status
 
@@ -136,48 +80,87 @@ journey
 
 ---
 
-## E2 统一应用 / Uniform application
+### US-02 RAG 文档向量导出 / RAG document vector export
+
+**As a** 兄弟产品 API 开发者 / Sibling product API developer  
+**I want** 通过稳定接口导出已入库文档的嵌入向量 / to export embedding vectors for ingested documents through a stable API  
+**So that** 上游产品可复用向量而无需重复建库，缩短集成周期 / upstream products can reuse vectors without rebuilding indexes, shortening integration time
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 导出请求返回对应文档向量 / Export returns vectors for requested documents  
+   **GIVEN** RAG 服务已运行且存在可导出的文档 / the RAG service is running with documents available to export  
+   **WHEN** 我调用文档向量导出接口 / I call the document vector export API  
+   **THEN** 响应包含所请求文档的向量表示 / the response includes vector representations for the requested documents  
+
+#### 状态 | Status
+
+已实现 / Done
+
+---
+
+### US-03 语音流式转写 / Streaming speech transcription
+
+**As a** 兄弟产品 API 开发者 / Sibling product API developer  
+**I want** 通过长连接持续发送音频并实时收到转写片段 / to stream audio over a persistent connection and receive transcription updates in real time  
+**So that** 语音客户端无需轮询即可获得中间与最终结果，交互更顺畅 / voice clients get partial and final text without polling, for smoother real-time UX
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 流式音频推送得到分段转写 / Streaming audio yields partial and final transcripts  
+   **GIVEN** 语音转写服务已就绪 / the speech transcription service is ready  
+   **WHEN** 客户端经 WebSocket 持续推送音频 / the client streams audio over WebSocket  
+   **THEN** 服务端持续返回进行中与最终的转写文本 / the server returns in-progress and final transcript segments  
+
+#### 状态 | Status
+
+已实现 / Done
+
+---
+
+### US-04 各能力本地微调入口 / Local fine-tuning entry per capability
+
+**As a** 平台工程师 / Platform Engineer  
+**I want** 除视频外各能力提供可发现的本地微调脚本与说明 / each capability except video to offer discoverable local fine-tuning scripts and guidance  
+**So that** 团队可用测试数据快速再训练，无需从零搭建流水线 / teams can retrain on test data quickly without building pipelines from scratch
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 非视频模块具备文档化训练入口 / Non-video modules expose documented training entry points  
+   **GIVEN** 我查看除视频外的任一 ML 能力模块 / I inspect any ML capability module except video  
+   **WHEN** 我查找该能力的训练相关资源 / I look for training resources for that capability  
+   **THEN** 存在可执行的微调入口及配套说明 / an executable fine-tuning entry and supporting documentation are present  
+
+#### 状态 | Status
+
+已实现 / Done
+
+---
+
+
+## E2 统一可运维的运行面 / Unified operable runtime
 
 ### 背景 | Background
 
-单一回环进程、单一 base URL 暴露全部模块与聚合健康。密钥只进环境文件，不进已提交默认值。 / Single loop process, single base URL Exposure of all modules and aggregate health. Keys only enter environment file, not submitted default.
+多进程、多入口会增加部署与巡检成本，兄弟产品也难以记忆多处地址。密钥若写入仓库默认值，会带来合规与泄露风险。期望单一进程、单一基址暴露全部能力，敏感配置仅来自环境。 / Multiple processes and entry points raise deploy and ops cost; sibling products struggle to remember many base URLs. Secrets in committed defaults create compliance and leak risk. One process and one base URL should expose all capabilities; sensitive config should come only from the environment.
 
-### US-05 单应用与聚合健康 / Single application and aggregate health
-
-**As a** 平台工程师 / Platform Engineer  
-**I want** 端口 8000 上一个 FastAPI 应用并提供聚合 `/health` / Port 8000 Previous FastAPI Apply and provide aggregation `/health`  
-**So that** 启动与就绪检查覆盖每个已加载模块 / Start and readiness check to cover every loaded module
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 聚合模块健康 / Aggregation module health  
-   **GIVEN** 统一应用已运行 / Harmonized application run  
-   **WHEN** `GET /health`  
-   **THEN** 每个已加载模块报告 `status` 与 `latency_ms` / Each loaded module report `status` and `latency_ms`  
-
-2. **Scenario** 一次安装、一个进程 / One installation, one process  
-   **GIVEN** 全新克隆 / New clone.  
-   **WHEN** 使用根依赖与 `.env.example` / Use root dependency and `.env.example`  
-   **THEN** 全部模块由同一进程启动 / All modules started by the same process  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-06 密钥仅存于 env / Key only saved on env
+### US-05 单进程应用与聚合健康 / Single-process app with aggregate health
 
 **As a** 平台工程师 / Platform Engineer  
-**I want** 非密钥设置内联、密钥只进 `.env` / Non-key settings inline, key only `.env`  
-**So that** 凭证不入库，本地启动仍有文档可循 / Credentials are not stored in the database; local startup docs remain available
+**I want** 一次启动运行全部 ML 模块，并通过单一健康端点查看各模块状态 / to run all ML modules in one process and check each module's status from one health endpoint  
+**So that** 部署与就绪检查更简单，故障定位更快 / deployment and readiness checks are simpler and incidents are easier to triage
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 密钥留在环境 / Key to Environment  
-   **GIVEN** 应用配置 / Apply Configuration  
-   **WHEN** 检查默认值与 `.env.example` / Check Defaults with `.env.example`  
-   **THEN** 密钥仅来自环境；非密钥可为内联默认 / Keys only come from the environment; non-keys can be inline defaults  
+1. **Scenario** 健康检查汇总各已加载模块 / Health check summarizes every loaded module  
+   **GIVEN** 统一 ML 应用已在运行 / the unified ML application is running  
+   **WHEN** 我请求聚合健康检查 / I request the aggregate health check  
+   **THEN** 响应列出各已加载模块的状态与响应时延 / the response lists each loaded module's status and response latency  
+
+2. **Scenario** 新环境一次安装单进程启动 / Fresh clone installs once and starts one process  
+   **GIVEN** 我从干净仓库克隆并配置示例环境 / I clone a fresh repo and configure from the example environment  
+   **WHEN** 我按文档安装依赖并启动服务 / I install dependencies and start the service per documentation  
+   **THEN** 全部业务能力由同一进程对外提供 / all business capabilities are served by a single process  
 
 #### 状态 | Status
 
@@ -185,23 +168,18 @@ journey
 
 ---
 
-### US-07 视觉分数与视频审核 / Visual scores and video clearance
+### US-06 密钥仅存于环境配置 / Secrets live only in environment configuration
 
-**As a** 兄弟 API 开发者 / Sibling API Developer  
-**I want** 视觉预测分数与按帧视频审核 / Visual projection scores and frame video audit  
-**So that** 产品 BFF 可对结构化分数设阈值 / Products BFF Could set thresholds for structured fractions
+**As a** 平台工程师 / Platform Engineer  
+**I want** 非敏感项可有内联默认，而密钥仅从环境注入 / non-sensitive settings to have inline defaults while secrets are injected only from the environment  
+**So that** 凭证不入版本库，本地启动仍有清晰配置指引，降低泄露风险 / credentials never enter version control, local startup stays documented, and leak risk drops
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 视觉标签分数 / Visual Tab Scores  
-   **GIVEN** Vision 模块已加载 / Vision Module loaded  
-   **WHEN** 提交图像预测 / Submit Image Forecast  
-   **THEN** 响应含各标签分数 / Response with Tab Scores  
-
-2. **Scenario** 按帧视频审核 / Audit by frame video  
-   **GIVEN** Video 模块已加载 / Video Module loaded  
-   **WHEN** 提交短片 / Submit short film  
-   **THEN** 按帧返回审核结果 / Return the results by frame  
+1. **Scenario** 仓库默认值不含真实密钥 / Committed defaults contain no real secrets  
+   **GIVEN** 我审查应用配置与示例环境文件 / I review application configuration and the example environment file  
+   **WHEN** 我对照运行时实际读取的配置来源 / I compare against what the runtime actually loads  
+   **THEN** 密钥类项仅来自环境变量；非密钥可有安全默认值 / secret values come only from environment variables; non-secrets may have safe defaults  
 
 #### 状态 | Status
 
@@ -209,18 +187,23 @@ journey
 
 ---
 
-### US-08 UI 代理与分模块健康 / UI Agent and submodule health
+### US-07 视觉评分与视频逐帧审核 / Visual scoring and frame-level video moderation
 
-**As a** 测模工程师 / Model Test Engineer  
-**I want** `web/` 操作台统一走 `/ml` 代理并展示模块健康 / `web/` Unite the table. `/ml` Agent and display module health  
-**So that** 不必为六模块维护六个源 / No need to maintain six sources for six modules
+**As a** 兄弟产品 API 开发者 / Sibling product API developer  
+**I want** 获得图像标签的结构化分数与视频逐帧审核结果 / to receive structured label scores for images and frame-level moderation results for video  
+**So that** 产品 BFF 可设阈值自动决策，减少人工复核 / product BFFs can apply thresholds for automated decisions and less manual review
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 经 `/ml` 代理看健康 / Via `/ml` Agent's looking at health.  
-   **GIVEN** UI 指向回环应用 / UI Point to loop application  
-   **WHEN** 打开操作台 / Open Operator  
-   **THEN** 经 `/ml` 代理可见各模块健康 / Via `/ml` Agent can see module health  
+1. **Scenario** 图像预测返回各标签分数 / Image prediction returns per-label scores  
+   **GIVEN** 视觉分析服务已就绪 / the vision analysis service is ready  
+   **WHEN** 我提交一张图像进行预测 / I submit an image for prediction  
+   **THEN** 响应包含各识别标签的数值分数 / the response includes numeric scores for each recognized label  
+
+2. **Scenario** 短视频提交返回逐帧审核 / Short video submission returns per-frame moderation  
+   **GIVEN** 视频审核服务已就绪 / the video moderation service is ready  
+   **WHEN** 我提交一段短视频 / I submit a short video clip  
+   **THEN** 响应按帧返回审核判定结果 / the response returns moderation outcomes per frame  
 
 #### 状态 | Status
 
@@ -228,24 +211,44 @@ journey
 
 ---
 
-## E3 操作台 / Operator
+### US-08 操作台统一代理与模块健康展示 / Console unified proxy and module health
+
+**As a** 模型验证工程师 / Model validation engineer  
+**I want** 操作台经单一代理访问后端，并集中展示各模块健康 / the console to reach the backend through one proxy and show module health in one place  
+**So that** 不必为六个模块维护六套前端源，验证效率更高 / I do not maintain six separate front-end sources for six modules, improving validation efficiency
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 操作台可见各模块健康状态 / Console shows health for each module  
+   **GIVEN** 操作台已指向统一 ML 后端 / the console is configured for the unified ML backend  
+   **WHEN** 我打开操作台主界面 / I open the console home  
+   **THEN** 经统一代理可查看各业务能力模块的健康信息 / I can see health information for each business capability module via the unified proxy  
+
+#### 状态 | Status
+
+已实现 / Done
+
+---
+
+
+## E3 可演练的 ML 操作台 / Hands-on ML console
 
 ### 背景 | Background
 
-`web/` 为每个 ML 模块提供一页与图表，便于兄弟产品接入 BFF 前先验证路由。 / `web/` For each ML The module provides a page and chart to facilitate bro product access BFF Check route first.
+兄弟产品在接入 BFF 前需要可感知的试调用方式，否则只能依赖原始接口文档，试错成本高。分模块页面与可视化能降低理解门槛。期望操作台为每项能力提供独立演练页与可读结果展示。 / Sibling products need tangible try-it flows before BFF integration; raw API docs alone drive costly trial and error. Per-capability pages and visuals lower the learning curve. The console should offer a dedicated drill page and readable results for each capability.
 
-### US-09 模块页 / Module Page
+### US-09 每项能力独立演练页 / Dedicated drill page per capability
 
-**As a** 测模工程师 / Model Test Engineer  
-**I want** 推荐、视觉、RAG、图像、语音、视频各有 UI 页 / Recommendations, visualization, RAG, Images, voices, videos. UI Page  
-**So that** 可在操作台逐模块演练 / A module-by-desk exercise
+**As a** 模型验证工程师 / Model validation engineer  
+**I want** 推荐、视觉、RAG、图像、语音、视频各有可提交的演练页面 / recommendation, vision, RAG, image, speech, and video each to have a drill page where I can submit test calls  
+**So that** 我可在操作台逐模块验证路由与响应，再推动产品集成 / I can validate routes and responses module by module before driving product integration
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 每模块提交测试请求 / Request for testing per module  
-   **GIVEN** `web/` 运行于 :4210 / `web/` Run on :4210  
-   **WHEN** 打开各模块路由 / Open module route  
-   **THEN** 可提交测试请求并展示结构化结果 / Could submit test requests and demonstrate structured results  
+1. **Scenario** 各模块页可提交测试并展示结构化结果 / Each module page accepts tests and shows structured results  
+   **GIVEN** 操作台 Web 应用已在本地运行 / the console web app is running locally  
+   **WHEN** 我依次打开各业务能力页面 / I open each business capability page in turn  
+   **THEN** 我可提交测试请求并看到结构化响应展示 / I can submit test requests and see structured response output  
 
 #### 状态 | Status
 
@@ -253,18 +256,18 @@ journey
 
 ---
 
-### US-10 每模块页 D3 图表 / Every module page D3 Chart
+### US-10 模块页图表化数值结果 / Charted numeric results on module pages
 
-**As a** 测模工程师 / Model Test Engineer  
-**I want** 每模块页带 D3 图表 / Each module page belt D3 Chart  
-**So that** 分数与序列可读，不必只盯原始 JSON / Scores and sequences readable, not just original JSON
+**As a** 模型验证工程师 / Model validation engineer  
+**I want** 在模块演练页用图表呈现数值序列与分数 / module drill pages to chart numeric series and scores  
+**So that** 结果一眼可读，不必仅对照原始 JSON / results are readable at a glance instead of parsing raw JSON only
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 数值序列成图 / Numerical sequences  
-   **GIVEN** 模块成功返回含数值序列的响应 / Module successfully returns a response to a numerical sequence  
-   **WHEN** 页面渲染 / Page render  
-   **THEN** D3 图表可视化该结果 / D3 Chart visualization of results  
+1. **Scenario** 含数值序列的响应渲染为图表 / Responses with numeric series render as charts  
+   **GIVEN** 某模块测试调用成功并返回含数值序列的数据 / a module test call succeeds and returns data with numeric series  
+   **WHEN** 演练页完成渲染 / the drill page finishes rendering  
+   **THEN** 页面以图表可视化该数值结果 / the page visualizes those numeric results in a chart  
 
 #### 状态 | Status
 
@@ -272,18 +275,18 @@ journey
 
 ---
 
-### US-11 RAG 嵌入图谱 / RAG embedding graph
+### US-11 RAG 嵌入向量簇状图谱 / RAG embedding cluster map
 
-**As a** 测模工程师 / Model Test Engineer  
-**I want** RAG 页提供 PCA 嵌入图谱 / RAG By page PCA Embedded  
-**So that** 导出向量的簇形可见 / A cluster of export vectors is visible
+**As a** 模型验证工程师 / Model validation engineer  
+**I want** 在 RAG 演练页查看文档嵌入的降维散点图谱 / to view a dimension-reduced scatter map of document embeddings on the RAG drill page  
+**So that** 导出向量的聚类形态可见，便于判断语义分布是否合理 / I can see how exported vectors cluster and judge whether semantic spread looks sound
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** RAG 上 PCA 散点 / RAG Let's go. PCA scatter  
-   **GIVEN** RAG 向量可用 / RAG Vector Available  
-   **WHEN** 打开 RAG 页图谱 / Open RAG Page Diagram  
-   **THEN** 展示 PCA 散点图 / Presentation PCA Scatter Chart  
+1. **Scenario** RAG 页展示 PCA 嵌入散点图 / RAG page shows PCA embedding scatter plot  
+   **GIVEN** RAG 模块已有可用向量数据 / the RAG module has usable vector data  
+   **WHEN** 我打开 RAG 演练页的图谱区域 / I open the graph area on the RAG drill page  
+   **THEN** 页面展示 PCA 降维后的嵌入散点图 / the page shows a PCA scatter plot of embeddings  
 
 #### 状态 | Status
 
@@ -291,18 +294,18 @@ journey
 
 ---
 
-### US-12 评估看板 / Assessment panels
+### US-12 跨模块评估看板 / Cross-module evaluation dashboard
 
-**As a** 测模工程师 / Model Test Engineer  
-**I want** `web/` 内有评估看板 / `web/` There's an evaluation panel inside.  
-**So that** 可跨模块比较测试跑质量指标 / Testing quality indicators across modules
+**As a** 模型验证工程师 / Model validation engineer  
+**I want** 在操作台查看汇总各模块测试跑质量的评估看板 / to view an evaluation dashboard in the console that summarizes test-run quality across modules  
+**So that** 我可横向比较能力表现，优先改进薄弱模块 / I can compare capability performance side by side and prioritize weaker modules
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 评估指标汇总 / Summary of assessment indicators  
-   **GIVEN** 操作台 / Operator  
-   **WHEN** 评估能力上线 / Assessment capacity online  
-   **THEN** 看板页汇总测试评估指标 / Page summary test evaluation indicators  
+1. **Scenario** 看板汇总测试评估指标 / Dashboard aggregates test evaluation metrics  
+   **GIVEN** 操作台已部署且评估能力已上线 / the console is deployed and evaluation features are available  
+   **WHEN** 我打开评估看板页面 / I open the evaluation dashboard page  
+   **THEN** 页面汇总展示各模块相关测试评估指标 / the page summarizes test evaluation metrics relevant to each module  
 
 #### 状态 | Status
 

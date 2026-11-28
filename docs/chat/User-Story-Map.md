@@ -107,352 +107,361 @@ journey
 
 # 用户故事正文 | User Stories
 
-## E1 认证与账号 / Authentication and account number
+
+## E1 账号与安全登录 / Accounts and secure sign-in
 
 ### 背景 | Background
 
-用户须安全注册与登录，方可使用 Chat 的社交与通讯能力。 / Users must register and log in safely to use Chat Socialization and communication skills.
+用户无法安全注册或登录时，将无法使用社交与通讯能力，留存与活跃受损。凭证泄露或流程繁琐也会削弱信任。我们需要可靠、可感知的注册与登录体验。 / Without secure sign-up and sign-in, users cannot access social and messaging, hurting retention. Weak flows erode trust. We need reliable, clear registration and login.
 
-### US-01 注册与登录 / Registration and Login
+### US-01 注册与登录 / Register and sign in
 
-**As a** 终端用户 / End User  
-**I want** 安全注册与登录 / Secure registration and login  
-**So that** 我可以使用 Chat 的社交与通讯功能 / I can use it. Chat Social and communication functions
+**As a** 终端用户 / End user  
+**I want** 安全完成注册与登录 / to register and sign in securely  
+**So that** 我能使用 Chat 的社交与通讯功能 / I can use Chat’s social and messaging features
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 新用户完成注册并进入已登录状态 / New users are registered and entering login status  
-   **GIVEN** 用户未登录且打开注册流程 / User not login and open registration process  
-   **WHEN** 用户提交有效注册信息 / User submits valid registration information  
-   **THEN** 账号创建成功且用户处于已登录状态 / Account created successfully and user is in login status  
+1. **Scenario** 新用户注册后进入已登录状态 / New user lands signed in after registration  
+   **GIVEN** 用户未登录并打开注册流程 / the user is signed out and starts registration  
+   **WHEN** 用户提交有效的注册信息 / they submit valid registration details  
+   **THEN** 账号创建成功且用户处于已登录状态 / the account is created and the user is signed in  
 
-2. **Scenario** 已有用户登录成功 / User login successful  
-   **GIVEN** 用户拥有有效账号 / User has valid account number  
-   **WHEN** 用户提交正确凭证登录 / User submits correct voucher login  
-   **THEN** 用户进入已登录状态并可访问主功能 / User enters login status and accesss main functionality  
+2. **Scenario** 已有用户使用正确凭证登录 / Returning user signs in with valid credentials  
+   **GIVEN** 用户拥有有效账号 / the user has a valid account  
+   **WHEN** 用户提交正确的登录凭证 / they submit correct sign-in credentials  
+   **THEN** 用户进入已登录状态并可访问主功能 / they are signed in and can access main features  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E2 即时通讯 / contains
+
+## E2 即时私信 / Direct messaging
 
 ### 背景 | Background
 
-用户须与联系人实时收发私信，保持沟通连续。 / Users are required to receive and send private correspondence in real time with contacts and to communicate continuously.
+用户与联系人需要实时收发私信，沟通中断会降低粘性与满意度。消息延迟或列表难找历史对话会增加挫败感。我们希望提供接近主流 IM 的连续会话体验。 / Users need real-time private messages with contacts; broken threads hurt engagement. Delays and hard-to-find history frustrate users. We want continuous conversations comparable to mainstream IM.
 
-### US-02 实时私信 / Real-time private mail
+### US-02 实时收发私信 / Send and receive direct messages in real time
 
-**As a** 终端用户 / End User  
-**I want** 发送与接收私信（含实时推送） / Send and receive private correspondence (including real time delivery))  
-**So that** 我可以与联系人即时沟通 / I can communicate with the contact immediately.
+**As a** 终端用户 / End user  
+**I want** 发送与接收私信并实时看到新消息 / to send and receive direct messages and see new ones in real time  
+**So that** 我能与联系人即时沟通 / I can communicate with contacts immediately
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 发送消息后对方可实时看到 / Only when you send a message can you see it in real time?  
-   **GIVEN** 双方均已登录且存在会话 / Both parties are logged in and there are meetings.  
-   **WHEN** 用户发送一条文本消息 / User sends a text message  
-   **THEN** 消息出现在会话中 / Message in Session  
-   **AND** 接收方可在无需整页刷新的情况下看到新消息 / Receiver sees new messages without having to refresh the entire page  
+1. **Scenario** 发送后对方及时看到新消息 / Recipient sees a new message promptly  
+   **GIVEN** 双方均已登录且处于同一会话 / both parties are signed in and share an active conversation  
+   **WHEN** 用户发送一条文本消息 / one user sends a text message  
+   **THEN** 消息出现在会话时间线中 / the message appears in the conversation timeline  
+   **AND** 接收方无需整页刷新即可看到新消息 / the recipient sees it without refreshing the whole page  
 
-2. **Scenario** 删除消息后会话列表不再展示 / Can not open message  
-   **GIVEN** 用户已发送一条消息 / User sent a message  
-   **WHEN** 用户删除该消息 / Can not open message  
-   **THEN** 消息以软删除保留（`isDeleted`） / Can not open message(`isDeleted`)  
-   **AND** 会话消息列表不再返回该消息 / The message no longer appears in the session message list  
+2. **Scenario** 删除后列表不再展示该消息 / Deleted message no longer shown in the list  
+   **GIVEN** 用户已发送一条消息 / the user has sent a message  
+   **WHEN** 用户删除该消息 / they delete that message  
+   **THEN** 消息在系统内按软删除保留审计能力 / the message is soft-deleted for audit while hidden from normal view  
+   **AND** 会话消息列表不再显示该消息 / the conversation message list no longer shows that message  
 
-3. **Scenario** 会话列表可定位历史对话 / Session list to locate history dialogues  
-   **GIVEN** 用户已有多个会话 / User has multiple sessions  
-   **WHEN** 用户打开消息入口 / must use  
-   **THEN** 可看到会话列表并进入目标会话 / Can see session list and enter target session  
+3. **Scenario** 从会话列表进入历史对话 / Open past conversations from the session list  
+   **GIVEN** 用户已有多个会话 / the user has multiple conversations  
+   **WHEN** 用户打开消息入口 / they open the messages entry point  
+   **THEN** 看到会话列表并可进入目标会话 / they see a conversation list and can open the target chat  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E3 信息流与帖子 / Information flows and posts
+
+## E3 信息流与发帖 / Feed and posting
 
 ### 背景 | Background
 
-用户浏览关注信息流并发布图文/视频帖。 / Users view the flow of information and publish the text/Video post.
+用户希望看到关注对象的最新内容并轻松发布自己的图文或视频。内容难发现或发布失败会降低创作与消费意愿。我们需要可浏览的信息流与顺畅的发帖体验。 / Users want fresh content from people they follow and an easy way to publish. Hard discovery or failed posts reduce creation and consumption. We need a browsable feed and reliable publishing.
 
-### US-03 浏览信息流 / Browse the feed
+### US-03 浏览关注信息流 / Browse the following feed
 
-**As a** 终端用户 / End User  
-**I want** 浏览关注信息流 / Browse the followed feed  
-**So that** 我可以消费关注对象的最新内容 / I can consume up-to-date information about people I care about.
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 已登录用户看到信息流条目 / Login users see stream entries  
-   **GIVEN** 用户已登录且关注了至少一名创作者（或有本人帖子） / Users log in and pay attention to at least one creator (or have their own post))  
-   **WHEN** 用户打开首页信息流 / User Opens home page stream  
-   **THEN** 可见帖子列表（含媒体与基础互动入口） / Visible Poster List (includes media and basic interactive portals))  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-04 发布帖子 / Publish post
-
-**As a** 内容创作者 / Content Creator  
-**I want** 发布图文或视频帖（含可选封面） / Publication of graphs or video posts (with optional cover))  
-**So that** 我可以分享内容给关注者 / I can share with people who care.
+**As a** 终端用户 / End user  
+**I want** 浏览我关注对象的信息流 / to browse a feed from people I follow  
+**So that** 我能看到他们在乎的最新内容 / I can see up-to-date content from people I care about
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 上传媒体并成功发帖 / Upload media and post successfully  
-   **GIVEN** 用户已登录且选择了媒体文件 / User login and selected media files  
-   **WHEN** 用户完成上传并提交发帖 / User finish uploading and posting  
-   **THEN** 帖子创建成功并出现在信息流或个人页 / The post was created successfully and appeared in the information stream or individual Page  
-   **AND** 视频帖可带独立封面（coverUrl）而不混入 mediaUrls / Video posts with separate cover(coverUrl)Not blending in. mediaUrls  
+1. **Scenario** 已登录用户看到信息流帖子 / Signed-in user sees feed posts  
+   **GIVEN** 用户已登录且关注了至少一名创作者（或有自己的帖子） / the user is signed in and follows at least one creator (or has their own posts)  
+   **WHEN** 用户打开首页信息流 / they open the home feed  
+   **THEN** 看到帖子列表，含媒体与基础互动入口 / they see a post list with media and basic engagement actions  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E4 Reels 与探索 / Reels And exploration.
+### US-04 发布图文或视频帖 / Publish image, text, or video posts
+
+**As a** 内容创作者 / Content creator  
+**I want** 发布图文或视频帖（可选封面） / to publish image, text, or video posts with an optional cover  
+**So that** 我能把内容分享给关注者 / I can share content with my followers
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 上传媒体并成功发布 / Upload media and publish successfully  
+   **GIVEN** 用户已登录并选择了媒体文件 / the user is signed in and has selected media  
+   **WHEN** 用户完成上传并提交发帖 / they finish upload and submit the post  
+   **THEN** 帖子创建成功并出现在信息流或个人页 / the post is created and appears on the feed or profile  
+   **AND** 视频帖可使用独立封面，不与正文媒体混列 / video posts can use a separate cover image distinct from inline media  
+
+#### 状态 | Status
+
+已交付 / Delivered
+
+---
+
+
+## E4 短视频与发现 / Short video and discovery
 
 ### 背景 | Background
 
-用户经短视频与探索网格发现内容与创作者。 / Users discover content and creators via short video and exploration grid.
+用户通过竖屏短视频和探索网格发现新内容与创作者。推荐呆板或入口难找会降低停留时长。我们希望提供沉浸式的 Reels 与可浏览的探索体验。 / Users discover creators and content via vertical short video and an explore grid. Poor discovery cuts session time. We want immersive Reels and an explorable discovery surface.
 
-### US-05 浏览 Reels / Browse Reels
+### US-05 浏览 Reels 短视频 / Browse Reels short videos
 
-**As a** 终端用户 / End User  
-**I want** 浏览短视频 Reels / Browse for short videos Reels  
-**So that** 我可以沉浸式消费竖屏视频内容 / I can immerse the content of the consumer screen video.
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 打开 Reels 看到可播放视频流 / Open Reels Sees video stream available  
-   **GIVEN** 用户已登录 / User Login  
-   **WHEN** 用户进入 Reels / User access Reels  
-   **THEN** 可见竖屏视频流并可播放/暂停与基础互动 / Visible vertical video stream and can be played/Suspension and base interaction  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-06 探索网格 / Explore Grid
-
-**As a** 终端用户 / End User  
-**I want** 浏览探索网格 / Browse for Explore Grid  
-**So that** 我可以发现未关注创作者的内容 / I can see that there's no focus on the creator.
+**As a** 终端用户 / End user  
+**I want** 浏览竖屏短视频 Reels 流 / to browse a vertical Reels video stream  
+**So that** 我能沉浸式消费短视频内容 / I can immerse myself in short-form video
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 探索页展示网格内容 / Show grid content on explore page  
-   **GIVEN** 用户已登录 / User Login  
-   **WHEN** 用户打开探索 / User opens Explore  
-   **THEN** 可见内容网格（含视频封面等）并可进入详情或互动 / Visible content grid (including video cover, etc.) and access to details or interactions  
+1. **Scenario** 进入 Reels 可播放视频流 / Reels opens a playable video stream  
+   **GIVEN** 用户已登录 / the user is signed in  
+   **WHEN** 用户进入 Reels / they open Reels  
+   **THEN** 看到竖屏视频流，可播放/暂停并进行基础互动 / they see a vertical stream they can play, pause, and engage with  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E5 互动与社交 / Interaction and socialization
+### US-06 浏览探索网格 / Browse the Explore grid
+
+**As a** 终端用户 / End user  
+**I want** 浏览探索页的内容网格 / to browse the content grid on Explore  
+**So that** 我能发现尚未关注创作者的内容 / I can discover content from creators I do not yet follow
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 探索页展示可进入的网格内容 / Explore shows a tappable content grid  
+   **GIVEN** 用户已登录 / the user is signed in  
+   **WHEN** 用户打开探索页 / they open Explore  
+   **THEN** 看到含封面预览的内容网格，可进入详情或互动 / they see a grid with previews and can open details or engage  
+
+#### 状态 | Status
+
+已交付 / Delivered
+
+---
+
+
+## E5 互动与关系 / Engagement and relationships
 
 ### 背景 | Background
 
-用户通过对帖子互动与关注关系建立社交连接。 / Users build social connections through posting interactions and attention.
+用户通过对帖子互动与关注建立社交连接。互动反馈延迟或关系状态不清会削弱社区感。我们需要即时可见的点赞、评论与关注体验。 / Users build connections through likes, comments, and follows. Delayed feedback or unclear relationship state weakens community feel. We need instant, visible engagement and follow experiences.
 
-### US-07 点赞收藏与评论 / Likes, saves, and comments
+### US-07 点赞、收藏与评论 / Like, save, and comment on posts
 
-**As a** 终端用户 / End User  
-**I want** 对帖子点赞、收藏与评论 / It's a compliment, a collection and a comment.  
-**So that** 我可以与内容互动 / I can interact with content.
-
-#### 验收标准 | Acceptance Criteria
-
-1. **Scenario** 点赞后计数更新 / Count updates after a few words.  
-   **GIVEN** 用户已登录并打开一条帖子 / User login and open a post  
-   **WHEN** 用户点赞 / User Approving  
-   **THEN** 点赞状态与计数对用户可见为已更新 / user can  
-
-2. **Scenario** 发表评论可见 / Comments can be found  
-   **GIVEN** 用户已登录并打开评论入口 / User login and open comment entry  
-   **WHEN** 用户提交评论 / User submits comments  
-   **THEN** 评论出现在评论列表中 / Comments appear in the comment list  
-
-#### 状态 | Status
-
-已实现 / Done
-
----
-
-### US-08 关注关系 / Follow relationships
-
-**As a** 终端用户 / End User  
-**I want** 关注/取关其他用户并查看粉丝列表 / Attention/Close other users and view the fan list  
-**So that** 我可以建立社交关系 / I can build social relationships.
+**As a** 终端用户 / End user  
+**I want** 对帖子点赞、收藏并发表看法 / to like, save, and comment on posts  
+**So that** 我能与内容建立互动 / I can engage with content meaningfully
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 关注后出现在关注列表 / Watch Behind Focus List  
-   **GIVEN** 用户已登录并打开他人主页 / User login and open another homepage  
-   **WHEN** 用户关注该用户 / User Focus on User  
-   **THEN** 关注状态变为已关注 / The state of concern becomes one.  
-   **AND** 可在关注列表中看到对方 / You can see each other in the focus list  
+1. **Scenario** 点赞后状态与计数更新 / Like state and count update after tapping like  
+   **GIVEN** 用户已登录并打开一条帖子 / the user is signed in and viewing a post  
+   **WHEN** 用户点赞该帖子 / they like the post  
+   **THEN** 点赞状态与计数对用户显示为已更新 / like state and count visibly update for the user  
+
+2. **Scenario** 发表评论后出现在列表 / Submitted comment appears in the list  
+   **GIVEN** 用户已登录并打开评论入口 / the user is signed in and opens comments  
+   **WHEN** 用户提交一条评论 / they submit a comment  
+   **THEN** 评论出现在评论列表中 / the comment appears in the comment list  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E6 音视频通话 / Audio and video calls
+### US-08 关注与粉丝关系 / Follow and follower relationships
+
+**As a** 终端用户 / End user  
+**I want** 关注或取关他人并查看粉丝列表 / to follow or unfollow others and view follower lists  
+**So that** 我能建立并管理社交关系 / I can build and manage my social graph
+
+#### 验收标准 | Acceptance Criteria
+
+1. **Scenario** 关注后状态更新并出现在关注列表 / Follow updates status and appears in following list  
+   **GIVEN** 用户已登录并打开他人主页 / the user is signed in on another user’s profile  
+   **WHEN** 用户关注对方 / they follow that user  
+   **THEN** 关注状态显示为已关注 / follow status shows as following  
+   **AND** 对方出现在用户的关注列表中 / that user appears in the following list  
+
+#### 状态 | Status
+
+已交付 / Delivered
+
+---
+
+
+## E6 语音与视频通话 / Voice and video calling
 
 ### 背景 | Background
 
-用户须在应用内发起 WebRTC 音视频通话。 / User must initiate in application WebRTC Audio and video calls.
+用户需要在应用内与联系人进行实时语音或视频交流。来电不可达或接通失败会中断重要沟通。我们希望在网络可用时提供可感知的来电与通话体验。 / Users need in-app voice and video with contacts. Missed calls or failed connects break important conversations. We want reliable call signaling and media when the network allows.
 
-### US-09 音视频通话 / Audio and video calls
+### US-09 发起音视频通话 / Start a voice or video call
 
-**As a** 终端用户 / End User  
-**I want** 发起 WebRTC 音视频通话 / Start WebRTC Audio and video calls  
-**So that** 我可以进行实时语音或视频交流 / I can communicate live voice or video.
+**As a** 终端用户 / End user  
+**I want** 向联系人发起语音或视频通话 / to start a voice or video call with a contact  
+**So that** 我能进行实时语音或视频交流 / I can talk face-to-face or by voice in real time
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 发起通话信令可达 / Start the call.  
-   **GIVEN** 双方已登录且网络可用 / Both parties are logged in and the network is available  
-   **WHEN** 用户向联系人发起通话 / User to Contact  
-   **THEN** 对方收到来电或信令提示 / The other side received a call or a message.  
-   **AND** 接通后可建立媒体会话（依赖 TURN/STUN 可达） / Connect to create a media session (dependent) TURN/STUN reachable)  
+1. **Scenario** 对方收到来电并可接通 / Contact receives the call and can connect  
+   **GIVEN** 双方已登录且网络可用 / both parties are signed in and the network is available  
+   **WHEN** 用户向联系人发起通话 / one user starts a call to a contact  
+   **THEN** 对方收到来电或振铃提示 / the contact receives an incoming call or ring alert  
+   **AND** 接听后可建立双向音视频会话 / after answering, a two-way audio/video session is established when relay allows  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E7 管理后台 / Manage backstage
+
+## E7 平台运营管理 / Platform administration
 
 ### 背景 | Background
 
-管理员须运营用户与内容安全相关配置。 / Admins must operate user-related configurations for content security.
+平台运营需要管理用户与内容安全相关设置，以控制风险与合规。缺少统一后台会增加响应时间与治理成本。我们需要可访问的管理入口完成基础运营操作。 / Operators must manage users and content-safety settings to control risk. Without a unified admin surface, response time and governance cost rise. We need accessible admin entry points for core operations.
 
-### US-10 管理后台 / Manage backstage
+### US-10 使用管理后台运营平台 / Operate the platform from the admin console
 
 **As a** 管理员 / Admin  
-**I want** 管理用户与内容安全相关配置 / Manage user-related content security configurations  
-**So that** 我可以运营平台 / I can run the platform.
+**I want** 在管理后台处理用户与内容安全相关配置 / to manage user and content-safety settings in the admin console  
+**So that** 我能持续、可控地运营平台 / I can run the platform in a controlled, ongoing way
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 管理员进入后台完成基础运营操作 / The Admin goes backstage and finishes basic operations.  
-   **GIVEN** 用户具备管理员权限并已登录 / User with Admin privacy and login  
-   **WHEN** 用户打开管理后台 / User Opens Management Backstage  
-   **THEN** 可访问用户或内容安全相关管理入口并完成允许的操作 / Access to user or content security-related management portals and permitted operations  
+1. **Scenario** 管理员完成允许的基础运营操作 / Admin completes permitted core operations  
+   **GIVEN** 用户具备管理员权限并已登录 / a user with admin privileges is signed in  
+   **WHEN** 用户打开管理后台 / they open the admin console  
+   **THEN** 可访问用户与内容安全相关入口并完成允许的操作 / they reach user and content-safety areas and complete permitted actions  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E8 Explore AI BFF
+
+## E8 应用内 AI 助手 / In-app AI assistant
 
 ### 背景 | Background
 
-Chat 经 Spring BFF 代理 Explore AI，禁止浏览器直连上游并暴露服务凭证。对标 Agentforce Service Agent：消息页可 Ask Agent。 / Chat Spring BFF Explore AI, credential . Agentforce Service Agent: can Ask Agent.
+用户希望在消息场景中使用 AI 助手，但不应在浏览器中暴露上游服务凭证。直连上游会增加泄露风险并违背安全预期。我们需要经 Chat 后端安全转发的 Explore AI 能力。 / Users want AI help in messaging without exposing upstream credentials in the browser. Direct upstream access raises leakage risk. We need Explore AI capabilities proxied securely through the Chat backend.
 
-### US-11 经 BFF 使用 Explore AI / Via BFF Use Explore AI
+### US-11 通过 Chat 安全使用 Explore AI / Use Explore AI securely through Chat
 
-**As a** 终端用户 / End User  
-**I want** 通过 Chat 后端使用 Explore AI 能力 / via Chat Backend Use Explore AI Capacity  
-**So that** 我无需也不应直接暴露上游 AI 服务凭证 / I don't have to and shouldn't be exposed directly up there. AI Service credentials
+**As a** 终端用户 / End user  
+**I want** 在应用内使用 Explore AI 能力（如询问助手） / to use Explore AI capabilities in the app (for example, ask an agent)  
+**So that** 我无需接触也不应看到上游 AI 服务凭证 / I neither need nor should see upstream AI service credentials
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 客户端只调用 Chat API / Client calls only Chat API  
-   **GIVEN** Explore AI BFF 已配置 `EXPLORE_AI_BASE_URL` 与 `EXPLORE_AI_SERVICE_KEY` / Explore AI BFF Configured `EXPLORE_AI_BASE_URL` and `EXPLORE_AI_SERVICE_KEY`  
-   **WHEN** 用户触发经 BFF 暴露的 AI 能力 / User Trigger BFF It's exposed. AI Capacity  
-   **THEN** 浏览器请求指向 Chat API（`/api/v1/ai/explore/*`） / Browser Request Orientation Chat API(`/api/v1/ai/explore/*`)  
-   **AND** 上游服务密钥不出现在客户端 / Upstream service keys do not appear on the client  
+1. **Scenario** 客户端仅请求 Chat 后端 / Client only calls the Chat backend  
+   **GIVEN** Chat 后端已配置与 Explore AI 的安全连接 / the Chat backend is configured for secure Explore AI access  
+   **WHEN** 用户触发应用内的 AI 能力 / the user triggers an in-app AI feature  
+   **THEN** 浏览器请求发往 Chat 提供的 AI 接口 / browser requests go to Chat-hosted AI endpoints  
+   **AND** 上游服务密钥不出现在客户端 / upstream service keys do not appear on the client  
 
-2. **Scenario** Gallery list + invoke  
-   **GIVEN** 同上且用户已登录 / Same as above and user login  
-   **WHEN** 调用 `GET /api/v1/ai/explore/agents` 与 `POST /api/v1/ai/explore/agents/{type}/invoke` / Call `GET /api/v1/ai/explore/agents` and `POST /api/v1/ai/explore/agents/{type}/invoke`  
-   **THEN** Chat 以 `X-Service-Key` + `X-Client-Id` 转发 Explore AI 并返回 JSON / Chat Here. `X-Service-Key` + `X-Client-Id` Forward Explore AI And back JSON  
-   **AND** 未配置 service key 时返回 503 / Not configured service key returns 503  
+2. **Scenario** 列出并调用 Gallery 助手 / List and invoke Gallery assistants  
+   **GIVEN** 同上且用户已登录 / the same as above and the user is signed in  
+   **WHEN** 用户查看助手列表或向某类助手提问 / the user lists assistants or invokes one by type  
+   **THEN** Chat 代为转发 Explore AI 并返回结构化回复 / Chat proxies Explore AI and returns a structured response  
+   **AND** 未配置服务密钥时用户看到服务不可用提示 / if service keys are missing, the user sees a clear unavailable response  
 
 #### 状态 | Status
 
-已实现 / Done
+已交付 / Delivered
 
 ---
 
-## E9 平台与未来 / Platform and future
+
+## E9 平台演进与可靠性 / Platform evolution and reliability
 
 ### 背景 | Background
 
-平台可靠性、媒体持久化、推荐审核与多设备同步仍在进行或规划中。 / Platform reliability, media continuity, recommendation for review and multi-equipment synchronization ongoing or planned Medium.
+生产可用性、媒体持久化、推荐审核与多设备同步仍在建设或规划中。可靠性不足会导致内容丢失与体验断层。我们需要可运维的部署、持久媒体与面向未来的发现与同步能力。 / Production reliability, durable media, moderation, and multi-device sync are still maturing. Gaps cause lost content and broken experiences. We need operable deployment, persistent media, and roadmap discovery and sync.
 
-### US-12 生产部署 / Production deployment
+### US-12 生产环境稳定部署 / Stable production deployment
 
 **As a** 开发者 / Developer  
-**I want** 将 Nest API 与托管 Postgres/Redis 部署到云平台 / Will Nest API With hosting Postgres/Redis Deployed to cloud platforms  
-**So that** 预发/生产环境可稳定访问 / Advance/Stable access to the production environment
+**I want** 将 API 与托管数据库、缓存部署到云平台 / to deploy the API with managed database and cache to a cloud platform  
+**So that** 预发与生产环境可被稳定访问与运维 / staging and production can be accessed and operated reliably
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 生产拓扑可访问健康检查 / Production scale-up to access health check-ups  
-   **GIVEN** API 已部署到目标平台且数据库与 Redis 已配置 / API Deployed to target platform and database Redis Configured  
-   **WHEN** 运维访问健康检查端点 / Movement access health check point  
-   **THEN** 返回健康状态且服务可对外提供 API / Return to health and services are available externally API  
+1. **Scenario** 健康检查表明服务对外可用 / Health check shows the service is externally available  
+   **GIVEN** API 已部署到目标平台且数据库与缓存已配置 / the API is deployed with database and cache configured  
+   **WHEN** 运维访问健康检查端点 / operations hits the health check endpoint  
+   **THEN** 返回健康状态且对外 API 可正常提供 / it reports healthy and the public API is reachable  
 
 #### 状态 | Status
 
-进行中 / In Progress
+进行中 / In progress
 
 ---
 
-### US-13 对象存储媒体 / Object Storage Media
+### US-13 发帖媒体持久可访问 / Posted media stays accessible
 
-**As a** 终端用户 / End User  
-**I want** 上传的媒体在重启后仍可访问 / Uploaded media are still accessible after restart  
-**So that** 帖子媒体不因临时磁盘而丢失 / The post is not lost on a temporary disk.
+**As a** 终端用户 / End user  
+**I want** 我上传的媒体在系统重启后仍可访问 / uploaded media remain accessible after system restarts  
+**So that** 帖子内容不会因临时存储而丢失 / post content is not lost because of ephemeral storage
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 重启后媒体 URL 仍可用 / Media after Restart URL Still available  
-   **GIVEN** 用户已上传媒体并成功发帖 / User uploaded media and successfully posted  
-   **WHEN** API 进程或实例重启 / API Process or instance restart  
-   **THEN** 原媒体 URL 仍可访问（对象存储或等效持久化） / Original media URL Still accessible (object storage or endurance))  
+1. **Scenario** 重启后原媒体链接仍可用 / Original media links work after restart  
+   **GIVEN** 用户已上传媒体并成功发帖 / the user uploaded media and published a post  
+   **WHEN** API 服务或实例发生重启 / the API service or instance restarts  
+   **THEN** 原媒体地址仍可正常打开（持久对象存储或等效方案） / the original media URL still loads via durable object storage or equivalent  
 
 #### 状态 | Status
 
-进行中 / In Progress
+进行中 / In progress
 
 ---
 
-### US-14 完整推荐与审核 / Full recommendation and review
+### US-14 更相关的探索与可靠审核 / More relevant Explore and reliable moderation
 
-**As a** 终端用户 / End User  
-**I want** 更个性化的探索排序与可靠内容审核 / More personalized sequencing of exploration and reliable content review Nuclear  
-**So that** 发现体验更安全、更相关 / Finding experience safer and more relevant
+**As a** 终端用户 / End user  
+**I want** 在探索中看到更个性化的排序并获得可靠的内容审核 / to see more personalized Explore ordering with reliable content moderation  
+**So that** 发现体验更安全、更贴合兴趣 / discovery feels safer and more relevant to my interests
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 探索排序与审核可感知 / Explore Sorting and Audit Visibility  
-   **GIVEN** 推荐与审核链路已启用 / The referral and audit link is active  
-   **WHEN** 用户浏览探索或发帖 / User Browse Explore or Poster  
-   **THEN** 排序结果反映个性化/热度策略 / Sorting results reflect individualisation/Thermal Policy  
-   **AND** 违规内容按策略被拦截或标记 / The content of the violation is stopped or marked strategically  
+1. **Scenario** 探索排序与违规处理可感知 / Explore ranking and policy enforcement are perceptible  
+   **GIVEN** 推荐与审核能力已启用 / recommendation and moderation capabilities are enabled  
+   **WHEN** 用户浏览探索或发布内容 / the user browses Explore or publishes content  
+   **THEN** 排序结果体现个性化或热度策略 / ranking reflects personalization or popularity strategy  
+   **AND** 违规内容按策略被拦截或标记 / policy-violating content is blocked or flagged per policy  
 
 #### 状态 | Status
 
@@ -460,18 +469,18 @@ Chat 经 Spring BFF 代理 Explore AI，禁止浏览器直连上游并暴露服�
 
 ---
 
-### US-15 离线与多设备同步 / Synchronize offline with multiple devices
+### US-15 弱网与多设备消息同步 / Message sync on weak networks and multiple devices
 
-**As a** 移动端用户 / mobile user  
-**I want** 弱网下可靠收发消息 / Credible incoming and outgoing messages from the weak web  
-**So that** 通讯体验接近主流 IM / Communication experience close to the mainstream IM
+**As a** 移动端用户 / Mobile user  
+**I want** 在弱网环境下仍能可靠收发消息 / to send and receive messages reliably on poor networks  
+**So that** 通讯体验接近主流即时通讯应用 / messaging feels close to mainstream IM apps
 
 #### 验收标准 | Acceptance Criteria
 
-1. **Scenario** 弱网恢复后消息可达 / Weak web is back on the line.  
-   **GIVEN** 用户曾短暂离线并发送或接收消息 / User has briefly offline and sent or received messages  
-   **WHEN** 网络恢复 / Network Restoration  
-   **THEN** 消息最终一致地出现在会话中 / The message eventually appeared in the conversation.  
+1. **Scenario** 网络恢复后消息最终一致出现 / Messages appear consistently after network returns  
+   **GIVEN** 用户曾短暂离线并尝试收发消息 / the user was briefly offline and attempted to send or receive messages  
+   **WHEN** 网络恢复 / connectivity is restored  
+   **THEN** 消息最终出现在会话中且顺序一致 / messages eventually appear in the conversation with consistent ordering  
 
 #### 状态 | Status
 
